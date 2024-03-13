@@ -114,7 +114,7 @@ def reformat_all(in_dir, out_dir):
         for var in ("contacts", "probes", "channels"):
             var_metadata = metadata[var]
             var_metadata = drop_false_keys(var_metadata)
-            var_metadata_file_path = os.path.join(out_dir, subject_id, session_id, "ephys", var + ".tsv")
+            var_metadata_file_path = os.path.join(out_dir, subject_id, session_id, "ephys", subject_id + var + ".tsv")
             write_tsv(var_metadata, var_metadata_file_path)
 
         bids_path = f"{out_dir}/{metadata['subject']['subject_id']}/{metadata['session']['session_id']}/ephys/{metadata['subject']['subject_id']}_{metadata['session']['session_id']}_ephys.nwb"
