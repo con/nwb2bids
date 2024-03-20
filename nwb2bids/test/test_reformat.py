@@ -17,4 +17,4 @@ def test_reformat_all(nwb_testdata, tmp_path):
          assert files == []
       if root == os.path.join(tmp_path, 'sub-1234', 'ses-20240309', 'ephys'):
          assert dirs == []
-         assert files == ['contacts.tsv', 'sub-1234_ses-20240309_ephys.nwb', 'probes.tsv', 'channels.tsv']
+         assert files == ['sub-1234contacts.tsv', 'sub-1234channels.tsv', 'sub-1234_ses-20240309_ephys.nwb', 'sub-1234probes.tsv']
