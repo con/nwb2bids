@@ -208,7 +208,7 @@ def drop_false_keys(list_of_dict):
 
 def write_tsv(list_of_dict, file_path):
     """
-    Write a list of dictionaries to a tsv file using all keys as colums.
+    Write a list of dictionaries to a tsv file using all keys as columns.
 
     Notes
     -----
