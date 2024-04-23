@@ -1,6 +1,6 @@
 from pynwb import NWBHDF5IO
 from pynwb.ecephys import ElectricalSeries
-from glob import glob
+from pathlib import Path
 import os
 import csv
 import json
@@ -13,14 +13,12 @@ def reposit(in_dir, out_dir):
 
     all_metadata = {}
     nwb_files = []
-    for nwb_file in os.listdir(in_dir):
-        if not nwb_file[-4:] in [".NWB", ".nwb"]:
-            continue
-        else:
-             nwb_file = os.path.join(in_dir, nwb_file)
-             nwb_files.append(nwb_file)
-             metadata = extract_metadata(nwb_file)
-             all_metadata[nwb_file] = extract_metadata(nwb_file)
+
+    nwb_files = list(Path(in_dir).rglob("*.[nN][wW][bB]"))
+
+    for nwb_file in nwb_files:
+        metadata = extract_metadata(nwb_file)
+        all_metadata[nwb_file] = extract_metadata(nwb_file)
 
     os.makedirs(out_dir, exist_ok=True)
 
@@ -101,7 +99,7 @@ def reposit(in_dir, out_dir):
             with open(os.path.join(out_dir, subject_id, "sessions.json"), "w") as json_file:
                 json.dump(sessions_json, json_file, indent=4)
 
-   # contacts, probes, and channels
+    #contacts, probes, and channels
 
     for metadata in all_metadata.values():
         session_id = metadata["session"]["session_id"]
