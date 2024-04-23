@@ -1,9 +1,9 @@
-from nwb2bids import reformat
+from nwb2bids import base
 import os
 
-def test_reformat_all(nwb_testdata, tmp_path):
+def test_reposit(nwb_testdata, tmp_path):
    nwb_testdir = os.path.dirname(nwb_testdata)
-   reformat.reformat_all(nwb_testdir, tmp_path)
+   base.reposit(nwb_testdir, tmp_path)
    # This should be done by invoking the validator once BEP032 is in the BIDS schema:
    for root, dirs, files in os.walk(tmp_path):
       if root == tmp_path:

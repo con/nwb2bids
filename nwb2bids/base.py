@@ -6,7 +6,7 @@ import csv
 import json
 import shutil
 
-def reformat_all(in_dir, out_dir):
+def reposit(in_dir, out_dir):
 
     in_dir = os.path.abspath(os.path.expanduser(in_dir))
     out_dir = os.path.abspath(os.path.expanduser(out_dir))
