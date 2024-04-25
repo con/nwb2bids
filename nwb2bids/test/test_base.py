@@ -17,4 +17,9 @@ def test_reposit(nwb_testdata, tmp_path):
          assert files == []
       if root == os.path.join(tmp_path, 'sub-1234', 'ses-20240309', 'ephys'):
          assert dirs == []
-         assert set(files) == set(['sub-1234contacts.tsv', 'sub-1234channels.tsv', 'sub-1234_ses-20240309_ephys.nwb', 'sub-1234probes.tsv'])
+         assert set(files) == set([
+            'sub-1234_contacts.tsv',
+            'sub-1234_channels.tsv',
+            'sub-1234_probes.tsv',
+            'sub-1234_ses-20240309_ephys.nwb',
+            ])
