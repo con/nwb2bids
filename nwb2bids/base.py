@@ -127,7 +127,7 @@ def reposit(in_dir, out_dir):
               "ephys",
               f"{metadata['subject']['subject_id']}_{metadata['session']['session_id']}_ephys.nwb"
               )
-        shutil.copyfile(nwb_file, bids_path_)
+        shutil.copyfile(nwb_file, bids_path)
 
 
 
