@@ -80,52 +80,61 @@ def reposit(in_dir, out_dir):
     }
 
     for subject in subjects:
-        subject_id = subject["subject_id"]
+        subject_keyvalue = subject["subject_keyvalue"]
 
-        os.makedirs(os.path.join(out_dir, subject_id), exist_ok=True)
+        os.makedirs(os.path.join(out_dir, subject_keyvalue), exist_ok=True)
 
         for metadata in all_metadata.values():
             sessions = [
                 x["session"] for x in all_metadata.values() if
-                x["subject"]["subject_id"] == subject_id
+                x["subject"]["subject_keyvalue"] == subject_keyvalue
             ]
 
             sessions = drop_false_keys(sessions)
 
-            sessions_file_path = os.path.join(out_dir, subject_id, "sessions.tsv")
+            sessions_file_path = os.path.join(out_dir, subject_keyvalue, "sessions.tsv")
             sessions_keys = write_tsv(sessions, sessions_file_path)
             sessions_json = {k: v for k, v in default_session_json.items() if k in sessions_keys}
 
-            with open(os.path.join(out_dir, subject_id, "sessions.json"), "w") as json_file:
+            with open(os.path.join(out_dir, subject_keyvalue, "sessions.json"), "w") as json_file:
                 json.dump(sessions_json, json_file, indent=4)
 
     #contacts, probes, and channels
 
     for metadata in all_metadata.values():
-        session_id = metadata["session"]["session_id"]
-        subject_id = metadata["subject"]["subject_id"]
+        subject_keyvalue = metadata["subject"]["subject_keyvalue"]
+        session_keyvalue = metadata["session"]["session_keyvalue"]
+        print(subject_keyvalue, session_keyvalue)
 
-        os.makedirs(os.path.join(out_dir, subject_id, session_id), exist_ok=True)
-       # Ephys might need to be dynamically selected, nwb can also be ieeg.
-        os.makedirs(os.path.join(out_dir, subject_id, session_id, "ephys"), exist_ok=True)
+        if session_keyvalue:
+            os.makedirs(os.path.join(out_dir, subject_keyvalue, session_keyvalue), exist_ok=True)
+        else:
+            os.makedirs(os.path.join(out_dir, subject_keyvalue), exist_ok=True)
+        # Ephys might need to be dynamically selected, nwb can also be ieeg.
+        os.makedirs(os.path.join(out_dir, subject_keyvalue, session_keyvalue, "ephys"), exist_ok=True)
 
         for var in ("contacts", "probes", "channels"):
             var_metadata = metadata[var]
             var_metadata = drop_false_keys(var_metadata)
             var_metadata_file_path = os.path.join(
                   out_dir,
-                  subject_id,
-                  session_id,
+                  subject_keyvalue,
+                  session_keyvalue,
                   "ephys",
-                  f"{subject_id}_{var}.tsv")
+                  f"{subject_keyvalue}_{var}.tsv")
             write_tsv(var_metadata, var_metadata_file_path)
+
+        bids_path = os.path.join(out_dir, subject_keyvalue)
+        if metadata['session']['session_keyvalue']:
+            bids_path = os.path.join(bids_path, session_keyvalue)
+        bids_path = os.path.join(out_dir, subject_keyvalue)
 
         bids_path = os.path.join(
               out_dir,
-              metadata['subject']['subject_id'],
-              metadata['session']['session_id'],
+              metadata['subject']['subject_keyvalue'],
+              metadata['session']['session_keyvalue'],
               "ephys",
-              f"{metadata['subject']['subject_id']}_{metadata['session']['session_id']}_ephys.nwb"
+              f"{metadata['subject']['subject_keyvalue']}_{metadata['session']['session_keyvalue']}_ephys.nwb"
               )
         shutil.copyfile(nwb_file, bids_path)
 
@@ -158,7 +167,7 @@ def extract_metadata(filepath: str) -> dict:
                 "InstitutionName": nwbfile.institution,
             },
             "subject": {
-                "subject_id": "sub-" + subject.subject_id,
+                "subject_keyvalue": "sub-" + subject.subject_id,
                 "species": subject.species,
                 "strain": subject.strain,
                 "birthday": subject.date_of_birth,
@@ -166,7 +175,7 @@ def extract_metadata(filepath: str) -> dict:
                 "sex": subject.sex,
             },
             "session": {
-                "session_id": "ses-" + nwbfile.session_id,
+                "session_keyvalue": "ses-" + nwbfile.session_id if nwbfile.session_id else "",
                 "number_of_trials": len(nwbfile.trials) if nwbfile.trials else None,
                 "comments": nwbfile.session_description,
             },
