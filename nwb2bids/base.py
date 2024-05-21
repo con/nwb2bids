@@ -6,7 +6,7 @@ import csv
 import json
 import shutil
 
-def reposit(in_dir, out_dir):
+def reposit(in_dir, out_dir, no_copy=False):
 
     in_dir = os.path.abspath(os.path.expanduser(in_dir))
     out_dir = os.path.abspath(os.path.expanduser(out_dir))
@@ -23,7 +23,7 @@ def reposit(in_dir, out_dir):
     os.makedirs(out_dir, exist_ok=True)
 
     subjects = unique_list_of_dicts(
-         [x["subject"] for x in all_metadata.values()]
+        [x["subject"] for x in all_metadata.values()]
     )
 
     subjects = drop_false_keys(subjects)
@@ -136,7 +136,10 @@ def reposit(in_dir, out_dir):
               "ephys",
               f"{metadata['subject']['subject_keyvalue']}_{metadata['session']['session_keyvalue']}_ephys.nwb"
               )
-        shutil.copyfile(nwb_file, bids_path)
+        if no_copy:
+            open(bids_path, 'a').close()
+        else:
+            shutil.copyfile(nwb_file, bids_path)
 
 
 
