@@ -6,7 +6,8 @@ import csv
 import json
 import shutil
 
-def reposit(in_dir, out_dir, no_copy=False):
+# The star is required by clize to know to typeset it as `--no-copy` instead of `no-copy`.
+def reposit(in_dir, out_dir, *, no_copy=False):
 
     in_dir = os.path.abspath(os.path.expanduser(in_dir))
     out_dir = os.path.abspath(os.path.expanduser(out_dir))
