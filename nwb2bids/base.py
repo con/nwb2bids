@@ -5,6 +5,7 @@ import os
 import csv
 import json
 import shutil
+import re
 
 # The star is required by clize to know to typeset it as `--no-copy` instead of `no-copy`.
 def reposit(in_dir, out_dir, *, no_copy=False):
@@ -143,6 +144,10 @@ def reposit(in_dir, out_dir, *, no_copy=False):
             shutil.copyfile(nwb_file, bids_path)
 
 
+def sanitize_bids_value(in_string, pattern=r"[^a-zA-Z0-9]", replacement="X"):
+    out_string = re.sub(in_string, pattern, replacement)
+    return out_string
+
 
 def extract_metadata(filepath: str) -> dict:
 
@@ -171,7 +176,7 @@ def extract_metadata(filepath: str) -> dict:
                 "InstitutionName": nwbfile.institution,
             },
             "subject": {
-                "subject_keyvalue": "sub-" + subject.subject_id,
+                "subject_keyvalue": "sub-" + sanitize_bids_value(subject.subject_id),
                 "species": subject.species,
                 "strain": subject.strain,
                 "birthday": subject.date_of_birth,
@@ -179,7 +184,7 @@ def extract_metadata(filepath: str) -> dict:
                 "sex": subject.sex,
             },
             "session": {
-                "session_keyvalue": "ses-" + nwbfile.session_id if nwbfile.session_id else "",
+                "session_keyvalue": "ses-" + sanitize_bids_value(nwbfile.session_id) if nwbfile.session_id else "",
                 "number_of_trials": len(nwbfile.trials) if nwbfile.trials else None,
                 "comments": nwbfile.session_description,
             },

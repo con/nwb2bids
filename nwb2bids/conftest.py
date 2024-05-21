@@ -21,7 +21,7 @@ def nwb_testdata(
     nwbfile.add_acquisition(time_series)
 
     subject = Subject(
-        subject_id="1234",
+        subject_id="12_34",
         sex="male",
         )
     nwbfile.subject = subject
