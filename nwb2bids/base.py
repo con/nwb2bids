@@ -145,7 +145,7 @@ def reposit(in_dir, out_dir, *, no_copy=False):
 
 
 def sanitize_bids_value(in_string, pattern=r"[^a-zA-Z0-9]", replacement="X"):
-    out_string = re.sub(in_string, pattern, replacement)
+    out_string = re.sub(pattern, replacement, in_string)
     return out_string
 
 
