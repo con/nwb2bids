@@ -143,7 +143,6 @@ def reposit(
         participant_id = metadata["subject"]["participant_id"]
         session_id = metadata["session"]["session_id"]
         print(participant_id, session_id)
-
         if session_id:
             os.makedirs(
                 os.path.join(out_dir, participant_id, session_id), exist_ok=True
