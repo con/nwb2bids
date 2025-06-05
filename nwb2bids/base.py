@@ -14,7 +14,8 @@ def reposit(
     out_dir,
     *,
     no_copy=False,
-    additional_metadata_file_path: str | Path | None = None,
+    # additional_metadata_file_path: str | Path | None = None,
+    additional_metadata_file_path=None,  # clize complains about the most basic annotations...
 ):
 
     in_dir = os.path.abspath(os.path.expanduser(in_dir))
@@ -39,7 +40,7 @@ def reposit(
     # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
     dataset_description = additional_metadata["dataset_description"]
     dataset_description_file_path = os.path.join(out_dir, "dataset_description.json")
-    with open(file=dataset_description_file_path, mode="r") as file_stream:
+    with open(file=dataset_description_file_path, mode="w") as file_stream:
         json.dump(obj=dataset_description, fp=file_stream)
 
     # Fields within NWB files
