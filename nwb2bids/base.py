@@ -7,6 +7,7 @@ import json
 import shutil
 import re
 
+
 # The star is required by clize to know to typeset it as `--no-copy` instead of `no-copy`.
 def reposit(in_dir, out_dir, *, no_copy=False):
 
@@ -24,9 +25,7 @@ def reposit(in_dir, out_dir, *, no_copy=False):
 
     os.makedirs(out_dir, exist_ok=True)
 
-    subjects = unique_list_of_dicts(
-        [x["subject"] for x in all_metadata.values()]
-    )
+    subjects = unique_list_of_dicts([x["subject"] for x in all_metadata.values()])
 
     subjects = drop_false_keys(subjects)
 
@@ -38,17 +37,23 @@ def reposit(in_dir, out_dir, *, no_copy=False):
         "subject_id": {"Description": "Unique identifier of the subject"},
         "species": {"Description": "The binomial species name from the NCBI Taxonomy"},
         "strain": {"Description": "Identifier of the strain"},
-        "birthdate": {"Description": "Day of birth of the participant in ISO8601 format"},
-        "age": {"Description": "Age of the participant at time of recording", "Units": "days"},
+        "birthdate": {
+            "Description": "Day of birth of the participant in ISO8601 format"
+        },
+        "age": {
+            "Description": "Age of the participant at time of recording",
+            "Units": "days",
+        },
         "sex": {"Description": "Sex of participant"},
     }
 
-    subjects_json = {k: v for k, v in default_subjects_json.items() if k in subjects_keys}
+    subjects_json = {
+        k: v for k, v in default_subjects_json.items() if k in subjects_keys
+    }
     with open(os.path.join(out_dir, "participants.json"), "w") as json_file:
         json.dump(subjects_json, json_file, indent=4)
 
-
-   # sessions
+    # sessions
 
     default_session_json = {
         "session_quality": {
@@ -59,7 +64,7 @@ def reposit(in_dir, out_dir, *, no_copy=False):
                 "ok": "Ok quality, can be considered for further analysis with care",
                 "good": "Good quality, should be used for analysis",
                 "Excellent": "Excellent quality, extraordinarily good session",
-            }
+            },
         },
         "data_quality": {
             "LongName": "Quality of the recorded signals",
@@ -88,20 +93,25 @@ def reposit(in_dir, out_dir, *, no_copy=False):
 
         for metadata in all_metadata.values():
             sessions = [
-                x["session"] for x in all_metadata.values() if
-                x["subject"]["subject_keyvalue"] == subject_keyvalue
+                x["session"]
+                for x in all_metadata.values()
+                if x["subject"]["subject_keyvalue"] == subject_keyvalue
             ]
 
             sessions = drop_false_keys(sessions)
 
             sessions_file_path = os.path.join(out_dir, subject_keyvalue, "sessions.tsv")
             sessions_keys = write_tsv(sessions, sessions_file_path)
-            sessions_json = {k: v for k, v in default_session_json.items() if k in sessions_keys}
+            sessions_json = {
+                k: v for k, v in default_session_json.items() if k in sessions_keys
+            }
 
-            with open(os.path.join(out_dir, subject_keyvalue, "sessions.json"), "w") as json_file:
+            with open(
+                os.path.join(out_dir, subject_keyvalue, "sessions.json"), "w"
+            ) as json_file:
                 json.dump(sessions_json, json_file, indent=4)
 
-    #contacts, probes, and channels
+    # contacts, probes, and channels
 
     for metadata in all_metadata.values():
         subject_keyvalue = metadata["subject"]["subject_keyvalue"]
@@ -109,37 +119,43 @@ def reposit(in_dir, out_dir, *, no_copy=False):
         print(subject_keyvalue, session_keyvalue)
 
         if session_keyvalue:
-            os.makedirs(os.path.join(out_dir, subject_keyvalue, session_keyvalue), exist_ok=True)
+            os.makedirs(
+                os.path.join(out_dir, subject_keyvalue, session_keyvalue), exist_ok=True
+            )
         else:
             os.makedirs(os.path.join(out_dir, subject_keyvalue), exist_ok=True)
         # Ephys might need to be dynamically selected, nwb can also be ieeg.
-        os.makedirs(os.path.join(out_dir, subject_keyvalue, session_keyvalue, "ephys"), exist_ok=True)
+        os.makedirs(
+            os.path.join(out_dir, subject_keyvalue, session_keyvalue, "ephys"),
+            exist_ok=True,
+        )
 
         for var in ("contacts", "probes", "channels"):
             var_metadata = metadata[var]
             var_metadata = drop_false_keys(var_metadata)
             var_metadata_file_path = os.path.join(
-                  out_dir,
-                  subject_keyvalue,
-                  session_keyvalue,
-                  "ephys",
-                  f"{subject_keyvalue}_{var}.tsv")
+                out_dir,
+                subject_keyvalue,
+                session_keyvalue,
+                "ephys",
+                f"{subject_keyvalue}_{var}.tsv",
+            )
             write_tsv(var_metadata, var_metadata_file_path)
 
         bids_path = os.path.join(out_dir, subject_keyvalue)
-        if metadata['session']['session_keyvalue']:
+        if metadata["session"]["session_keyvalue"]:
             bids_path = os.path.join(bids_path, session_keyvalue)
         bids_path = os.path.join(out_dir, subject_keyvalue)
 
         bids_path = os.path.join(
-              out_dir,
-              metadata['subject']['subject_keyvalue'],
-              metadata['session']['session_keyvalue'],
-              "ephys",
-              f"{metadata['subject']['subject_keyvalue']}_{metadata['session']['session_keyvalue']}_ephys.nwb"
-              )
+            out_dir,
+            metadata["subject"]["subject_keyvalue"],
+            metadata["session"]["session_keyvalue"],
+            "ephys",
+            f"{metadata['subject']['subject_keyvalue']}_{metadata['session']['session_keyvalue']}_ephys.nwb",
+        )
         if no_copy:
-            open(bids_path, 'a').close()
+            open(bids_path, "a").close()
         else:
             shutil.copyfile(nwb_file, bids_path)
 
@@ -165,11 +181,7 @@ def extract_metadata(filepath: str) -> dict:
             probes = []
             contacts = []
 
-
-        ess = [
-            x for x in nwbfile.objects.values()
-            if isinstance(x, ElectricalSeries)
-        ]
+        ess = [x for x in nwbfile.objects.values() if isinstance(x, ElectricalSeries)]
 
         metadata = {
             "general_ephys": {
@@ -184,7 +196,11 @@ def extract_metadata(filepath: str) -> dict:
                 "sex": subject.sex,
             },
             "session": {
-                "session_keyvalue": "ses-" + sanitize_bids_value(nwbfile.session_id) if nwbfile.session_id else "",
+                "session_keyvalue": (
+                    "ses-" + sanitize_bids_value(nwbfile.session_id)
+                    if nwbfile.session_id
+                    else ""
+                ),
                 "number_of_trials": len(nwbfile.trials) if nwbfile.trials else None,
                 "comments": nwbfile.session_description,
             },
@@ -201,8 +217,12 @@ def extract_metadata(filepath: str) -> dict:
                 {
                     "contact_id": contact.index[0],
                     "probe_id": contact.group.iloc[0].device.name,
-                    #TODO "impedance": contact["imp"].iloc[0] if contact["imp"].iloc[0] > 0 else None,
-                    "location": contact["location"].iloc[0] if contact["location"].iloc[0] not in ("unknown",) else None,
+                    # TODO "impedance": contact["imp"].iloc[0] if contact["imp"].iloc[0] > 0 else None,
+                    "location": (
+                        contact["location"].iloc[0]
+                        if contact["location"].iloc[0] not in ("unknown",)
+                        else None
+                    ),
                 }
                 for contact in contacts
             ],
@@ -216,9 +236,10 @@ def extract_metadata(filepath: str) -> dict:
                     "gain": ess[0].conversion,
                 }
                 for contact in contacts
-            ]
+            ],
         }
     return metadata
+
 
 def unique_list_of_dicts(data):
     # Convert to set of tuples
@@ -247,13 +268,11 @@ def write_tsv(list_of_dict, file_path):
         dict_writer = csv.DictWriter(
             f,
             keys,
-            delimiter='\t',
-            )
+            delimiter="\t",
+        )
         dict_writer.writeheader()
         dict_writer.writerows(list_of_dict)
     return keys
 
 
-
 # Actually copy the NWB files
-
