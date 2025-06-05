@@ -36,6 +36,7 @@ def reposit(
             additional_metadata = json.load(fp=file_stream)
 
     # Top-level fields (required for BIDS)
+    # TODO: Authors field in BIDS must not be Lastname, Firstname format apparently...
     # TODO: determine how many fields in this are required (such as DOI) vs. chicken and egg of upload to DANDI
     # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
     dataset_description = additional_metadata["dataset_description"]
@@ -57,9 +58,19 @@ def reposit(
     subjects = drop_false_keys(subjects)
 
     subjects_file_path = os.path.join(out_dir, "participants.tsv")
-    subjects_keys = write_tsv(subjects, subjects_file_path)
+    # BIDS validation enforces column order
+    # TODO: make keys dynamic based on availability
+    subject_fields = ["participant_id", "species", "strain", "sex"]
+    subject_header = "\t".join(subject_fields)
+    subject_lines = [f"{subject_header}\n"]
+    for subject in subjects:
+        line = "\t".join(subject[field] for field in subject_fields)
+        subject_lines.append(f"{line}\n")
+    # TODO: TSV writer below is hard to control header order - TSV is not hard to write directly, so just do it here...
+    with open(file=subjects_file_path, mode="w") as file_stream:
+        file_stream.writelines(subject_lines)
 
-    # create particiants JSON
+    # create participants JSON
     default_subjects_json = {
         "subject_id": {"Description": "Unique identifier of the subject"},
         "species": {"Description": "The binomial species name from the NCBI Taxonomy"},
@@ -75,7 +86,7 @@ def reposit(
     }
 
     subjects_json = {
-        k: v for k, v in default_subjects_json.items() if k in subjects_keys
+        k: v for k, v in default_subjects_json.items() if k in subject_fields
     }
     with open(os.path.join(out_dir, "participants.json"), "w") as json_file:
         json.dump(subjects_json, json_file, indent=4)
@@ -127,14 +138,19 @@ def reposit(
 
             sessions = drop_false_keys(sessions)
 
-            sessions_file_path = os.path.join(out_dir, participant_id, "sessions.tsv")
+            sessions_file_path = os.path.join(
+                out_dir, participant_id, f"{participant_id}_sessions.tsv"
+            )
             sessions_keys = write_tsv(sessions, sessions_file_path)
             sessions_json = {
                 k: v for k, v in default_session_json.items() if k in sessions_keys
             }
 
             with open(
-                os.path.join(out_dir, participant_id, "sessions.json"), "w"
+                os.path.join(
+                    out_dir, participant_id, f"{participant_id}_sessions.json"
+                ),
+                "w",
             ) as json_file:
                 json.dump(sessions_json, json_file, indent=4)
 
@@ -155,7 +171,9 @@ def reposit(
             os.path.join(out_dir, participant_id, session_id, "ephys"), exist_ok=True
         )
 
-        for var in ("contacts", "probes", "channels"):
+        # TODO: Temporary hack to get this to obey
+        metadata["channels__microephys"] = metadata["channels"]
+        for var in ("contacts", "probes", "channels__microephys"):
             var_metadata = metadata[var]
             var_metadata = drop_false_keys(var_metadata)
             var_metadata_file_path = os.path.join(
@@ -163,7 +181,7 @@ def reposit(
                 participant_id,
                 session_id,
                 "ephys",
-                f"{participant_id}_{var}.tsv",
+                f"{participant_id}_{session_id}_{var}.tsv",
             )
             write_tsv(var_metadata, var_metadata_file_path)
 
@@ -222,9 +240,7 @@ def extract_metadata(filepath: str) -> dict:
             },
             "session": {
                 "session_id": (
-                    "ses-" + sanitize_bids_value(nwbfile.session_id)
-                    if nwbfile.session_id
-                    else ""
+                    "ses-" + nwbfile.session_id if nwbfile.session_id else ""
                 ),
                 "number_of_trials": len(nwbfile.trials) if nwbfile.trials else None,
                 "comments": nwbfile.session_description,
