@@ -7,15 +7,42 @@ import json
 import shutil
 import re
 
+
 # The star is required by clize to know to typeset it as `--no-copy` instead of `no-copy`.
-def reposit(in_dir, out_dir, *, no_copy=False):
+def reposit(
+    in_dir,
+    out_dir,
+    *,
+    no_copy=False,
+    additional_metadata_file_path: str | Path | None = None,
+):
 
     in_dir = os.path.abspath(os.path.expanduser(in_dir))
     out_dir = os.path.abspath(os.path.expanduser(out_dir))
 
-    all_metadata = {}
-    nwb_files = []
+    if additional_metadata_file_path is not None:
+        additional_metadata_file_path = Path(additional_metadata_file_path)
+    elif (
+        secondary_path := Path(in_dir) / "additional_metadata.json"
+    ).exists():  # Try to find it in_dir
+        additional_metadata_file_path = secondary_path
 
+    all_metadata = {}
+    additional_metadata = {}
+    if additional_metadata_file_path is not None:
+        # TODO: add validation of additional metadata schema
+        with additional_metadata_file_path.open(mode="r") as file_stream:
+            additional_metadata = json.load(fp=file_stream)
+
+    # Top-level fields (required for BIDS)
+    # TODO: determine how many fields in this are required (such as DOI) vs. chicken and egg of upload to DANDI
+    # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
+    dataset_description = additional_metadata["dataset_description"]
+    dataset_description_file_path = os.path.join(out_dir, "dataset_description.json")
+    with open(file=dataset_description_file_path, mode="r") as file_stream:
+        json.dump(obj=dataset_description, fp=file_stream)
+
+    # Fields within NWB files
     nwb_files = list(Path(in_dir).rglob("*.[nN][wW][bB]"))
 
     for nwb_file in nwb_files:
@@ -24,9 +51,7 @@ def reposit(in_dir, out_dir, *, no_copy=False):
 
     os.makedirs(out_dir, exist_ok=True)
 
-    subjects = unique_list_of_dicts(
-        [x["subject"] for x in all_metadata.values()]
-    )
+    subjects = unique_list_of_dicts([x["subject"] for x in all_metadata.values()])
 
     subjects = drop_false_keys(subjects)
 
@@ -38,17 +63,23 @@ def reposit(in_dir, out_dir, *, no_copy=False):
         "subject_id": {"Description": "Unique identifier of the subject"},
         "species": {"Description": "The binomial species name from the NCBI Taxonomy"},
         "strain": {"Description": "Identifier of the strain"},
-        "birthdate": {"Description": "Day of birth of the participant in ISO8601 format"},
-        "age": {"Description": "Age of the participant at time of recording", "Units": "days"},
+        "birthdate": {
+            "Description": "Day of birth of the participant in ISO8601 format"
+        },
+        "age": {
+            "Description": "Age of the participant at time of recording",
+            "Units": "days",
+        },
         "sex": {"Description": "Sex of participant"},
     }
 
-    subjects_json = {k: v for k, v in default_subjects_json.items() if k in subjects_keys}
+    subjects_json = {
+        k: v for k, v in default_subjects_json.items() if k in subjects_keys
+    }
     with open(os.path.join(out_dir, "participants.json"), "w") as json_file:
         json.dump(subjects_json, json_file, indent=4)
 
-
-   # sessions
+    # sessions
 
     default_session_json = {
         "session_quality": {
@@ -59,7 +90,7 @@ def reposit(in_dir, out_dir, *, no_copy=False):
                 "ok": "Ok quality, can be considered for further analysis with care",
                 "good": "Good quality, should be used for analysis",
                 "Excellent": "Excellent quality, extraordinarily good session",
-            }
+            },
         },
         "data_quality": {
             "LongName": "Quality of the recorded signals",
@@ -82,64 +113,74 @@ def reposit(in_dir, out_dir, *, no_copy=False):
     }
 
     for subject in subjects:
-        subject_keyvalue = subject["subject_keyvalue"]
+        participant_id = subject["participant_id"]
 
-        os.makedirs(os.path.join(out_dir, subject_keyvalue), exist_ok=True)
+        os.makedirs(os.path.join(out_dir, participant_id), exist_ok=True)
 
         for metadata in all_metadata.values():
             sessions = [
-                x["session"] for x in all_metadata.values() if
-                x["subject"]["subject_keyvalue"] == subject_keyvalue
+                x["session"]
+                for x in all_metadata.values()
+                if x["subject"]["participant_id"] == participant_id
             ]
 
             sessions = drop_false_keys(sessions)
 
-            sessions_file_path = os.path.join(out_dir, subject_keyvalue, "sessions.tsv")
+            sessions_file_path = os.path.join(out_dir, participant_id, "sessions.tsv")
             sessions_keys = write_tsv(sessions, sessions_file_path)
-            sessions_json = {k: v for k, v in default_session_json.items() if k in sessions_keys}
+            sessions_json = {
+                k: v for k, v in default_session_json.items() if k in sessions_keys
+            }
 
-            with open(os.path.join(out_dir, subject_keyvalue, "sessions.json"), "w") as json_file:
+            with open(
+                os.path.join(out_dir, participant_id, "sessions.json"), "w"
+            ) as json_file:
                 json.dump(sessions_json, json_file, indent=4)
 
-    #contacts, probes, and channels
+    # contacts, probes, and channels
 
     for metadata in all_metadata.values():
-        subject_keyvalue = metadata["subject"]["subject_keyvalue"]
-        session_keyvalue = metadata["session"]["session_keyvalue"]
-        print(subject_keyvalue, session_keyvalue)
+        participant_id = metadata["subject"]["participant_id"]
+        session_id = metadata["session"]["session_id"]
+        print(participant_id, session_id)
 
-        if session_keyvalue:
-            os.makedirs(os.path.join(out_dir, subject_keyvalue, session_keyvalue), exist_ok=True)
+        if session_id:
+            os.makedirs(
+                os.path.join(out_dir, participant_id, session_id), exist_ok=True
+            )
         else:
-            os.makedirs(os.path.join(out_dir, subject_keyvalue), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, participant_id), exist_ok=True)
         # Ephys might need to be dynamically selected, nwb can also be ieeg.
-        os.makedirs(os.path.join(out_dir, subject_keyvalue, session_keyvalue, "ephys"), exist_ok=True)
+        os.makedirs(
+            os.path.join(out_dir, participant_id, session_id, "ephys"), exist_ok=True
+        )
 
         for var in ("contacts", "probes", "channels"):
             var_metadata = metadata[var]
             var_metadata = drop_false_keys(var_metadata)
             var_metadata_file_path = os.path.join(
-                  out_dir,
-                  subject_keyvalue,
-                  session_keyvalue,
-                  "ephys",
-                  f"{subject_keyvalue}_{var}.tsv")
+                out_dir,
+                participant_id,
+                session_id,
+                "ephys",
+                f"{participant_id}_{var}.tsv",
+            )
             write_tsv(var_metadata, var_metadata_file_path)
 
-        bids_path = os.path.join(out_dir, subject_keyvalue)
-        if metadata['session']['session_keyvalue']:
-            bids_path = os.path.join(bids_path, session_keyvalue)
-        bids_path = os.path.join(out_dir, subject_keyvalue)
+        bids_path = os.path.join(out_dir, participant_id)
+        if metadata["session"]["session_id"]:
+            bids_path = os.path.join(bids_path, session_id)
+        bids_path = os.path.join(out_dir, participant_id)
 
         bids_path = os.path.join(
-              out_dir,
-              metadata['subject']['subject_keyvalue'],
-              metadata['session']['session_keyvalue'],
-              "ephys",
-              f"{metadata['subject']['subject_keyvalue']}_{metadata['session']['session_keyvalue']}_ephys.nwb"
-              )
+            out_dir,
+            metadata["subject"]["participant_id"],
+            metadata["session"]["session_id"],
+            "ephys",
+            f"{metadata['subject']['participant_id']}_{metadata['session']['session_id']}_ephys.nwb",
+        )
         if no_copy:
-            open(bids_path, 'a').close()
+            open(bids_path, "a").close()
         else:
             shutil.copyfile(nwb_file, bids_path)
 
@@ -165,18 +206,14 @@ def extract_metadata(filepath: str) -> dict:
             probes = []
             contacts = []
 
-
-        ess = [
-            x for x in nwbfile.objects.values()
-            if isinstance(x, ElectricalSeries)
-        ]
+        ess = [x for x in nwbfile.objects.values() if isinstance(x, ElectricalSeries)]
 
         metadata = {
             "general_ephys": {
                 "InstitutionName": nwbfile.institution,
             },
             "subject": {
-                "subject_keyvalue": "sub-" + sanitize_bids_value(subject.subject_id),
+                "participant_id": "sub-" + sanitize_bids_value(subject.subject_id),
                 "species": subject.species,
                 "strain": subject.strain,
                 "birthday": subject.date_of_birth,
@@ -184,7 +221,11 @@ def extract_metadata(filepath: str) -> dict:
                 "sex": subject.sex,
             },
             "session": {
-                "session_keyvalue": "ses-" + sanitize_bids_value(nwbfile.session_id) if nwbfile.session_id else "",
+                "session_id": (
+                    "ses-" + sanitize_bids_value(nwbfile.session_id)
+                    if nwbfile.session_id
+                    else ""
+                ),
                 "number_of_trials": len(nwbfile.trials) if nwbfile.trials else None,
                 "comments": nwbfile.session_description,
             },
@@ -201,8 +242,12 @@ def extract_metadata(filepath: str) -> dict:
                 {
                     "contact_id": contact.index[0],
                     "probe_id": contact.group.iloc[0].device.name,
-                    #TODO "impedance": contact["imp"].iloc[0] if contact["imp"].iloc[0] > 0 else None,
-                    "location": contact["location"].iloc[0] if contact["location"].iloc[0] not in ("unknown",) else None,
+                    # TODO "impedance": contact["imp"].iloc[0] if contact["imp"].iloc[0] > 0 else None,
+                    "location": (
+                        contact["location"].iloc[0]
+                        if contact["location"].iloc[0] not in ("unknown",)
+                        else None
+                    ),
                 }
                 for contact in contacts
             ],
@@ -216,9 +261,10 @@ def extract_metadata(filepath: str) -> dict:
                     "gain": ess[0].conversion,
                 }
                 for contact in contacts
-            ]
+            ],
         }
     return metadata
+
 
 def unique_list_of_dicts(data):
     # Convert to set of tuples
@@ -247,13 +293,11 @@ def write_tsv(list_of_dict, file_path):
         dict_writer = csv.DictWriter(
             f,
             keys,
-            delimiter='\t',
-            )
+            delimiter="\t",
+        )
         dict_writer.writeheader()
         dict_writer.writerows(list_of_dict)
     return keys
 
 
-
 # Actually copy the NWB files
-
