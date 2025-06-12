@@ -1,3 +1,5 @@
+import pandas
+import pynwb
 from pynwb import NWBHDF5IO
 from pynwb.ecephys import ElectricalSeries
 from pathlib import Path
@@ -5,6 +7,7 @@ import os
 import csv
 import json
 import shutil
+import pathlib
 import re
 
 
@@ -164,7 +167,7 @@ def reposit(
 
     # electrodes, probes, and channels
 
-    for metadata in all_metadata.values():
+    for nwbfile_path, metadata in all_metadata.items():
         participant_id = metadata["subject"]["participant_id"]
         session_id = (
             metadata["session"]["session_id"] or ""
@@ -199,6 +202,48 @@ def reposit(
             )
             write_tsv(var_metadata, var_metadata_file_path)
 
+        with pynwb.NWBHDF5IO(path=nwbfile_path, mode="r") as file_stream:
+            nwbfile = file_stream.read()
+
+            nwb_events_table = _get_events_table(nwbfile=nwbfile)
+
+        if nwb_events_table is not None:
+            # Collapse 'start_time' and 'stop_time' columns into 'onset' and 'duration' columns
+            bids_event_table = nwb_events_table.copy()
+            bids_event_table["duration"] = (
+                bids_event_table["stop_time"] - bids_event_table["start_time"]
+            )
+            bids_event_table = bids_event_table.rename(columns={"start_time": "onset"})
+            bids_event_table = bids_event_table.drop(columns=["stop_time"])
+            bids_event_table = bids_event_table.sort_values(
+                by=["onset", "duration"], ascending=[True, False]
+            ).reset_index(drop=True)
+
+            # BIDS Validator is strict regarding column order
+            required_column_order = ["onset", "duration", "nwb_table"]
+            all_columns = list(bids_event_table.columns)
+            final_column_order = required_column_order + [
+                column for column in all_columns if column not in required_column_order
+            ]
+            if nwb_events_table is not None:
+                session_events_file_path = (
+                    pathlib.Path(out_dir)
+                    / participant_id
+                    / session_id
+                    / "ephys"
+                    / f"{file_prefix}_events.tsv"
+                )
+                bids_event_table.to_csv(
+                    path_or_buf=session_events_file_path,
+                    sep="\t",
+                    index=False,
+                    columns=final_column_order,
+                )
+
+        # TODO: add events.json at each session level, then check after if they are all the same and if so
+        # remove the duplicates and put it at the outer level
+
+        # Rename and/or copy NWB file
         bids_path = os.path.join(out_dir, participant_id)
         if metadata["session"]["session_id"]:
             bids_path = os.path.join(bids_path, session_id)
@@ -215,6 +260,57 @@ def reposit(
             open(bids_path, "a").close()
         else:
             shutil.copyfile(nwb_file, bids_path)
+
+    # TODO: write events JSON at outer level with HED tags (likely required via additional metadata)
+
+
+def _get_events_table(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
+    """
+    Extracts all time interval events from the NWB file and returns them as a single data frame.
+
+    Future improvements will include support for non-interval events (ndx-events) and DynamicTables with *_time columns.
+    """
+    time_intervals: list[pynwb.epoch.TimeIntervals] = [
+        neurodata_object
+        for neurodata_object in nwbfile.acquisition.values()
+        if isinstance(neurodata_object, pynwb.epoch.TimeIntervals)
+    ]
+    if nwbfile.trials is not None:
+        time_intervals.append(nwbfile.trials)
+    if nwbfile.epochs is not None:
+        time_intervals.append(nwbfile.epochs)
+
+    if len(time_intervals) == 0:
+        return None
+
+    time_interval_names = [time_interval.name for time_interval in time_intervals]
+    if len(set(time_interval_names)) != len(time_interval_names):
+        message = (
+            f"\nFound duplicate time interval names in the NWB file: {time_interval_names}\n"
+            "Please raise an issue at https://github.com/con/nwb2bids/issues/new.\n\n"
+        )
+        raise ValueError(message)
+
+    # TODO: if only one table source, do not add the nwb_table column
+    all_column_names = {
+        column_name: True
+        for time_interval in time_intervals
+        for column_name in time_interval.colnames
+    }
+    if all_column_names.get("nwb_table", None) is not None:
+        message = (
+            "\nA column with the name 'nwb_table' was found in the NWB file.\n"
+            "This is reserved for the nwb2bids conversion process and will require an override to proceed.\n"
+            "Please raise an issue at https://github.com/con/nwb2bids/issues/new.\n\n"
+        )
+        raise ValueError(message)
+
+    all_data_frames = [time_interval.to_dataframe() for time_interval in time_intervals]
+    for index, time_interval in enumerate(time_intervals):
+        all_data_frames[index]["nwb_table"] = time_interval.name
+
+    events_table = pandas.concat(objs=all_data_frames, ignore_index=True)
+    return events_table
 
 
 def sanitize_bids_value(in_string, pattern=r"[^a-zA-Z0-9]", replacement="X"):
