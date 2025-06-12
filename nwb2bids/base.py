@@ -35,14 +35,16 @@ def reposit(
         with additional_metadata_file_path.open(mode="r") as file_stream:
             additional_metadata = json.load(fp=file_stream)
 
-    # Top-level fields (required for BIDS)
-    # TODO: Authors field in BIDS must not be Lastname, Firstname format apparently...
-    # TODO: determine how many fields in this are required (such as DOI) vs. chicken and egg of upload to DANDI
-    # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
-    dataset_description = additional_metadata["dataset_description"]
-    dataset_description_file_path = os.path.join(out_dir, "dataset_description.json")
-    with open(file=dataset_description_file_path, mode="w") as file_stream:
-        json.dump(obj=dataset_description, fp=file_stream)
+        # Top-level fields (required for BIDS)
+        # TODO: Authors field in BIDS must not be Lastname, Firstname format apparently...
+        # TODO: determine how many fields in this are required (such as DOI) vs. chicken and egg of upload to DANDI
+        # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
+        dataset_description = additional_metadata["dataset_description"]
+        dataset_description_file_path = os.path.join(
+            out_dir, "dataset_description.json"
+        )
+        with open(file=dataset_description_file_path, mode="w") as file_stream:
+            json.dump(obj=dataset_description, fp=file_stream)
 
     # Fields within NWB files
     nwb_files = list(Path(in_dir).rglob("*.[nN][wW][bB]"))
@@ -60,7 +62,13 @@ def reposit(
     subjects_file_path = os.path.join(out_dir, "participants.tsv")
     # BIDS validation enforces column order
     # TODO: make keys dynamic based on availability
-    subject_fields = ["participant_id", "species", "strain", "sex"]
+    # TODO: generalize to more subjects
+    possible_subject_fields = ["participant_id", "species", "strain", "sex"]
+    subject_fields = [
+        field
+        for field in possible_subject_fields
+        if subjects[0].get(field, None) is not None
+    ]
     subject_header = "\t".join(subject_fields)
     subject_lines = [f"{subject_header}\n"]
     for subject in subjects:
@@ -154,11 +162,13 @@ def reposit(
             ) as json_file:
                 json.dump(sessions_json, json_file, indent=4)
 
-    # contacts, probes, and channels
+    # electrodes, probes, and channels
 
     for metadata in all_metadata.values():
         participant_id = metadata["subject"]["participant_id"]
-        session_id = metadata["session"]["session_id"]
+        session_id = (
+            metadata["session"]["session_id"] or ""
+        )  # TODO: cleanup the missing session ID case
         print(participant_id, session_id)
         if session_id:
             os.makedirs(
@@ -172,16 +182,20 @@ def reposit(
         )
 
         # TODO: Temporary hack to get this to obey
-        metadata["channels__microephys"] = metadata["channels"]
-        for var in ("contacts", "probes", "channels__microephys"):
+        file_prefix = (
+            f"{metadata['subject']['participant_id']}_{metadata['session']['session_id']}"
+            if metadata["session"].get("session_id", None) is not None
+            else f"{metadata['subject']['participant_id']}"
+        )
+        for var in ("electrodes", "probes", "channels"):
             var_metadata = metadata[var]
-            var_metadata = drop_false_keys(var_metadata)
+            # var_metadata = drop_false_keys(var_metadata)
             var_metadata_file_path = os.path.join(
                 out_dir,
                 participant_id,
                 session_id,
                 "ephys",
-                f"{participant_id}_{session_id}_{var}.tsv",
+                f"{file_prefix}_{var}.tsv",
             )
             write_tsv(var_metadata, var_metadata_file_path)
 
@@ -193,9 +207,9 @@ def reposit(
         bids_path = os.path.join(
             out_dir,
             metadata["subject"]["participant_id"],
-            metadata["session"]["session_id"],
+            session_id,
             "ephys",
-            f"{metadata['subject']['participant_id']}_{metadata['session']['session_id']}_ephys.nwb",
+            f"{file_prefix}_ephys.nwb",
         )
         if no_copy:
             open(bids_path, "a").close()
@@ -219,10 +233,10 @@ def extract_metadata(filepath: str) -> dict:
         # Right now excepting because of testdata constraints
         try:
             probes = set([x.device for x in nwbfile.electrodes["group"][:]])
-            contacts = nwbfile.electrodes
+            electrodes = nwbfile.electrodes
         except TypeError:
             probes = []
-            contacts = []
+            electrodes = []
 
         ess = [x for x in nwbfile.objects.values() if isinstance(x, ElectricalSeries)]
 
@@ -240,7 +254,7 @@ def extract_metadata(filepath: str) -> dict:
             },
             "session": {
                 "session_id": (
-                    "ses-" + nwbfile.session_id if nwbfile.session_id else ""
+                    "ses-" + nwbfile.session_id if nwbfile.session_id else None
                 ),
                 "number_of_trials": len(nwbfile.trials) if nwbfile.trials else None,
                 "comments": nwbfile.session_description,
@@ -254,29 +268,29 @@ def extract_metadata(filepath: str) -> dict:
                 }
                 for probe in probes
             ],
-            "contacts": [
+            "electrodes": [
                 {
-                    "contact_id": contact.index[0],
-                    "probe_id": contact.group.iloc[0].device.name,
-                    # TODO "impedance": contact["imp"].iloc[0] if contact["imp"].iloc[0] > 0 else None,
+                    "electrode_id": electrode.index[0],
+                    "probe_id": electrode.group.iloc[0].device.name,
+                    # TODO "impedance": electrode["imp"].iloc[0] if electrode["imp"].iloc[0] > 0 else None,
                     "location": (
-                        contact["location"].iloc[0]
-                        if contact["location"].iloc[0] not in ("unknown",)
+                        electrode["location"].iloc[0]
+                        if electrode["location"].iloc[0] not in ("unknown",)
                         else None
                     ),
                 }
-                for contact in contacts
+                for electrode in electrodes
             ],
             "channels": [
                 {
-                    "channel_id": contact.index[0],
-                    "contact_id": contact.index[0],
+                    "channel_id": electrode.index[0],
+                    "electrode_id": electrode.index[0],
                     "type": "EXT",
                     "unit": "V",
                     "sampling_frequency": ess[0].rate,
                     "gain": ess[0].conversion,
                 }
-                for contact in contacts
+                for electrode in electrodes
             ],
         }
     return metadata
