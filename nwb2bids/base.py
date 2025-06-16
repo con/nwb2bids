@@ -345,9 +345,7 @@ def _get_events_table(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
     return events_table
 
 
-def _get_events_metadata(
-    nwbfile: pynwb.NWBFile, unique_nwb_table_names: list[str]
-) -> dict | None:
+def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
     time_intervals = _get_all_time_intervals(nwbfile=nwbfile)
     if time_intervals is None:
         return None
