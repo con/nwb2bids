@@ -256,12 +256,8 @@ def reposit(
                 / "ephys"
                 / f"{file_prefix}_events.json"
             )
-            bids_event_metadata.to_csv(
-                path_or_buf=session_events_metadata_file_path,
-                sep="\t",
-                index=False,
-                columns=final_column_order,
-            )
+            with session_events_metadata_file_path.open(mode="w") as file_stream:
+                json.dump(obj=bids_event_metadata, fp=file_stream, indent=4)
 
         # TODO: check events.json files, see if all are the same and if so remove the duplicates and move to outer level
 
