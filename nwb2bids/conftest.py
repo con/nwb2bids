@@ -1,3 +1,5 @@
+import json
+
 import pynwb
 import numpy
 import pytest
@@ -63,3 +65,27 @@ def nwb_testdata_nosessionid(
         io.write(nwbfile)
 
     return filename
+
+
+@pytest.fixture(scope="session")
+def additional_metadata_fixture(
+    tmp_path_factory,
+):
+    additional_metdata_dictionary = {
+        "dataset_description": {
+            "Name": "test",
+            "Description": "TODO",
+            "BIDSVersion": "1.10",
+            "DatasetType": "raw",
+            "License": "CC-BY-4.0",
+            "Authors": ["Cody Baker", "Yaroslav Halchenko"],
+        }
+    }
+
+    file_path = (
+        tmp_path_factory.mktemp("test_nwb2bids") / "test_additional_metadata.json"
+    )
+    with file_path.open(mode="w") as file_stream:
+        json.dump(obj=additional_metdata_dictionary, fp=file_stream)
+
+    return file_path
