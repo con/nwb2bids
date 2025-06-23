@@ -10,6 +10,8 @@ import shutil
 import pathlib
 import re
 
+from ._additional_metadata_schema import AdditionalMetadata
+
 
 # The star is required by clize to know to typeset it as `--no-copy` instead of `no-copy`.
 def reposit(
@@ -20,34 +22,35 @@ def reposit(
     # additional_metadata_file_path: str | Path | None = None,
     additional_metadata_file_path=None,  # clize complains about the most basic annotations...
 ):
-
     in_dir = os.path.abspath(os.path.expanduser(in_dir))
     out_dir = os.path.abspath(os.path.expanduser(out_dir))
 
-    if additional_metadata_file_path is not None:
-        additional_metadata_file_path = Path(additional_metadata_file_path)
-    elif (
-        secondary_path := Path(in_dir) / "additional_metadata.json"
-    ).exists():  # Try to find it in_dir
-        additional_metadata_file_path = secondary_path
+    additional_metadata_file_path = (
+        Path(additional_metadata_file_path)
+        if additional_metadata_file_path is not None
+        else None
+    )
+    additional_metadata_file_path = (
+        secondary_path
+        if additional_metadata_file_path is None
+        and (secondary_path := Path(in_dir) / "additional_metadata.json").exists()
+        else additional_metadata_file_path
+    )
 
     all_metadata = {}
-    additional_metadata = {}
     if additional_metadata_file_path is not None:
         # TODO: add validation of additional metadata schema
         with additional_metadata_file_path.open(mode="r") as file_stream:
-            additional_metadata = json.load(fp=file_stream)
+            additional_metadata_dict = json.load(fp=file_stream)
+        additional_metadata_model = AdditionalMetadata(**additional_metadata_dict)
 
         # Top-level fields (required for BIDS)
-        # TODO: Authors field in BIDS must not be Lastname, Firstname format apparently...
-        # TODO: determine how many fields in this are required (such as DOI) vs. chicken and egg of upload to DANDI
         # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
-        dataset_description = additional_metadata["dataset_description"]
         dataset_description_file_path = os.path.join(
             out_dir, "dataset_description.json"
         )
         with open(file=dataset_description_file_path, mode="w") as file_stream:
-            json.dump(obj=dataset_description, fp=file_stream)
+            file_stream.write(additional_metadata_model.model_dump_json(indent=4))
 
     # Fields within NWB files
     nwb_files = list(Path(in_dir).rglob("*.[nN][wW][bB]"))
