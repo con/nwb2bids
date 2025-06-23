@@ -39,7 +39,6 @@ def reposit(
 
     all_metadata = {}
     if additional_metadata_file_path is not None:
-        # TODO: add validation of additional metadata schema
         with additional_metadata_file_path.open(mode="r") as file_stream:
             additional_metadata_dict = json.load(fp=file_stream)
         additional_metadata_model = AdditionalMetadata(**additional_metadata_dict)
