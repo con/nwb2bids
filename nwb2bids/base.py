@@ -41,8 +41,8 @@ def reposit(
     all_metadata = {}
     if additional_metadata_file_path is not None:
         with additional_metadata_file_path.open(mode="r") as file_stream:
-            additional_metadata_model_dict = json.load(fp=file_stream)
-        additional_metadata_model = AdditionalMetadata(**additional_metadata_model_dict)
+            additional_metadata_dict = json.load(fp=file_stream)
+        additional_metadata_model = AdditionalMetadata(**additional_metadata_dict)
 
         # Top-level fields (required for BIDS)
         # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
@@ -67,8 +67,8 @@ def reposit(
 
     subjects_file_path = os.path.join(out_dir, "participants.tsv")
     # BIDS validation enforces column order
-    # TODO: make keys dynamic based on availability
-    # TODO: generalize to more subjects
+    # Follow-up TODO: make keys dynamic based on availability
+    # Follow-up TODO: generalize to more subjects
     possible_subject_fields = ["participant_id", "species", "strain", "sex"]
     subject_fields = [
         field
@@ -80,7 +80,7 @@ def reposit(
     for subject in subjects:
         line = "\t".join(subject[field] for field in subject_fields)
         subject_lines.append(f"{line}\n")
-    # TODO: TSV writer below is hard to control header order - TSV is not hard to write directly, so just do it here...
+    # TSV writer below is hard to control header order - TSV is not hard to write directly, so just do it here...
     with open(file=subjects_file_path, mode="w") as file_stream:
         file_stream.writelines(subject_lines)
 
@@ -174,7 +174,7 @@ def reposit(
         participant_id = metadata["subject"]["participant_id"]
         session_id = (
             metadata["session"]["session_id"] or ""
-        )  # TODO: cleanup the missing session ID case
+        )  # Follow-up TODO: cleanup the missing session ID case
         print(participant_id, session_id)
         if session_id:
             os.makedirs(
@@ -187,7 +187,7 @@ def reposit(
             os.path.join(out_dir, participant_id, session_id, "ephys"), exist_ok=True
         )
 
-        # TODO: Temporary hack to get this to obey
+        # Temporary hack to get this to obey validation
         file_prefix = (
             f"{metadata['subject']['participant_id']}_{metadata['session']['session_id']}"
             if metadata["session"].get("session_id", None) is not None
@@ -267,7 +267,8 @@ def reposit(
             with session_events_metadata_file_path.open(mode="w") as file_stream:
                 json.dump(obj=bids_event_metadata, fp=file_stream, indent=4)
 
-        # TODO: check events.json files, see if all are the same and if so remove the duplicates and move to outer level
+        # Follow-up TODO: check events.json files, see if all are the same
+        # and if so remove the duplicates and move to outer level
 
         # Rename and/or copy NWB file
         bids_path = os.path.join(out_dir, participant_id)
@@ -367,7 +368,7 @@ def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
         if time_interval.description
     }
 
-    # TODO: handle HED tags based on neurodata type once extendeded beyond TimeIntervals
+    # Follow-up TODO: assign HED tags based on neurodata type once extendeded beyond TimeIntervals
     event_metadata["nwb_table"] = {
         "nwb_table": {
             "Description": "The name of the NWB table from which this event was extracted.",
