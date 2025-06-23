@@ -25,6 +25,7 @@ def test_trials_events(nwb_testdata_trials_events, tmp_path):
                 "sub-12X34_ses-20240309_ephys.nwb",
                 "sub-12X34_ses-20240309_probes.tsv",
                 "sub-12X34_ses-20240309_events.tsv",
+                "sub-12X34_ses-20240309_events.json",
             }
         else:
             print(root, files, dirs)
@@ -54,6 +55,7 @@ def test_epochs_events(nwb_testdata_epochs_events, tmp_path):
                 "sub-12X34_ses-20240309_ephys.nwb",
                 "sub-12X34_ses-20240309_probes.tsv",
                 "sub-12X34_ses-20240309_events.tsv",
+                "sub-12X34_ses-20240309_events.json",
             }
         else:
             print(root, files, dirs)
@@ -83,6 +85,7 @@ def test_multiple_events(nwb_testdata_multiple_events, tmp_path):
                 "sub-12X34_ses-20240309_ephys.nwb",
                 "sub-12X34_ses-20240309_probes.tsv",
                 "sub-12X34_ses-20240309_events.tsv",
+                "sub-12X34_ses-20240309_events.json",
             }
         else:
             print(root, files, dirs)

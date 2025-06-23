@@ -33,15 +33,16 @@ def reposit(
     additional_metadata_file_path = (
         secondary_path
         if additional_metadata_file_path is None
-        and (secondary_path := Path(in_dir) / "additional_metadata.json").exists()
+        and (secondary_path := Path(in_dir) / "additional_metadata_model.json").exists()
         else additional_metadata_file_path
     )
 
+    additional_metadata_model = None
     all_metadata = {}
     if additional_metadata_file_path is not None:
         with additional_metadata_file_path.open(mode="r") as file_stream:
-            additional_metadata_dict = json.load(fp=file_stream)
-        additional_metadata_model = AdditionalMetadata(**additional_metadata_dict)
+            additional_metadata_model_dict = json.load(fp=file_stream)
+        additional_metadata_model = AdditionalMetadata(**additional_metadata_model_dict)
 
         # Top-level fields (required for BIDS)
         # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
@@ -245,11 +246,16 @@ def reposit(
 
             # Write events.json file
             bids_event_metadata = _get_events_metadata(nwbfile=nwbfile)
-            for key in additional_metadata.get("events", dict()).keys():
+            additional_metadata_events = (
+                additional_metadata_model.events.model_dump()
+                if additional_metadata_model is not None
+                else None or dict()
+            )
+            for key, value in additional_metadata_events.items():
                 if key not in bids_event_metadata:
-                    bids_event_metadata[key] = additional_metadata["events"][key]
+                    bids_event_metadata[key] = value
                 else:
-                    bids_event_metadata[key].update(additional_metadata["events"][key])
+                    bids_event_metadata[key].update(value)
 
             session_events_metadata_file_path = (
                 pathlib.Path(out_dir)
