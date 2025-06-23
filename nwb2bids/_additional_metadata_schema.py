@@ -9,7 +9,6 @@ class _DatasetDescription(pydantic.BaseModel):
     """
 
     Name: str = pydantic.Field(description="Name of the dataset.")
-    # Future TODO: add better validation for version string
     BIDSVersion: str | None = pydantic.Field(
         description="The version of the BIDS standard that was used.",
         pattern=r"^\d+\.\d+(?:\.\d+)?$",
@@ -37,7 +36,6 @@ class AdditionalMetadata(pydantic.BaseModel):
     Additional metadata for the BIDS dataset.
     """
 
-    # General metadata
     dataset_description: _DatasetDescription = pydantic.Field(
         description="Dataset description including name, BIDS version, and other relevant information."
     )
