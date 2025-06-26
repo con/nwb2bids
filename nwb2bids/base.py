@@ -175,7 +175,7 @@ def reposit(
         session_id = (
             metadata["session"]["session_id"] or ""
         )  # Follow-up TODO: cleanup the missing session ID case
-        
+
         print(participant_id, session_id)
         if session_id:
             os.makedirs(
@@ -187,7 +187,6 @@ def reposit(
         os.makedirs(
             os.path.join(out_dir, participant_id, session_id, "ephys"), exist_ok=True
         )
-
 
         # Temporary hack to get this to obey validation
         file_prefix = (
