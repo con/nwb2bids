@@ -37,6 +37,7 @@ def reposit(
         else additional_metadata_file_path
     )
 
+    additional_metadata_model = None
     all_metadata = {}
     if additional_metadata_file_path is not None:
         with additional_metadata_file_path.open(mode="r") as file_stream:
