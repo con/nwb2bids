@@ -1,3 +1,5 @@
+import pandas
+import pynwb
 from pynwb import NWBHDF5IO
 from pynwb.ecephys import ElectricalSeries
 from pathlib import Path
@@ -5,6 +7,7 @@ import os
 import csv
 import json
 import shutil
+import pathlib
 import re
 
 from ._additional_metadata_schema import AdditionalMetadata
@@ -34,6 +37,7 @@ def reposit(
         else additional_metadata_file_path
     )
 
+    additional_metadata_model = None
     all_metadata = {}
     if additional_metadata_file_path is not None:
         with additional_metadata_file_path.open(mode="r") as file_stream:
@@ -63,8 +67,8 @@ def reposit(
 
     subjects_file_path = os.path.join(out_dir, "participants.tsv")
     # BIDS validation enforces column order
-    # TODO: make keys dynamic based on availability
-    # TODO: generalize to more subjects
+    # Follow-up TODO: make keys dynamic based on availability
+    # Follow-up TODO: generalize to more subjects
     possible_subject_fields = ["participant_id", "species", "strain", "sex"]
     subject_fields = [
         field
@@ -76,7 +80,8 @@ def reposit(
     for subject in subjects:
         line = "\t".join(subject[field] for field in subject_fields)
         subject_lines.append(f"{line}\n")
-    # TODO: TSV writer below is hard to control header order - TSV is not hard to write directly, so just do it here...
+
+    # TSV writer below is hard to control header order - TSV is not hard to write directly, so just do it here...
     with open(file=subjects_file_path, mode="w") as file_stream:
         file_stream.writelines(subject_lines)
 
@@ -166,11 +171,12 @@ def reposit(
 
     # electrodes, probes, and channels
 
-    for metadata in all_metadata.values():
+    for nwbfile_path, metadata in all_metadata.items():
         participant_id = metadata["subject"]["participant_id"]
         session_id = (
             metadata["session"]["session_id"] or ""
-        )  # TODO: cleanup the missing session ID case
+        )  # Follow-up TODO: cleanup the missing session ID case
+
         print(participant_id, session_id)
         if session_id:
             os.makedirs(
@@ -183,7 +189,7 @@ def reposit(
             os.path.join(out_dir, participant_id, session_id, "ephys"), exist_ok=True
         )
 
-        # TODO: Temporary hack to get this to obey
+        # Temporary hack to get this to obey validation
         file_prefix = (
             f"{metadata['subject']['participant_id']}_{metadata['session']['session_id']}"
             if metadata["session"].get("session_id", None) is not None
@@ -201,6 +207,73 @@ def reposit(
             )
             write_tsv(var_metadata, var_metadata_file_path)
 
+        # Write events.tsv file
+        with pynwb.NWBHDF5IO(path=nwbfile_path, mode="r") as file_stream:
+            nwbfile = file_stream.read()
+
+            nwb_events_table = _get_events_table(nwbfile=nwbfile)
+
+        if nwb_events_table is not None:
+            # Collapse 'start_time' and 'stop_time' columns into 'onset' and 'duration' columns
+            bids_event_table = nwb_events_table.copy()
+            bids_event_table["duration"] = (
+                bids_event_table["stop_time"] - bids_event_table["start_time"]
+            )
+            bids_event_table = bids_event_table.rename(columns={"start_time": "onset"})
+            bids_event_table = bids_event_table.drop(columns=["stop_time"])
+            bids_event_table = bids_event_table.sort_values(
+                by=["onset", "duration"], ascending=[True, False]
+            ).reset_index(drop=True)
+
+            # BIDS Validator is strict regarding column order
+            required_column_order = ["onset", "duration", "nwb_table"]
+            all_columns = list(bids_event_table.columns)
+            final_column_order = required_column_order + [
+                column for column in all_columns if column not in required_column_order
+            ]
+
+            session_events_table_file_path = (
+                pathlib.Path(out_dir)
+                / participant_id
+                / session_id
+                / "ephys"
+                / f"{file_prefix}_events.tsv"
+            )
+            bids_event_table.to_csv(
+                path_or_buf=session_events_table_file_path,
+                sep="\t",
+                index=False,
+                columns=final_column_order,
+            )
+
+            # Write events.json file
+            bids_event_metadata = _get_events_metadata(nwbfile=nwbfile)
+            additional_metadata_events = (
+                additional_metadata_model.events.model_dump()
+                if additional_metadata_model is not None
+                else None or dict()
+            )
+            for key, value in additional_metadata_events.items():
+                if key not in bids_event_metadata:
+                    bids_event_metadata[key] = value
+                else:
+                    bids_event_metadata[key].update(value)
+
+            session_events_metadata_file_path = (
+                pathlib.Path(out_dir)
+                / participant_id
+                / session_id
+                / "ephys"
+                / f"{file_prefix}_events.json"
+            )
+            with session_events_metadata_file_path.open(mode="w") as file_stream:
+                json.dump(obj=bids_event_metadata, fp=file_stream, indent=4)
+
+        # Follow-up TODO: check events.json files, see if all are the same
+        # and if so remove the duplicates and move to outer level
+
+        # Rename and/or copy NWB file
+
         bids_path = os.path.join(out_dir, participant_id)
         if metadata["session"]["session_id"]:
             bids_path = os.path.join(bids_path, session_id)
@@ -217,6 +290,103 @@ def reposit(
             open(bids_path, "a").close()
         else:
             shutil.copyfile(nwb_file, bids_path)
+
+
+def _get_all_time_intervals(
+    nwbfile: pynwb.NWBFile,
+) -> list[pynwb.epoch.TimeIntervals] | None:
+    """
+    Extracts all time interval events from the NWB file and returns them as a list of TimeIntervals objects.
+    """
+    time_intervals: list[pynwb.epoch.TimeIntervals] = [
+        neurodata_object
+        for neurodata_object in nwbfile.acquisition.values()
+        if isinstance(neurodata_object, pynwb.epoch.TimeIntervals)
+    ]
+    if nwbfile.trials is not None:
+        time_intervals.append(nwbfile.trials)
+    if nwbfile.epochs is not None:
+        time_intervals.append(nwbfile.epochs)
+
+    if len(time_intervals) == 0:
+        return None
+
+    return time_intervals
+
+
+def _get_events_table(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
+    """
+    Extracts all time interval events from the NWB file and returns them as a single data frame.
+
+    Future improvements will include support for non-interval events (ndx-events) and DynamicTables with *_time columns.
+    """
+    time_intervals = _get_all_time_intervals(nwbfile=nwbfile)
+    if time_intervals is None:
+        return None
+
+    time_interval_names = [time_interval.name for time_interval in time_intervals]
+    if len(set(time_interval_names)) != len(time_interval_names):
+        message = (
+            f"\nFound duplicate time interval names in the NWB file: {time_interval_names}\n"
+            "Please raise an issue at https://github.com/con/nwb2bids/issues/new.\n\n"
+        )
+        raise ValueError(message)
+
+    all_column_names = {
+        column_name: True
+        for time_interval in time_intervals
+        for column_name in time_interval.colnames
+    }
+    if all_column_names.get("nwb_table", None) is not None:
+        message = (
+            "\nA column with the name 'nwb_table' was found in the NWB file.\n"
+            "This is reserved for the nwb2bids conversion process and will require an override to proceed.\n"
+            "Please raise an issue at https://github.com/con/nwb2bids/issues/new.\n\n"
+        )
+        raise ValueError(message)
+
+    all_data_frames = [time_interval.to_dataframe() for time_interval in time_intervals]
+    for index, time_interval in enumerate(time_intervals):
+        all_data_frames[index]["nwb_table"] = time_interval.name
+
+    events_table = pandas.concat(objs=all_data_frames, ignore_index=True)
+    return events_table
+
+
+def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
+    time_intervals = _get_all_time_intervals(nwbfile=nwbfile)
+    if time_intervals is None:
+        return None
+
+    time_interval_names = [time_interval.name for time_interval in time_intervals]
+
+    common_nwb_table_hed = {
+        "trials": "Experimental-trial",
+        "epochs": "Time-block",
+    }
+
+    event_metadata = {
+        time_interval.name: {"Description": time_interval.description}
+        for time_interval in time_intervals
+        if time_interval.description
+    }
+
+    # Follow-up TODO: assign HED tags based on neurodata type once extendeded beyond TimeIntervals
+    event_metadata["nwb_table"] = {
+        "nwb_table": {
+            "Description": "The name of the NWB table from which this event was extracted.",
+            "Levels": {
+                table_name: f"The '{table_name}' table in the NWB file."
+                for table_name in time_interval_names
+            },
+            "HED": {
+                table_name: common_nwb_table_hed.get(table_name, "Time-interval")
+                for table_name in time_interval_names
+            },
+        }
+    }
+
+    return event_metadata
 
 
 def sanitize_bids_value(in_string, pattern=r"[^a-zA-Z0-9]", replacement="X"):
