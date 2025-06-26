@@ -1,14 +1,13 @@
-from nwb2bids import base
 import os
 
+import nwb2bids
 
-def test_reposit(nwb_testdata, tmp_path):
-    tmp_path = str(tmp_path)
-    nwb_testdir = os.path.dirname(nwb_testdata)
-    base.reposit(nwb_testdir, tmp_path)
-    # This should be done by invoking the validator once BEP032 is in the BIDS schema:
+
+def test_convert_nwb_dataset(nwb_testdata, tmp_path):
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_testdata.parent, bids_directory=tmp_path)
+
     for root, dirs, files in os.walk(tmp_path):
-        if root == tmp_path:
+        if root == tmp_path.name:
             assert dirs == ["sub-12X34"]
             assert set(files) == {"participants.json", "participants.tsv"}
         elif root == os.path.join(tmp_path, "sub-12X34"):
@@ -30,17 +29,15 @@ def test_reposit(nwb_testdata, tmp_path):
             raise
 
 
-def test_reposit_with_additional_metadata(
-    nwb_testdata, tmp_path, additional_metadata_fixture
-):
-    tmp_path = str(tmp_path)
-    nwb_testdir = os.path.dirname(nwb_testdata)
-    base.reposit(
-        nwb_testdir, tmp_path, additional_metadata_file_path=additional_metadata_fixture
+def test_convert_nwb_dataset_with_additional_metadata(nwb_testdata, tmp_path, additional_metadata_fixture):
+    nwb2bids.convert_nwb_dataset(
+        nwb_directory=nwb_testdata.parent,
+        bids_directory=tmp_path,
+        additional_metadata_file_path=additional_metadata_fixture,
     )
-    # This should be done by invoking the validator once BEP032 is in the BIDS schema:
+
     for root, dirs, files in os.walk(tmp_path):
-        if root == tmp_path:
+        if root == tmp_path.name:
             assert dirs == ["sub-12X34"]
             assert set(files) == {
                 "participants.json",
@@ -67,20 +64,16 @@ def test_reposit_with_additional_metadata(
 
 
 # TODO: Ensure this is valid only if one session per subject.
-def test_reposit_nosessionid(nwb_testdata_nosessionid, tmp_path):
-    tmp_path = str(tmp_path)
-    nwb_testdir = os.path.dirname(nwb_testdata_nosessionid)
-    base.reposit(nwb_testdir, tmp_path)
-    # This should be done by invoking the validator once BEP032 is in the BIDS schema:
+def test_convert_nwb_dataset_no_session_id(nwb_testdata_no_session_id, tmp_path):
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_testdata_no_session_id.parent, bids_directory=tmp_path)
+
     for root, dirs, files in os.walk(tmp_path):
-        if root == tmp_path:
+        if root == tmp_path.name:
             assert dirs == ["sub-12X34"]
             assert set(files) == set(["participants.json", "participants.tsv"])
         elif root == os.path.join(tmp_path, "sub-12X34"):
             assert dirs == ["ephys"]
-            assert set(files) == set(
-                ["sub-12X34_sessions.json", "sub-12X34_sessions.tsv"]
-            )
+            assert set(files) == set(["sub-12X34_sessions.json", "sub-12X34_sessions.tsv"])
         elif root == os.path.join(tmp_path, "sub-12X34", "ephys"):
             assert dirs == []
             assert set(files) == set(
