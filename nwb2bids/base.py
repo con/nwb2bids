@@ -33,11 +33,10 @@ def reposit(
     additional_metadata_file_path = (
         secondary_path
         if additional_metadata_file_path is None
-        and (secondary_path := Path(in_dir) / "additional_metadata_model.json").exists()
+        and (secondary_path := Path(in_dir) / "additional_metadata.json").exists()
         else additional_metadata_file_path
     )
 
-    additional_metadata_model = None
     all_metadata = {}
     if additional_metadata_file_path is not None:
         with additional_metadata_file_path.open(mode="r") as file_stream:
@@ -80,6 +79,7 @@ def reposit(
     for subject in subjects:
         line = "\t".join(subject[field] for field in subject_fields)
         subject_lines.append(f"{line}\n")
+
     # TSV writer below is hard to control header order - TSV is not hard to write directly, so just do it here...
     with open(file=subjects_file_path, mode="w") as file_stream:
         file_stream.writelines(subject_lines)
@@ -175,6 +175,7 @@ def reposit(
         session_id = (
             metadata["session"]["session_id"] or ""
         )  # Follow-up TODO: cleanup the missing session ID case
+        
         print(participant_id, session_id)
         if session_id:
             os.makedirs(
@@ -186,6 +187,7 @@ def reposit(
         os.makedirs(
             os.path.join(out_dir, participant_id, session_id, "ephys"), exist_ok=True
         )
+
 
         # Temporary hack to get this to obey validation
         file_prefix = (
@@ -271,6 +273,7 @@ def reposit(
         # and if so remove the duplicates and move to outer level
 
         # Rename and/or copy NWB file
+
         bids_path = os.path.join(out_dir, participant_id)
         if metadata["session"]["session_id"]:
             bids_path = os.path.join(bids_path, session_id)
