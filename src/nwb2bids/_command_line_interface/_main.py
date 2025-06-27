@@ -1,5 +1,7 @@
 import click
 
+from .._base import convert_nwb_dataset
+
 
 # nwb2bids < nwb_directory > < bids_directory >
 @click.command(name="nwb2bids")
@@ -35,4 +37,9 @@ def _run_nwb2bids(
     NWB_DIRECTORY : The path to the folder containing NWB files.
     BIDS_DIRECTORY : The path to the folder where the BIDS dataset will be created.
     """
-    pass
+    convert_nwb_dataset(
+        nwb_directory=nwb_directory,
+        bids_directory=bids_directory,
+        copy=copy,
+        additional_metadata_file_path=additional_metadata_file_path,
+    )

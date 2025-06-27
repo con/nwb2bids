@@ -3,8 +3,8 @@ import pathlib
 import nwb2bids
 
 
-def test_convert_nwb_dataset(nwb_file: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file.parent, bids_directory=temporary_bids_directory)
+def test_convert_nwb_dataset(nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwbfile_path.parent, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
@@ -38,10 +38,10 @@ def test_convert_nwb_dataset(nwb_file: pathlib.Path, temporary_bids_directory: p
 
 
 def test_convert_nwb_dataset_with_additional_metadata(
-    nwb_file: pathlib.Path, temporary_bids_directory: pathlib.Path, additional_metadata_file_path: pathlib.Path
+    nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path, additional_metadata_file_path: pathlib.Path
 ):
     nwb2bids.convert_nwb_dataset(
-        nwb_directory=nwb_file.parent,
+        nwb_directory=nwbfile_path.parent,
         bids_directory=temporary_bids_directory,
         additional_metadata_file_path=additional_metadata_file_path,
     )
@@ -81,10 +81,10 @@ def test_convert_nwb_dataset_with_additional_metadata(
 
 
 def test_convert_nwb_dataset_no_session_id(
-    nwb_file_with_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
+    nwbfile_path_with_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb2bids.convert_nwb_dataset(
-        nwb_directory=nwb_file_with_missing_session_id.parent, bids_directory=temporary_bids_directory
+        nwb_directory=nwbfile_path_with_missing_session_id.parent, bids_directory=temporary_bids_directory
     )
 
     expected_structure = {

@@ -21,7 +21,7 @@ def temporary_bids_directory(tmpdir: py.path.local) -> pathlib.Path:
 
 
 @pytest.fixture(scope="session")
-def nwb_file_with_multiple_events(
+def nwbfile_path_with_multiple_events(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
     nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="20240309")
@@ -40,15 +40,15 @@ def nwb_file_with_multiple_events(
     time_intervals = nwb2bids.testing.mock_time_intervals()
     nwbfile.add_acquisition(time_intervals)
 
-    filename = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_multiple_events.nwb"
-    with pynwb.NWBHDF5IO(path=filename, mode="w") as io:
+    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_multiple_events.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
         io.write(nwbfile)
 
-    return filename
+    return nwbfile_path
 
 
 @pytest.fixture(scope="session")
-def nwb_file_with_trials_events(
+def nwbfile_path_with_trials_events(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
     nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="20240309")
@@ -64,15 +64,15 @@ def nwb_file_with_trials_events(
     trials = nwb2bids.testing.mock_trials_table()
     nwbfile.trials = trials
 
-    filename = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_trials.nwb"
-    with pynwb.NWBHDF5IO(path=filename, mode="w") as io:
+    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_trials.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
         io.write(nwbfile)
 
-    return filename
+    return nwbfile_path
 
 
 @pytest.fixture(scope="session")
-def nwb_file_with_epochs_events(
+def nwbfile_path_with_epochs_events(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
     nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="20240309")
@@ -88,15 +88,15 @@ def nwb_file_with_epochs_events(
     epochs = nwb2bids.testing.mock_epochs_table()
     nwbfile.epochs = epochs
 
-    filename = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_epochs.nwb"
-    with pynwb.NWBHDF5IO(path=filename, mode="w") as io:
+    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_epochs.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
         io.write(nwbfile)
 
-    return filename
+    return nwbfile_path
 
 
 @pytest.fixture(scope="session")
-def nwb_file(
+def nwbfile_path(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
 
@@ -109,15 +109,15 @@ def nwb_file(
         sex="male",
     )
     nwbfile.subject = subject
-    filename = tmp_path_factory.mktemp("test_nwb2bids") / "testfile.nwb"
-    with pynwb.NWBHDF5IO(path=filename, mode="w") as io:
+    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
         io.write(nwbfile)
 
-    return filename
+    return nwbfile_path
 
 
 @pytest.fixture(scope="session")
-def nwb_file_with_missing_session_id(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+def nwbfile_path_with_missing_session_id(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
     nwbfile = pynwb.testing.mock.file.mock_NWBFile()
     time_series = pynwb.TimeSeries(name="Test", data=numpy.array(object=[], dtype="uint8"), unit="n.a.", rate=1.0)
     nwbfile.add_acquisition(time_series)
@@ -127,11 +127,11 @@ def nwb_file_with_missing_session_id(tmp_path_factory: pytest.TempPathFactory) -
         sex="male",
     )
     nwbfile.subject = subject
-    filename = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_nosessionid.nwb"
-    with pynwb.NWBHDF5IO(path=filename, mode="w") as io:
+    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_nosessionid.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
         io.write(nwbfile)
 
-    return filename
+    return nwbfile_path
 
 
 @pytest.fixture(scope="session")
