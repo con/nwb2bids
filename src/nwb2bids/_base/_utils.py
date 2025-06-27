@@ -11,8 +11,8 @@ def _sanitize_bids_value(in_string, pattern=r"[^a-zA-Z0-9]", replacement="X"):
 
 def _extract_metadata(filepath: str) -> dict:
 
-    with pynwb.NWBHDF5IO(filepath, load_namespaces=True) as io:
-        nwbfile = io.read()
+    with pynwb.NWBHDF5IO(filepath, load_namespaces=True) as file_stream:
+        nwbfile = file_stream.read()
 
         subject = nwbfile.subject
 

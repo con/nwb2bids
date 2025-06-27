@@ -41,8 +41,8 @@ def nwbfile_path_with_multiple_events(
     nwbfile.add_acquisition(time_intervals)
 
     nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_multiple_events.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
-        io.write(nwbfile)
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
 
     return nwbfile_path
 
@@ -65,8 +65,8 @@ def nwbfile_path_with_trials_events(
     nwbfile.trials = trials
 
     nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_trials.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
-        io.write(nwbfile)
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
 
     return nwbfile_path
 
@@ -89,8 +89,8 @@ def nwbfile_path_with_epochs_events(
     nwbfile.epochs = epochs
 
     nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_epochs.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
-        io.write(nwbfile)
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
 
     return nwbfile_path
 
@@ -110,8 +110,8 @@ def nwbfile_path(
     )
     nwbfile.subject = subject
     nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
-        io.write(nwbfile)
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
 
     return nwbfile_path
 
@@ -128,8 +128,8 @@ def nwbfile_path_with_missing_session_id(tmp_path_factory: pytest.TempPathFactor
     )
     nwbfile.subject = subject
     nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_nosessionid.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as io:
-        io.write(nwbfile)
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
 
     return nwbfile_path
 
