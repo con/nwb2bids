@@ -26,6 +26,15 @@ def assert_subdirectory_structure(
     for subdirectory_path, directories, files in directory.walk():
         expected = expected_structure.get(subdirectory_path, None)
 
+        assert expected is not None, (
+            f"\n\nUnexpected subdirectory {subdirectory_path}.\n\n"
+            f"Expected subdirectories: {list(expected_structure.keys())}\n"
+        )
+        assert set(expected.keys()) == {"directories", "files"}, (
+            f"\n\nUnexpected keys in expected structure for {subdirectory_path}.\n\n"
+            f"Expected keys: 'directories', 'files'\n"
+            f"Found keys: {set(expected.keys())}\n\n"
+        )
         assert set(directories) == set(expected["directories"]), (
             f"\n\nUnexpected directories in {subdirectory_path}.\n\n"
             f"Expected: {expected['directories']}\n"
