@@ -1,0 +1,19 @@
+"""
+NWB2BIDS
+========
+
+Reorganize NWB files into a BIDS directory layout.
+"""
+
+from ._base import convert_nwb_dataset
+
+__all__ = [
+    # Public methods
+    "convert_nwb_dataset",
+    # Public submodules
+    "schemas",
+    "testing",
+]
+
+# Trigger import of hidden submodule elements (only need to import one item to trigger the rest)
+from ._hidden_top_level_imports import _hide
