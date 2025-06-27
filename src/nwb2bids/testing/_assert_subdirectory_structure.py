@@ -1,3 +1,4 @@
+import os
 import pathlib
 import typing
 
@@ -23,7 +24,9 @@ def assert_subdirectory_structure(
         Values are dictionaries with required 'directories' and 'files' keys whose values are sets of string names for
         all expected entities at that level.
     """
-    for subdirectory_path, directories, files in directory.walk():
+    # Future TODO: adjust to pathlib.Path.walk once 3.12 is minimum
+    for subdirectory_path, directories, files in os.walk(top=directory):
+        subdirectory_path = pathlib.Path(subdirectory_path)
         expected = expected_structure.get(subdirectory_path, None)
 
         assert expected is not None, (
