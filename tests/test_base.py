@@ -5,10 +5,10 @@ import py.path
 import nwb2bids
 
 
-def test_convert_nwb_dataset(nwb_testdata: pathlib.Path, tmpdir: py.path.local):
+def test_convert_nwb_dataset(nwb_file: pathlib.Path, tmpdir: py.path.local):
     tmpdir = pathlib.Path(tmpdir)
 
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_testdata.parent, bids_directory=tmpdir)
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file.parent, bids_directory=tmpdir)
 
     expected_structure = {
         tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
@@ -40,14 +40,14 @@ def test_convert_nwb_dataset(nwb_testdata: pathlib.Path, tmpdir: py.path.local):
 
 
 def test_convert_nwb_dataset_with_additional_metadata(
-    nwb_testdata: pathlib.Path, tmpdir: py.path.local, additional_metadata_fixture: pathlib.Path
+    nwb_file: pathlib.Path, tmpdir: py.path.local, additional_metadata_file_path: pathlib.Path
 ):
     tmpdir = pathlib.Path(tmpdir)
 
     nwb2bids.convert_nwb_dataset(
-        nwb_directory=nwb_testdata.parent,
+        nwb_directory=nwb_file.parent,
         bids_directory=tmpdir,
-        additional_metadata_file_path=additional_metadata_fixture,
+        additional_metadata_file_path=additional_metadata_file_path,
     )
 
     expected_structure = {
@@ -82,10 +82,10 @@ def test_convert_nwb_dataset_with_additional_metadata(
     nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
 
 
-def test_convert_nwb_dataset_no_session_id(nwb_testdata_no_session_id: pathlib.Path, tmpdir: py.path.local):
+def test_convert_nwb_dataset_no_session_id(nwb_file_with_blank_session_id: pathlib.Path, tmpdir: py.path.local):
     tmpdir = pathlib.Path(tmpdir)
 
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_testdata_no_session_id.parent, bids_directory=tmpdir)
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file_with_blank_session_id.parent, bids_directory=tmpdir)
 
     expected_structure = {
         tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},

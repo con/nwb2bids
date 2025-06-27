@@ -5,10 +5,10 @@ import py.path
 import nwb2bids
 
 
-def test_trials_events(nwb_testdata_trials_events: pathlib.Path, tmpdir: py.path.local):
+def test_trials_events(nwb_file_with_trials_events: pathlib.Path, tmpdir: py.path.local):
     tmpdir = pathlib.Path(tmpdir)
 
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_testdata_trials_events.parent, bids_directory=tmpdir)
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file_with_trials_events.parent, bids_directory=tmpdir)
 
     expected_structure = {
         tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
@@ -41,10 +41,10 @@ def test_trials_events(nwb_testdata_trials_events: pathlib.Path, tmpdir: py.path
     nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
 
 
-def test_epochs_events(nwb_testdata_epochs_events: pathlib.Path, tmpdir: py.path.local):
+def test_epochs_events(nwb_file_with_epochs_events: pathlib.Path, tmpdir: py.path.local):
     tmpdir = pathlib.Path(tmpdir)
 
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_testdata_epochs_events.parent, bids_directory=tmpdir)
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file_with_epochs_events.parent, bids_directory=tmpdir)
 
     expected_structure = {
         tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
@@ -77,10 +77,10 @@ def test_epochs_events(nwb_testdata_epochs_events: pathlib.Path, tmpdir: py.path
     nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
 
 
-def test_multiple_events(nwb_testdata_multiple_events: pathlib.Path, tmpdir: py.path.local):
+def test_multiple_events(nwb_file_with_multiple_events: pathlib.Path, tmpdir: py.path.local):
     tmpdir = pathlib.Path(tmpdir)
 
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_testdata_multiple_events.parent, bids_directory=tmpdir)
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file_with_multiple_events.parent, bids_directory=tmpdir)
 
     expected_structure = {
         tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
