@@ -48,7 +48,7 @@ Changelog = "https://github.com/con/nwb2bids/blob/master/CHANGELOG.md"
 [project.scripts]
 nwb2bids = "nwb2bids._command_line_interface._main:_run_nwb2bids"
 
-[project.dependency-groups]
+[dependency-groups]
 test = ["pytest"]
 coverage = ["pytest-cov"]
 dev = ["ipython", "pre-commit"]
@@ -57,7 +57,6 @@ all = [
     {include-group = "coverage"},
     {include-group = "dev"}
 ]
-
 
 
 [tool.black]
