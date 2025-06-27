@@ -27,7 +27,7 @@ jobs:
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python }}
 
       - name: Install dependencies
         run: |
@@ -37,7 +37,7 @@ jobs:
       - name: Run tests
         run: python -m pytest -vv --cov=nwb2bids --cov-report xml:./codecov.xml
       - name: Upload full coverage to Codecov
-        if: ${{ matrix.python-version == '3.13' && matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.python == '3.13' && matrix.os == 'ubuntu-latest' }}
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
