@@ -28,7 +28,7 @@ def nwb_file_with_multiple_events(
     time_series = pynwb.TimeSeries(name="Test", data=numpy.array(object=[], dtype="uint8"), unit="n.a.", rate=1.0)
     nwbfile.add_acquisition(time_series)
 
-    subject = pynwb.file.Subject(subject_id="12_34", sex="male")
+    subject = pynwb.testing.mock.file.mock_Subject()
     nwbfile.subject = subject
 
     trials = nwb2bids.testing.mock_trials_table()
@@ -117,10 +117,8 @@ def nwb_file(
 
 
 @pytest.fixture(scope="session")
-def nwb_file_with_blank_session_id(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(
-        # session_id="",
-    )
+def nwb_file_with_missing_session_id(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile()
     time_series = pynwb.TimeSeries(name="Test", data=numpy.array(object=[], dtype="uint8"), unit="n.a.", rate=1.0)
     nwbfile.add_acquisition(time_series)
 

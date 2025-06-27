@@ -17,7 +17,7 @@ authors = [
 description = "Reorganize NWB files into a BIDS directory layout."
 readme = "README.md"
 keywords = ["aws", "s3", "log", "download tracking", "geolocation"]
-#license = {file = "LICENSE.txt"}
+license = {file = "LICENSE.txt"}
 requires-python = ">=3.10"
 dependencies = [
     "pynwb",
@@ -48,13 +48,15 @@ Changelog = "https://github.com/con/nwb2bids/blob/master/CHANGELOG.md"
 [project.scripts]
 nwb2bids = "nwb2bids._command_line_interface._main:_run_nwb2bids"
 
-[project.optional-dependencies]
-dev = [
-    "pytest-cov",
-    "ipython",
-    "pre-commit",
+[project.dependency-groups]
+test = ["pytest"]
+coverage = ["pytest-cov"]
+dev = ["ipython", "pre-commit"]
+all = [
+    {include-group = "test"},
+    {include-group = "coverage"},
+    {include-group = "dev"}
 ]
-all = ["nwb2bids[dev]"]
 
 
 
