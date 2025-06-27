@@ -16,7 +16,17 @@ authors = [
 ]
 description = "Reorganize NWB files into a BIDS directory layout."
 readme = "README.md"
-keywords = ["aws", "s3", "log", "download tracking", "geolocation"]
+keywords = [
+    "data standards",
+    "data organization",
+    "BIDS",
+    "Brain Imaging Data Structure",
+    "NWB",
+    "NeurodataWithoutBorders",
+    "DANDI Archive",
+    "neurodata",
+    "neuroscience",
+]
 license = {file = "LICENSE.txt"}
 requires-python = ">=3.10"
 dependencies = [
