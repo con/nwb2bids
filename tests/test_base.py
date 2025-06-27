@@ -1,29 +1,25 @@
 import pathlib
 
-import py.path
-
 import nwb2bids
 
 
-def test_convert_nwb_dataset(nwb_file: pathlib.Path, tmpdir: py.path.local):
-    tmpdir = pathlib.Path(tmpdir)
-
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file.parent, bids_directory=tmpdir)
+def test_convert_nwb_dataset(nwb_file: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file.parent, bids_directory=temporary_bids_directory)
 
     expected_structure = {
-        tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
-        tmpdir
+        temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory
         / "sub-12X34": {
             "directories": {"ses-20240309"},
             "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ses-20240309": {
             "directories": {"ephys"},
             "files": set(),
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ses-20240309"
         / "ephys": {
@@ -36,37 +32,37 @@ def test_convert_nwb_dataset(nwb_file: pathlib.Path, tmpdir: py.path.local):
             },
         },
     }
-    nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
 
 
 def test_convert_nwb_dataset_with_additional_metadata(
-    nwb_file: pathlib.Path, tmpdir: py.path.local, additional_metadata_file_path: pathlib.Path
+    nwb_file: pathlib.Path, temporary_bids_directory: pathlib.Path, additional_metadata_file_path: pathlib.Path
 ):
-    tmpdir = pathlib.Path(tmpdir)
-
     nwb2bids.convert_nwb_dataset(
         nwb_directory=nwb_file.parent,
-        bids_directory=tmpdir,
+        bids_directory=temporary_bids_directory,
         additional_metadata_file_path=additional_metadata_file_path,
     )
 
     expected_structure = {
-        tmpdir: {
+        temporary_bids_directory: {
             "directories": {"sub-12X34"},
             "files": {"participants.json", "participants.tsv", "dataset_description.json"},
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34": {
             "directories": {"ses-20240309"},
             "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ses-20240309": {
             "directories": {"ephys"},
             "files": set(),
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ses-20240309"
         / "ephys": {
@@ -79,22 +75,26 @@ def test_convert_nwb_dataset_with_additional_metadata(
             },
         },
     }
-    nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
 
 
-def test_convert_nwb_dataset_no_session_id(nwb_file_with_missing_session_id: pathlib.Path, tmpdir: py.path.local):
-    tmpdir = pathlib.Path(tmpdir)
-
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file_with_missing_session_id.parent, bids_directory=tmpdir)
+def test_convert_nwb_dataset_no_session_id(
+    nwb_file_with_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb2bids.convert_nwb_dataset(
+        nwb_directory=nwb_file_with_missing_session_id.parent, bids_directory=temporary_bids_directory
+    )
 
     expected_structure = {
-        tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
-        tmpdir
+        temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory
         / "sub-12X34": {
             "directories": {"ephys"},
             "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ephys": {
             "directories": set(),
@@ -106,4 +106,6 @@ def test_convert_nwb_dataset_no_session_id(nwb_file_with_missing_session_id: pat
             },
         },
     }
-    nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )

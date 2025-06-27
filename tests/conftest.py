@@ -14,7 +14,7 @@ import nwb2bids
 # TODO: add DynamicTable's in acquisition with *_time columns
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def temporary_bids_directory(tmpdir: py.path.local) -> pathlib.Path:
     """Creates a temporary BIDS directory for testing purposes."""
     return pathlib.Path(tmpdir)

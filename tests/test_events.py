@@ -1,29 +1,27 @@
 import pathlib
 
-import py.path
-
 import nwb2bids
 
 
-def test_trials_events(nwb_file_with_trials_events: pathlib.Path, tmpdir: py.path.local):
-    tmpdir = pathlib.Path(tmpdir)
-
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file_with_trials_events.parent, bids_directory=tmpdir)
+def test_trials_events(nwb_file_with_trials_events: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    nwb2bids.convert_nwb_dataset(
+        nwb_directory=nwb_file_with_trials_events.parent, bids_directory=temporary_bids_directory
+    )
 
     expected_structure = {
-        tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
-        tmpdir
+        temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory
         / "sub-12X34": {
             "directories": {"ses-20240309"},
             "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ses-20240309": {
             "directories": {"ephys"},
             "files": set(),
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ses-20240309"
         / "ephys": {
@@ -38,28 +36,30 @@ def test_trials_events(nwb_file_with_trials_events: pathlib.Path, tmpdir: py.pat
             },
         },
     }
-    nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
 
 
-def test_epochs_events(nwb_file_with_epochs_events: pathlib.Path, tmpdir: py.path.local):
-    tmpdir = pathlib.Path(tmpdir)
-
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file_with_epochs_events.parent, bids_directory=tmpdir)
+def test_epochs_events(nwb_file_with_epochs_events: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    nwb2bids.convert_nwb_dataset(
+        nwb_directory=nwb_file_with_epochs_events.parent, bids_directory=temporary_bids_directory
+    )
 
     expected_structure = {
-        tmpdir: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
-        tmpdir
+        temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory
         / "sub-12X34": {
             "directories": {"ses-20240309"},
             "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ses-20240309": {
             "directories": {"ephys"},
             "files": set(),
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-12X34"
         / "ses-20240309"
         / "ephys": {
@@ -74,28 +74,30 @@ def test_epochs_events(nwb_file_with_epochs_events: pathlib.Path, tmpdir: py.pat
             },
         },
     }
-    nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
 
 
-def test_multiple_events(nwb_file_with_multiple_events: pathlib.Path, tmpdir: py.path.local):
-    tmpdir = pathlib.Path(tmpdir)
-
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_file_with_multiple_events.parent, bids_directory=tmpdir)
+def test_multiple_events(nwb_file_with_multiple_events: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    nwb2bids.convert_nwb_dataset(
+        nwb_directory=nwb_file_with_multiple_events.parent, bids_directory=temporary_bids_directory
+    )
 
     expected_structure = {
-        tmpdir: {"directories": {"sub-subject"}, "files": {"participants.json", "participants.tsv"}},
-        tmpdir
+        temporary_bids_directory: {"directories": {"sub-subject"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory
         / "sub-subject": {
             "directories": {"ses-20240309"},
             "files": {"sub-subject_sessions.json", "sub-subject_sessions.tsv"},
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-subject"
         / "ses-20240309": {
             "directories": {"ephys"},
             "files": set(),
         },
-        tmpdir
+        temporary_bids_directory
         / "sub-subject"
         / "ses-20240309"
         / "ephys": {
@@ -110,4 +112,6 @@ def test_multiple_events(nwb_file_with_multiple_events: pathlib.Path, tmpdir: py
             },
         },
     }
-    nwb2bids.testing.assert_subdirectory_structure(directory=tmpdir, expected_structure=expected_structure)
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
