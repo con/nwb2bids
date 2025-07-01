@@ -22,6 +22,8 @@ class SessionConverter(pydantic.BaseModel):
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
         """
+        super().__init__()
+
         self.nwb_file_path = pathlib.Path(nwb_file_path)
         self.bids_directory = pathlib.Path(bids_directory)
 

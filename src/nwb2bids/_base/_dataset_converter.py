@@ -28,6 +28,8 @@ class DatasetConverter(pydantic.BaseModel):
             The path to a JSON file containing additional metadata to be included in the BIDS dataset.
             If not provided, the method will also look for a file named "additional_metadata.json" in the NWB directory.
         """
+        super().__init__()
+
         self.nwb_directory = pathlib.Path(nwb_directory)
         self.nwb_file_paths: list[pathlib.Path] = list(self.nwb_directory.rglob(pattern="*.nwb"))
         self.session_converters: list[SessionConverter] = [
