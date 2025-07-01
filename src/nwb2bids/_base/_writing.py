@@ -3,6 +3,13 @@ import os
 import pathlib
 
 from ._utils import _drop_false_keys, _unique_list_of_dicts, _write_tsv
+from ..schemas import BidsDatasetMetadata
+
+
+def _write_dataset_description(*, bids_dataset_metadata: BidsDatasetMetadata, bids_directory: pathlib.Path) -> None:
+    file_path = bids_directory / "dataset_description.json"
+    content = bids_dataset_metadata.dataset_description.model_dump_json(indent=4)
+    file_path.write_text(data=content)
 
 
 def _write_subjects_info(
