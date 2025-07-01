@@ -6,9 +6,10 @@ import shutil
 import pydantic
 import pynwb
 
+from ._additional_metadata import _load_and_validate_additional_metadata, _write_dataset_description
 from ._events import _get_events_metadata, _get_events_table
-from ._utils import _drop_false_keys, _extract_metadata, _unique_list_of_dicts, _write_tsv
-from ..schemas import AdditionalMetadata
+from ._utils import _extract_metadata, _write_tsv
+from ._write_info import _write_sessions_info, _write_subjects_info
 
 
 @pydantic.validate_call
@@ -44,117 +45,20 @@ def convert_nwb_dataset(
         else additional_metadata_file_path
     )
 
-    additional_metadata_model = None
-    all_metadata = {}
+    additional_metadata = None
     if additional_metadata_file_path is not None:
-        with additional_metadata_file_path.open(mode="r") as file_stream:
-            additional_metadata_dict = json.load(fp=file_stream)
-        additional_metadata_model = AdditionalMetadata(**additional_metadata_dict)
+        additional_metadata = _load_and_validate_additional_metadata(file_path=additional_metadata_file_path)
+        _write_dataset_description(additional_metadata=additional_metadata, bids_directory=bids_directory)
 
-        # Top-level fields (required for BIDS)
-        # Possible that DANDI itself should be primarily responsible for modifying certain things at time of publication
-        dataset_description_file_path = os.path.join(bids_directory, "dataset_description.json")
-        with open(file=dataset_description_file_path, mode="w") as file_stream:
-            file_stream.write(additional_metadata_model.model_dump_json(indent=4))
-
-    # Fields within NWB files
-    nwb_files = list(pathlib.Path(nwb_directory).rglob("*.[nN][wW][bB]"))
-
+    nwb_files = list(nwb_directory.rglob(pattern="*.nwb"))
+    all_metadata = dict()
     for nwb_file in nwb_files:
-        metadata = _extract_metadata(nwb_file)
         all_metadata[nwb_file] = _extract_metadata(nwb_file)
 
-    os.makedirs(bids_directory, exist_ok=True)
+    _write_subjects_info(all_metadata=all_metadata, bids_directory=bids_directory)
 
-    subjects = _unique_list_of_dicts([x["subject"] for x in all_metadata.values()])
-
-    subjects = _drop_false_keys(subjects)
-
-    subjects_file_path = os.path.join(bids_directory, "participants.tsv")
-    # BIDS validation enforces column order
-    # Follow-up TODO: make keys dynamic based on availability
-    # Follow-up TODO: generalize to more subjects
-    possible_subject_fields = ["participant_id", "species", "strain", "sex"]
-    subject_fields = [field for field in possible_subject_fields if subjects[0].get(field, None) is not None]
-    subject_header = "\t".join(subject_fields)
-    subject_lines = [f"{subject_header}\n"]
-    for subject in subjects:
-        line = "\t".join(subject[field] for field in subject_fields)
-        subject_lines.append(f"{line}\n")
-
-    # TSV writer below is hard to control header order - TSV is not hard to write directly, so just do it here...
-    with open(file=subjects_file_path, mode="w") as file_stream:
-        file_stream.writelines(subject_lines)
-
-    # create participants JSON
-    default_subjects_json = {
-        "subject_id": {"Description": "Unique identifier of the subject"},
-        "species": {"Description": "The binomial species name from the NCBI Taxonomy"},
-        "strain": {"Description": "Identifier of the strain"},
-        "birthdate": {"Description": "Day of birth of the participant in ISO8601 format"},
-        "age": {
-            "Description": "Age of the participant at time of recording",
-            "Units": "days",
-        },
-        "sex": {"Description": "Sex of participant"},
-    }
-
-    subjects_json = {k: v for k, v in default_subjects_json.items() if k in subject_fields}
-    with open(os.path.join(bids_directory, "participants.json"), "w") as json_file:
-        json.dump(subjects_json, json_file, indent=4)
-
-    # sessions
-
-    default_session_json = {
-        "session_quality": {
-            "LongName": "General quality of the session",
-            "Description": "Quality of the session",
-            "Levels": {
-                "Bad": "Bad quality, should not be considered for further analysis",
-                "ok": "Ok quality, can be considered for further analysis with care",
-                "good": "Good quality, should be used for analysis",
-                "Excellent": "Excellent quality, extraordinarily good session",
-            },
-        },
-        "data_quality": {
-            "LongName": "Quality of the recorded signals",
-            "Description": "Quality of the recorded signals",
-            "Levels": {
-                "Bad": "Bad quality, should not be considered for further analysis",
-                "ok": "Ok quality, can be considered for further analysis with care",
-                "good": "Good quality, should be used for analysis",
-                "Excellent": "Excellent quality, extraordinarily good session",
-            },
-        },
-        "number_of_trials": {
-            "LongName": "Number of trials in this session",
-            "Description": "Count of attempted trials in the session (integer)",
-        },
-        "comment": {
-            "LongName": "General comments",
-            "Description": "General comments by the experimenter on the session",
-        },
-    }
-
-    for subject in subjects:
-        participant_id = subject["participant_id"]
-
-        os.makedirs(os.path.join(bids_directory, participant_id), exist_ok=True)
-
-        for metadata in all_metadata.values():
-            sessions = [x["session"] for x in all_metadata.values() if x["subject"]["participant_id"] == participant_id]
-
-            sessions = _drop_false_keys(sessions)
-
-            sessions_file_path = os.path.join(bids_directory, participant_id, f"{participant_id}_sessions.tsv")
-            sessions_keys = _write_tsv(sessions, sessions_file_path)
-            sessions_json = {k: v for k, v in default_session_json.items() if k in sessions_keys}
-
-            with open(
-                os.path.join(bids_directory, participant_id, f"{participant_id}_sessions.json"),
-                "w",
-            ) as json_file:
-                json.dump(sessions_json, json_file, indent=4)
+    # TODO: fix metadata passing here
+    _write_sessions_info(subjects=all_metadata, bids_directory=bids_directory)
 
     # electrodes, probes, and channels
 
@@ -224,9 +128,7 @@ def convert_nwb_dataset(
             # Write events.json file
             bids_event_metadata = _get_events_metadata(nwbfile=nwbfile)
             additional_metadata_events = (
-                additional_metadata_model.events.model_dump()
-                if additional_metadata_model is not None
-                else None or dict()
+                additional_metadata.events.model_dump() if additional_metadata is not None else None or dict()
             )
             for key, value in additional_metadata_events.items():
                 if key not in bids_event_metadata:

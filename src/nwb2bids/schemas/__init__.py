@@ -1,5 +1,7 @@
-from ._additional_metadata_schema import AdditionalMetadata
+from ._bids_session_metadata import BidsSessionMetadata
+from ._bids_dataset_metadata import BidsDatasetMetadata
 
 __all__ = [
-    "AdditionalMetadata",
+    "BidsDatasetMetadata",
+    "BidsSessionMetadata",
 ]

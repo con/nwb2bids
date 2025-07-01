@@ -31,9 +31,9 @@ class _DatasetDescription(pydantic.BaseModel):
     )
 
 
-class AdditionalMetadata(pydantic.BaseModel):
+class BidsDatasetMetadata(pydantic.BaseModel):
     """
-    Additional metadata for the BIDS dataset.
+    Schema for the metadata of a BIDS dataset.
     """
 
     dataset_description: _DatasetDescription = pydantic.Field(
