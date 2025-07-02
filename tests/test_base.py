@@ -3,8 +3,8 @@ import pathlib
 import nwb2bids
 
 
-def test_convert_nwb_dataset(nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwbfile_path.parent, bids_directory=temporary_bids_directory)
+def test_convert_nwb_dataset(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    nwb2bids.convert_nwb_dataset(nwb_directory=minimal_nwbfile_path.parent, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
@@ -38,10 +38,12 @@ def test_convert_nwb_dataset(nwbfile_path: pathlib.Path, temporary_bids_director
 
 
 def test_convert_nwb_dataset_with_additional_metadata(
-    nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path, additional_metadata_file_path: pathlib.Path
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    additional_metadata_file_path: pathlib.Path,
 ):
     nwb2bids.convert_nwb_dataset(
-        nwb_directory=nwbfile_path.parent,
+        nwb_directory=minimal_nwbfile_path.parent,
         bids_directory=temporary_bids_directory,
         additional_metadata_file_path=additional_metadata_file_path,
     )

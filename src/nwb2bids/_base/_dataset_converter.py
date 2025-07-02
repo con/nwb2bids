@@ -1,19 +1,25 @@
 import collections
+import json
 import pathlib
 import typing
 
+import pandas
 import pydantic
 
-from ._loading import _load_and_validate_additional_metadata
 from ._session_converter import SessionConverter
-from ._writing import _write_dataset_description, _write_sessions_info, _write_subjects_info
-from ..schemas import BidsDatasetMetadata
+from ._writing import _write_dataset_description, _write_sessions_info
+from ..models import BidsDatasetMetadata
 
 
 class DatasetConverter(pydantic.BaseModel):
-    def __init__(
-        self, nwb_directory: pydantic.DirectoryPath, additional_metadata_file_path: pydantic.FilePath | None = None
-    ) -> None:
+    session_converters: list[SessionConverter]
+    dataset_metadata: BidsDatasetMetadata | None = None
+
+    @classmethod
+    @pydantic.validate_call
+    def from_nwb_directory(
+        cls, nwb_directory: pydantic.DirectoryPath, additional_metadata_file_path: pydantic.FilePath | None = None
+    ) -> typing.Self:
         """
         Initialize a converter of NWB files to BIDS format.
 
@@ -25,24 +31,20 @@ class DatasetConverter(pydantic.BaseModel):
             The path to a JSON file containing additional metadata to be included in the BIDS dataset.
             If not provided, the method will also look for a file named "additional_metadata.json" in the NWB directory.
         """
-        super().__init__()
+        session_converters = SessionConverter.from_nwb_directory(nwb_directory=nwb_directory)
 
-        self.nwb_directory = pathlib.Path(nwb_directory)
-        self.nwb_file_paths: list[pathlib.Path] = list(self.nwb_directory.rglob(pattern="*.nwb"))
-        self.session_converters: list[SessionConverter] = [
-            SessionConverter(nwb_file_path=nwb_file_path) for nwb_file_path in self.nwb_file_paths
-        ]
-
-        self.dataset_metadata: BidsDatasetMetadata | None = None
-        self.additional_metadata: BidsDatasetMetadata | None = None
+        dataset_metadata = None
         additional_metadata_file_path = (
             secondary_path
             if additional_metadata_file_path is None
-            and (secondary_path := pathlib.Path(nwb_directory) / "additional_metadata.json").exists()
+            and (secondary_path := nwb_directory / "additional_metadata.json").exists()
             else additional_metadata_file_path
         )
         if additional_metadata_file_path is not None:
-            self.additional_metadata = _load_and_validate_additional_metadata(file_path=additional_metadata_file_path)
+            dataset_metadata = BidsDatasetMetadata.from_file_path(file_path=additional_metadata_file_path)
+
+        dataset_converter = cls(session_converters=session_converters, dataset_metadata=dataset_metadata)
+        return dataset_converter
 
     def extract_dataset_metadata(self) -> None:
         """
@@ -56,8 +58,11 @@ class DatasetConverter(pydantic.BaseModel):
             ),
             maxlen=0,
         )
-        self.dataset_metadata = [session_converter.metadata for session_converter in self.session_converters]
 
+        sessions_metadata = [session_converter.session_metadata for session_converter in self.session_converters]
+        self.dataset_metadata = BidsDatasetMetadata(sessions_metadata=sessions_metadata)
+
+    @pydantic.validate_call
     def convert_to_bids_dataset(
         self, bids_directory: str | pathlib.Path, copy_mode: typing.Literal["move", "copy", "symlink"] = "symlink"
     ) -> None:
@@ -74,16 +79,14 @@ class DatasetConverter(pydantic.BaseModel):
             - "copy": Copy the files to the BIDS directory.
             - "symlink": Create symbolic links to the files in the BIDS directory.
         """
-        bids_directory = pathlib.Path(bids_directory)
         bids_directory.mkdir(exist_ok=True)
-
         if self.dataset_metadata is None:
             self.extract_dataset_metadata()
 
         if self.additional_metadata is not None:
             _write_dataset_description(additional_metadata=self.additional_metadata, bids_directory=bids_directory)
 
-        _write_subjects_info(all_metadata=self.dataset_metadata, bids_directory=bids_directory)
+        self.write_participants_metadata(bids_directory=bids_directory)
         _write_sessions_info(subjects=self.dataset_metadata, bids_directory=bids_directory)
 
         collections.deque(
@@ -93,3 +96,49 @@ class DatasetConverter(pydantic.BaseModel):
             ),
             maxlen=0,
         )
+
+    @pydantic.validate_call
+    def write_participants_metadata(self, bids_directory: str | pathlib.Path) -> None:
+        """
+        Write the `participants.tsv`, `participants.json`, and create empty subject directories.
+
+        Parameters
+        ----------
+        bids_directory : directory path
+            The path to the directory where the BIDS dataset will be created.
+        """
+        bids_directory.mkdir(exist_ok=True)
+        if self.dataset_metadata is None:
+            self.extract_dataset_metadata()
+
+        participants_data_frame = pandas.DataFrame.from_records(
+            data=[
+                {key: value for key, value in session_metadata.subject.model_dump().items() if value is not None}
+                for session_metadata in self.dataset_metadata.sessions_metadata
+            ]
+        ).astype("string")
+        is_field_in_table = {field: True for field in participants_data_frame.keys()}
+
+        # BIDS validation is strict about order
+        column_order = ("participant_id", "species", "sex", "strain")
+        participants_data_frame = participants_data_frame.reindex(
+            columns=tuple(field for field in column_order if is_field_in_table.get(field, False) is True)
+        )
+
+        participants_tsv_file_path = bids_directory / "participants.tsv"
+        participants_data_frame.to_csv(path_or_buf=participants_tsv_file_path, mode="w", index=False, sep="\t")
+
+        is_field_in_table = {field: True for field in participants_data_frame.keys()}
+        participants_schema = self.dataset_metadata.sessions_metadata[0].subject.model_json_schema()
+        participants_json = {
+            field: info["description"]
+            for field, info in participants_schema["properties"].items()
+            if is_field_in_table.get(field, False) is True
+        }
+        participants_json_file_path = bids_directory / "participants.json"
+        with participants_json_file_path.open(mode="w") as file_stream:
+            json.dump(obj=participants_json, fp=file_stream, indent=4)
+
+        for subject_id in participants_data_frame["participant_id"]:
+            subject_directory = bids_directory / f"sub-{subject_id}"
+            subject_directory.mkdir(exist_ok=True)

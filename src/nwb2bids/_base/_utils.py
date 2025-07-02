@@ -1,10 +1,25 @@
 import csv
-import re
+import pathlib
+
+import pynwb
 
 
-def _sanitize_bids_value(in_string, pattern=r"[^a-zA-Z0-9]", replacement="X"):
-    out_string = re.sub(pattern, replacement, in_string)
-    return out_string
+def _get_session_id_from_nwbfile_path(nwbfile_path: pathlib.Path) -> str:
+    """
+    Extract the session ID from the NWB file path.
+
+    Parameters
+    ----------
+    nwbfile_path : str or pathlib.Path
+        The path to the NWB file.
+
+    Returns
+    -------
+    str
+        The session ID extracted from the file path.
+    """
+    nwbfile = pynwb.read_nwb(nwbfile_path)
+    return nwbfile.session_id
 
 
 def _unique_list_of_dicts(data):

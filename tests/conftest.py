@@ -21,6 +21,33 @@ def temporary_bids_directory(tmpdir: py.path.local) -> pathlib.Path:
 
 
 @pytest.fixture(scope="session")
+def minimal_nwbfile_path(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> pathlib.Path:
+    """
+    A minimally valid NWB file for testing purposes.
+
+    Does not contain any additional metadata beyond what is required for initialization of converter and metadata
+    classes.
+    """
+
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="20240309")
+
+    subject = pynwb.file.Subject(
+        subject_id="123",
+        species="Mus musculus",
+        sex="male",
+    )
+    nwbfile.subject = subject
+
+    nwbfile_path = tmp_path_factory.mktemp(basename="nwb2bids_testing_files", numbered=False) / "minimal.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
 def nwbfile_path_with_multiple_events(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> pathlib.Path:
@@ -89,27 +116,6 @@ def nwbfile_path_with_epochs_events(
     nwbfile.epochs = epochs
 
     nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_epochs.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
-        file_stream.write(nwbfile)
-
-    return nwbfile_path
-
-
-@pytest.fixture(scope="session")
-def nwbfile_path(
-    tmp_path_factory: pytest.TempPathFactory,
-) -> pathlib.Path:
-
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="20240309")
-    time_series = pynwb.TimeSeries(name="Test", data=numpy.array(object=[], dtype="uint8"), unit="n.a.", rate=1.0)
-    nwbfile.add_acquisition(time_series)
-
-    subject = pynwb.file.Subject(
-        subject_id="12_34",
-        sex="male",
-    )
-    nwbfile.subject = subject
-    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 

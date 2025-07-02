@@ -2,97 +2,71 @@ import pathlib
 import typing
 
 import pydantic
-import pynwb
 
-from ._utils import _sanitize_bids_value
-from ..schemas import BidsSessionMetadata
+from ._utils import _get_session_id_from_nwbfile_path
+from ..models import BidsSessionMetadata
 
 
 class SessionConverter(pydantic.BaseModel):
-    def __init__(self, nwb_file_path: pydantic.FilePath) -> None:
+    """
+    Initialize a converter of NWB files to BIDS format.
+
+    Parameters
+    ----------
+    nwbfile_paths : list of file paths
+        The list of paths to NWB files associated with this session.
+    """
+
+    session_id: str
+    nwbfile_paths: list[pydantic.FilePath]
+    session_metadata: BidsSessionMetadata | None = None
+
+    @classmethod
+    @pydantic.validate_call
+    def from_nwb_directory(cls, nwb_directory: pydantic.DirectoryPath) -> list[typing.Self]:
         """
-        Initialize a converter of NWB files to BIDS format.
+        Initialize a list of session converters from a list of NWB file paths.
+
+        Automatically associates multiple NWB files to a single session according to session ID.
 
         Parameters
         ----------
         nwb_directory : directory path
             The path to the directory containing NWB files.
+
+        Returns
+        -------
+        A list of SessionConverter instances, one per unique session ID.
         """
-        super().__init__()
+        nwb_file_paths = list(nwb_directory.rglob(pattern="*.nwb"))
+        nwb_file_path_to_session_id = {
+            nwb_file_path: _get_session_id_from_nwbfile_path(nwbfile_path=nwb_file_path)
+            for nwb_file_path in nwb_file_paths
+        }
 
-        self.nwb_file_path = pathlib.Path(nwb_file_path)
-        self.session_metadata: BidsSessionMetadata | None = None
+        unique_session_ids = set(nwb_file_path_to_session_id.values())
+        unique_session_id_to_nwb_file_paths = {
+            unique_session_id: [
+                nwb_file_path
+                for nwb_file_path, session_id in nwb_file_path_to_session_id.items()
+                if session_id == unique_session_id
+            ]
+            for unique_session_id in unique_session_ids
+        }
 
-    def extract_session_metadata(self) -> BidsSessionMetadata:
+        session_converters = [
+            cls(session_id=session_id, nwbfile_paths=nwb_file_paths)
+            for session_id, nwb_file_paths in unique_session_id_to_nwb_file_paths.items()
+        ]
+        return session_converters
+
+    def extract_session_metadata(self) -> None:
         """
         Extract metadata from the NWB file across the specified directory.
         """
-        with pynwb.NWBHDF5IO(path=self.nwb_file_path, load_namespaces=True) as file_stream:
-            nwbfile = file_stream.read()
+        self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwbfile_paths)
 
-            subject = nwbfile.subject
-
-            # Should we except this?
-            # Right now excepting because of testdata constraints
-            try:
-                probes = set([x.device for x in nwbfile.electrodes["group"][:]])
-                electrodes = nwbfile.electrodes
-            except TypeError:
-                probes = []
-                electrodes = []
-
-            ess = [x for x in nwbfile.objects.values() if isinstance(x, pynwb.ecephys.ElectricalSeries)]
-
-            self.session_metadata = {
-                "general_ephys": {
-                    "InstitutionName": nwbfile.institution,
-                },
-                "subject": {
-                    "participant_id": "sub-" + _sanitize_bids_value(subject.subject_id),
-                    "species": subject.species,
-                    "strain": subject.strain,
-                    "birthday": subject.date_of_birth,
-                    "age": subject.age,
-                    "sex": subject.sex,
-                },
-                "session": {
-                    "session_id": ("ses-" + nwbfile.session_id if nwbfile.session_id else None),
-                    "number_of_trials": len(nwbfile.trials) if nwbfile.trials else None,
-                    "comments": nwbfile.session_description,
-                },
-                "probes": [
-                    {
-                        "probe_id": probe.name,
-                        "type": "unknown",
-                        "description": probe.description,
-                        "manufacturer": probe.manufacturer,
-                    }
-                    for probe in probes
-                ],
-                "electrodes": [
-                    {
-                        "electrode_id": electrode.index[0],
-                        "probe_id": electrode.group.iloc[0].device.name,
-                        # TODO "impedance": electrode["imp"].iloc[0] if electrode["imp"].iloc[0] > 0 else None,
-                        "location": (
-                            electrode["location"].iloc[0] if electrode["location"].iloc[0] not in ("unknown",) else None
-                        ),
-                    }
-                    for electrode in electrodes
-                ],
-                "channels": [
-                    {
-                        "channel_id": electrode.index[0],
-                        "electrode_id": electrode.index[0],
-                        "type": "EXT",
-                        "unit": "V",
-                        "sampling_frequency": ess[0].rate,
-                        "gain": ess[0].conversion,
-                    }
-                    for electrode in electrodes
-                ],
-            }
-
+    @pydantic.validate_call
     def convert_to_bids_session(
         self, bids_directory: str | pathlib.Path, copy_mode: typing.Literal["move", "copy", "symlink"] = "symlink"
     ) -> None:

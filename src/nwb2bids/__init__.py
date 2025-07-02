@@ -6,12 +6,15 @@ Reorganize NWB files into a BIDS directory layout.
 """
 
 from ._base import convert_nwb_dataset
+from ._base import DatasetConverter, SessionConverter
 
 __all__ = [
-    # Public methods
+    # Public methods and classes
     "convert_nwb_dataset",
+    "DatasetConverter",
+    "SessionConverter",
     # Public submodules
-    "schemas",
+    "models",
     "testing",
 ]
 
