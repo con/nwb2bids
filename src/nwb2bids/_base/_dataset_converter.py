@@ -7,7 +7,7 @@ import pandas
 import pydantic
 
 from ._session_converter import SessionConverter
-from ..models import BidsDatasetMetadata
+from ..bids_models import BidsDatasetMetadata
 
 
 class DatasetConverter(pydantic.BaseModel):
@@ -122,7 +122,7 @@ class DatasetConverter(pydantic.BaseModel):
 
         participants_data_frame = pandas.DataFrame.from_records(
             data=[
-                {key: value for key, value in session_metadata.subject.model_dump().items() if value is not None}
+                {key: value for key, value in session_metadata.participant.model_dump().items() if value is not None}
                 for session_metadata in self.dataset_metadata.sessions_metadata
             ]
         ).astype("string")
@@ -132,7 +132,11 @@ class DatasetConverter(pydantic.BaseModel):
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
 
         # BIDS Validator is strict regarding column order
-        required_column_order = ["participant_id", "species", "sex", "strain"]
+        required_column_order = [
+            field
+            for field in ["participant_id", "species", "sex", "strain"]
+            if is_field_in_table.get(field, False) is True
+        ]
         column_order = required_column_order + [
             field
             for field in participants_data_frame.columns
@@ -145,7 +149,7 @@ class DatasetConverter(pydantic.BaseModel):
         )
 
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
-        participants_schema = self.dataset_metadata.sessions_metadata[0].subject.model_json_schema()
+        participants_schema = self.dataset_metadata.sessions_metadata[0].participant.model_json_schema()
         participants_json = {
             field: info["description"]
             for field, info in participants_schema["properties"].items()
@@ -158,7 +162,7 @@ class DatasetConverter(pydantic.BaseModel):
     @pydantic.validate_call
     def write_sessions_metadata(self, bids_directory: str | pathlib.Path) -> None:
         """
-        Write the `_sessions.tsv` and `_sessions.json` files, then create empty subject and session directories.
+        Write the `_sessions.tsv` and `_sessions.json` files, then create empty participant and session directories.
 
         Parameters
         ----------
@@ -169,7 +173,7 @@ class DatasetConverter(pydantic.BaseModel):
 
         subject_id_to_sessions = collections.defaultdict(list)
         for session_metadata in self.dataset_metadata.sessions_metadata:
-            subject_id_to_sessions[session_metadata.subject.participant_id].append(session_metadata)
+            subject_id_to_sessions[session_metadata.participant.participant_id].append(session_metadata)
 
         # TODO: expand beyond just session_id field (mainly via additional metadata)
         sessions_schema = self.dataset_metadata.sessions_metadata[0].model_json_schema()

@@ -1,4 +1,3 @@
-import json
 import pathlib
 import shutil
 import typing
@@ -6,8 +5,7 @@ import typing
 import pydantic
 import pynwb
 
-from ._events_utils import _get_events_metadata, _get_events_table
-from ..models import BidsSessionMetadata
+from ..bids_models import BidsSessionMetadata
 
 
 class SessionConverter(pydantic.BaseModel):
@@ -92,6 +90,10 @@ class SessionConverter(pydantic.BaseModel):
             - "copy": Copy the files to the BIDS directory.
             - "symlink": Create symbolic links to the files in the BIDS directory.
         """
+        if len(self.nwbfile_paths) > 1:
+            message = "Conversion of multiple NWB files per session is not yet supported."
+            raise NotImplementedError(message)
+
         if self.session_metadata is None:
             self.extract_session_metadata()
 
@@ -99,9 +101,9 @@ class SessionConverter(pydantic.BaseModel):
         session_subdirectory = bids_directory / f"sub-{subject_id}" / f"ses-{self.session_id}" / "ephys"
         session_subdirectory.mkdir(parents=True, exist_ok=True)
 
-        if len(self.nwbfile_paths) > 1:
-            message = "Conversion of multiple NWB files per session is not yet supported."
-            raise NotImplementedError(message)
+        self.write_ecephys_files(bids_directory=bids_directory)
+        if self.session_metadata.events is not None:
+            self.write_events_files(bids_directory=bids_directory)
 
         # TODO: determine icephys or ecephys suffix
         for nwbfile_path in self.nwbfile_paths:
@@ -114,7 +116,7 @@ class SessionConverter(pydantic.BaseModel):
                 session_file_path.symlink_to(target=nwbfile_path)
 
     @pydantic.validate_call
-    def write_ecephys_metadata(self, bids_directory: str | pathlib.Path) -> None:
+    def write_ecephys_files(self, bids_directory: str | pathlib.Path) -> None:
         """
         Write the `_probes`, `_channels`, and `_electrodes` metadata files, both `.tsv` and `.json`, for this session .
 
@@ -123,26 +125,45 @@ class SessionConverter(pydantic.BaseModel):
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
         """
-        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
-
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
 
-        # for var in ("electrodes", "probes", "channels"):
-        #     var_metadata = metadata[var]
-        #     # var_metadata = drop_false_keys(var_metadata)
-        #     var_metadata_file_path = os.path.join(
-        #         bids_directory,
-        #         participant_id,
-        #         session_id,
-        #         "ephys",
-        #         f"{file_prefix}_{var}.tsv",
-        #     )
-        # _write_tsv(var_metadata, var_metadata_file_path)
+        if (
+            self.session_metadata.probe_table is None
+            and self.session_metadata.channel_table is None
+            and self.session_metadata.electrodes_table is None
+        ):
+            return
+
+        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+
+        ecephys_directory = self._establish_ecephys_subdirectory(bids_directory=bids_directory)
+        file_prefix = f"sub-{self.session_metadata.participant.participant_id}_ses-{self.session_id}"
+
+        if self.session_metadata.probe_table is not None:
+            probes_tsv_file_path = ecephys_directory / f"{file_prefix}_probes.tsv"
+            self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)
+
+            probes_json_file_path = ecephys_directory / f"{file_prefix}_probes.json"
+            self.session_metadata.probe_table.to_json(file_path=probes_json_file_path)
+
+        if self.session_metadata.channel_table is not None:
+            channels_tsv_file_path = ecephys_directory / f"{file_prefix}_channels.tsv"
+            self.session_metadata.channel_table.to_tsv(file_path=channels_tsv_file_path)
+
+            channels_json_file_path = ecephys_directory / f"{file_prefix}_channels.json"
+            self.session_metadata.channel_table.to_json(file_path=channels_json_file_path)
+
+        if self.session_metadata.electrode_table is not None:
+            electrodes_tsv_file_path = ecephys_directory / f"{file_prefix}_electrodes.tsv"
+            self.session_metadata.electrode_table.to_tsv(file_path=electrodes_tsv_file_path)
+
+            electrodes_json_file_path = ecephys_directory / f"{file_prefix}_electrodes.json"
+            self.session_metadata.electrode_table.to_json(file_path=electrodes_json_file_path)
 
     @pydantic.validate_call
-    def write_events_metadata(self, bids_directory: str | pathlib.Path) -> None:
+    def write_events_files(self, bids_directory: str | pathlib.Path) -> None:
         """
         Write the `_events.tsv` and `_events.json` files for this session.
 
@@ -151,65 +172,22 @@ class SessionConverter(pydantic.BaseModel):
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
         """
-        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
-
+        if self.session_metadata.events is None:
+            message = "No events metadata found in the session metadata - unable to write events TSV."
+            raise ValueError(message)
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
+        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
 
-        nwbfile_path = self.nwbfile_paths[0]
-        nwbfile = pynwb.read_nwb(nwbfile_path)
-        nwb_events_table = _get_events_table(nwbfile=nwbfile)
+        ecephys_directory = self._establish_ecephys_subdirectory(bids_directory=bids_directory)
+        file_prefix = f"sub-{self.session_metadata.participant.participant_id}_ses-{self.session_id}"
+        session_events_tsv_file_path = ecephys_directory / f"{file_prefix}_events.tsv"
+        self.session_metadata.events.to_tsv(file_path=session_events_tsv_file_path)
 
-        if nwb_events_table is None:
-            return
-
-        # Collapse 'start_time' and 'stop_time' columns into 'onset' and 'duration' columns
-        bids_event_table = nwb_events_table.copy()
-        bids_event_table["duration"] = bids_event_table["stop_time"] - bids_event_table["start_time"]
-        bids_event_table = bids_event_table.rename(columns={"start_time": "onset"})
-        bids_event_table = bids_event_table.drop(columns=["stop_time"])
-        bids_event_table = bids_event_table.sort_values(by=["onset", "duration"], ascending=[True, False]).reset_index(
-            drop=True
-        )
-
-        # BIDS Validator is strict regarding column order
-        required_column_order = ["onset", "duration", "nwb_table"]
-        column_order = required_column_order + [
-            column for column in bids_event_table.columns if column not in required_column_order
-        ]
-
-        subject_directory = bids_directory / f"sub-{self.session_metadata.subject.participant_id}"
-        subject_directory.mkdir(exist_ok=True)
-        session_directory = subject_directory / f"ses-{self.session_id}"
-        session_directory.mkdir(exist_ok=True)
-        ecephys_directory = session_directory / "ecephys"
-        ecephys_directory.mkdir(exist_ok=True)
-
-        file_prefix = f"sub-{self.session_metadata.subject.participant_id}_ses-{self.session_id}"
-        session_events_table_file_path = ecephys_directory / f"{file_prefix}_events.tsv"
-        bids_event_table.to_csv(
-            path_or_buf=session_events_table_file_path,
-            sep="\t",
-            index=False,
-            columns=column_order,
-        )
-
-        bids_event_metadata = _get_events_metadata(nwbfile=nwbfile)
-        additional_events = (
-            self.session_metadata.events.events.model_dump()
-            if self.session_metadata.events is not None
-            else None or dict()
-        )
-        for key, value in additional_events.items():
-            if key not in bids_event_metadata:
-                bids_event_metadata[key] = value
-            else:
-                bids_event_metadata[key].update(value)
-
+        # TODO: add merging from top-level additional metadata mechanism
         session_events_metadata_file_path = ecephys_directory / f"{file_prefix}_events.json"
-        with session_events_metadata_file_path.open(mode="w") as file_stream:
-            json.dump(obj=bids_event_metadata, fp=file_stream, indent=4)
+        self.session_metadata.events.to_json(file_path=session_events_metadata_file_path)
 
         # IDEA: check events.json files, see if all are the same and if so remove the duplicates and move to outer level
 
@@ -217,3 +195,13 @@ class SessionConverter(pydantic.BaseModel):
         bids_directory.mkdir(exist_ok=True)
         if self.session_metadata is None:
             self.extract_session_metadata()
+
+    def _establish_ecephys_subdirectory(self, bids_directory: pathlib.Path) -> pathlib.Path:
+        subject_directory = bids_directory / f"sub-{self.session_metadata.participant.participant_id}"
+        subject_directory.mkdir(exist_ok=True)
+        session_directory = subject_directory / f"ses-{self.session_id}"
+        session_directory.mkdir(exist_ok=True)
+        ecephys_directory = session_directory / "ecephys"
+        ecephys_directory.mkdir(exist_ok=True)
+
+        return ecephys_directory

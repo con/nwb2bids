@@ -96,20 +96,18 @@ def ecephys_nwbfile() -> pynwb.NWBFile:
     )
     nwbfile.subject = subject
 
-    device = pynwb.testing.mock.ecephys.mock_Device(name="test_device", description="A test device.", nwbfile=nwbfile)
-    electrode_group = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
-        name="test_electrode_group",
-        description="A test electrode group.",
-        location="A brain region targeted by the probe insertion.",
-        device=device,
-        nwbfile=nwbfile,
-    )
-    electrodes = pynwb.testing.mock.ecephys.mock_ElectrodeTable(group=electrode_group, nwbfile=nwbfile)
+    # device = pynwb.testing.mock.ecephys.mock_Device(name="test_device", description="A test device.", nwbfile=nwbfile)
+    # electrode_group = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
+    #     name="test_electrode_group",
+    #     description="A test electrode group.",
+    #     location="A brain region targeted by the probe insertion.",
+    #     device=device,
+    #     nwbfile=nwbfile,
+    # )
+    # electrodes = pynwb.testing.mock.ecephys.mock_ElectrodeTable(group=electrode_group, nwbfile=nwbfile)
 
-    electrical_series = pynwb.testing.mock.ecephys.mock_ElectricalSeries(
-        name="test_electrical_series", electrodes=electrodes
-    )
-    nwbfile.add_acquisition(electrical_series)
+    pynwb.testing.mock.ecephys.mock_ElectricalSeries(name="test_electrical_series", nwbfile=nwbfile)
+    # nwbfile.add_acquisition(electrical_series)
 
     return nwbfile
 

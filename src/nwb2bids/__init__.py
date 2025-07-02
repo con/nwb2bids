@@ -14,7 +14,7 @@ __all__ = [
     "DatasetConverter",
     "SessionConverter",
     # Public submodules
-    "models",
+    "bids_models",
     "testing",
 ]
 

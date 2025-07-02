@@ -87,20 +87,23 @@ def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_b
     )
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-subject"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory: {
+            "directories": {"sub-participant"},
+            "files": {"participants.json", "participants.tsv"},
+        },
         temporary_bids_directory
-        / "sub-subject": {
+        / "sub-participant": {
             "directories": {"ses-20240309"},
             "files": {"sub-subject_sessions.json", "sub-subject_sessions.tsv"},
         },
         temporary_bids_directory
-        / "sub-subject"
+        / "sub-participant"
         / "ses-20240309": {
             "directories": {"ephys"},
             "files": set(),
         },
         temporary_bids_directory
-        / "sub-subject"
+        / "sub-participant"
         / "ses-20240309"
         / "ephys": {
             "directories": set(),

@@ -19,15 +19,15 @@ def test_dataset_converter_metadata_extraction(
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(nwb_directory=minimal_nwbfile_path.parent)
     dataset_converter.extract_dataset_metadata()
 
-    expected_dataset_metadata = nwb2bids.models.BidsDatasetMetadata(
+    expected_dataset_metadata = nwb2bids.bids_models.BidsDatasetMetadata(
         sessions_metadata=[
-            nwb2bids.models.BidsSessionMetadata(
-                session_id="20240309",
-                subject=nwb2bids.models.Subject(participant_id="123", species="Mus musculus", sex="male"),
+            nwb2bids.bids_models.BidsSessionMetadata(
+                session_id="456",
+                participant=nwb2bids.bids_models.Participant(participant_id="123", species="Mus musculus", sex="male"),
                 extra={
-                    "session": {"session_id": "20240309", "number_of_trials": None, "comments": "session_description"},
+                    "session": {"session_id": "456", "number_of_trials": None, "comments": "session_description"},
                     "general_ephys": {"InstitutionName": None},
-                    "subject": {"participant_id": "123", "species": "Mus musculus", "strain": None, "sex": "male"},
+                    "participant": {"participant_id": "123", "species": "Mus musculus", "strain": None, "sex": "male"},
                     "probes": [],
                 },
             )
@@ -93,7 +93,7 @@ def test_dataset_converter_write_subject_metadata(
     with participants_json_file_path.open(mode="r") as file_stream:
         participants_json = json.load(fp=file_stream)
     expected_participants_json = {
-        "participant_id": "A unique participant identifier for this subject.",
+        "participant_id": "A unique identifier for this participant.",
         "species": (
             "The species should be the proper Latin binomial species name from the NCBI Taxonomy "
             "(for example, Mus musculus)."
@@ -119,12 +119,12 @@ def test_dataset_converter_write_sessions_metadata(
         temporary_bids_directory: {"directories": {"sub-123"}, "files": set()},
         temporary_bids_directory
         / "sub-123": {
-            "directories": {"ses-20240309"},
+            "directories": {"ses-456"},
             "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-20240309": {
+        / "ses-456": {
             "directories": set(),
             "files": set(),
         },
@@ -136,7 +136,7 @@ def test_dataset_converter_write_sessions_metadata(
     sessions_tsv_file_path = temporary_bids_directory / "sub-123" / "sub-123_sessions.tsv"
     sessions_data_frame = pandas.read_csv(filepath_or_buffer=sessions_tsv_file_path, sep="\t", dtype=str)
 
-    expected_data_frame = pandas.DataFrame({"session_id": ["ses-20240309"]})
+    expected_data_frame = pandas.DataFrame({"session_id": ["ses-456"]})
     pandas.testing.assert_frame_equal(left=sessions_data_frame, right=expected_data_frame)
 
     sessions_json_file_path = temporary_bids_directory / "sub-123" / "sub-123_sessions.json"
