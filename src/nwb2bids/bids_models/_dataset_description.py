@@ -3,7 +3,7 @@ import typing
 import pydantic
 
 
-class _DatasetDescription(pydantic.BaseModel):
+class DatasetDescription(pydantic.BaseModel):
     """
     Schema for the dataset description in BIDS format.
     """
@@ -30,12 +30,7 @@ class _DatasetDescription(pydantic.BaseModel):
         default=None,
     )
 
-
-class AdditionalMetadata(pydantic.BaseModel):
-    """
-    Additional metadata for the BIDS dataset.
-    """
-
-    dataset_description: _DatasetDescription = pydantic.Field(
-        description="Dataset description including name, BIDS version, and other relevant information."
+    model_config = pydantic.ConfigDict(
+        validate_assignment=True,  # Re-validate model on mutation
+        extra="allow",  # Allow additional custom fields
     )
