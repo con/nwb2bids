@@ -41,7 +41,10 @@ class BidsSessionMetadata(pydantic.BaseModel):
     Schema for the metadata of a single BIDS session.
     """
 
-    session_id: str = pydantic.Field(description="A unique BIDS session identifier.")
+    session_id: str = pydantic.Field(
+        description="A unique session identifier.",
+        pattern=r"^[^_]+$",  # No underscores allowed
+    )
     subject: Subject = pydantic.Field(description="Metadata about a subject used in this experiment.")
     extra: dict  # Temporary
 

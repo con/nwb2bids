@@ -43,10 +43,18 @@ class BidsDatasetMetadata(pydantic.BaseModel):
         description="Dataset description including name, BIDS version, and other relevant information.",
         default=None,
     )
-    sessions_metadata: list[BidsSessionMetadata] = pydantic.Field(
+    sessions_metadata: list[BidsSessionMetadata] | None = pydantic.Field(
         description="Metadata collected from all sessions in the dataset.",
         min_length=1,
+        default=None,
     )
+
+    @pydantic.model_validator(mode="after")
+    def check_at_least_one_value(self) -> typing.Self:
+        if self.dataset_description is None and self.sessions_metadata is None:
+            message = "Please set either `dataset_description` or `sessions_metadata` to instantiate this class."
+            raise ValueError(message)
+        return self
 
     @classmethod
     @pydantic.validate_call
@@ -66,4 +74,28 @@ class BidsDatasetMetadata(pydantic.BaseModel):
         """
         with file_path.open(mode="r") as file_stream:
             dictionary = json.load(fp=file_stream)
-        return cls(**dictionary)
+
+        dataset_metadata = cls(**dictionary)
+        return dataset_metadata
+
+    def __add__(self, other: typing.Self) -> typing.Self:
+        # TODO: could add sophisticated logic for handling merges/updates
+        if self.dataset_description is None and other.dataset_description is not None:
+            self.dataset_description = other.dataset_description
+        elif self.dataset_description is not None and other.dataset_description is not None:
+            message = (
+                "Combining two `BidsDatasetMetadata` classes that both possess a `dataset_description` "
+                "field has not yet been implemented."
+            )
+            raise NotImplementedError(message)
+
+        if self.sessions_metadata is None and other.sessions_metadata is not None:
+            self.sessions_metadata = other.sessions_metadata
+        elif self.sessions_metadata is not None and other.sessions_metadata is not None:
+            message = (
+                "Combining two `BidsDatasetMetadata` classes that both possess a `sessions_metadata` "
+                "field has not yet been implemented."
+            )
+            raise NotImplementedError(message)
+
+        return self

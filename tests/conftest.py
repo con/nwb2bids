@@ -21,9 +21,40 @@ def temporary_bids_directory(tmpdir: py.path.local) -> pathlib.Path:
 
 
 @pytest.fixture(scope="session")
-def minimal_nwbfile_path(
-    tmp_path_factory: pytest.TempPathFactory,
-) -> pathlib.Path:
+def testing_files_directory(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    """
+    Creates a common temporary directory for all testing files.
+
+    Testing files may be nested into subdirectories to test localization logic.
+    """
+    testing_files_directory = tmp_path_factory.mktemp(basename="nwb2bids_testing_files", numbered=False)
+    return testing_files_directory
+
+
+@pytest.fixture(scope="session")
+def additional_metadata_file_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    additional_metadata_dictionary = {
+        "dataset_description": {
+            "Name": "test",
+            "Description": "TODO",
+            "BIDSVersion": "1.10",
+            "DatasetType": "raw",
+            "License": "CC-BY-4.0",
+            "Authors": ["Cody Baker", "Yaroslav Halchenko"],
+        }
+    }
+
+    additional_metadata_subdirectory = testing_files_directory / "additional_metadata"
+    additional_metadata_subdirectory.mkdir(exist_ok=True)
+    file_path = additional_metadata_subdirectory / "test_additional_metadata.json"
+    with file_path.open(mode="w") as file_stream:
+        json.dump(obj=additional_metadata_dictionary, fp=file_stream)
+
+    return file_path
+
+
+@pytest.fixture(scope="session")
+def minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     """
     A minimally valid NWB file for testing purposes.
 
@@ -40,7 +71,9 @@ def minimal_nwbfile_path(
     )
     nwbfile.subject = subject
 
-    nwbfile_path = tmp_path_factory.mktemp(basename="nwb2bids_testing_files", numbered=False) / "minimal.nwb"
+    minimal_subdirectory = testing_files_directory / "minimal"
+    minimal_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = minimal_subdirectory / "minimal.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 
@@ -138,25 +171,3 @@ def nwbfile_path_with_missing_session_id(tmp_path_factory: pytest.TempPathFactor
         file_stream.write(nwbfile)
 
     return nwbfile_path
-
-
-@pytest.fixture(scope="session")
-def additional_metadata_file_path(
-    tmp_path_factory: pytest.TempPathFactory,
-) -> pathlib.Path:
-    additional_metadata_dictionary = {
-        "dataset_description": {
-            "Name": "test",
-            "Description": "TODO",
-            "BIDSVersion": "1.10",
-            "DatasetType": "raw",
-            "License": "CC-BY-4.0",
-            "Authors": ["Cody Baker", "Yaroslav Halchenko"],
-        }
-    }
-
-    file_path = tmp_path_factory.mktemp("test_nwb2bids") / "test_additional_metadata.json"
-    with file_path.open(mode="w") as file_stream:
-        json.dump(obj=additional_metadata_dictionary, fp=file_stream)
-
-    return file_path
