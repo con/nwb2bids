@@ -35,6 +35,31 @@ class Subject(pydantic.BaseModel):
         default=None,
     )
 
+    model_config = pydantic.ConfigDict(
+        validate_assignment=True,  # Re-validate model on mutation
+        extra="allow",  # Allow additional custom fields
+    )
+
+
+class Events(pydantic.BaseModel):
+    onset: str = pydantic.Field(
+        description="A unique participant identifier for this subject.",
+        pattern=r"^[^_]+$",  # No underscores allowed
+    )
+    duration: str = pydantic.Field(
+        description=(
+            "The species should be the proper Latin binomial species name from the NCBI Taxonomy "
+            "(for example, Mus musculus)."
+        ),
+        pattern=r"([A-Z][a-z]* [a-z]+)|(http://purl.obolibrary.org/obo/NCBITaxon_\d+)",  # Latin binomial or NCBI link
+        # TODO: see if BIDS validator accepts purl.obolib links directly
+    )
+
+    model_config = pydantic.ConfigDict(
+        validate_assignment=True,  # Re-validate model on mutation
+        extra="allow",  # Allow additional custom fields
+    )
+
 
 class BidsSessionMetadata(pydantic.BaseModel):
     """
@@ -46,6 +71,9 @@ class BidsSessionMetadata(pydantic.BaseModel):
         pattern=r"^[^_]+$",  # No underscores allowed
     )
     subject: Subject = pydantic.Field(description="Metadata about a subject used in this experiment.")
+    events: Events | None = pydantic.Field(
+        description="Metadata about events that occur during this experiment.", default=None
+    )
     extra: dict  # Temporary
 
     @classmethod

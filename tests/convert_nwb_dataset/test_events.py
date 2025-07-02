@@ -1,10 +1,14 @@
+"""Integration tests for the primary `convert_nwb_dataset` function with events data."""
+
 import pathlib
 
 import nwb2bids
 
 
-def test_convert_nwb_dataset(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    nwb2bids.convert_nwb_dataset(nwb_directory=minimal_nwbfile_path.parent, bids_directory=temporary_bids_directory)
+def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    nwb2bids.convert_nwb_dataset(
+        nwb_directory=trials_events_nwbfile_path.parent, bids_directory=temporary_bids_directory
+    )
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
@@ -29,6 +33,8 @@ def test_convert_nwb_dataset(minimal_nwbfile_path: pathlib.Path, temporary_bids_
                 "sub-12X34_ses-20240309_electrodes.tsv",
                 "sub-12X34_ses-20240309_ephys.nwb",
                 "sub-12X34_ses-20240309_probes.tsv",
+                "sub-12X34_ses-20240309_events.tsv",
+                "sub-12X34_ses-20240309_events.json",
             },
         },
     }
@@ -37,22 +43,13 @@ def test_convert_nwb_dataset(minimal_nwbfile_path: pathlib.Path, temporary_bids_
     )
 
 
-def test_convert_nwb_dataset_with_additional_metadata(
-    minimal_nwbfile_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-    additional_metadata_file_path: pathlib.Path,
-):
+def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     nwb2bids.convert_nwb_dataset(
-        nwb_directory=minimal_nwbfile_path.parent,
-        bids_directory=temporary_bids_directory,
-        additional_metadata_file_path=additional_metadata_file_path,
+        nwb_directory=epochs_events_nwbfile_path.parent, bids_directory=temporary_bids_directory
     )
 
     expected_structure = {
-        temporary_bids_directory: {
-            "directories": {"sub-12X34"},
-            "files": {"participants.json", "participants.tsv", "dataset_description.json"},
-        },
+        temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
         temporary_bids_directory
         / "sub-12X34": {
             "directories": {"ses-20240309"},
@@ -74,6 +71,8 @@ def test_convert_nwb_dataset_with_additional_metadata(
                 "sub-12X34_ses-20240309_electrodes.tsv",
                 "sub-12X34_ses-20240309_ephys.nwb",
                 "sub-12X34_ses-20240309_probes.tsv",
+                "sub-12X34_ses-20240309_events.tsv",
+                "sub-12X34_ses-20240309_events.json",
             },
         },
     }
@@ -82,29 +81,36 @@ def test_convert_nwb_dataset_with_additional_metadata(
     )
 
 
-def test_convert_nwb_dataset_no_session_id(
-    nwbfile_path_with_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
-):
+def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     nwb2bids.convert_nwb_dataset(
-        nwb_directory=nwbfile_path_with_missing_session_id.parent, bids_directory=temporary_bids_directory
+        nwb_directory=multiple_events_nwbfile_path.parent, bids_directory=temporary_bids_directory
     )
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory: {"directories": {"sub-subject"}, "files": {"participants.json", "participants.tsv"}},
         temporary_bids_directory
-        / "sub-12X34": {
-            "directories": {"ephys"},
-            "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
+        / "sub-subject": {
+            "directories": {"ses-20240309"},
+            "files": {"sub-subject_sessions.json", "sub-subject_sessions.tsv"},
         },
         temporary_bids_directory
-        / "sub-12X34"
+        / "sub-subject"
+        / "ses-20240309": {
+            "directories": {"ephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-subject"
+        / "ses-20240309"
         / "ephys": {
             "directories": set(),
             "files": {
-                "sub-12X34_channels.tsv",
-                "sub-12X34_ephys.nwb",
-                "sub-12X34_electrodes.tsv",
-                "sub-12X34_probes.tsv",
+                "sub-subject_ses-20240309_channels.tsv",
+                "sub-subject_ses-20240309_electrodes.tsv",
+                "sub-subject_ses-20240309_ephys.nwb",
+                "sub-subject_ses-20240309_probes.tsv",
+                "sub-subject_ses-20240309_events.tsv",
+                "sub-subject_ses-20240309_events.json",
             },
         },
     }

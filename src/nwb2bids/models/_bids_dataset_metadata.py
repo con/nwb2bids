@@ -33,6 +33,11 @@ class DatasetDescription(pydantic.BaseModel):
         default=None,
     )
 
+    model_config = pydantic.ConfigDict(
+        validate_assignment=True,  # Re-validate model on mutation
+        extra="allow",  # Allow additional custom fields
+    )
+
 
 class BidsDatasetMetadata(pydantic.BaseModel):
     """
@@ -78,7 +83,7 @@ class BidsDatasetMetadata(pydantic.BaseModel):
         dataset_metadata = cls(**dictionary)
         return dataset_metadata
 
-    def __add__(self, other: typing.Self) -> typing.Self:
+    def update(self, other: typing.Self) -> typing.Self:
         # TODO: could add sophisticated logic for handling merges/updates
         if self.dataset_description is None and other.dataset_description is not None:
             self.dataset_description = other.dataset_description

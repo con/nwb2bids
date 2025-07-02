@@ -77,7 +77,7 @@ def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
         if time_interval.description
     }
 
-    # Follow-up TODO: assign HED tags based on neurodata type once extendeded beyond TimeIntervals
+    # Follow-up TODO: assign HED tags based on neurodata type once extended beyond TimeIntervals
     event_metadata["nwb_table"] = {
         "nwb_table": {
             "Description": "The name of the NWB table from which this event was extracted.",

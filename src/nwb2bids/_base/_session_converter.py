@@ -1,9 +1,12 @@
+import json
 import pathlib
+import shutil
 import typing
 
 import pydantic
+import pynwb
 
-from ._utils import _get_session_id_from_nwbfile_path
+from ._events_utils import _get_events_metadata, _get_events_table
 from ..models import BidsSessionMetadata
 
 
@@ -17,9 +20,16 @@ class SessionConverter(pydantic.BaseModel):
         The list of paths to NWB files associated with this session.
     """
 
-    session_id: str
-    nwbfile_paths: list[pydantic.FilePath]
-    session_metadata: BidsSessionMetadata | None = None
+    session_id: str = pydantic.Field(
+        description="A unique session identifier.",
+        pattern=r"^[^_]+$",  # No underscores allowed
+    )
+    nwbfile_paths: list[pydantic.FilePath] = pydantic.Field(
+        description="List of NWB file paths which share this session ID.", min_length=1
+    )
+    session_metadata: BidsSessionMetadata | None = pydantic.Field(
+        description="BIDS metadata extracted for this session.", default=None
+    )
 
     @classmethod
     @pydantic.validate_call
@@ -40,9 +50,8 @@ class SessionConverter(pydantic.BaseModel):
         """
         nwb_file_paths = list(nwb_directory.rglob(pattern="*.nwb"))
         nwb_file_path_to_session_id = {
-            nwb_file_path: _get_session_id_from_nwbfile_path(nwbfile_path=nwb_file_path)
-            for nwb_file_path in nwb_file_paths
-        }
+            nwb_file_path: pynwb.read_nwb(nwb_file_path).session_id for nwb_file_path in nwb_file_paths
+        }  # IDEA: if this is too slow, could do direct h5py read instead, to avoid reading the entire file metadata
 
         unique_session_ids = set(nwb_file_path_to_session_id.values())
         unique_session_id_to_nwb_file_paths = {
@@ -83,18 +92,128 @@ class SessionConverter(pydantic.BaseModel):
             - "copy": Copy the files to the BIDS directory.
             - "symlink": Create symbolic links to the files in the BIDS directory.
         """
-        bids_directory = pathlib.Path(bids_directory)
-        bids_directory.mkdir(exist_ok=True)
-
         if self.session_metadata is None:
             self.extract_session_metadata()
 
-        session_subdirectory = bids_directory / "TODO"
-        session_subdirectory.mkdir(exist_ok=True)
+        subject_id = self.session_metadata.participant_id
+        session_subdirectory = bids_directory / f"sub-{subject_id}" / f"ses-{self.session_id}" / "ephys"
+        session_subdirectory.mkdir(parents=True, exist_ok=True)
 
-        if copy_mode == "copy":
-            pass
-        elif copy_mode == "move":
-            pass
-        elif copy_mode == "symlink":
-            pass
+        if len(self.nwbfile_paths) > 1:
+            message = "Conversion of multiple NWB files per session is not yet supported."
+            raise NotImplementedError(message)
+
+        # TODO: determine icephys or ecephys suffix
+        for nwbfile_path in self.nwbfile_paths:
+            session_file_path = session_subdirectory / f"sub-{subject_id}_ses-{self.session_id}_ecephys.nwb"
+            if copy_mode == "copy":
+                shutil.copy(src=nwbfile_path, dst=session_file_path)
+            elif copy_mode == "move":
+                shutil.move(src=nwbfile_path, dst=session_file_path)
+            elif copy_mode == "symlink":
+                session_file_path.symlink_to(target=nwbfile_path)
+
+    @pydantic.validate_call
+    def write_ecephys_metadata(self, bids_directory: str | pathlib.Path) -> None:
+        """
+        Write the `_probes`, `_channels`, and `_electrodes` metadata files, both `.tsv` and `.json`, for this session .
+
+        Parameters
+        ----------
+        bids_directory : directory path
+            The path to the directory where the BIDS dataset will be created.
+        """
+        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+
+        if len(self.nwbfile_paths) > 1:
+            message = "Conversion of multiple NWB files per session is not yet supported."
+            raise NotImplementedError(message)
+
+        # for var in ("electrodes", "probes", "channels"):
+        #     var_metadata = metadata[var]
+        #     # var_metadata = drop_false_keys(var_metadata)
+        #     var_metadata_file_path = os.path.join(
+        #         bids_directory,
+        #         participant_id,
+        #         session_id,
+        #         "ephys",
+        #         f"{file_prefix}_{var}.tsv",
+        #     )
+        # _write_tsv(var_metadata, var_metadata_file_path)
+
+    @pydantic.validate_call
+    def write_events_metadata(self, bids_directory: str | pathlib.Path) -> None:
+        """
+        Write the `_events.tsv` and `_events.json` files for this session.
+
+        Parameters
+        ----------
+        bids_directory : directory path
+            The path to the directory where the BIDS dataset will be created.
+        """
+        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+
+        if len(self.nwbfile_paths) > 1:
+            message = "Conversion of multiple NWB files per session is not yet supported."
+            raise NotImplementedError(message)
+
+        nwbfile_path = self.nwbfile_paths[0]
+        nwbfile = pynwb.read_nwb(nwbfile_path)
+        nwb_events_table = _get_events_table(nwbfile=nwbfile)
+
+        if nwb_events_table is None:
+            return
+
+        # Collapse 'start_time' and 'stop_time' columns into 'onset' and 'duration' columns
+        bids_event_table = nwb_events_table.copy()
+        bids_event_table["duration"] = bids_event_table["stop_time"] - bids_event_table["start_time"]
+        bids_event_table = bids_event_table.rename(columns={"start_time": "onset"})
+        bids_event_table = bids_event_table.drop(columns=["stop_time"])
+        bids_event_table = bids_event_table.sort_values(by=["onset", "duration"], ascending=[True, False]).reset_index(
+            drop=True
+        )
+
+        # BIDS Validator is strict regarding column order
+        required_column_order = ["onset", "duration", "nwb_table"]
+        column_order = required_column_order + [
+            column for column in bids_event_table.columns if column not in required_column_order
+        ]
+
+        subject_directory = bids_directory / f"sub-{self.session_metadata.subject.participant_id}"
+        subject_directory.mkdir(exist_ok=True)
+        session_directory = subject_directory / f"ses-{self.session_id}"
+        session_directory.mkdir(exist_ok=True)
+        ecephys_directory = session_directory / "ecephys"
+        ecephys_directory.mkdir(exist_ok=True)
+
+        file_prefix = f"sub-{self.session_metadata.subject.participant_id}_ses-{self.session_id}"
+        session_events_table_file_path = ecephys_directory / f"{file_prefix}_events.tsv"
+        bids_event_table.to_csv(
+            path_or_buf=session_events_table_file_path,
+            sep="\t",
+            index=False,
+            columns=column_order,
+        )
+
+        bids_event_metadata = _get_events_metadata(nwbfile=nwbfile)
+        additional_events = (
+            self.session_metadata.events.events.model_dump()
+            if self.session_metadata.events is not None
+            else None or dict()
+        )
+        for key, value in additional_events.items():
+            if key not in bids_event_metadata:
+                bids_event_metadata[key] = value
+            else:
+                bids_event_metadata[key].update(value)
+
+        session_events_metadata_file_path = ecephys_directory / f"{file_prefix}_events.json"
+        with session_events_metadata_file_path.open(mode="w") as file_stream:
+            json.dump(obj=bids_event_metadata, fp=file_stream, indent=4)
+
+        # IDEA: check events.json files, see if all are the same and if so remove the duplicates and move to outer level
+
+    def _establish_bids_directory_and_check_metadata(self, bids_directory: pathlib.Path) -> None:
+        bids_directory.mkdir(exist_ok=True)
+        if self.session_metadata is None:
+            self.extract_session_metadata()

@@ -63,7 +63,7 @@ class DatasetConverter(pydantic.BaseModel):
         if self.dataset_metadata is None:
             self.dataset_metadata = BidsDatasetMetadata(sessions_metadata=sessions_metadata)
         else:
-            self.dataset_metadata += BidsDatasetMetadata(sessions_metadata=sessions_metadata)
+            self.dataset_metadata.update(BidsDatasetMetadata(sessions_metadata=sessions_metadata))
 
     @pydantic.validate_call
     def convert_to_bids_dataset(
@@ -131,14 +131,18 @@ class DatasetConverter(pydantic.BaseModel):
         )
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
 
-        # BIDS validation is strict about order
-        column_order = ("participant_id", "species", "sex", "strain")
-        participants_data_frame = participants_data_frame.reindex(
-            columns=tuple(field for field in column_order if is_field_in_table.get(field, False) is True)
-        )
+        # BIDS Validator is strict regarding column order
+        required_column_order = ["participant_id", "species", "sex", "strain"]
+        column_order = required_column_order + [
+            field
+            for field in participants_data_frame.columns
+            if is_field_in_table.get(field, False) is True and field not in required_column_order
+        ]
 
         participants_tsv_file_path = bids_directory / "participants.tsv"
-        participants_data_frame.to_csv(path_or_buf=participants_tsv_file_path, mode="w", index=False, sep="\t")
+        participants_data_frame.to_csv(
+            path_or_buf=participants_tsv_file_path, mode="w", index=False, sep="\t", columns=column_order
+        )
 
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
         participants_schema = self.dataset_metadata.sessions_metadata[0].subject.model_json_schema()
