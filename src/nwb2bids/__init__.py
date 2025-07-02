@@ -5,6 +5,8 @@ NWB2BIDS
 Reorganize NWB files into a BIDS directory layout.
 """
 
+from __future__ import annotations
+
 from ._base import convert_nwb_dataset
 from ._base import DatasetConverter, SessionConverter
 

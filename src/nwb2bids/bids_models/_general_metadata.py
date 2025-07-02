@@ -28,7 +28,7 @@
 #
 #     @classmethod
 #     @pydantic.validate_call
-#     def from_nwbfiles(cls, nwbfiles: list[pynwb.NWBFile]) -> "EcephysMetadata":
+#     def from_nwbfiles(cls, nwbfiles: list[pynwb.NWBFile]) -> typing.Self:
 #         """
 #         Extracts all unique general metadata from the in-memory NWBFile objects.
 #         """

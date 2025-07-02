@@ -18,7 +18,7 @@ class DatasetConverter(pydantic.BaseModel):
     @pydantic.validate_call
     def from_nwb_directory(
         cls, nwb_directory: pydantic.DirectoryPath, additional_metadata_file_path: pydantic.FilePath | None = None
-    ) -> "DatasetConverter":
+    ) -> typing.Self:
         """
         Initialize a converter of NWB files to BIDS format.
 

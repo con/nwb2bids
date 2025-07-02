@@ -1,3 +1,5 @@
+import typing
+
 import pydantic
 import pynwb
 
@@ -30,7 +32,7 @@ class BidsSessionMetadata(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfile_paths(cls, nwbfile_paths: list[pydantic.FilePath]) -> "BidsSessionMetadata":
+    def from_nwbfile_paths(cls, nwbfile_paths: list[pydantic.FilePath]) -> typing.Self:
         nwbfiles = [pynwb.read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
         session_ids = list({nwbfile.session_id for nwbfile in nwbfiles})
         if len(session_ids) > 1:

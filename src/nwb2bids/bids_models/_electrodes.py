@@ -1,5 +1,6 @@
 import json
 import pathlib
+import typing
 
 import pandas
 import pydantic
@@ -22,7 +23,7 @@ class ElectrodeTable(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> "ElectrodeTable" | None:
+    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing.Self | None:
         if len(nwbfiles) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
