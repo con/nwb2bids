@@ -1,7 +1,7 @@
 import json
-import typing
 
 import pydantic
+import typing_extensions
 
 from ._bids_session_metadata import BidsSessionMetadata
 from ._dataset_description import DatasetDescription
@@ -23,7 +23,7 @@ class BidsDatasetMetadata(pydantic.BaseModel):
     )
 
     @pydantic.model_validator(mode="after")
-    def check_at_least_one_value(self) -> typing.Self:
+    def check_at_least_one_value(self) -> typing_extensions.Self:
         if self.dataset_description is None and self.sessions_metadata is None:
             message = "Please set either `dataset_description` or `sessions_metadata` to instantiate this class."
             raise ValueError(message)
@@ -31,7 +31,7 @@ class BidsDatasetMetadata(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_file_path(cls, file_path: pydantic.FilePath) -> typing.Self:
+    def from_file_path(cls, file_path: pydantic.FilePath) -> typing_extensions.Self:
         """
         Load BIDS dataset metadata from a JSON file.
 
@@ -51,7 +51,7 @@ class BidsDatasetMetadata(pydantic.BaseModel):
         dataset_metadata = cls(**dictionary)
         return dataset_metadata
 
-    def update(self, other: typing.Self) -> typing.Self:
+    def update(self, other: typing_extensions.Self) -> typing_extensions.Self:
         # TODO: could add sophisticated logic for handling merges/updates
         if self.dataset_description is None and other.dataset_description is not None:
             self.dataset_description = other.dataset_description
