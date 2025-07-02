@@ -1,10 +1,10 @@
 import json
 import pathlib
-import typing
 
 import pandas
 import pydantic
 import pynwb
+import typing_extensions
 
 
 class Events(pydantic.BaseModel):
@@ -36,7 +36,7 @@ class Events(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing.Self | None:
+    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
         """
         Extracts all time interval events from the in-memory NWBFile objects.
 

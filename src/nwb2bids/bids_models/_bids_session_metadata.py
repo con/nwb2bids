@@ -1,7 +1,6 @@
-import typing
-
 import pydantic
 import pynwb
+import typing_extensions
 
 from ._channels import ChannelTable
 from ._electrodes import ElectrodeTable
@@ -32,7 +31,7 @@ class BidsSessionMetadata(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfile_paths(cls, nwbfile_paths: list[pydantic.FilePath]) -> typing.Self:
+    def from_nwbfile_paths(cls, nwbfile_paths: list[pydantic.FilePath]) -> typing_extensions.Self:
         nwbfiles = [pynwb.read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
         session_ids = list({nwbfile.session_id for nwbfile in nwbfiles})
         if len(session_ids) > 1:

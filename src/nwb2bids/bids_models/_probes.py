@@ -1,10 +1,10 @@
 import json
 import pathlib
-import typing
 
 import pandas
 import pydantic
 import pynwb
+import typing_extensions
 
 
 class Probe(pydantic.BaseModel):
@@ -24,7 +24,7 @@ class ProbeTable(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing.Self | None:
+    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
         electrical_series = [
             neurodata_object
             for nwbfile in nwbfiles

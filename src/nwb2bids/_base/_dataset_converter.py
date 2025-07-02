@@ -5,6 +5,7 @@ import typing
 
 import pandas
 import pydantic
+import typing_extensions
 
 from ._session_converter import SessionConverter
 from ..bids_models import BidsDatasetMetadata
@@ -18,7 +19,7 @@ class DatasetConverter(pydantic.BaseModel):
     @pydantic.validate_call
     def from_nwb_directory(
         cls, nwb_directory: pydantic.DirectoryPath, additional_metadata_file_path: pydantic.FilePath | None = None
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         """
         Initialize a converter of NWB files to BIDS format.
 

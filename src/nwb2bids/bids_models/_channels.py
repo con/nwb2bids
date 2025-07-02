@@ -5,6 +5,7 @@ import typing
 import pandas
 import pydantic
 import pynwb
+import typing_extensions
 
 
 class Channel(pydantic.BaseModel):
@@ -26,7 +27,7 @@ class ChannelTable(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing.Self | None:
+    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
         if len(nwbfiles) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)

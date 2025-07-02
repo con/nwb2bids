@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 import pynwb
+import typing_extensions
 
 from ._handle_file_mode import _handle_file_mode
 from ..bids_models import BidsSessionMetadata
@@ -32,7 +33,7 @@ class SessionConverter(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwb_directory(cls, nwb_directory: pydantic.DirectoryPath) -> list[typing.Self]:
+    def from_nwb_directory(cls, nwb_directory: pydantic.DirectoryPath) -> list[typing_extensions.Self]:
         """
         Initialize a list of session converters from a list of NWB file paths.
 

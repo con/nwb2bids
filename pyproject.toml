@@ -33,6 +33,7 @@ dependencies = [
     "pynwb",
     "click",
     "pydantic",
+    "typing-extensions",  # TODO: remove when dropping support for Python 3.10
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

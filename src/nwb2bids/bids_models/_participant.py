@@ -2,6 +2,7 @@ import typing
 
 import pydantic
 import pynwb
+import typing_extensions
 
 
 class Participant(pydantic.BaseModel):
@@ -42,7 +43,7 @@ class Participant(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing.Self:
+    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self:
         """
         Extracts participant metadata from the in-memory NWBFile objects.
         """
