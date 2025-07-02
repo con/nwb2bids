@@ -5,6 +5,7 @@ import typing
 import pydantic
 import pynwb
 
+from ._handle_file_mode import _handle_file_mode
 from ..bids_models import BidsSessionMetadata
 
 
@@ -75,7 +76,7 @@ class SessionConverter(pydantic.BaseModel):
 
     @pydantic.validate_call
     def convert_to_bids_session(
-        self, bids_directory: str | pathlib.Path, copy_mode: typing.Literal["move", "copy", "symlink"] = "symlink"
+        self, bids_directory: str | pathlib.Path, file_mode: typing.Literal["move", "copy", "symlink"] | None = None
     ) -> None:
         """
         Convert the NWB file to a BIDS session directory.
@@ -84,21 +85,23 @@ class SessionConverter(pydantic.BaseModel):
         ----------
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
-        copy_mode : one of "move", "copy", or "symlink"
+        file_mode : one of "move", "copy", or "symlink"
             Specifies how to handle the NWB files when converting to BIDS format.
-            - "move": Move the files to the BIDS directory.
-            - "copy": Copy the files to the BIDS directory.
-            - "symlink": Create symbolic links to the files in the BIDS directory.
+              - "move": Move the files to the BIDS directory.
+              - "copy": Copy the files to the BIDS directory.
+              - "symlink": Create symbolic links to the files in the BIDS directory.
+            The default behavior is to attempt to use symlinks, but fall back to copying if symlinks are not supported.
         """
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
+        file_mode = _handle_file_mode(file_mode=file_mode)
 
         if self.session_metadata is None:
             self.extract_session_metadata()
 
-        subject_id = self.session_metadata.participant_id
-        session_subdirectory = bids_directory / f"sub-{subject_id}" / f"ses-{self.session_id}" / "ephys"
+        subject_id = self.session_metadata.participant.participant_id
+        session_subdirectory = bids_directory / f"sub-{subject_id}" / f"ses-{self.session_id}" / "ecephys"
         session_subdirectory.mkdir(parents=True, exist_ok=True)
 
         self.write_ecephys_files(bids_directory=bids_directory)
@@ -108,11 +111,11 @@ class SessionConverter(pydantic.BaseModel):
         # TODO: determine icephys or ecephys suffix
         for nwbfile_path in self.nwbfile_paths:
             session_file_path = session_subdirectory / f"sub-{subject_id}_ses-{self.session_id}_ecephys.nwb"
-            if copy_mode == "copy":
+            if file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
-            elif copy_mode == "move":
+            elif file_mode == "move":
                 shutil.move(src=nwbfile_path, dst=session_file_path)
-            elif copy_mode == "symlink":
+            elif file_mode == "symlink":
                 session_file_path.symlink_to(target=nwbfile_path)
 
     @pydantic.validate_call
@@ -132,7 +135,7 @@ class SessionConverter(pydantic.BaseModel):
         if (
             self.session_metadata.probe_table is None
             and self.session_metadata.channel_table is None
-            and self.session_metadata.electrodes_table is None
+            and self.session_metadata.electrode_table is None
         ):
             return
 

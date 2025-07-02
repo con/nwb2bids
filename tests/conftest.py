@@ -1,7 +1,6 @@
 import json
 import pathlib
 
-import numpy
 import py.path
 import pynwb
 import pynwb.file
@@ -13,6 +12,20 @@ import nwb2bids
 
 # TODO: add ndx-events
 # TODO: add DynamicTable's in acquisition with *_time columns
+
+
+def _make_minimal_nwbfile() -> pynwb.NWBFile:
+    """Creates a minimal NWB file for testing purposes."""
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="456")
+
+    subject = pynwb.file.Subject(
+        subject_id="123",
+        species="Mus musculus",
+        sex="male",
+    )
+    nwbfile.subject = subject
+
+    return nwbfile
 
 
 @pytest.fixture()
@@ -55,120 +68,18 @@ def additional_metadata_file_path(testing_files_directory: pathlib.Path) -> path
 
 
 @pytest.fixture(scope="session")
-def minimal_nwbfile() -> pynwb.NWBFile:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="456")
-
-    subject = pynwb.file.Subject(
-        subject_id="123",
-        species="Mus musculus",
-        sex="male",
-    )
-    nwbfile.subject = subject
-
-    return nwbfile
-
-
-@pytest.fixture(scope="session")
-def minimal_nwbfile_path(testing_files_directory: pathlib.Path, minimal_nwbfile: pynwb.NWBFile) -> pathlib.Path:
+def minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     """
     A minimally valid NWB file for testing purposes.
 
     Does not contain any additional metadata beyond what is required for initialization of converter and metadata
     classes.
     """
+    nwbfile = _make_minimal_nwbfile()
+
     minimal_subdirectory = testing_files_directory / "minimal"
     minimal_subdirectory.mkdir(exist_ok=True)
     nwbfile_path = minimal_subdirectory / "minimal.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
-        file_stream.write(minimal_nwbfile)
-
-    return nwbfile_path
-
-
-@pytest.fixture(scope="session")
-def ecephys_nwbfile() -> pynwb.NWBFile:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="456")
-
-    subject = pynwb.file.Subject(
-        subject_id="123",
-        species="Mus musculus",
-        sex="male",
-    )
-    nwbfile.subject = subject
-
-    # device = pynwb.testing.mock.ecephys.mock_Device(name="test_device", description="A test device.", nwbfile=nwbfile)
-    # electrode_group = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
-    #     name="test_electrode_group",
-    #     description="A test electrode group.",
-    #     location="A brain region targeted by the probe insertion.",
-    #     device=device,
-    #     nwbfile=nwbfile,
-    # )
-    # electrodes = pynwb.testing.mock.ecephys.mock_ElectrodeTable(group=electrode_group, nwbfile=nwbfile)
-
-    pynwb.testing.mock.ecephys.mock_ElectricalSeries(name="test_electrical_series", nwbfile=nwbfile)
-    # nwbfile.add_acquisition(electrical_series)
-
-    return nwbfile
-
-
-@pytest.fixture(scope="session")
-def ecephys_nwbfile_path(testing_files_directory: pathlib.Path, ecephys_nwbfile: pynwb.NWBFile) -> pathlib.Path:
-    ecephys_subdirectory = testing_files_directory / "ecephys"
-    ecephys_subdirectory.mkdir(exist_ok=True)
-    nwbfile_path = ecephys_subdirectory / "ecephys.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
-        file_stream.write(ecephys_nwbfile)
-
-    return nwbfile_path
-
-
-@pytest.fixture(scope="session")
-def trials_nwbfile() -> pynwb.NWBFile:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="456")
-
-    subject = pynwb.file.Subject(
-        subject_id="123",
-        species="Mus musculus",
-        sex="male",
-    )
-    nwbfile.subject = subject
-
-    trials = nwb2bids.testing.mock_trials_table()
-    nwbfile.trials = trials
-
-    return nwbfile
-
-
-@pytest.fixture(scope="session")
-def trials_events_nwbfile_path(testing_files_directory: pathlib.Path, trials_nwbfile: pynwb.NWBFile) -> pathlib.Path:
-    events_subdirectory = testing_files_directory / "trials"
-    events_subdirectory.mkdir(exist_ok=True)
-    nwbfile_path = events_subdirectory / "trials.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
-        file_stream.write(trials_nwbfile)
-
-    return nwbfile_path
-
-
-@pytest.fixture(scope="session")
-def epochs_events_nwbfile_path(
-    tmp_path_factory: pytest.TempPathFactory,
-) -> pathlib.Path:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="20240309")
-    time_series = pynwb.TimeSeries(name="Test", data=numpy.array(object=[], dtype="uint8"), unit="n.a.", rate=1.0)
-    nwbfile.add_acquisition(time_series)
-
-    subject = pynwb.file.Subject(
-        subject_id="12_34",
-        sex="male",
-    )
-    nwbfile.subject = subject
-
-    epochs = nwb2bids.testing.mock_epochs_table()
-    nwbfile.epochs = epochs
-
-    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_epochs.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 
@@ -176,15 +87,55 @@ def epochs_events_nwbfile_path(
 
 
 @pytest.fixture(scope="session")
-def multiple_events_nwbfile_path(
-    tmp_path_factory: pytest.TempPathFactory,
-) -> pathlib.Path:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="20240309")
-    time_series = pynwb.TimeSeries(name="Test", data=numpy.array(object=[], dtype="uint8"), unit="n.a.", rate=1.0)
-    nwbfile.add_acquisition(time_series)
+def ecephys_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    nwbfile = _make_minimal_nwbfile()
 
-    subject = pynwb.testing.mock.file.mock_Subject()
-    nwbfile.subject = subject
+    pynwb.testing.mock.ecephys.mock_ElectricalSeries(name="test_electrical_series", nwbfile=nwbfile)
+
+    ecephys_subdirectory = testing_files_directory / "ecephys"
+    ecephys_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = ecephys_subdirectory / "ecephys.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def trials_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    nwbfile = _make_minimal_nwbfile()
+
+    trials = nwb2bids.testing.mock_trials_table()
+    nwbfile.trials = trials
+
+    events_subdirectory = testing_files_directory / "trials"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "trials.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def epochs_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    nwbfile = _make_minimal_nwbfile()
+
+    epochs = nwb2bids.testing.mock_epochs_table()
+    nwbfile.epochs = epochs
+
+    events_subdirectory = testing_files_directory / "epochs"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "epochs.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def multiple_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    nwbfile = _make_minimal_nwbfile()
 
     trials = nwb2bids.testing.mock_trials_table()
     nwbfile.trials = trials
@@ -195,7 +146,9 @@ def multiple_events_nwbfile_path(
     time_intervals = nwb2bids.testing.mock_time_intervals()
     nwbfile.add_acquisition(time_intervals)
 
-    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_multiple_events.nwb"
+    events_subdirectory = testing_files_directory / "multiple_events"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "multiple_events.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 
@@ -203,17 +156,19 @@ def multiple_events_nwbfile_path(
 
 
 @pytest.fixture(scope="session")
-def nwbfile_path_with_missing_session_id(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile()
-    time_series = pynwb.TimeSeries(name="Test", data=numpy.array(object=[], dtype="uint8"), unit="n.a.", rate=1.0)
-    nwbfile.add_acquisition(time_series)
+def nwbfile_path_with_missing_session_id(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
 
     subject = pynwb.file.Subject(
-        subject_id="12_34",
-        sex="male",
+        subject_id="123",
+        species="Mus musculus",
+        sex="M",
     )
     nwbfile.subject = subject
-    nwbfile_path = tmp_path_factory.mktemp("test_nwb2bids") / "testfile_nosessionid.nwb"
+
+    events_subdirectory = testing_files_directory / "missing_session_id"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "missing_session_id.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 

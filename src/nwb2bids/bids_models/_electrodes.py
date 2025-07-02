@@ -42,7 +42,7 @@ class ElectrodeTable(pydantic.BaseModel):
                 electrode_id=electrode.index[0],
                 probe_id=electrode.group.iloc[0].device.name,
                 # TODO "impedance": electrode["imp"].iloc[0] if electrode["imp"].iloc[0] > 0 else None,
-                location=str(electrode.location),
+                location=str(electrode.location.values[0]),
             )
             for electrode in nwbfile.electrodes
         ]
@@ -58,7 +58,7 @@ class ElectrodeTable(pydantic.BaseModel):
         file_path : path
             The path to the output TSV file.
         """
-        data_frame = pandas.DataFrame(data=[self.model_dump()])
+        data_frame = pandas.DataFrame(data=[electrode.model_dump() for electrode in self.electrodes])
         data_frame.to_csv(file_path, sep="\t", index=False)
 
     @pydantic.validate_call

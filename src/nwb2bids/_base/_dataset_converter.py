@@ -67,7 +67,7 @@ class DatasetConverter(pydantic.BaseModel):
 
     @pydantic.validate_call
     def convert_to_bids_dataset(
-        self, bids_directory: str | pathlib.Path, copy_mode: typing.Literal["move", "copy", "symlink"] = "symlink"
+        self, bids_directory: str | pathlib.Path, file_mode: typing.Literal["move", "copy", "symlink"] | None = None
     ) -> None:
         """
         Convert the directory of NWB files to a BIDS dataset.
@@ -76,7 +76,7 @@ class DatasetConverter(pydantic.BaseModel):
         ----------
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
-        copy_mode : one of "move", "copy", or "symlink"
+        file_mode : one of "move", "copy", or "symlink"
             Specifies how to handle the NWB files when converting to BIDS format.
             - "move": Move the files to the BIDS directory.
             - "copy": Copy the files to the BIDS directory.
@@ -92,7 +92,7 @@ class DatasetConverter(pydantic.BaseModel):
 
         collections.deque(
             (
-                session_converter.convert_to_bids_session(bids_directory=bids_directory, copy_mode=copy_mode)
+                session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
                 for session_converter in self.session_converters
             ),
             maxlen=0,

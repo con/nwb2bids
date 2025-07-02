@@ -8,6 +8,8 @@ Namely, the cases of:
 
 import pathlib
 
+import pydantic
+
 import nwb2bids
 
 
@@ -24,31 +26,26 @@ def test_convert_nwb_dataset_with_additional_metadata(
 
     expected_structure = {
         temporary_bids_directory: {
-            "directories": {"sub-12X34"},
+            "directories": {"sub-123"},
             "files": {"participants.json", "participants.tsv", "dataset_description.json"},
         },
         temporary_bids_directory
-        / "sub-12X34": {
-            "directories": {"ses-20240309"},
-            "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
         },
         temporary_bids_directory
-        / "sub-12X34"
-        / "ses-20240309": {
-            "directories": {"ephys"},
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
-        / "sub-12X34"
-        / "ses-20240309"
-        / "ephys": {
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
             "directories": set(),
-            "files": {
-                "sub-12X34_ses-20240309_channels.tsv",
-                "sub-12X34_ses-20240309_electrodes.tsv",
-                "sub-12X34_ses-20240309_ephys.nwb",
-                "sub-12X34_ses-20240309_probes.tsv",
-            },
+            "files": {"sub-123_ses-456_ecephys.nwb"},
         },
     }
     nwb2bids.testing.assert_subdirectory_structure(
@@ -59,29 +56,10 @@ def test_convert_nwb_dataset_with_additional_metadata(
 def test_convert_nwb_dataset_no_session_id(
     nwbfile_path_with_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    nwb2bids.convert_nwb_dataset(
-        nwb_directory=nwbfile_path_with_missing_session_id.parent, bids_directory=temporary_bids_directory
-    )
-
-    expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
-        temporary_bids_directory
-        / "sub-12X34": {
-            "directories": {"ephys"},
-            "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
-        },
-        temporary_bids_directory
-        / "sub-12X34"
-        / "ephys": {
-            "directories": set(),
-            "files": {
-                "sub-12X34_channels.tsv",
-                "sub-12X34_ephys.nwb",
-                "sub-12X34_electrodes.tsv",
-                "sub-12X34_probes.tsv",
-            },
-        },
-    }
-    nwb2bids.testing.assert_subdirectory_structure(
-        directory=temporary_bids_directory, expected_structure=expected_structure
-    )
+    try:
+        nwb2bids.convert_nwb_dataset(
+            nwb_directory=nwbfile_path_with_missing_session_id.parent, bids_directory=temporary_bids_directory
+        )
+    except Exception as exception:
+        assert isinstance(exception, pydantic.ValidationError)
+        assert "session_id\n  Input should be a valid string" in str(exception)

@@ -5,32 +5,66 @@ import pathlib
 import nwb2bids
 
 
-def test_convert_nwb_dataset(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+def test_minimal_convert_nwb_dataset(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     nwb2bids.convert_nwb_dataset(nwb_directory=minimal_nwbfile_path.parent, bids_directory=temporary_bids_directory)
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-12X34"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"participants.json", "participants.tsv"}},
         temporary_bids_directory
-        / "sub-12X34": {
-            "directories": {"ses-20240309"},
-            "files": {"sub-12X34_sessions.json", "sub-12X34_sessions.tsv"},
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
         },
         temporary_bids_directory
-        / "sub-12X34"
-        / "ses-20240309": {
-            "directories": {"ephys"},
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
-        / "sub-12X34"
-        / "ses-20240309"
-        / "ephys": {
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-12X34_ses-20240309_channels.tsv",
-                "sub-12X34_ses-20240309_electrodes.tsv",
-                "sub-12X34_ses-20240309_ephys.nwb",
-                "sub-12X34_ses-20240309_probes.tsv",
+                "sub-123_ses-456_ecephys.nwb",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
+
+
+def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    nwb2bids.convert_nwb_dataset(nwb_directory=ecephys_nwbfile_path.parent, bids_directory=temporary_bids_directory)
+
+    expected_structure = {
+        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-123_ses-456_ecephys.nwb",
+                "sub-123_ses-456_channels.tsv",
+                "sub-123_ses-456_channels.json",
+                "sub-123_ses-456_electrodes.tsv",
+                "sub-123_ses-456_electrodes.json",
+                "sub-123_ses-456_probes.tsv",
+                "sub-123_ses-456_probes.json",
             },
         },
     }

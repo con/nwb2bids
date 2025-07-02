@@ -8,8 +8,8 @@ import pynwb
 
 
 class Channel(pydantic.BaseModel):
-    channel_id: int
-    electrode_id: int
+    channel_id: str
+    electrode_id: str
     type: typing.Literal["EXT"] = "EXT"  # TODO
     unit: typing.Literal["V"] = "V"
     sampling_frequency: float
@@ -42,8 +42,16 @@ class ChannelTable(pydantic.BaseModel):
 
         channels = [
             Channel(
-                channel_id=electrode.index[0],
-                electrode_id=electrode.index[0],
+                channel_id=(
+                    str(channel_name.values[0])
+                    if (channel_name := electrode.get("channel_name", None)) is not None
+                    else str(electrode.index[0])
+                ),
+                electrode_id=(
+                    str(contact_ids.values[0])
+                    if (contact_ids := electrode.get("contact_ids", None)) is not None
+                    else str(electrode.index[0])
+                ),
                 type="EXT",
                 unit="V",
                 sampling_frequency=electrical_series[0].rate,  # TODO: generalize
