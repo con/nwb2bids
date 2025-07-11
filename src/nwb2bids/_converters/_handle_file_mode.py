@@ -17,5 +17,5 @@ def _handle_file_mode(
         (test_directory / "test_symlink.txt").symlink_to(target=test_file_path)
         shutil.rmtree(path=test_directory, ignore_errors=True)
         return "symlink"
-    except Exception:
+    except (OSError, PermissionError):  # Windows can sometimes have trouble with symlinks
         return "copy"

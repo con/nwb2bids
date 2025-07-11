@@ -5,14 +5,15 @@ NWB2BIDS
 Reorganize NWB files into a BIDS directory layout.
 """
 
-from ._base import convert_nwb_dataset
-from ._base import DatasetConverter, SessionConverter
-from ._base._reposit import reposit
+from ._base._convert_nwb_dataset import convert_nwb_dataset
+from ._converters._dataset_converter import DatasetConverter
+from ._converters._session_converter import SessionConverter
+from ._base._reposit import reposit  # TODO: deprecate
 
 __all__ = [
     # Public methods and classes
     "convert_nwb_dataset",
-    "reposit",  # TODO: remove
+    "reposit",  # TODO: deprecate
     "DatasetConverter",
     "SessionConverter",
     # Public submodules

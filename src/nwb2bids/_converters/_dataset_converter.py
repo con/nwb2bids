@@ -7,8 +7,9 @@ import pandas
 import pydantic
 import typing_extensions
 
+from nwb2bids.bids_models import DatasetDescription
+
 from ._session_converter import SessionConverter
-from ..bids_models import DatasetDescription
 
 
 class DatasetConverter(pydantic.BaseModel):

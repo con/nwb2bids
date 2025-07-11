@@ -6,8 +6,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._handle_file_mode import _handle_file_mode
-from ..bids_models import BidsSessionMetadata
+from nwb2bids._converters._handle_file_mode import _handle_file_mode
+from nwb2bids.bids_models import BidsSessionMetadata
 
 
 class SessionConverter(pydantic.BaseModel):

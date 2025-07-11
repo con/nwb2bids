@@ -3,7 +3,7 @@ import typing
 
 import pydantic
 
-from ._dataset_converter import DatasetConverter
+from nwb2bids._converters._dataset_converter import DatasetConverter
 
 
 @pydantic.validate_call
