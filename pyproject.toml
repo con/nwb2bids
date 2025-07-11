@@ -1,0 +1,124 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nwb2bids"]
+
+[project]
+name = "nwb2bids"
+version="0.2.0"
+authors = [
+  { name="Cody Baker", email="cody.c.baker.phd@gmail.com" },
+]
+description = "Reorganize NWB files into a BIDS directory layout."
+readme = "README.md"
+keywords = [
+    "data standards",
+    "data organization",
+    "BIDS",
+    "Brain Imaging Data Structure",
+    "NWB",
+    "NeurodataWithoutBorders",
+    "DANDI Archive",
+    "neurodata",
+    "neuroscience",
+]
+license = {file = "LICENSE.txt"}
+requires-python = ">=3.10"
+dependencies = [
+    "pynwb",
+    "click",
+    "pydantic",
+    "typing-extensions",  # TODO: remove when dropping support for Python 3.10
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+]
+
+[project.urls]
+Repository = "https://github.com/con/nwb2bids/"
+Issues = "https://github.com/con/nwb2bids/issues"
+Changelog = "https://github.com/con/nwb2bids/blob/master/CHANGELOG.md"
+
+[project.scripts]
+nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
+
+[dependency-groups]
+test = ["pytest"]
+coverage = ["pytest-cov"]
+dev = ["ipython", "pre-commit"]
+all = [
+    {include-group = "test"},
+    {include-group = "coverage"},
+    {include-group = "dev"}
+]
+
+
+
+[tool.black]
+line-length = 120
+target-version = ['py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.toml
+  |\.yml
+  |\.txt
+  |\.sh
+  |\.git
+  |\.ini
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+
+
+[tool.ruff]
+exclude = [
+  "*/__init__.py"
+]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["F", "E", "I"]
+ignore = [
+    "PTH123",
+    "D203",
+    "D212",
+    "T201",
+    "FIX002",
+    "TD003",
+    "TD002",
+    "S101",
+    "ICN001",
+    "INP001",
+]
+fixable = ["ALL"]
+
+[tool.ruff.lint.isort]
+relative-imports-order = "closest-to-furthest"
+known-first-party = ["nwb2bids"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/nwb2bids/_hidden_top_level_imports.py" = ["F401"]  # Must perform imports here even if not exposed

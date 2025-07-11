@@ -1,0 +1,50 @@
+name: Tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-2022
+          - windows-latest
+          - macos-13  # not M-series architecture
+          - macos-latest  # M-series architecture
+          - ubuntu-latest
+        python:
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+
+    steps:
+      - name: Set up environment
+        uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install -e . --group coverage
+
+      - name: Run tests
+        run: python -m pytest -vv --cov=nwb2bids --cov-report xml:./codecov.xml
+      - name: Upload full coverage to Codecov
+        if: ${{ matrix.python == '3.13' && matrix.os == 'ubuntu-latest' }}
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./codecov.xml
+          flags: unittests
+          name: codecov-umbrella
+          codecov_yml_path: ./codecov.yaml
+          fail_ci_if_error: true
+          verbose: true
