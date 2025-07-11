@@ -19,21 +19,23 @@ def test_dataset_converter_metadata_extraction(
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(nwb_directory=minimal_nwbfile_path.parent)
     dataset_converter.extract_dataset_metadata()
 
-    expected_dataset_metadata = nwb2bids.bids_models.BidsDatasetMetadata(
-        sessions_metadata=[
-            nwb2bids.bids_models.BidsSessionMetadata(
+    expected_session_converters = [
+        nwb2bids.SessionConverter(
+            session_id="456",
+            nwbfile_paths=[minimal_nwbfile_path],
+            session_metadata=nwb2bids.bids_models.BidsSessionMetadata(
                 session_id="456",
-                participant=nwb2bids.bids_models.Participant(participant_id="123", species="Mus musculus", sex="male"),
-                extra={
-                    "session": {"session_id": "456", "number_of_trials": None, "comments": "session_description"},
-                    "general_ephys": {"InstitutionName": None},
-                    "participant": {"participant_id": "123", "species": "Mus musculus", "strain": None, "sex": "male"},
-                    "probes": [],
-                },
-            )
-        ]
-    )
-    assert dataset_converter.dataset_metadata == expected_dataset_metadata
+                participant=nwb2bids.bids_models.Participant(
+                    participant_id="123", species="Mus musculus", sex="male", strain=None
+                ),
+                events=None,
+                probe_table=None,
+                channel_table=None,
+                electrode_table=None,
+            ),
+        ),
+    ]
+    assert dataset_converter.session_converters == expected_session_converters
 
 
 def test_dataset_converter_write_dataset_description(

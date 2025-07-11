@@ -1,6 +1,8 @@
+import json
 import typing
 
 import pydantic
+import typing_extensions
 
 
 class DatasetDescription(pydantic.BaseModel):
@@ -34,3 +36,29 @@ class DatasetDescription(pydantic.BaseModel):
         validate_assignment=True,  # Re-validate model on mutation
         extra="allow",  # Allow additional custom fields
     )
+
+    @classmethod
+    @pydantic.validate_call
+    def from_file_path(cls, file_path: pydantic.FilePath) -> typing_extensions.Self | None:
+        """
+        Load the BIDS dataset description from a JSON file.
+
+        Parameters
+        ----------
+        file_path : FilePath
+            Path to the JSON file containing the dataset metadata.
+
+        Returns
+        -------
+        BidsDatasetMetadata or None
+            An instance of DatasetDescription populated with data from the file.
+        """
+        with file_path.open(mode="r") as file_stream:
+            dictionary = json.load(fp=file_stream)
+
+        dataset_description_content = dictionary.get("dataset_description", None)
+        if dataset_description_content is None:
+            return None
+
+        dataset_metadata = cls(**dataset_description_content)
+        return dataset_metadata

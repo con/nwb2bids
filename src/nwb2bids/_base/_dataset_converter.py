@@ -8,12 +8,18 @@ import pydantic
 import typing_extensions
 
 from ._session_converter import SessionConverter
-from ..bids_models import BidsDatasetMetadata
+from ..bids_models import DatasetDescription
 
 
 class DatasetConverter(pydantic.BaseModel):
-    session_converters: list[SessionConverter]
-    dataset_metadata: BidsDatasetMetadata | None = None
+    session_converters: list[SessionConverter] = pydantic.Field(
+        description="List of session converters. Typically instantiated by calling `.from_nwb_directory()`.",
+        min_length=1,
+    )
+    dataset_description: DatasetDescription | None = pydantic.Field(
+        description="The BIDS-compatible dataset description.",
+        default=None,
+    )
 
     @classmethod
     @pydantic.validate_call
@@ -33,7 +39,7 @@ class DatasetConverter(pydantic.BaseModel):
         """
         session_converters = SessionConverter.from_nwb_directory(nwb_directory=nwb_directory)
 
-        dataset_metadata = None
+        dataset_description = None
         additional_metadata_file_path = (
             secondary_path
             if additional_metadata_file_path is None
@@ -41,14 +47,14 @@ class DatasetConverter(pydantic.BaseModel):
             else additional_metadata_file_path
         )
         if additional_metadata_file_path is not None:
-            dataset_metadata = BidsDatasetMetadata.from_file_path(file_path=additional_metadata_file_path)
+            dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
-        dataset_converter = cls(session_converters=session_converters, dataset_metadata=dataset_metadata)
+        dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
         return dataset_converter
 
     def extract_dataset_metadata(self) -> None:
         """
-        Extract metadata from the NWB files across the specified directory and set it to an internal attribute.
+        Deploy the call to `.extract_session_metadata()` for each session converter.
         """
         collections.deque(
             (
@@ -58,13 +64,6 @@ class DatasetConverter(pydantic.BaseModel):
             ),
             maxlen=0,
         )
-
-        sessions_metadata = [session_converter.session_metadata for session_converter in self.session_converters]
-
-        if self.dataset_metadata is None:
-            self.dataset_metadata = BidsDatasetMetadata(sessions_metadata=sessions_metadata)
-        else:
-            self.dataset_metadata.update(BidsDatasetMetadata(sessions_metadata=sessions_metadata))
 
     @pydantic.validate_call
     def convert_to_bids_dataset(
@@ -85,7 +84,7 @@ class DatasetConverter(pydantic.BaseModel):
         """
         self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
 
-        if self.dataset_metadata.dataset_description is not None:
+        if self.dataset_description is not None:
             self.write_dataset_description(bids_directory=bids_directory)
 
         self.write_participants_metadata(bids_directory=bids_directory)
@@ -103,11 +102,11 @@ class DatasetConverter(pydantic.BaseModel):
     def write_dataset_description(self, bids_directory: str | pathlib.Path) -> None:
         self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
 
-        dataset_description = self.dataset_metadata.dataset_description.model_dump()
+        dataset_description_dictionary = self.dataset_description.model_dump()
 
         dataset_description_file_path = bids_directory / "dataset_description.json"
         with dataset_description_file_path.open(mode="w") as file_stream:
-            json.dump(obj=dataset_description, fp=file_stream, indent=4)
+            json.dump(obj=dataset_description_dictionary, fp=file_stream, indent=4)
 
     @pydantic.validate_call
     def write_participants_metadata(self, bids_directory: str | pathlib.Path) -> None:
@@ -123,10 +122,16 @@ class DatasetConverter(pydantic.BaseModel):
 
         participants_data_frame = pandas.DataFrame.from_records(
             data=[
-                {key: value for key, value in session_metadata.participant.model_dump().items() if value is not None}
-                for session_metadata in self.dataset_metadata.sessions_metadata
+                {
+                    key: value
+                    for key, value in session_converter.session_metadata.participant.model_dump().items()
+                    if value is not None
+                }
+                for session_converter in self.session_converters
             ]
         ).astype("string")
+
+        # BIDS requires sub- prefix in table values
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
             lambda participant_id: f"sub-{participant_id}"
         )
@@ -150,7 +155,7 @@ class DatasetConverter(pydantic.BaseModel):
         )
 
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
-        participants_schema = self.dataset_metadata.sessions_metadata[0].participant.model_json_schema()
+        participants_schema = self.session_converters[0].session_metadata.participant.model_json_schema()
         participants_json = {
             field: info["description"]
             for field, info in participants_schema["properties"].items()
@@ -173,17 +178,20 @@ class DatasetConverter(pydantic.BaseModel):
         self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
 
         subject_id_to_sessions = collections.defaultdict(list)
-        for session_metadata in self.dataset_metadata.sessions_metadata:
-            subject_id_to_sessions[session_metadata.participant.participant_id].append(session_metadata)
+        for session_converter in self.session_converters:
+            subject_id_to_sessions[session_converter.session_metadata.participant.participant_id].append(
+                session_converter
+            )
 
         # TODO: expand beyond just session_id field (mainly via additional metadata)
-        sessions_schema = self.dataset_metadata.sessions_metadata[0].model_json_schema()
+        sessions_schema = self.session_converters[0].session_metadata.model_json_schema()
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
         for subject_id, sessions_metadata in subject_id_to_sessions.items():
             subject_directory = bids_directory / f"sub-{subject_id}"
             subject_directory.mkdir(exist_ok=True)
 
+            # BIDS requires ses- prefix in table values
             sessions_data_frame = pandas.DataFrame(
                 {"session_id": [f"ses-{session_metadata.session_id}" for session_metadata in sessions_metadata]}
             )
@@ -201,5 +209,5 @@ class DatasetConverter(pydantic.BaseModel):
 
     def _establish_bids_directory_and_check_metadata(self, bids_directory: pathlib.Path) -> None:
         bids_directory.mkdir(exist_ok=True)
-        if self.dataset_metadata is None:
+        if any(session_converter.session_metadata is None for session_converter in self.session_converters):
             self.extract_dataset_metadata()
