@@ -8,7 +8,7 @@ import nwb2bids
 
 def test_minimal_cli(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     command = f"nwb2bids convert {minimal_nwbfile_path.parent} {temporary_bids_directory}"
-    result = subprocess.run(args=command, check=True)
+    result = subprocess.run(args=command, check=True, shell=True)
     assert (
         result.returncode == 0
     ), f"\n\nCLI command failed with:\nStandard Output: {result.stdout}\nStandard Error: {result.stderr}\n\n"
@@ -43,7 +43,7 @@ def test_minimal_cli(minimal_nwbfile_path: pathlib.Path, temporary_bids_director
 
 def test_ecephys_cli(ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     command = f"nwb2bids convert {ecephys_nwbfile_path.parent} {temporary_bids_directory}"
-    result = subprocess.run(args=command, check=True)
+    result = subprocess.run(args=command, check=True, shell=True)
     assert (
         result.returncode == 0
     ), f"\n\nCLI command failed with:\nStandard Output: {result.stdout}\nStandard Error: {result.stderr}\n\n"
