@@ -83,7 +83,7 @@ class DatasetConverter(pydantic.BaseModel):
             - "copy": Copy the files to the BIDS directory.
             - "symlink": Create symbolic links to the files in the BIDS directory.
         """
-        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+        bids_directory = self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
 
         if self.dataset_description is not None:
             self.write_dataset_description(bids_directory=bids_directory)
@@ -208,7 +208,15 @@ class DatasetConverter(pydantic.BaseModel):
                 session_directory = subject_directory / f"ses-{session_metadata.session_id}"
                 session_directory.mkdir(exist_ok=True)
 
-    def _establish_bids_directory_and_check_metadata(self, bids_directory: pathlib.Path) -> None:
+    def _establish_bids_directory_and_check_metadata(self, bids_directory: pathlib.Path) -> pathlib.Path:
+        """
+        Cast and return `bids_directory` as `pathlib.Path`.
+
+        Ensure the BIDS directory exists.
+        Check if session metadata is available.
+        """
+        bids_directory = pathlib.Path(bids_directory)
         bids_directory.mkdir(exist_ok=True)
         if any(session_converter.session_metadata is None for session_converter in self.session_converters):
             self.extract_dataset_metadata()
+        return bids_directory

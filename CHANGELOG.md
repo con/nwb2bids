@@ -2,6 +2,10 @@
 
 # Upcoming
 
+# Documentation
+
+Updated README to accurately reflect CLI call syntax.
+
 
 
 # v0.2.0
