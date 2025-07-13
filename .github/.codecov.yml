@@ -1,3 +1,4 @@
+# Allowed placement and naming from https://docs.codecov.com/docs/codecov-yaml#can-i-name-the-file-codecovyml
 comment:
   layout: "reach, diff, flags, files"
   behavior: new
