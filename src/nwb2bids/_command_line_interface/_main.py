@@ -104,7 +104,7 @@ def _run_convert_nwb_dataset(
 
 # nwb2bids test
 @_nwb2bids_cli.command(name="test", deprecated=True)
-@click.argument("nwb_directory", type=click.Path(writable=False))
+@click.argument("nwb_directory", type=click.Path(writable=False), nargs=-1)
 @click.option(
     "--bids-directory",
     "-o",
