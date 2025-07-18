@@ -100,3 +100,41 @@ def _run_convert_nwb_dataset(
         file_mode=file_mode,
         additional_metadata_file_path=additional_metadata_file_path,
     )
+
+
+# nwb2bids test
+@_nwb2bids_cli.command(name="test", deprecated=True)
+@click.argument("nwb_directory", type=click.Path(writable=False))
+@click.option(
+    "--bids-directory",
+    "-o",
+    help="The path to the folder where the BIDS dataset will be created.",
+    required=False,
+    type=click.Path(writable=True),
+    default=None,
+)
+@click.option(
+    "--no-copy",
+    help="Whether or not to copy data from the NWB files into the BIDS format. Otherwise, files will be moved.",
+    required=False,
+    type=click.BOOL,
+    default=False,
+)
+@click.option(
+    "--additional-metadata-file-path",
+    "additional_metadata_file_path",
+    help=(
+        "Path to a JSON file containing additional metadata to be included in the BIDS dataset. "
+        "This file should contain a dictionary with keys corresponding to BIDS entities."
+    ),
+    required=False,
+    type=click.Path(exists=True, dir_okay=False, readable=True),
+    default=None,
+)
+def _run_convert_nwb_dataset(
+    nwb_directory: str,
+    bids_directory: str,
+    no_copy: bool = False,
+    additional_metadata_file_path: str | None = None,
+) -> None:
+    click.echo(f"{nwb_directory=}\n")
