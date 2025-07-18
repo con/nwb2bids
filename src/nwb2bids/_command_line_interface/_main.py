@@ -3,7 +3,7 @@ import warnings
 
 import click
 
-from .._base import convert_nwb_dataset
+from .._base._convert_nwb_dataset import convert_nwb_dataset
 
 
 # nwb2bids
@@ -69,7 +69,7 @@ def _run_convert_nwb_dataset(
     ),
     required=False,
     type=click.Choice(["copy", "move", "symlink"], case_sensitive=False),
-    default=True,
+    default=None,
 )
 @click.option(
     "--additional-metadata-file-path",
