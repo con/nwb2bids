@@ -2,6 +2,10 @@
 
 # Upcoming
 
+# Improvements
+
+The BIDS directory arguments to the CLI (`--bids-directory`) and API (`bids_directory`) are now optional, with the default case being the current working directory.
+
 
 
 # v0.2.0

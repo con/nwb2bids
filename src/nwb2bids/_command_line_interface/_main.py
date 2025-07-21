@@ -3,7 +3,7 @@ import warnings
 
 import click
 
-from .._base import convert_nwb_dataset
+from .._base._convert_nwb_dataset import convert_nwb_dataset
 
 
 # nwb2bids
@@ -58,7 +58,14 @@ def _run_convert_nwb_dataset(
 # nwb2bids convert < nwb_directory > < bids_directory >
 @_nwb2bids_cli.command(name="convert")
 @click.argument("nwb_directory", type=click.Path(writable=False))
-@click.argument("bids_directory", type=click.Path(writable=True))
+@click.option(
+    "--bids-directory",
+    "-o",
+    help="The path to the folder where the BIDS dataset will be created.",
+    required=False,
+    type=click.Path(writable=True),
+    default=None,
+)
 @click.option(
     "--file-mode",
     help=(
@@ -69,7 +76,7 @@ def _run_convert_nwb_dataset(
     ),
     required=False,
     type=click.Choice(["copy", "move", "symlink"], case_sensitive=False),
-    default=True,
+    default=None,
 )
 @click.option(
     "--additional-metadata-file-path",
@@ -84,7 +91,7 @@ def _run_convert_nwb_dataset(
 )
 def _run_convert_nwb_dataset(
     nwb_directory: str,
-    bids_directory: str,
+    bids_directory: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink"] | None = None,
     additional_metadata_file_path: str | None = None,
 ) -> None:
@@ -92,7 +99,6 @@ def _run_convert_nwb_dataset(
     Convert NWB files to BIDS format.
 
     NWB_DIRECTORY : The path to the folder containing NWB files.
-    BIDS_DIRECTORY : The path to the folder where the BIDS dataset will be created.
     """
     convert_nwb_dataset(
         nwb_directory=nwb_directory,

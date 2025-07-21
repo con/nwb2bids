@@ -10,7 +10,7 @@ from nwb2bids._converters._dataset_converter import DatasetConverter
 def convert_nwb_dataset(
     *,
     nwb_directory: pydantic.DirectoryPath,
-    bids_directory: str | pathlib.Path,
+    bids_directory: str | pathlib.Path | None = None,
     file_mode: typing.Literal["move", "copy", "symlink"] | None = None,
     additional_metadata_file_path: pydantic.FilePath | None = None,
 ) -> None:
