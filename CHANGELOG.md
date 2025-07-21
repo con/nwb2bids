@@ -4,7 +4,7 @@
 
 # Improvements
 
-The BIDS directory arguments to the CLI (`--bids-directory`) and API (`bids_directory`) are now optional, with the default case being the current working directory.
+The BIDS directory arguments to the CLI (`--bids-directory`/`-o`) and API (`bids_directory`) are now optional, with the default case being the current working directory.
 
 
 
