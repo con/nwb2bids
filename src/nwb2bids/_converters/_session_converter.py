@@ -1,6 +1,7 @@
 import pathlib
 import shutil
 import typing
+import warnings
 
 import pydantic
 import pynwb
@@ -13,18 +14,13 @@ from nwb2bids.bids_models import BidsSessionMetadata
 class SessionConverter(pydantic.BaseModel):
     """
     Initialize a converter of NWB files to BIDS format.
-
-    Parameters
-    ----------
-    nwbfile_paths : list of file paths
-        The list of paths to NWB files associated with this session.
     """
 
     session_id: str = pydantic.Field(
         description="A unique session identifier.",
         pattern=r"^[^_]+$",  # No underscores allowed
     )
-    nwbfile_paths: list[pydantic.FilePath] = pydantic.Field(
+    nwb_file_paths: list[pydantic.FilePath] = pydantic.Field(
         description="List of NWB file paths which share this session ID.", min_length=1
     )
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
@@ -33,7 +29,9 @@ class SessionConverter(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwb_directory(cls, nwb_directory: pydantic.DirectoryPath) -> list[typing_extensions.Self]:
+    def from_nwb(
+        cls, nwb_directory: pydantic.DirectoryPath | None = None, nwb_file_paths: list[pydantic.FilePath] | None = None
+    ) -> list[typing_extensions.Self]:
         """
         Initialize a list of session converters from a list of NWB file paths.
 
@@ -41,16 +39,29 @@ class SessionConverter(pydantic.BaseModel):
 
         Parameters
         ----------
-        nwb_directory : directory path
+        nwb_directory : directory path, optional
             The path to the directory containing NWB files.
+            Must be specified if not providing `nwb_file_paths`.
+        nwb_file_paths : list of file paths, optional
+            A list of file paths to NWB files.
+            Must be specified if not providing `nwb_directory`.
 
         Returns
         -------
         A list of SessionConverter instances, one per unique session ID.
         """
-        nwb_file_paths = list(nwb_directory.rglob(pattern="*.nwb"))
+        if nwb_directory is None and nwb_file_paths is None:
+            message = "Please provide either `nwb_directory` or `nwb_file_paths`."
+            raise ValueError(message)
+
+        all_nwb_file_paths = []
+        if nwb_directory is not None:
+            all_nwb_file_paths += list(nwb_directory.rglob(pattern="*.nwb"))
+        if nwb_file_paths is not None:
+            all_nwb_file_paths += nwb_file_paths
+
         nwb_file_path_to_session_id = {
-            nwb_file_path: pynwb.read_nwb(nwb_file_path).session_id for nwb_file_path in nwb_file_paths
+            nwb_file_path: pynwb.read_nwb(nwb_file_path).session_id for nwb_file_path in all_nwb_file_paths
         }  # IDEA: if this is too slow, could do direct h5py read instead, to avoid reading the entire file metadata
 
         unique_session_ids = set(nwb_file_path_to_session_id.values())
@@ -64,16 +75,26 @@ class SessionConverter(pydantic.BaseModel):
         }
 
         session_converters = [
-            cls(session_id=session_id, nwbfile_paths=nwb_file_paths)
+            cls(session_id=session_id, nwb_file_paths=nwb_file_paths)
             for session_id, nwb_file_paths in unique_session_id_to_nwb_file_paths.items()
         ]
+        return session_converters
+
+    # TODO: remove
+    @classmethod
+    @pydantic.validate_call
+    def from_nwb_directory(cls, nwb_directory: pydantic.DirectoryPath) -> list[typing_extensions.Self]:
+        message = "The `.from_nwb_directory` method is deprecated. Please use `.from_nwb` instead."
+        warnings.warn(message=message, category=DeprecationWarning, stacklevel=2)
+
+        session_converters = cls.from_nwb(nwb_directory=nwb_directory)
         return session_converters
 
     def extract_session_metadata(self) -> None:
         """
         Extract metadata from the NWB file across the specified directory.
         """
-        self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwbfile_paths)
+        self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwb_file_paths)
 
     @pydantic.validate_call
     def convert_to_bids_session(
@@ -93,7 +114,7 @@ class SessionConverter(pydantic.BaseModel):
               - "symlink": Create symbolic links to the files in the BIDS directory.
             The default behavior is to attempt to use symlinks, but fall back to copying if symlinks are not supported.
         """
-        if len(self.nwbfile_paths) > 1:
+        if len(self.nwb_file_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
         file_mode = _handle_file_mode(file_mode=file_mode)
@@ -110,7 +131,7 @@ class SessionConverter(pydantic.BaseModel):
             self.write_events_files(bids_directory=bids_directory)
 
         # TODO: determine icephys or ecephys suffix
-        for nwbfile_path in self.nwbfile_paths:
+        for nwbfile_path in self.nwb_file_paths:
             session_file_path = session_subdirectory / f"sub-{subject_id}_ses-{self.session_id}_ecephys.nwb"
             if file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
@@ -129,7 +150,7 @@ class SessionConverter(pydantic.BaseModel):
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
         """
-        if len(self.nwbfile_paths) > 1:
+        if len(self.nwb_file_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
 
@@ -179,7 +200,7 @@ class SessionConverter(pydantic.BaseModel):
         if self.session_metadata.events is None:
             message = "No events metadata found in the session metadata - unable to write events TSV."
             raise ValueError(message)
-        if len(self.nwbfile_paths) > 1:
+        if len(self.nwb_file_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
         self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)

@@ -2,6 +2,16 @@
 
 # Upcoming
 
+# Features
+
+The CLI now accepts a list of space-separated NWB file paths as input, enabling more robust wildcard syntax or `xargs` usage.
+For example:
+ - `nwb2bids convert file1.nwb file2.nwb`
+ - `nwb2bids convert file*.nwb`
+ - `find -iname "file*.nwb" | xargs nwb2bids convert`
+
+Added an API argument `nwb_file_paths: list[str | pathlib.Path]` to all relevant conversion functions.
+
 
 
 # v0.2.0
