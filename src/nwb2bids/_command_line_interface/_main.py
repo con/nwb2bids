@@ -84,7 +84,7 @@ def _run_convert_nwb_dataset(
     default=None,
 )
 def _run_convert_nwb_dataset(
-    nwb: str | list[str],
+    nwb: tuple[str, ...],
     bids_directory: str,
     file_mode: typing.Literal["copy", "move", "symlink"] | None = None,
     additional_metadata_file_path: str | None = None,
@@ -97,12 +97,12 @@ def _run_convert_nwb_dataset(
     """
     nwb_directory = None
     nwb_file_paths = None
-    if isinstance(nwb, list):
-        nwb_file_paths = nwb
-    elif pathlib.Path(nwb).is_dir():
-        nwb_directory = pathlib.Path(nwb)
+    if isinstance(nwb, tuple):
+        nwb_file_paths = list(nwb)
+    elif isinstance(nwb, (list, tuple)) and pathlib.Path(nwb[0]).is_dir():
+        nwb_directory = pathlib.Path(nwb[0])
     else:
-        nwb_file_paths = [pathlib.Path(nwb)]
+        nwb_file_paths = [pathlib.Path(nwb[0])]
 
     convert_nwb_dataset(
         nwb_directory=nwb_directory,
