@@ -55,14 +55,46 @@ class DatasetConverter(pydantic.BaseModel):
             )
             raise ValueError(message)
 
-        # Fill dataset description from Dandiset metadata
+        dandiset_metadata = dandiset.get_metadata()
+        dandiset_metadata_to_bids = dict()
+        if dandiset_metadata.description is not None:
+            dandiset_metadata_to_bids["Description"] = dandiset_metadata.description
+        if dandiset_metadata.authors is not None:
+            dandiset_metadata_to_bids["Authors"] = [author.name for author in dandiset_metadata.authors]
+        if dandiset_metadata.license is not None:
+            dandiset_metadata_to_bids["License"] = dandiset_metadata.license
+        dataset_description = DatasetDescription(
+            Name=dandiset_metadata.title,
+            BIDSVersion="1.8.0",  # TODO: fetch latest BIDS version... or perhaps hard code to what we support
+            **dandiset_metadata_to_bids,
+        )
 
-        # Get sub/ses prefixes from Session and Participant models
         # Get any extra metadata tags from path
         # sample- in BIDS Microscopy might map to tis- in DANDI
         # raise not implemented error for special non-BIDS prefixes (like desc-?)
-        assets = dandiset.get_assets()
-        print(assets)
+        assets = list(dandiset.get_assets())
+        all_asset_metadata = [asset.get_metadata() for asset in assets]
+        # subject_ids = [asset_metadata.wasGeneratedBy[0].id for asset_metadata in all_asset_metadata]
+        # session_ids = [asset_metadata.wasAssociatedWith[0].id for asset_metadata in all_asset_metadata]
+
+        asset_to_session_id = {
+            asset: asset_metadata.wasAssociatedWith[0].id for asset, asset_metadata in zip(assets, all_asset_metadata)
+        }
+        unique_session_ids = set(asset_to_session_id.values())
+        session_id_to_nwb_file_paths = {
+            unique_session_id: [
+                asset for asset, session_id in asset_to_session_id.items() if session_id == unique_session_id
+            ]
+            for unique_session_id in unique_session_ids
+        }
+
+        session_converters = [
+            SessionConverter(session_id=session_id, nwbfile_paths=[asset.path])
+            for session_id, asset in session_id_to_nwb_file_paths.items()
+        ]
+
+        dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+        return dataset_converter
 
     @classmethod
     @pydantic.validate_call
