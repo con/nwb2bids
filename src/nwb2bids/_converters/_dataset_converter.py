@@ -24,6 +24,48 @@ class DatasetConverter(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
+    def from_dandiset(
+        cls,
+        dandiset_id: pydantic.DirectoryPath,
+        version_id: str | None = None,
+        api_url: str | None = None,
+        token: str | None = None,
+    ) -> typing_extensions.Self:
+        """
+        Initialize a converter of Dandiset to BIDS format.
+
+        Parameters
+        ----------
+        dandiset_id : directory path
+            The path to the Dandiset directory.
+        archive : str, optional
+            The archive of the Dandiset. Common options are "DANDI" or "EMBER".
+            The default is "DANDI".
+        """
+        import dandi.dandiapi
+
+        client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
+        dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
+
+        bids_rrid = "RRID:SCR_016124"
+        if any(data_standard.identifier == bids_rrid for data_standard in dandiset.assetsSummary.dataStandard):
+            message = (
+                "Dandiset already contains BIDS content. If only a partial conversion is desired, "
+                "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
+            )
+            raise ValueError(message)
+
+        # Fill dataset description from Dandiset metadata
+
+        # Get sub/ses prefixes from Session and Participant models
+        # Get any extra metadata tags from path
+        # sample- in BIDS Microscopy might map to tis- in DANDI
+        # raise not implemented error for special non-BIDS prefixes (like desc-?)
+        assets = dandiset.get_assets()
+        print(assets)
+
+    @classmethod
+    @pydantic.validate_call
     def from_nwb_directory(
         cls, nwb_directory: pydantic.DirectoryPath, additional_metadata_file_path: pydantic.FilePath | None = None
     ) -> typing_extensions.Self:
