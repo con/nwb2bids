@@ -14,9 +14,9 @@ import nwb2bids
 # TODO: add DynamicTable's in acquisition with *_time columns
 
 
-def _make_minimal_nwbfile() -> pynwb.NWBFile:
+def _make_minimal_nwbfile(session_id: str = "456") -> pynwb.NWBFile:
     """Creates a minimal NWB file for testing purposes."""
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id="456")
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=session_id)
 
     subject = pynwb.file.Subject(
         subject_id="123",
@@ -180,15 +180,8 @@ def directory_with_multiple_nwbfiles(testing_files_directory: pathlib.Path) -> p
     multiple_nwbfiles_subdirectory = testing_files_directory / "multiple_nwbfiles"
     multiple_nwbfiles_subdirectory.mkdir(exist_ok=True)
 
-    for session_index in range(3):
-        nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
-
-        subject = pynwb.file.Subject(
-            subject_id="123",
-            species="Mus musculus",
-            sex="M",
-        )
-        nwbfile.subject = subject
+    for session_index in range(2):
+        nwbfile = _make_minimal_nwbfile(session_id=f"session-{session_index}")
 
         nwbfile_path = multiple_nwbfiles_subdirectory / f"session_{session_index}.nwb"
         with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:

@@ -130,22 +130,37 @@ def test_minimal_cli_on_file_paths(
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"participants.json", "participants.tsv"}},
         temporary_bids_directory
         / "sub-123": {
-            "directories": {"ses-456"},
+            "directories": {"ses-session-0", "ses-session-1"},
             "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456": {
+        / "ses-session-0": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456"
+        / "ses-session-0"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ses-456_ecephys.nwb",
+                "sub-123_ses-session-0_ecephys.nwb",
+            },
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-session-1": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-session-1"
+        / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-123_ses-session-1_ecephys.nwb",
             },
         },
     }
