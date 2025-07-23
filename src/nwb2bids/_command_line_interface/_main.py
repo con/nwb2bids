@@ -4,7 +4,7 @@ import warnings
 
 import click
 
-from .._base import convert_nwb_dataset
+from .._base._convert_nwb_dataset import convert_nwb_dataset
 
 
 # nwb2bids
@@ -70,7 +70,7 @@ def _run_convert_nwb_dataset(
     ),
     required=False,
     type=click.Choice(["copy", "move", "symlink"], case_sensitive=False),
-    default=True,
+    default=None,
 )
 @click.option(
     "--additional-metadata-file-path",
@@ -97,12 +97,10 @@ def _run_convert_nwb_dataset(
     """
     nwb_directory = None
     nwb_file_paths = None
-    if isinstance(nwb, tuple):
-        nwb_file_paths = list(nwb)
-    elif isinstance(nwb, (list, tuple)) and pathlib.Path(nwb[0]).is_dir():
+    if pathlib.Path(nwb[0]).is_dir():
         nwb_directory = pathlib.Path(nwb[0])
     else:
-        nwb_file_paths = [pathlib.Path(nwb[0])]
+        nwb_file_paths = nwb
 
     convert_nwb_dataset(
         nwb_directory=nwb_directory,

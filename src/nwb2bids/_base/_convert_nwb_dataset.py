@@ -11,7 +11,7 @@ def convert_nwb_dataset(
     *,
     bids_directory: str | pathlib.Path,
     nwb_directory: pydantic.DirectoryPath | None = None,
-    nwb_file_paths: list[pydantic.FilePath] | None = None,
+    nwb_file_paths: typing.Iterable[pydantic.FilePath] | None = None,
     file_mode: typing.Literal["move", "copy", "symlink"] | None = None,
     additional_metadata_file_path: pydantic.FilePath | None = None,
 ) -> None:

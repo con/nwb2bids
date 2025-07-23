@@ -173,3 +173,25 @@ def nwbfile_path_with_missing_session_id(testing_files_directory: pathlib.Path) 
         file_stream.write(nwbfile)
 
     return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def directory_with_multiple_nwbfiles(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    multiple_nwbfiles_subdirectory = testing_files_directory / "multiple_nwbfiles"
+    multiple_nwbfiles_subdirectory.mkdir(exist_ok=True)
+
+    for session_index in range(3):
+        nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
+
+        subject = pynwb.file.Subject(
+            subject_id="123",
+            species="Mus musculus",
+            sex="M",
+        )
+        nwbfile.subject = subject
+
+        nwbfile_path = multiple_nwbfiles_subdirectory / f"session_{session_index}.nwb"
+        with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+            file_stream.write(nwbfile)
+
+    return multiple_nwbfiles_subdirectory

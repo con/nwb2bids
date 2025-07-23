@@ -25,7 +25,7 @@ Currently developed for the `microephys` BIDS modality, which encompasses both t
 The package ships the `nwb2bids` CLI command.
 
 ```bash
-nwb2bids <directory of NWB files> <BIDS organized directory>
+nwb2bids convert <directory of NWB files> <BIDS organized directory>
 ```
 
 For example:

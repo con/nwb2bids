@@ -161,7 +161,7 @@ class SessionConverter(pydantic.BaseModel):
         ):
             return
 
-        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+        bids_directory = self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
 
         ecephys_directory = self._establish_ecephys_subdirectory(bids_directory=bids_directory)
         file_prefix = f"sub-{self.session_metadata.participant.participant_id}_ses-{self.session_id}"
@@ -203,7 +203,7 @@ class SessionConverter(pydantic.BaseModel):
         if len(self.nwb_file_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
-        self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+        bids_directory = self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
 
         ecephys_directory = self._establish_ecephys_subdirectory(bids_directory=bids_directory)
         file_prefix = f"sub-{self.session_metadata.participant.participant_id}_ses-{self.session_id}"
@@ -216,10 +216,13 @@ class SessionConverter(pydantic.BaseModel):
 
         # IDEA: check events.json files, see if all are the same and if so remove the duplicates and move to outer level
 
-    def _establish_bids_directory_and_check_metadata(self, bids_directory: pathlib.Path) -> None:
+    def _establish_bids_directory_and_check_metadata(self, bids_directory: pathlib.Path) -> pathlib.Path:
+        bids_directory = pathlib.Path(bids_directory)
         bids_directory.mkdir(exist_ok=True)
         if self.session_metadata is None:
             self.extract_session_metadata()
+
+        return bids_directory
 
     def _establish_ecephys_subdirectory(self, bids_directory: pathlib.Path) -> pathlib.Path:
         subject_directory = bids_directory / f"sub-{self.session_metadata.participant.participant_id}"
