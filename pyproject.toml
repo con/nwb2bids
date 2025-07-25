@@ -59,6 +59,11 @@ Changelog = "https://github.com/con/nwb2bids/blob/master/CHANGELOG.md"
 [project.scripts]
 nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
 
+[project.optional-dependencies]
+dandi = [
+    "dandi>=0.69.3",
+]
+
 [dependency-groups]
 test = ["pytest"]
 coverage = ["pytest-cov"]

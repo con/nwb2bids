@@ -24,7 +24,7 @@ class SessionConverter(pydantic.BaseModel):
         description="A unique session identifier.",
         pattern=r"^[^_]+$",  # No underscores allowed
     )
-    nwbfile_paths: list[pydantic.FilePath] = pydantic.Field(
+    nwbfile_paths: list[pydantic.FilePath] | list[pydantic.FileUrl] = pydantic.Field(
         description="List of NWB file paths which share this session ID.", min_length=1
     )
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
@@ -54,7 +54,7 @@ class SessionConverter(pydantic.BaseModel):
         }  # IDEA: if this is too slow, could do direct h5py read instead, to avoid reading the entire file metadata
 
         unique_session_ids = set(nwb_file_path_to_session_id.values())
-        unique_session_id_to_nwb_file_paths = {
+        session_id_to_nwb_file_paths = {
             unique_session_id: [
                 nwb_file_path
                 for nwb_file_path, session_id in nwb_file_path_to_session_id.items()
@@ -65,7 +65,7 @@ class SessionConverter(pydantic.BaseModel):
 
         session_converters = [
             cls(session_id=session_id, nwbfile_paths=nwb_file_paths)
-            for session_id, nwb_file_paths in unique_session_id_to_nwb_file_paths.items()
+            for session_id, nwb_file_paths in session_id_to_nwb_file_paths.items()
         ]
         return session_converters
 
