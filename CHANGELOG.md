@@ -12,6 +12,10 @@ For example:
 
 Added an API argument `nwb_file_paths: list[str | pathlib.Path]` to all relevant conversion functions.
 
+# Documentation
+
+Updated README to accurately reflect CLI call syntax.
+
 
 
 # v0.2.0
