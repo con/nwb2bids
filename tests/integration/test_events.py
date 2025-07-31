@@ -11,7 +11,10 @@ def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_
     )
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
         temporary_bids_directory
         / "sub-123": {
             "directories": {"ses-456"},
@@ -46,7 +49,10 @@ def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_
     )
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
         temporary_bids_directory
         / "sub-123": {
             "directories": {"ses-456"},
@@ -83,7 +89,7 @@ def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_b
     expected_structure = {
         temporary_bids_directory: {
             "directories": {"sub-123"},
-            "files": {"participants.json", "participants.tsv"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
         },
         temporary_bids_directory
         / "sub-123": {
