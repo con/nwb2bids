@@ -14,7 +14,10 @@ def test_minimal_cli(minimal_nwbfile_path: pathlib.Path, temporary_bids_director
     ), f"\n\nCLI command failed with:\nStandard Output: {result.stdout}\nStandard Error: {result.stderr}\n\n"
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
         temporary_bids_directory
         / "sub-123": {
             "directories": {"ses-456"},
@@ -49,7 +52,10 @@ def test_ecephys_cli(ecephys_nwbfile_path: pathlib.Path, temporary_bids_director
     ), f"\n\nCLI command failed with:\nStandard Output: {result.stdout}\nStandard Error: {result.stderr}\n\n"
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"participants.json", "participants.tsv"}},
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
         temporary_bids_directory
         / "sub-123": {
             "directories": {"ses-456"},
