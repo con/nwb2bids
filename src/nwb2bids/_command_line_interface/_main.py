@@ -101,6 +101,10 @@ def _run_convert_nwb_dataset(
 
     NWB : Either a path to a folder containing NWB files, or an explicit list of NWB file paths.
     """
+    if len(nwb) == 0:
+        message = "Please provide at least one NWB file or directory to convert."
+        raise ValueError(message)
+
     nwb_directory = None
     nwbfile_paths = None
     if pathlib.Path(nwb[0]).is_dir():
