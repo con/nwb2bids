@@ -2,6 +2,16 @@
 
 # Upcoming
 
+# Features
+
+The CLI now accepts a list of space-separated NWB file paths as input, enabling more robust wildcard syntax or `xargs` usage.
+For example:
+ - `nwb2bids convert file1.nwb file2.nwb`
+ - `nwb2bids convert file*.nwb`
+ - `find -iname "file*.nwb" | xargs nwb2bids convert`
+
+Added an API argument `nwbfile_paths: list[str | pathlib.Path]` to all relevant conversion functions.
+
 # Improvements
 
 The BIDS directory arguments to the CLI (`--bids-directory`/`-o`) and API (`bids_directory`) are now optional, with the default case being the current working directory (which must be either empty or BIDS-compatible).

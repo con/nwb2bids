@@ -1,3 +1,4 @@
+import pathlib
 import typing
 import warnings
 
@@ -57,7 +58,7 @@ def _run_convert_nwb_dataset(
 
 # nwb2bids convert < nwb_directory > < bids_directory >
 @_nwb2bids_cli.command(name="convert")
-@click.argument("nwb_directory", type=click.Path(writable=False))
+@click.argument("nwb", type=str, nargs=-1)
 @click.option(
     "--bids-directory",
     "-o",
@@ -90,7 +91,7 @@ def _run_convert_nwb_dataset(
     default=None,
 )
 def _run_convert_nwb_dataset(
-    nwb_directory: str,
+    nwb: tuple[str, ...],
     bids_directory: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink"] | None = None,
     additional_metadata_file_path: str | None = None,
@@ -98,10 +99,22 @@ def _run_convert_nwb_dataset(
     """
     Convert NWB files to BIDS format.
 
-    NWB_DIRECTORY : The path to the folder containing NWB files.
+    NWB : Either a path to a folder containing NWB files, or an explicit list of NWB file paths.
     """
+    if len(nwb) == 0:
+        message = "Please provide at least one NWB file or directory to convert."
+        raise ValueError(message)
+
+    nwb_directory = None
+    nwbfile_paths = None
+    if pathlib.Path(nwb[0]).is_dir():
+        nwb_directory = pathlib.Path(nwb[0])
+    else:
+        nwbfile_paths = nwb
+
     convert_nwb_dataset(
         nwb_directory=nwb_directory,
+        nwbfile_paths=nwbfile_paths,
         bids_directory=bids_directory,
         file_mode=file_mode,
         additional_metadata_file_path=additional_metadata_file_path,
