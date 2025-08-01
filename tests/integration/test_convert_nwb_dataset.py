@@ -46,8 +46,8 @@ def test_minimal_convert_nwb_dataset_from_directory(
 def test_minimal_convert_nwb_dataset_from_file_paths(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    nwb_file_paths = [minimal_nwbfile_path]
-    nwb2bids.convert_nwb_dataset(nwb_file_paths=nwb_file_paths, bids_directory=temporary_bids_directory)
+    nwbfile_paths = [minimal_nwbfile_path]
+    nwb2bids.convert_nwb_dataset(nwbfile_paths=nwbfile_paths, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {

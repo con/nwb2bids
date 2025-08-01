@@ -27,7 +27,7 @@ class DatasetConverter(BaseConverter):
     def from_nwb(
         cls,
         nwb_directory: pydantic.DirectoryPath | None = None,
-        nwb_file_paths: list[pydantic.FilePath] | None = None,
+        nwbfile_paths: list[pydantic.FilePath] | None = None,
         additional_metadata_file_path: pydantic.FilePath | None = None,
     ) -> typing_extensions.Self:
         """
@@ -38,18 +38,18 @@ class DatasetConverter(BaseConverter):
         nwb_directory : directory path, optional
             The path to the directory containing NWB files.
             Must be specified if not providing `nwbfile_paths`.
-        nwb_file_paths : list of file paths, optional
+        nwbfile_paths : list of file paths, optional
             A list of file paths to NWB files.
             Must be specified if not providing `nwb_directory`.
         additional_metadata_file_path : file path, optional
             The path to a JSON file containing additional metadata to be included in the BIDS dataset.
             If not provided, the method will also look for a file named "additional_metadata.json" in the NWB directory.
         """
-        if nwb_directory is None and nwb_file_paths is None:
+        if nwb_directory is None and nwbfile_paths is None:
             message = "Please provide either `nwb_directory` or `nwbfile_paths`."
             raise ValueError(message)
 
-        session_converters = SessionConverter.from_nwb(nwb_directory=nwb_directory, nwb_file_paths=nwb_file_paths)
+        session_converters = SessionConverter.from_nwb(nwb_directory=nwb_directory, nwbfile_paths=nwbfile_paths)
 
         dataset_description = None
         additional_metadata_file_path = (

@@ -22,8 +22,8 @@ def test_session_converter_directory_initialization(
 def test_session_converter_file_paths_initialization(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    nwb_file_paths = [minimal_nwbfile_path]
-    session_converters = nwb2bids.SessionConverter.from_nwb(nwb_file_paths=nwb_file_paths)
+    nwbfile_paths = [minimal_nwbfile_path]
+    session_converters = nwb2bids.SessionConverter.from_nwb(nwbfile_paths=nwbfile_paths)
 
     assert isinstance(session_converters, list)
     assert len(session_converters) == 1

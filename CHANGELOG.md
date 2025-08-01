@@ -10,7 +10,7 @@ For example:
  - `nwb2bids convert file*.nwb`
  - `find -iname "file*.nwb" | xargs nwb2bids convert`
 
-Added an API argument `nwb_file_paths: list[str | pathlib.Path]` to all relevant conversion functions.
+Added an API argument `nwbfile_paths: list[str | pathlib.Path]` to all relevant conversion functions.
 
 # Improvements
 

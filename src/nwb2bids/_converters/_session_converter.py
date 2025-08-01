@@ -29,7 +29,7 @@ class SessionConverter(BaseConverter):
     @classmethod
     @pydantic.validate_call
     def from_nwb(
-        cls, nwb_directory: pydantic.DirectoryPath | None = None, nwb_file_paths: list[pydantic.FilePath] | None = None
+        cls, nwb_directory: pydantic.DirectoryPath | None = None, nwbfile_paths: list[pydantic.FilePath] | None = None
     ) -> list[typing_extensions.Self]:
         """
         Initialize a list of session converters from a list of NWB file paths.
@@ -41,7 +41,7 @@ class SessionConverter(BaseConverter):
         nwb_directory : directory path, optional
             The path to the directory containing NWB files.
             Must be specified if not providing `nwbfile_paths`.
-        nwb_file_paths : list of file paths, optional
+        nwbfile_paths : list of file paths, optional
             A list of file paths to NWB files.
             Must be specified if not providing `nwb_directory`.
 
@@ -49,15 +49,15 @@ class SessionConverter(BaseConverter):
         -------
         A list of SessionConverter instances, one per unique session ID.
         """
-        if nwb_directory is None and nwb_file_paths is None:
+        if nwb_directory is None and nwbfile_paths is None:
             message = "Please provide either `nwb_directory` or `nwbfile_paths`."
             raise ValueError(message)
 
         all_nwbfile_paths = []
         if nwb_directory is not None:
             all_nwbfile_paths += list(nwb_directory.rglob(pattern="*.nwb"))
-        if nwb_file_paths is not None:
-            all_nwbfile_paths += nwb_file_paths
+        if nwbfile_paths is not None:
+            all_nwbfile_paths += nwbfile_paths
 
         nwbfile_path_to_session_id = {
             nwbfile_path: pynwb.read_nwb(nwbfile_path).session_id for nwbfile_path in all_nwbfile_paths
@@ -66,8 +66,8 @@ class SessionConverter(BaseConverter):
         unique_session_ids = set(nwbfile_path_to_session_id.values())
         unique_session_id_to_nwbfile_paths = {
             unique_session_id: [
-                nwb_file_path
-                for nwb_file_path, session_id in nwbfile_path_to_session_id.items()
+                nwbfile_path
+                for nwbfile_path, session_id in nwbfile_path_to_session_id.items()
                 if session_id == unique_session_id
             ]
             for unique_session_id in unique_session_ids

@@ -102,15 +102,15 @@ def _run_convert_nwb_dataset(
     NWB : Either a path to a folder containing NWB files, or an explicit list of NWB file paths.
     """
     nwb_directory = None
-    nwb_file_paths = None
+    nwbfile_paths = None
     if pathlib.Path(nwb[0]).is_dir():
         nwb_directory = pathlib.Path(nwb[0])
     else:
-        nwb_file_paths = nwb
+        nwbfile_paths = nwb
 
     convert_nwb_dataset(
         nwb_directory=nwb_directory,
-        nwb_file_paths=nwb_file_paths,
+        nwbfile_paths=nwbfile_paths,
         bids_directory=bids_directory,
         file_mode=file_mode,
         additional_metadata_file_path=additional_metadata_file_path,
