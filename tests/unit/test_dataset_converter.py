@@ -36,12 +36,12 @@ def test_dataset_converter_metadata_extraction(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     dataset_converter = nwb2bids.DatasetConverter.from_nwb(nwb_directory=minimal_nwbfile_path.parent)
-    dataset_converter.extract_dataset_metadata()
+    dataset_converter.extract_metadata()
 
     expected_session_converters = [
         nwb2bids.SessionConverter(
             session_id="456",
-            nwb_file_paths=[minimal_nwbfile_path],
+            nwbfile_paths=[minimal_nwbfile_path],
             session_metadata=nwb2bids.bids_models.BidsSessionMetadata(
                 session_id="456",
                 participant=nwb2bids.bids_models.Participant(
@@ -65,7 +65,7 @@ def test_dataset_converter_write_dataset_description(
     dataset_converter = nwb2bids.DatasetConverter.from_nwb(
         nwb_directory=minimal_nwbfile_path.parent, additional_metadata_file_path=additional_metadata_file_path
     )
-    dataset_converter.extract_dataset_metadata()
+    dataset_converter.extract_metadata()
     dataset_converter.write_dataset_description(bids_directory=temporary_bids_directory)
 
     expected_structure = {temporary_bids_directory: {"directories": set(), "files": {"dataset_description.json"}}}
@@ -92,11 +92,15 @@ def test_dataset_converter_write_subject_metadata(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     dataset_converter = nwb2bids.DatasetConverter.from_nwb(nwb_directory=minimal_nwbfile_path.parent)
-    dataset_converter.extract_dataset_metadata()
+    dataset_converter.extract_metadata()
+
     dataset_converter.write_participants_metadata(bids_directory=temporary_bids_directory)
 
     expected_structure = {
-        temporary_bids_directory: {"directories": set(), "files": {"participants.json", "participants.tsv"}}
+        temporary_bids_directory: {
+            "directories": set(),
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        }
     }
     nwb2bids.testing.assert_subdirectory_structure(
         directory=temporary_bids_directory, expected_structure=expected_structure
@@ -133,11 +137,12 @@ def test_dataset_converter_write_sessions_metadata(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     dataset_converter = nwb2bids.DatasetConverter.from_nwb(nwb_directory=minimal_nwbfile_path.parent)
-    dataset_converter.extract_dataset_metadata()
+    dataset_converter.extract_metadata()
+
     dataset_converter.write_sessions_metadata(bids_directory=temporary_bids_directory)
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-123"}, "files": set()},
+        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
         temporary_bids_directory
         / "sub-123": {
             "directories": {"ses-456"},

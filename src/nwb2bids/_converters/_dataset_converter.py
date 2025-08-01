@@ -2,18 +2,17 @@ import collections
 import json
 import pathlib
 import typing
-import warnings
 
 import pandas
 import pydantic
 import typing_extensions
 
-from nwb2bids.bids_models import DatasetDescription
-
+from ._base_converter import BaseConverter
 from ._session_converter import SessionConverter
+from ..bids_models import DatasetDescription
 
 
-class DatasetConverter(pydantic.BaseModel):
+class DatasetConverter(BaseConverter):
     session_converters: list[SessionConverter] = pydantic.Field(
         description="List of session converters. Typically instantiated by calling `.from_nwb()`.",
         min_length=1,
@@ -38,7 +37,7 @@ class DatasetConverter(pydantic.BaseModel):
         ----------
         nwb_directory : directory path, optional
             The path to the directory containing NWB files.
-            Must be specified if not providing `nwb_file_paths`.
+            Must be specified if not providing `nwbfile_paths`.
         nwb_file_paths : list of file paths, optional
             A list of file paths to NWB files.
             Must be specified if not providing `nwb_directory`.
@@ -47,7 +46,7 @@ class DatasetConverter(pydantic.BaseModel):
             If not provided, the method will also look for a file named "additional_metadata.json" in the NWB directory.
         """
         if nwb_directory is None and nwb_file_paths is None:
-            message = "Please provide either `nwb_directory` or `nwb_file_paths`."
+            message = "Please provide either `nwb_directory` or `nwbfile_paths`."
             raise ValueError(message)
 
         session_converters = SessionConverter.from_nwb(nwb_directory=nwb_directory, nwb_file_paths=nwb_file_paths)
@@ -66,27 +65,10 @@ class DatasetConverter(pydantic.BaseModel):
         dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
         return dataset_converter
 
-    # TODO: remove
-    @classmethod
-    @pydantic.validate_call
-    def from_nwb_directory(
-        cls, nwb_directory: pydantic.DirectoryPath, additional_metadata_file_path: pydantic.FilePath | None = None
-    ) -> typing_extensions.Self:
-        message = "The method `.from_nwb_directory` is deprecated. Please use `.from_nwb` instead."
-        warnings.warn(message=message, category=DeprecationWarning, stacklevel=2)
-
-        dataset_converter = cls.from_nwb(
-            nwb_directory=nwb_directory, additional_metadata_file_path=additional_metadata_file_path
-        )
-        return dataset_converter
-
-    def extract_dataset_metadata(self) -> None:
-        """
-        Deploy the call to `.extract_session_metadata()` for each session converter.
-        """
+    def extract_metadata(self) -> None:
         collections.deque(
             (
-                session_converter.extract_session_metadata()
+                session_converter.extract_metadata()
                 for session_converter in self.session_converters
                 if session_converter.session_metadata is None
             ),
@@ -95,22 +77,27 @@ class DatasetConverter(pydantic.BaseModel):
 
     @pydantic.validate_call
     def convert_to_bids_dataset(
-        self, bids_directory: str | pathlib.Path, file_mode: typing.Literal["move", "copy", "symlink"] | None = None
+        self,
+        bids_directory: str | pathlib.Path | None = None,
+        file_mode: typing.Literal["move", "copy", "symlink"] | None = None,
     ) -> None:
         """
         Convert the directory of NWB files to a BIDS dataset.
 
         Parameters
         ----------
-        bids_directory : directory path
+        bids_directory : directory path, optional
             The path to the directory where the BIDS dataset will be created.
+            If not specified, the current working directory will be used if it is valid to become a BIDS dataset.
+            To be a valid BIDS dataset, the directory must either start off empty or otherwise contain BIDS-compatible
+            files, such as `dataset_description.json`, `participants.tsv`, `README.md`, and so on.
         file_mode : one of "move", "copy", or "symlink"
             Specifies how to handle the NWB files when converting to BIDS format.
             - "move": Move the files to the BIDS directory.
             - "copy": Copy the files to the BIDS directory.
             - "symlink": Create symbolic links to the files in the BIDS directory.
         """
-        bids_directory = self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
         if self.dataset_description is not None:
             self.write_dataset_description(bids_directory=bids_directory)
@@ -127,8 +114,8 @@ class DatasetConverter(pydantic.BaseModel):
         )
 
     @pydantic.validate_call
-    def write_dataset_description(self, bids_directory: str | pathlib.Path) -> None:
-        bids_directory = self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+    def write_dataset_description(self, bids_directory: str | pathlib.Path | None = None) -> None:
+        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
         dataset_description_dictionary = self.dataset_description.model_dump()
 
@@ -137,7 +124,7 @@ class DatasetConverter(pydantic.BaseModel):
             json.dump(obj=dataset_description_dictionary, fp=file_stream, indent=4)
 
     @pydantic.validate_call
-    def write_participants_metadata(self, bids_directory: str | pathlib.Path) -> None:
+    def write_participants_metadata(self, bids_directory: str | pathlib.Path | None = None) -> None:
         """
         Write the `participants.tsv` and `participants.json` files.
 
@@ -146,9 +133,7 @@ class DatasetConverter(pydantic.BaseModel):
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
         """
-        bids_directory = bids_directory = self._establish_bids_directory_and_check_metadata(
-            bids_directory=bids_directory
-        )
+        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
         participants_data_frame = pandas.DataFrame.from_records(
             data=[
@@ -196,7 +181,7 @@ class DatasetConverter(pydantic.BaseModel):
             json.dump(obj=participants_json, fp=file_stream, indent=4)
 
     @pydantic.validate_call
-    def write_sessions_metadata(self, bids_directory: str | pathlib.Path) -> None:
+    def write_sessions_metadata(self, bids_directory: str | pathlib.Path | None = None) -> None:
         """
         Write the `_sessions.tsv` and `_sessions.json` files, then create empty participant and session directories.
 
@@ -205,7 +190,7 @@ class DatasetConverter(pydantic.BaseModel):
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
         """
-        bids_directory = self._establish_bids_directory_and_check_metadata(bids_directory=bids_directory)
+        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
         subject_id_to_sessions = collections.defaultdict(list)
         for session_converter in self.session_converters:
@@ -236,17 +221,3 @@ class DatasetConverter(pydantic.BaseModel):
             for session_metadata in sessions_metadata:
                 session_directory = subject_directory / f"ses-{session_metadata.session_id}"
                 session_directory.mkdir(exist_ok=True)
-
-    def _establish_bids_directory_and_check_metadata(self, bids_directory: str | pathlib.Path) -> pathlib.Path:
-        """
-        Cast and return `bids_directory` as `pathlib.Path`.
-
-        Ensure the BIDS directory exists.
-        Check if session metadata is available.
-        """
-        bids_directory = pathlib.Path(bids_directory)
-        bids_directory.mkdir(exist_ok=True)
-        if any(session_converter.session_metadata is None for session_converter in self.session_converters):
-            self.extract_dataset_metadata()
-
-        return bids_directory
