@@ -69,6 +69,23 @@ all = [
     {include-group = "dev"}
 ]
 
+# TODO: This is a temporary hack while waiting for hatch to support PEP 735,
+#   Dependency Groups, in creating environments.
+#   See https://github.com/pypa/hatch/pull/1922 for more details.
+#
+# Execute `hatch env create test` to create the environment
+# Execute `hatch run test:pytest tests` to run tests in the hatch environment
+[tool.hatch.envs.test]
+post-install-commands = ["pip install --group test"]
+
+[tool.hatch.envs.coverage]
+post-install-commands = ["pip install --group coverage"]
+
+[tool.hatch.envs.dev]
+post-install-commands = ["pip install --group dev"]
+
+[tool.hatch.envs.all]
+post-install-commands = ["pip install --group all"]
 
 
 [tool.black]
