@@ -82,7 +82,7 @@ nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
 [dependency-groups]
 test = ["pytest"]
 coverage = ["pytest-cov"]
-dev = ["ipython", "pre-commit"]
+dev = ["ipython", "pandas-stubs", "pre-commit"]
 all = [
     {include-group = "test"},
     {include-group = "coverage"},
