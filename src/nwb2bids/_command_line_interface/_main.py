@@ -32,8 +32,8 @@ def _nwb2bids_cli():
         "Use 'move' for fastest speeds if you do not wish to keep the original NWB directory structure."
     ),
     required=False,
-    type=click.Choice(["copy", "move", "symlink"], case_sensitive=False),
-    default=None,
+    type=click.Choice(["copy", "move", "symlink", "auto"], case_sensitive=False),
+    default="auto",
 )
 @click.option(
     "--additional-metadata-file-path",
@@ -49,7 +49,7 @@ def _nwb2bids_cli():
 def _run_convert_nwb_dataset(
     nwb: tuple[str, ...],
     bids_directory: str | None = None,
-    file_mode: typing.Literal["copy", "move", "symlink"] | None = None,
+    file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     additional_metadata_file_path: str | None = None,
 ) -> None:
     """
