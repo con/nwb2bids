@@ -5,15 +5,18 @@ import pathlib
 
 import pandas
 import pydantic
+import pytest
 
 import nwb2bids
 
 
+@pytest.mark.remote
 def test_remote_dataset_converter_initialization(temporary_bids_directory: pathlib.Path):
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003")
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
 
 
+@pytest.mark.remote
 def test_remote_dataset_converter_metadata_extraction(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
