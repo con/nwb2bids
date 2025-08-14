@@ -145,6 +145,10 @@ class SessionConverter(BaseConverter):
 
         file_prefix = f"sub-{self.session_metadata.participant.participant_id}_ses-{self.session_id}"
 
+        if self.session_metadata.ephys_metadata is not None:
+            ephys_metadata_file_path = ecephys_directory / f"{file_prefix}_ephys.json"
+            self.session_metadata.ephys_metadata.to_json(file_path=ephys_metadata_file_path)
+
         if self.session_metadata.probe_table is not None:
             probes_tsv_file_path = ecephys_directory / f"{file_prefix}_probes.tsv"
             self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)
