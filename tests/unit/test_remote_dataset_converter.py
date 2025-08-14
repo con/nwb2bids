@@ -4,6 +4,7 @@ import json
 import pathlib
 
 import pandas
+import pydantic
 
 import nwb2bids
 
@@ -19,23 +20,30 @@ def test_remote_dataset_converter_metadata_extraction(
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003")
     dataset_converter.extract_metadata()
 
-    expected_session_converters = [
-        nwb2bids.SessionConverter(
-            session_id="456",
-            nwbfile_paths=[minimal_nwbfile_path],
-            session_metadata=nwb2bids.bids_models.BidsSessionMetadata(
-                session_id="456",
-                participant=nwb2bids.bids_models.Participant(
-                    participant_id="123", species="Mus musculus", sex="male", strain=None
-                ),
-                events=None,
-                probe_table=None,
-                channel_table=None,
-                electrode_table=None,
-            ),
-        ),
+    assert len(dataset_converter.session_converters) == 1
+
+    session_converter = dataset_converter.session_converters[0]
+    assert session_converter.session_id == "YutaMouse44-151128"
+    assert session_converter.nwbfile_paths == [
+        pydantic.HttpUrl("https://dandiarchive.s3.amazonaws.com/blobs/b9c/99c/b9c99cba-0f2b-469c-9747-22c69ac8170f")
     ]
-    assert dataset_converter.session_converters == expected_session_converters
+
+    session_metadata = session_converter.session_metadata
+    assert session_metadata.participant == nwb2bids.bids_models.Participant(
+        participant_id="YutaMouse44", species="Mus musculus", sex=None, strain=None
+    )
+    assert session_metadata.events is None
+    assert session_metadata.probe_table == nwb2bids.bids_models.ProbeTable(
+        probes=[
+            nwb2bids.bids_models.Probe(
+                probe_id="Implant", type=None, description="Silicon electrodes on Intan probe.", manufacturer=None
+            )
+        ]
+    )
+    assert session_metadata.channel_table is not None
+    assert session_metadata.channel_table[0] == 1
+    assert session_metadata.electrode_table is not None
+    assert session_metadata.electrode_table[0] == 1
 
 
 def test_remote_dataset_converter_write_dataset_description(
