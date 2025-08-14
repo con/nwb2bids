@@ -67,7 +67,7 @@ class DatasetConverter(BaseConverter):
     def convert_to_bids_dataset(
         self,
         bids_directory: str | pathlib.Path | None = None,
-        file_mode: typing.Literal["move", "copy", "symlink"] | None = None,
+        file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     ) -> None:
         """
         Convert the directory of NWB files to a BIDS dataset.
@@ -79,11 +79,12 @@ class DatasetConverter(BaseConverter):
             If not specified, the current working directory will be used if it is valid to become a BIDS dataset.
             To be a valid BIDS dataset, the directory must either start off empty or otherwise contain BIDS-compatible
             files, such as `dataset_description.json`, `participants.tsv`, `README.md`, and so on.
-        file_mode : one of "move", "copy", or "symlink"
+        file_mode : one of "move", "copy", "symlink", or "auto", default: "auto"
             Specifies how to handle the NWB files when converting to BIDS format.
             - "move": Move the files to the BIDS directory.
             - "copy": Copy the files to the BIDS directory.
             - "symlink": Create symbolic links to the files in the BIDS directory.
+            - "auto": Decides between all the above based on the system, with preference for linking when possible.
         """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 

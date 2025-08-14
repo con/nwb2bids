@@ -77,7 +77,7 @@ class SessionConverter(BaseConverter):
     def convert_to_bids_session(
         self,
         bids_directory: str | pathlib.Path | None = None,
-        file_mode: typing.Literal["move", "copy", "symlink"] | None = None,
+        file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     ) -> None:
         """
         Convert the NWB file to a BIDS session directory.
@@ -86,12 +86,12 @@ class SessionConverter(BaseConverter):
         ----------
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
-        file_mode : one of "move", "copy", or "symlink"
+        file_mode : one of "move", "copy", "symlink", or "auto", default: "auto"
             Specifies how to handle the NWB files when converting to BIDS format.
-              - "move": Move the files to the BIDS directory.
-              - "copy": Copy the files to the BIDS directory.
-              - "symlink": Create symbolic links to the files in the BIDS directory.
-            The default behavior is to attempt to use symlinks, but fall back to copying if symlinks are not supported.
+            - "move": Move the files to the BIDS directory.
+            - "copy": Copy the files to the BIDS directory.
+            - "symlink": Create symbolic links to the files in the BIDS directory.
+            - "auto": Decides between all the above based on the system, with preference for linking when possible.
         """
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."

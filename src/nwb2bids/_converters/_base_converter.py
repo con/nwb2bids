@@ -73,9 +73,9 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
 
     def _handle_file_mode(
         self,
-        file_mode: typing.Literal["move", "copy", "symlink"] | None = None,
+        file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     ) -> typing.Literal["move", "copy", "symlink"]:
-        if file_mode is not None:
+        if file_mode != "auto":
             return file_mode
 
         try:
