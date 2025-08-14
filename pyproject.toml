@@ -50,6 +50,7 @@ keywords = [
 license = {file = "LICENSE.txt"}
 requires-python = ">=3.10"
 dependencies = [
+    "pandas",
     "pynwb",
     "click",
     "pydantic",
@@ -87,7 +88,7 @@ dandi = [
 [dependency-groups]
 test = ["pytest"]
 coverage = ["pytest-cov"]
-dev = ["ipython", "pre-commit"]
+dev = ["ipython", "pandas-stubs", "pre-commit"]
 all = [
     {include-group = "test"},
     {include-group = "coverage"},
