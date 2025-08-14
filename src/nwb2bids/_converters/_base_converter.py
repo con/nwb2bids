@@ -1,7 +1,6 @@
 import abc
 import json
 import pathlib
-import shutil
 import tempfile
 import typing
 
@@ -72,19 +71,26 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
             )
             raise ValueError(message)
 
+    @staticmethod
     def _handle_file_mode(
-        self,
         file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     ) -> typing.Literal["move", "copy", "symlink"]:
         if file_mode != "auto":
             return file_mode
 
-        try:
-            test_directory = pathlib.Path(tempfile.mkdtemp(prefix="nwb2bids-"))
-            test_file_path = test_directory / "test_file.txt"
+        with tempfile.TemporaryDirectory(prefix="nwb2bids-") as temp_dir_str:
+            temp_dir_path = pathlib.Path(temp_dir_str)
+
+            # Create a test file
+            test_file_path = temp_dir_path / "test_file.txt"
             test_file_path.touch()
-            (test_directory / "test_symlink.txt").symlink_to(target=test_file_path)
-            shutil.rmtree(path=test_directory, ignore_errors=True)
-            return "symlink"
-        except (OSError, PermissionError):  # Windows can sometimes have trouble with symlinks
-            return "copy"
+
+            try:
+                # Create a symlink to the test file
+                (temp_dir_path / "test_symlink.txt").symlink_to(target=test_file_path)
+            except (OSError, PermissionError, NotImplementedError):  # Windows can sometimes have trouble with symlinks
+                # TODO: log a INFO message here when logging is set up
+                return "copy"
+            else:
+                # If symlink creation was successful, return "symlink"
+                return "symlink"
