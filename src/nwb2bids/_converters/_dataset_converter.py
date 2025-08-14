@@ -24,7 +24,7 @@ class DatasetConverter(BaseConverter):
 
     @classmethod
     @pydantic.validate_call
-    def from_dandiset(
+    def from_remote_dandiset(
         cls,
         dandiset_id: pydantic.DirectoryPath,
         version_id: str | None = None,
@@ -65,23 +65,17 @@ class DatasetConverter(BaseConverter):
             dandiset_metadata_to_bids["License"] = dandiset_metadata.license
         dataset_description = DatasetDescription(
             Name=dandiset_metadata.title,
-            BIDSVersion="1.8.0",  # TODO: fetch latest BIDS version... or perhaps hard code to what we support
+            BIDSVersion="1.10",
             **dandiset_metadata_to_bids,
         )
 
-        # Get any extra metadata tags from path
-        # sample- in BIDS Microscopy might map to tis- in DANDI
-        # raise not implemented error for special non-BIDS prefixes (like desc-?)
         assets = list(dandiset.get_assets())
         all_asset_metadata = [asset.get_metadata() for asset in assets]
-        # subject_ids = [asset_metadata.wasGeneratedBy[0].id for asset_metadata in all_asset_metadata]
-        # session_ids = [asset_metadata.wasAssociatedWith[0].id for asset_metadata in all_asset_metadata]
-
         asset_to_session_id = {
             asset: asset_metadata.wasAssociatedWith[0].id for asset, asset_metadata in zip(assets, all_asset_metadata)
         }
         unique_session_ids = set(asset_to_session_id.values())
-        session_id_to_nwb_file_paths = {
+        session_id_to_assets = {
             unique_session_id: [
                 asset for asset, session_id in asset_to_session_id.items() if session_id == unique_session_id
             ]
@@ -89,8 +83,11 @@ class DatasetConverter(BaseConverter):
         }
 
         session_converters = [
-            SessionConverter(session_id=session_id, nwbfile_paths=[asset.path])
-            for session_id, asset in session_id_to_nwb_file_paths.items()
+            SessionConverter(
+                session_id=session_id,
+                nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
+            )
+            for session_id, assets in session_id_to_assets.items()
         ]
 
         dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)

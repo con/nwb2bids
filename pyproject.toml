@@ -83,6 +83,7 @@ nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
 [project.optional-dependencies]
 dandi = [
     "dandi>=0.69.3",
+    "remfile",
 ]
 
 [dependency-groups]
