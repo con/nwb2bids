@@ -35,13 +35,13 @@ class BidsSessionMetadata(pydantic.BaseModel):
     @classmethod
     @pydantic.validate_call
     def from_nwbfile_paths(
-        cls, nwbfile_paths: list[pydantic.FilePath] | list[pydantic.FileUrl]
+        cls, nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl]
     ) -> typing_extensions.Self:
         # Differentiate local path from URL
         if isinstance(nwbfile_paths[0], pathlib.Path):
             nwbfiles = [pynwb.read_nwb(path=nwbfile_path) for nwbfile_path in nwbfile_paths]
         else:
-            nwbfiles = [pynwb._stream_nwb(url=url) for url in nwbfile_paths]
+            nwbfiles = [_stream_nwb(url=url) for url in nwbfile_paths]
 
         session_ids = list({nwbfile.session_id for nwbfile in nwbfiles})
         if len(session_ids) > 1:
@@ -72,13 +72,13 @@ class BidsSessionMetadata(pydantic.BaseModel):
         return session_metadata
 
 
-def _stream_nwb(url: pydantic.FileUrl) -> pynwb.NWBFile:
+def _stream_nwb(url: pydantic.HttpUrl) -> pynwb.NWBFile:
     """
     Stream an NWB file from a URL using remfile.
 
     Parameters
     ----------
-    url : pydantic.FileUrl
+    url : pydantic.HttpUrl
         The URL of the NWB file to stream.
 
     Returns
@@ -88,7 +88,7 @@ def _stream_nwb(url: pydantic.FileUrl) -> pynwb.NWBFile:
     """
     import remfile
 
-    rem_file = remfile.File(url=url)
+    rem_file = remfile.File(url=str(url))
 
     try:
         h5py_file = h5py.File(name=rem_file, mode="r")

@@ -18,15 +18,33 @@ class Participant(pydantic.BaseModel):
         pattern=r"([A-Z][a-z]* [a-z]+)|(http://purl.obolibrary.org/obo/NCBITaxon_\d+)",  # Latin binomial or NCBI link
         # TODO: see if BIDS validator accepts purl.obolib links directly
     )
-    sex: typing.Literal[
-        "male", "m", "M", "MALE", "Male", "female", "f", "F", "FEMALE", "Female", "other", "o", "O", "OTHER", "Other"
-    ] = pydantic.Field(
+    sex: (
+        typing.Literal[
+            "male",
+            "m",
+            "M",
+            "MALE",
+            "Male",
+            "female",
+            "f",
+            "F",
+            "FEMALE",
+            "Female",
+            "other",
+            "o",
+            "O",
+            "OTHER",
+            "Other",
+        ]
+        | None
+    ) = pydantic.Field(
         description=(
             'String value indicating phenotypical sex, one of "male", "female", "other".\n'
             '\tFor "male", use one of these values: male, m, M, MALE, Male.\n'
             '\tFor "female", use one of these values: female, f, F, FEMALE, Female.\n'
             '\tFor "other", use one of these values: other, o, O, OTHER, Other.'
-        )
+        ),
+        default=None,
     )
     strain: str | None = pydantic.Field(
         description=(

@@ -24,7 +24,7 @@ class SessionConverter(BaseConverter):
         description="A unique session identifier.",
         pattern=r"^[^_]+$",  # No underscores allowed
     )
-    nwbfile_paths: list[pydantic.FilePath] | list[pydantic.FileUrl] = pydantic.Field(
+    nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl] = pydantic.Field(
         description="List of NWB file paths which share this session ID.", min_length=1
     )
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
