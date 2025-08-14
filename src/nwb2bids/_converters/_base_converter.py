@@ -36,7 +36,8 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
 
         return bids_directory
 
-    def _validate_existing_directory_as_bids(self, bids_directory: pathlib.Path) -> None:
+    @staticmethod
+    def _validate_existing_directory_as_bids(bids_directory: pathlib.Path) -> None:
         """
         Validate that the existing directory is a valid BIDS dataset.
 
