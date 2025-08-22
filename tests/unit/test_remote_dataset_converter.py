@@ -49,6 +49,7 @@ def test_remote_dataset_converter_metadata_extraction(
     assert session_metadata.electrode_table[0] == 1
 
 
+@pytest.mark.remote
 def test_remote_dataset_converter_write_dataset_description(
     minimal_nwbfile_path: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
@@ -78,6 +79,7 @@ def test_remote_dataset_converter_write_dataset_description(
     assert dataset_description_json == expected_dataset_description
 
 
+@pytest.mark.remote
 def test_remote_dataset_converter_write_subject_metadata(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -122,6 +124,7 @@ def test_remote_dataset_converter_write_subject_metadata(
     assert participants_json == expected_participants_json
 
 
+@pytest.mark.remote
 def test_remote_dataset_converter_write_sessions_metadata(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
