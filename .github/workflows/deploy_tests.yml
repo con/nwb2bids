@@ -36,7 +36,7 @@ jobs:
           pip install -e . --group coverage
 
       - name: Run tests
-        run: python -m pytest -m "not remote" -vv --cov=nwb2bids --cov-report xml:./codecov.xml
+        run: python -m pytest -vv --cov=nwb2bids --cov-report xml:./codecov.xml
       - name: Upload full coverage to Codecov
         if: ${{ matrix.python == '3.13' && matrix.os == 'ubuntu-latest' }}
         uses: codecov/codecov-action@v4
