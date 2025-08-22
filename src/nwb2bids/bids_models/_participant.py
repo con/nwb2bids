@@ -1,8 +1,12 @@
+import re
 import typing
+import warnings
 
 import pydantic
 import pynwb
 import typing_extensions
+
+_SPECIES_REGEX = r"([A-Z][a-z]* [a-z]+)|(http://purl.obolibrary.org/obo/NCBITaxon_\d+)"
 
 
 class Participant(pydantic.BaseModel):
@@ -10,23 +14,41 @@ class Participant(pydantic.BaseModel):
         description="A unique identifier for this participant.",
         pattern=r"^[^_]+$",  # No underscores allowed
     )
-    species: str = pydantic.Field(
+    species: str | None = pydantic.Field(
         description=(
             "The species should be the proper Latin binomial species name from the NCBI Taxonomy "
             "(for example, Mus musculus)."
         ),
-        pattern=r"([A-Z][a-z]* [a-z]+)|(http://purl.obolibrary.org/obo/NCBITaxon_\d+)",  # Latin binomial or NCBI link
-        # TODO: see if BIDS validator accepts purl.obolib links directly
+        pattern=_SPECIES_REGEX,
+        default=None,
     )
-    sex: typing.Literal[
-        "male", "m", "M", "MALE", "Male", "female", "f", "F", "FEMALE", "Female", "other", "o", "O", "OTHER", "Other"
-    ] = pydantic.Field(
+    sex: (
+        typing.Literal[
+            "male",
+            "m",
+            "M",
+            "MALE",
+            "Male",
+            "female",
+            "f",
+            "F",
+            "FEMALE",
+            "Female",
+            "other",
+            "o",
+            "O",
+            "OTHER",
+            "Other",
+        ]
+        | None
+    ) = pydantic.Field(
         description=(
             'String value indicating phenotypical sex, one of "male", "female", "other".\n'
             '\tFor "male", use one of these values: male, m, M, MALE, Male.\n'
             '\tFor "female", use one of these values: female, f, F, FEMALE, Female.\n'
             '\tFor "other", use one of these values: other, o, O, OTHER, Other.'
-        )
+        ),
+        default=None,
     )
     strain: str | None = pydantic.Field(
         description=(
@@ -52,12 +74,47 @@ class Participant(pydantic.BaseModel):
             raise NotImplementedError(message)
 
         nwbfile = nwbfiles[0]
+        participant_id = nwbfile.subject.subject_id.replace("_", "-")
+
+        species = nwbfile.subject.species
+        if species is not None and not re.match(pattern=_SPECIES_REGEX, string=species):
+            message = (
+                f"Subject species '{species}' within NWB file is not a proper Latin binomial or NCBI Taxonomy link. "
+                "Skipping automated extraction."
+            )
+            warnings.warn(message=message, stacklevel=2)
+            species = None
+
+        sex = nwbfile.subject.sex
+        if nwbfile.subject.sex is not None and nwbfile.subject.sex not in [
+            "male",
+            "m",
+            "M",
+            "MALE",
+            "Male",
+            "female",
+            "f",
+            "F",
+            "FEMALE",
+            "Female",
+            "other",
+            "o",
+            "O",
+            "OTHER",
+            "Other",
+        ]:
+            message = (
+                f"Subject sex '{sex}' within NWB file is not one of the allowed patterns. "
+                "Skipping automated extraction."
+            )
+            warnings.warn(message=message, stacklevel=2)
+            sex = None
 
         subject = cls(
-            participant_id=nwbfile.subject.subject_id.replace("_", "-"),
-            species=nwbfile.subject.species,
+            participant_id=participant_id,
+            species=species,
+            sex=sex,
             strain=nwbfile.subject.strain,
-            sex=nwbfile.subject.sex,
             # TODO: add more
             # birthday=nwbfile.participant.date_of_birth,
             # age=nwbfile.participant.age
