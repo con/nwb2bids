@@ -35,7 +35,7 @@ class ChannelTable(pydantic.BaseModel):
 
         if nwbfile.electrodes is None:
             return None
-        
+
         # Only scan electrical series listed under acquisition since those under processing can downsample the rate
         raw_electrical_series = [
             neurodata_object
