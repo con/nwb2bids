@@ -36,18 +36,35 @@ class ChannelTable(pydantic.BaseModel):
         if nwbfile.electrodes is None:
             return None
 
+        if len(nwbfile.electrodes) == 0:
+            message = (
+                "The NWB file contains an electrodes table, but it is empty. "
+                "Please raise an issue on https://github.com/con/nwb2bids/issues to discuss."
+            )
+            raise NotImplementedError(message)
+
         # Only scan electrical series listed under acquisition since those under processing can downsample the rate
         raw_electrical_series = [
             neurodata_object
             for neurodata_object in nwbfile.acquisition
             if isinstance(neurodata_object, pynwb.ecephys.ElectricalSeries)
         ]
-        sampling_frequency = None
-        gain = None
-        if any(raw_electrical_series) is True:
+        if len(raw_electrical_series) > 1:
             # TODO: form a map of electrode to rate/gate based on ElectricalSeries linkage
-            message = "Support for automatic extraction of rates/gains from ElectricalSeries is not yet implemented."
+            message = (
+                "Support for automatic extraction of rates/gains from multiple ElectricalSeries is not yet implemented."
+            )
             raise NotImplementedError(message)
+
+        electrical_series = raw_electrical_series[0]
+        if electrical_series.rate is None:
+            message = (
+                "Support for automatic extraction of rate from ElectricalSeries with timestamps is not yet implemented."
+            )
+            raise NotImplementedError(message)
+
+        sampling_frequency = electrical_series.rate
+        gain = electrical_series.conversion
 
         channels = [
             Channel(

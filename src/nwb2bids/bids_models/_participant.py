@@ -6,7 +6,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
-_SPECIES_REGEX = r"([A-Z][a-z]* [a-z]+)|(http://purl.obolibrary.org/obo/NCBITaxon_\d+)"
+_SPECIES_REGEX = r"[A-Za-z ]+|http://purl.obolibrary.org/obo/NCBITaxon_\d+"
 
 
 class Participant(pydantic.BaseModel):
