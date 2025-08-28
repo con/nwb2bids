@@ -24,6 +24,85 @@ class DatasetConverter(BaseConverter):
 
     @classmethod
     @pydantic.validate_call
+    def from_remote_dandiset(
+        cls,
+        dandiset_id: str = pydantic.Field(pattern=r"^\d{6}$"),
+        version_id: str | None = None,
+        api_url: str | None = None,
+        token: str | None = None,
+    ) -> typing_extensions.Self:
+        """
+        Initialize a converter of Dandiset to BIDS format.
+
+        Parameters
+        ----------
+        dandiset_id : directory path
+            The path to the Dandiset directory.
+        archive : str, optional
+            The archive of the Dandiset. Common options are "DANDI" or "EMBER".
+            The default is "DANDI".
+        """
+        import dandi.dandiapi
+
+        client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
+        dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
+        dandiset_metadata = dandiset.get_metadata()
+
+        bids_rrid = "RRID:SCR_016124"
+        if any(data_standard.identifier == bids_rrid for data_standard in dandiset_metadata.assetsSummary.dataStandard):
+            message = (
+                "Dandiset already contains BIDS content. If only a partial conversion is desired, "
+                "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
+            )
+            raise ValueError(message)
+
+        dandiset_metadata_to_bids = dict()
+        dandiset_name = dandiset_metadata.name
+        if dandiset_metadata.description is not None:
+            dandiset_metadata_to_bids["Description"] = dandiset_metadata.description
+        if dandiset_metadata.contributor is not None:
+            dandiset_metadata_to_bids["Authors"] = [
+                contributor.name
+                for contributor in dandiset_metadata.contributor
+                for role in contributor.roleName
+                if role.value == "dcite:Author"
+            ]
+        if dandiset_metadata.license is not None:
+            dandiset_metadata_to_bids["License"] = dandiset_metadata.license[0].value.split(":")[1]
+        dataset_description = DatasetDescription(
+            Name=dandiset_name,
+            BIDSVersion="1.10",
+            **dandiset_metadata_to_bids,
+        )
+
+        assets = list(dandiset.get_assets())
+        all_asset_metadata = [asset.get_metadata() for asset in assets]
+        asset_and_session_id = [
+            (asset, session.identifier)
+            for asset, asset_metadata in zip(assets, all_asset_metadata)
+            for session in asset_metadata.wasGeneratedBy
+            if session.schemaKey == "Session"
+        ]
+        unique_session_ids = set(session_id for _, session_id in asset_and_session_id)
+        session_id_to_assets = {
+            unique_session_id: [asset for asset, session_id in asset_and_session_id if session_id == unique_session_id]
+            for unique_session_id in unique_session_ids
+        }
+        sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
+
+        session_converters = [
+            SessionConverter(
+                session_id=session_id,
+                nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
+            )
+            for session_id, assets in sorted_session_id_to_assets.items()
+        ]
+
+        dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+        return dataset_converter
+
+    @classmethod
+    @pydantic.validate_call
     def from_nwb_directory(
         cls, nwb_directory: pydantic.DirectoryPath, additional_metadata_file_path: pydantic.FilePath | None = None
     ) -> typing_extensions.Self:

@@ -24,7 +24,7 @@ class SessionConverter(BaseConverter):
         description="A unique session identifier.",
         pattern=r"^[^_]+$",  # No underscores allowed
     )
-    nwbfile_paths: list[pydantic.FilePath] = pydantic.Field(
+    nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl] = pydantic.Field(
         description="List of NWB file paths which share this session ID.", min_length=1
     )
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
@@ -54,7 +54,7 @@ class SessionConverter(BaseConverter):
         }  # IDEA: if this is too slow, could do direct h5py read instead, to avoid reading the entire file metadata
 
         unique_session_ids = set(nwb_file_path_to_session_id.values())
-        unique_session_id_to_nwb_file_paths = {
+        session_id_to_nwb_file_paths = {
             unique_session_id: [
                 nwb_file_path
                 for nwb_file_path, session_id in nwb_file_path_to_session_id.items()
@@ -65,7 +65,7 @@ class SessionConverter(BaseConverter):
 
         session_converters = [
             cls(session_id=session_id, nwbfile_paths=nwb_file_paths)
-            for session_id, nwb_file_paths in unique_session_id_to_nwb_file_paths.items()
+            for session_id, nwb_file_paths in session_id_to_nwb_file_paths.items()
         ]
         return session_converters
 
@@ -94,7 +94,10 @@ class SessionConverter(BaseConverter):
             - "auto": Decides between all the above based on the system, with preference for linking when possible.
         """
         if len(self.nwbfile_paths) > 1:
-            message = "Conversion of multiple NWB files per session is not yet supported."
+            message = (
+                "Conversion of multiple NWB files per session is not yet supported. "
+                "Please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
+            )
             raise NotImplementedError(message)
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
         file_mode = self._handle_file_mode(file_mode=file_mode)
@@ -113,6 +116,12 @@ class SessionConverter(BaseConverter):
         # TODO: determine icephys or ecephys suffix
         for nwbfile_path in self.nwbfile_paths:
             session_file_path = session_subdirectory / f"sub-{subject_id}_ses-{self.session_id}_ecephys.nwb"
+
+            # If not a local path, then it is a URL, so write simple 'symlink' pointing to the URL
+            if not isinstance(nwbfile_path, pathlib.Path):
+                with session_file_path.open(mode="w") as file_stream:
+                    file_stream.write(nwbfile_path)
+
             if file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
             elif file_mode == "move":
