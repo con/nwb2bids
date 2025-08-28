@@ -56,15 +56,19 @@ class ChannelTable(pydantic.BaseModel):
             )
             raise NotImplementedError(message)
 
-        electrical_series = raw_electrical_series[0]
-        if electrical_series.rate is None:
-            message = (
-                "Support for automatic extraction of rate from ElectricalSeries with timestamps is not yet implemented."
-            )
-            raise NotImplementedError(message)
+        sampling_frequency = None
+        gain = None
+        if len(raw_electrical_series) == 1:
+            electrical_series = raw_electrical_series[0]
+            if electrical_series.rate is None:
+                message = (
+                    "Support for automatic extraction of rate from ElectricalSeries with "
+                    "timestamps is not yet implemented."
+                )
+                raise NotImplementedError(message)
 
-        sampling_frequency = electrical_series.rate
-        gain = electrical_series.conversion
+            sampling_frequency = electrical_series.rate
+            gain = electrical_series.conversion
 
         channels = [
             Channel(
