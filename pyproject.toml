@@ -119,7 +119,8 @@ extend-exclude = '''
 )/
 '''
 
-
+[tool.mypy]
+plugins = ["pydantic.mypy"]
 
 [tool.ruff]
 exclude = [
