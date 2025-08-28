@@ -28,8 +28,9 @@ class SessionConverter(BaseConverter):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwb(
-        cls, nwb_directory: pydantic.DirectoryPath | None = None, nwbfile_paths: list[pydantic.FilePath] | None = None
+    def from_nwb_paths(
+        cls,
+        nwb_paths: typing.Iterable[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
     ) -> list[typing_extensions.Self]:
         """
         Initialize a list of session converters from a list of NWB file paths.
@@ -38,26 +39,19 @@ class SessionConverter(BaseConverter):
 
         Parameters
         ----------
-        nwb_directory : directory path, optional
-            The path to the directory containing NWB files.
-            Must be specified if not providing `nwbfile_paths`.
-        nwbfile_paths : list of file paths, optional
-            A list of file paths to NWB files.
-            Must be specified if not providing `nwb_directory`.
+        nwb_paths : list of file or directory paths
+            A list of either NWB file paths or directories containing NWB files.
 
         Returns
         -------
         A list of SessionConverter instances, one per unique session ID.
         """
-        if nwb_directory is None and nwbfile_paths is None:
-            message = "Please provide either `nwb_directory` or `nwbfile_paths`."
-            raise ValueError(message)
-
         all_nwbfile_paths = []
-        if nwb_directory is not None:
-            all_nwbfile_paths += list(nwb_directory.rglob(pattern="*.nwb"))
-        if nwbfile_paths is not None:
-            all_nwbfile_paths += nwbfile_paths
+        for nwb_path in nwb_paths:
+            if nwb_path.is_file():
+                all_nwbfile_paths.append(nwb_path)
+            elif nwb_path.is_dir():
+                all_nwbfile_paths += list(nwb_path.rglob(pattern="*.nwb"))
 
         nwbfile_path_to_session_id = {
             nwbfile_path: pynwb.read_nwb(nwbfile_path).session_id for nwbfile_path in all_nwbfile_paths

@@ -44,7 +44,7 @@ def test_allowed_directory_conditions(
         bids_directory = temporary_bids_directory
 
     try:
-        dataset_converter = nwb2bids.DatasetConverter.from_nwb(
+        dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
             nwb_directory=minimal_nwbfile_path.parent, additional_metadata_file_path=additional_metadata_file_path
         )
         dataset_converter.extract_metadata()
@@ -110,7 +110,7 @@ def test_disallowed_directory_conditions(
 
     try:
         with pytest.raises(expected_exception=ValueError, match=expected_exception):
-            dataset_converter = nwb2bids.DatasetConverter.from_nwb(
+            dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
                 nwb_directory=minimal_nwbfile_path.parent, additional_metadata_file_path=additional_metadata_file_path
             )
             dataset_converter.extract_metadata()

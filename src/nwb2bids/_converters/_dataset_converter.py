@@ -14,7 +14,7 @@ from ..bids_models import DatasetDescription
 
 class DatasetConverter(BaseConverter):
     session_converters: list[SessionConverter] = pydantic.Field(
-        description="List of session converters. Typically instantiated by calling `.from_nwb()`.",
+        description="List of session converters. Typically instantiated by calling `.from_nwb_paths()`.",
         min_length=1,
     )
     dataset_description: DatasetDescription | None = pydantic.Field(
@@ -24,10 +24,9 @@ class DatasetConverter(BaseConverter):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwb(
+    def from_nwb_paths(
         cls,
-        nwb_directory: pydantic.DirectoryPath | None = None,
-        nwbfile_paths: list[pydantic.FilePath] | None = None,
+        nwb_paths: typing.Iterable[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
         additional_metadata_file_path: pydantic.FilePath | None = None,
     ) -> typing_extensions.Self:
         """
@@ -35,30 +34,18 @@ class DatasetConverter(BaseConverter):
 
         Parameters
         ----------
-        nwb_directory : directory path, optional
-            The path to the directory containing NWB files.
-            Must be specified if not providing `nwbfile_paths`.
-        nwbfile_paths : list of file paths, optional
-            A list of file paths to NWB files.
-            Must be specified if not providing `nwb_directory`.
+        nwb_paths : list of file or directory paths
+            A list of either NWB file paths or directories containing NWB files.
         additional_metadata_file_path : file path, optional
             The path to a JSON file containing additional metadata to be included in the BIDS dataset.
-            If not provided, the method will also look for a file named "additional_metadata.json" in the NWB directory.
-        """
-        if nwb_directory is None and nwbfile_paths is None:
-            message = "Please provide either `nwb_directory` or `nwbfile_paths`."
-            raise ValueError(message)
 
-        session_converters = SessionConverter.from_nwb(nwb_directory=nwb_directory, nwbfile_paths=nwbfile_paths)
+        Returns
+        -------
+        An instance of DatasetConverter.
+        """
+        session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
 
         dataset_description = None
-        additional_metadata_file_path = (
-            secondary_path
-            if additional_metadata_file_path is None
-            and nwb_directory is not None
-            and (secondary_path := nwb_directory / "additional_metadata.json").exists()
-            else additional_metadata_file_path
-        )
         if additional_metadata_file_path is not None:
             dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
