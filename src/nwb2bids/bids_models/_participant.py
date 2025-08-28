@@ -1,12 +1,11 @@
 import re
-import typing
 import warnings
 
 import pydantic
 import pynwb
 import typing_extensions
 
-_SPECIES_REGEX = r"[A-Za-z ]+|http://purl.obolibrary.org/obo/NCBITaxon_\d+"
+from ._model_globals import _ALLOWED_SEXES, _SPECIES_REGEX
 
 
 class Participant(pydantic.BaseModel):
@@ -22,26 +21,7 @@ class Participant(pydantic.BaseModel):
         pattern=_SPECIES_REGEX,
         default=None,
     )
-    sex: (
-        typing.Literal[
-            "male",
-            "m",
-            "M",
-            "MALE",
-            "Male",
-            "female",
-            "f",
-            "F",
-            "FEMALE",
-            "Female",
-            "other",
-            "o",
-            "O",
-            "OTHER",
-            "Other",
-        ]
-        | None
-    ) = pydantic.Field(
+    sex: str | None = pydantic.Field(
         description=(
             'String value indicating phenotypical sex, one of "male", "female", "other".\n'
             '\tFor "male", use one of these values: male, m, M, MALE, Male.\n'
@@ -86,23 +66,7 @@ class Participant(pydantic.BaseModel):
             species = None
 
         sex = nwbfile.subject.sex
-        if nwbfile.subject.sex is not None and nwbfile.subject.sex not in [
-            "male",
-            "m",
-            "M",
-            "MALE",
-            "Male",
-            "female",
-            "f",
-            "F",
-            "FEMALE",
-            "Female",
-            "other",
-            "o",
-            "O",
-            "OTHER",
-            "Other",
-        ]:
+        if nwbfile.subject.sex is not None and nwbfile.subject.sex not in _ALLOWED_SEXES:
             message = (
                 f"Subject sex '{sex}' within NWB file is not one of the allowed patterns. "
                 "Skipping automated extraction."
