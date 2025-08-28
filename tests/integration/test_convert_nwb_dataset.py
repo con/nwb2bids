@@ -9,8 +9,8 @@ import nwb2bids
 def test_minimal_convert_nwb_dataset_from_directory(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    nwb_directory = minimal_nwbfile_path.parent
-    nwb2bids.convert_nwb_dataset(nwb_directory=nwb_directory, bids_directory=temporary_bids_directory)
+    nwb_paths = [minimal_nwbfile_path.parent]
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -43,11 +43,11 @@ def test_minimal_convert_nwb_dataset_from_directory(
     )
 
 
-def test_minimal_convert_nwb_dataset_from_file_paths(
+def test_minimal_convert_nwb_dataset_from_file_path(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    nwbfile_paths = [minimal_nwbfile_path]
-    nwb2bids.convert_nwb_dataset(nwbfile_paths=nwbfile_paths, bids_directory=temporary_bids_directory)
+    nwb_paths = [minimal_nwbfile_path]
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -81,7 +81,8 @@ def test_minimal_convert_nwb_dataset_from_file_paths(
 
 
 def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    nwb2bids.convert_nwb_dataset(nwb_directory=ecephys_nwbfile_path.parent, bids_directory=temporary_bids_directory)
+    nwb_paths = [ecephys_nwbfile_path]
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -121,35 +122,42 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
 
 
 def test_optional_bids_directory(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    os.chdir(path=temporary_bids_directory)
-    new_bids_directory = temporary_bids_directory / "bids"
+    initial_working_directory = pathlib.Path.cwd()
+    try:
+        os.chdir(path=temporary_bids_directory)
+        new_bids_directory = temporary_bids_directory / "bids"
 
-    nwb2bids.convert_nwb_dataset(nwb_directory=minimal_nwbfile_path.parent)
+        nwb_paths = [minimal_nwbfile_path]
+        nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
 
-    expected_structure = {
-        new_bids_directory: {
-            "directories": {"sub-123"},
-            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
-        },
-        new_bids_directory
-        / "sub-123": {
-            "directories": {"ses-456"},
-            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
-        },
-        new_bids_directory
-        / "sub-123"
-        / "ses-456": {
-            "directories": {"ecephys"},
-            "files": set(),
-        },
-        new_bids_directory
-        / "sub-123"
-        / "ses-456"
-        / "ecephys": {
-            "directories": set(),
-            "files": {
-                "sub-123_ses-456_ecephys.nwb",
+        expected_structure = {
+            new_bids_directory: {
+                "directories": {"sub-123"},
+                "files": {"dataset_description.json", "participants.json", "participants.tsv"},
             },
-        },
-    }
-    nwb2bids.testing.assert_subdirectory_structure(directory=new_bids_directory, expected_structure=expected_structure)
+            new_bids_directory
+            / "sub-123": {
+                "directories": {"ses-456"},
+                "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+            },
+            new_bids_directory
+            / "sub-123"
+            / "ses-456": {
+                "directories": {"ecephys"},
+                "files": set(),
+            },
+            new_bids_directory
+            / "sub-123"
+            / "ses-456"
+            / "ecephys": {
+                "directories": set(),
+                "files": {
+                    "sub-123_ses-456_ecephys.nwb",
+                },
+            },
+        }
+        nwb2bids.testing.assert_subdirectory_structure(
+            directory=new_bids_directory, expected_structure=expected_structure
+        )
+    finally:
+        os.chdir(path=initial_working_directory)

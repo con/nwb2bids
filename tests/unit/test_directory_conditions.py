@@ -36,23 +36,23 @@ def test_allowed_directory_conditions(
     if "valid" in test_case:
         dataset_description_file_path.write_text(data='{"BIDSVersion": "1.10"}')
 
+    bids_directory = None
+    initial_working_directory = pathlib.Path.cwd()
     if "implicit" in test_case:
-        initial_working_directory = pathlib.Path.cwd()
         os.chdir(temporary_bids_directory)
-        bids_directory = None
     else:
         bids_directory = temporary_bids_directory
 
     try:
+        nwb_paths = [minimal_nwbfile_path]
         dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
-            nwb_directory=minimal_nwbfile_path.parent, additional_metadata_file_path=additional_metadata_file_path
+            nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_file_path
         )
         dataset_converter.extract_metadata()
 
         dataset_converter.write_dataset_description(bids_directory=bids_directory)
     finally:
-        if "implicit" in test_case:
-            os.chdir(initial_working_directory)
+        os.chdir(initial_working_directory)
 
     expected_structure = {temporary_bids_directory: {"directories": set(), "files": {"dataset_description.json"}}}
     nwb2bids.testing.assert_subdirectory_structure(
@@ -91,10 +91,10 @@ def test_disallowed_directory_conditions(
 ):
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
 
+    bids_directory = None
+    initial_working_directory = pathlib.Path.cwd()
     if "implicit" in test_case:
-        initial_working_directory = pathlib.Path.cwd()
         os.chdir(temporary_bids_directory)
-        bids_directory = None
     else:
         bids_directory = temporary_bids_directory
 
@@ -110,12 +110,12 @@ def test_disallowed_directory_conditions(
 
     try:
         with pytest.raises(expected_exception=ValueError, match=expected_exception):
+            nwb_paths = [minimal_nwbfile_path]
             dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
-                nwb_directory=minimal_nwbfile_path.parent, additional_metadata_file_path=additional_metadata_file_path
+                nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_file_path
             )
             dataset_converter.extract_metadata()
 
             dataset_converter.write_dataset_description(bids_directory=bids_directory)
     finally:
-        if "implicit" in test_case:
-            os.chdir(initial_working_directory)
+        os.chdir(initial_working_directory)
