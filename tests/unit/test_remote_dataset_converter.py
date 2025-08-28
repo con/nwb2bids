@@ -23,7 +23,7 @@ def test_remote_dataset_converter_metadata_extraction(
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003")
     dataset_converter.extract_metadata()
 
-    assert len(dataset_converter.session_converters) == 1
+    assert len(dataset_converter.session_converters) == 101
 
     session_converter = dataset_converter.session_converters[0]
     assert session_converter.session_id == "YutaMouse44-151128"

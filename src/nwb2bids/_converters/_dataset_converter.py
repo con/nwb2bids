@@ -88,13 +88,14 @@ class DatasetConverter(BaseConverter):
             unique_session_id: [asset for asset, session_id in asset_and_session_id if session_id == unique_session_id]
             for unique_session_id in unique_session_ids
         }
+        sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
 
         session_converters = [
             SessionConverter(
                 session_id=session_id,
                 nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
             )
-            for session_id, assets in session_id_to_assets.items()
+            for session_id, assets in sorted_session_id_to_assets.items()
         ]
 
         dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
