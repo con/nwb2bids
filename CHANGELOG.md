@@ -6,6 +6,8 @@
 
 The CLI call `nwb2bids reposit` and API function `nwb2bids.reposit` have been removed - please use `nwb2bids convert` and `nwb2bids.convert_nwb_dataset` instead.
 
+The API instantiation method `.from_nwb_directory` has been standardized as `.from_nwb_paths` and now takes an iterable of either file or directory paths.
+
 # Features
 
 The CLI now accepts a list of space-separated NWB file paths as input, enabling more robust wildcard syntax or `xargs` usage.
