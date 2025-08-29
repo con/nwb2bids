@@ -12,6 +12,8 @@ The BIDS directory arguments to the CLI (`--bids-directory`/`-o`) and API (`bids
 
 The default of all `file_mode` arguments is now the string `"auto"` instead of `None`.
 
+Added support for writing the `_ephys.json` metadata file.
+
 # Documentation
 
 Updated README to accurately reflect CLI call syntax.
