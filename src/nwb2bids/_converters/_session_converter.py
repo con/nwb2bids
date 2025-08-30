@@ -39,8 +39,8 @@ class SessionConverter(BaseConverter):
 
         Parameters
         ----------
-        nwb_paths : list of file or directory paths
-            A list of either NWB file paths or directories containing NWB files.
+        nwb_paths : iterable of file and directory paths
+            An iterable of NWB file paths and directories containing NWB files.
 
         Returns
         -------

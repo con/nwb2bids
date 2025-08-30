@@ -12,7 +12,7 @@ def _nwb2bids_cli():
     pass
 
 
-# nwb2bids convert < nwb_paths >
+# nwb2bids convert [OPTIONS] [NWB_PATHS]...
 @_nwb2bids_cli.command(name="convert")
 @click.argument("nwb_paths", type=str, nargs=-1)
 @click.option(
