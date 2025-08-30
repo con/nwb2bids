@@ -1,6 +1,5 @@
 """Integration tests for the primary `convert_nwb_dataset` function."""
 
-import os
 import pathlib
 
 import nwb2bids
@@ -121,43 +120,39 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
     )
 
 
-def test_optional_bids_directory(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    initial_working_directory = pathlib.Path.cwd()
-    try:
-        os.chdir(path=temporary_bids_directory)
-        new_bids_directory = temporary_bids_directory / "bids"
+def test_optional_bids_directory(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path, monkeypatch
+):
+    new_bids_directory = temporary_bids_directory / "bids"
+    monkeypatch.chdir(temporary_bids_directory)
 
-        nwb_paths = [minimal_nwbfile_path]
-        nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    nwb_paths = [minimal_nwbfile_path]
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
 
-        expected_structure = {
-            new_bids_directory: {
-                "directories": {"sub-123"},
-                "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+    expected_structure = {
+        new_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        new_bids_directory
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        new_bids_directory
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        new_bids_directory
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-123_ses-456_ecephys.nwb",
             },
-            new_bids_directory
-            / "sub-123": {
-                "directories": {"ses-456"},
-                "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
-            },
-            new_bids_directory
-            / "sub-123"
-            / "ses-456": {
-                "directories": {"ecephys"},
-                "files": set(),
-            },
-            new_bids_directory
-            / "sub-123"
-            / "ses-456"
-            / "ecephys": {
-                "directories": set(),
-                "files": {
-                    "sub-123_ses-456_ecephys.nwb",
-                },
-            },
-        }
-        nwb2bids.testing.assert_subdirectory_structure(
-            directory=new_bids_directory, expected_structure=expected_structure
-        )
-    finally:
-        os.chdir(path=initial_working_directory)
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(directory=new_bids_directory, expected_structure=expected_structure)
