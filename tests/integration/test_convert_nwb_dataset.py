@@ -90,28 +90,28 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
         },
         temporary_bids_directory
         / "sub-123": {
-            "directories": {"ses-456"},
+            "directories": {"ses-789"},
             "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456": {
+        / "ses-789": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456"
+        / "ses-789"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ses-456_ecephys.nwb",
-                "sub-123_ses-456_channels.tsv",
-                "sub-123_ses-456_channels.json",
-                "sub-123_ses-456_electrodes.tsv",
-                "sub-123_ses-456_electrodes.json",
-                "sub-123_ses-456_probes.tsv",
-                "sub-123_ses-456_probes.json",
+                "sub-123_ses-789_ecephys.nwb",
+                "sub-123_ses-789_channels.tsv",
+                "sub-123_ses-789_channels.json",
+                "sub-123_ses-789_electrodes.tsv",
+                "sub-123_ses-789_electrodes.json",
+                "sub-123_ses-789_probes.tsv",
+                "sub-123_ses-789_probes.json",
             },
         },
     }

@@ -32,6 +32,18 @@ def test_dataset_converter_file_paths_initialization(
     assert isinstance(dataset_converter.session_converters[0], nwb2bids.SessionConverter)
 
 
+def test_dataset_converter_both_file_and_directory_initialization(
+    minimal_nwbfile_path: pathlib.Path, ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [minimal_nwbfile_path.parent, ecephys_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths)
+
+    assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
+    assert isinstance(dataset_converter.session_converters, list)
+    assert len(dataset_converter.session_converters) == 2
+    assert all(isinstance(converter, nwb2bids.SessionConverter) for converter in dataset_converter.session_converters)
+
+
 def test_dataset_converter_metadata_extraction(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):

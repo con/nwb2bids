@@ -88,7 +88,7 @@ def minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
 
 @pytest.fixture(scope="session")
 def ecephys_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
-    nwbfile = _make_minimal_nwbfile()
+    nwbfile = _make_minimal_nwbfile(session_id="789")
 
     pynwb.testing.mock.ecephys.mock_ElectricalSeries(name="test_electrical_series", nwbfile=nwbfile)
 
