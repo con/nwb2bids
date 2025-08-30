@@ -8,18 +8,44 @@ import pandas
 import nwb2bids
 
 
-def test_session_converter_initialization(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    session_converters = nwb2bids.SessionConverter.from_nwb_directory(nwb_directory=minimal_nwbfile_path.parent)
+def test_session_converter_directory_initialization(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [minimal_nwbfile_path.parent]
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
 
     assert isinstance(session_converters, list)
     assert len(session_converters) == 1
     assert isinstance(session_converters[0], nwb2bids.SessionConverter)
 
 
+def test_session_converter_file_path_initialization(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [minimal_nwbfile_path]
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+
+    assert isinstance(session_converters, list)
+    assert len(session_converters) == 1
+    assert isinstance(session_converters[0], nwb2bids.SessionConverter)
+
+
+def test_session_converter_both_file_and_directory_initialization(
+    minimal_nwbfile_path: pathlib.Path, ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [minimal_nwbfile_path.parent, ecephys_nwbfile_path]
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+
+    assert isinstance(session_converters, list)
+    assert len(session_converters) == 2
+    assert all(isinstance(converter, nwb2bids.SessionConverter) for converter in session_converters)
+
+
 def test_session_converter_metadata_extraction(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    session_converters = nwb2bids.SessionConverter.from_nwb_directory(nwb_directory=minimal_nwbfile_path.parent)
+    nwb_paths = [minimal_nwbfile_path]
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
     session_converters[0].extract_metadata()
 
     expected_session_metadata = nwb2bids.bids_models.BidsSessionMetadata(
@@ -37,7 +63,8 @@ def test_session_converter_metadata_extraction(
 def test_session_converter_write_ecephys_metadata(
     ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    session_converters = nwb2bids.SessionConverter.from_nwb_directory(nwb_directory=ecephys_nwbfile_path.parent)
+    nwb_paths = [ecephys_nwbfile_path]
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
     session_converter = session_converters[0]
     session_converter.extract_metadata()
     session_converter.write_ecephys_files(bids_directory=temporary_bids_directory)
@@ -46,27 +73,27 @@ def test_session_converter_write_ecephys_metadata(
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
         temporary_bids_directory
         / "sub-123": {
-            "directories": {"ses-456"},
+            "directories": {"ses-789"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456": {
+        / "ses-789": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456"
+        / "ses-789"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ses-456_probes.tsv",
-                "sub-123_ses-456_probes.json",
-                "sub-123_ses-456_channels.tsv",
-                "sub-123_ses-456_channels.json",
-                "sub-123_ses-456_electrodes.tsv",
-                "sub-123_ses-456_electrodes.json",
+                "sub-123_ses-789_probes.tsv",
+                "sub-123_ses-789_probes.json",
+                "sub-123_ses-789_channels.tsv",
+                "sub-123_ses-789_channels.json",
+                "sub-123_ses-789_electrodes.tsv",
+                "sub-123_ses-789_electrodes.json",
             },
         },
     }
@@ -80,7 +107,8 @@ def test_session_converter_write_ecephys_metadata(
 def test_session_converter_write_events_metadata(
     trials_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    session_converters = nwb2bids.SessionConverter.from_nwb_directory(nwb_directory=trials_events_nwbfile_path.parent)
+    nwb_paths = [trials_events_nwbfile_path]
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
     session_converter = session_converters[0]
     session_converter.extract_metadata()
     session_converter.write_events_files(bids_directory=temporary_bids_directory)

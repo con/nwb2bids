@@ -14,7 +14,7 @@ from ..bids_models import DatasetDescription
 
 class DatasetConverter(BaseConverter):
     session_converters: list[SessionConverter] = pydantic.Field(
-        description="List of session converters. Typically instantiated by calling `.from_nwb_directory()`.",
+        description="List of session converters. Typically instantiated by calling `.from_nwb_paths()`.",
         min_length=1,
     )
     dataset_description: DatasetDescription | None = pydantic.Field(
@@ -24,29 +24,28 @@ class DatasetConverter(BaseConverter):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwb_directory(
-        cls, nwb_directory: pydantic.DirectoryPath, additional_metadata_file_path: pydantic.FilePath | None = None
+    def from_nwb_paths(
+        cls,
+        nwb_paths: typing.Iterable[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
+        additional_metadata_file_path: pydantic.FilePath | None = None,
     ) -> typing_extensions.Self:
         """
         Initialize a converter of NWB files to BIDS format.
 
         Parameters
         ----------
-        nwb_directory : directory path
-            The path to the directory containing NWB files.
+        nwb_paths : iterable of file and directory paths
+            An iterable of NWB file paths and directories containing NWB files.
         additional_metadata_file_path : file path, optional
             The path to a JSON file containing additional metadata to be included in the BIDS dataset.
-            If not provided, the method will also look for a file named "additional_metadata.json" in the NWB directory.
+
+        Returns
+        -------
+        An instance of DatasetConverter.
         """
-        session_converters = SessionConverter.from_nwb_directory(nwb_directory=nwb_directory)
+        session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
 
         dataset_description = None
-        additional_metadata_file_path = (
-            secondary_path
-            if additional_metadata_file_path is None
-            and (secondary_path := nwb_directory / "additional_metadata.json").exists()
-            else additional_metadata_file_path
-        )
         if additional_metadata_file_path is not None:
             dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 

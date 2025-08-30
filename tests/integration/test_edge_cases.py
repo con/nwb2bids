@@ -18,8 +18,9 @@ def test_convert_nwb_dataset_with_additional_metadata(
     temporary_bids_directory: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
 ):
+    nwb_paths = [minimal_nwbfile_path]
     nwb2bids.convert_nwb_dataset(
-        nwb_directory=minimal_nwbfile_path.parent,
+        nwb_paths=nwb_paths,
         bids_directory=temporary_bids_directory,
         additional_metadata_file_path=additional_metadata_file_path,
     )
@@ -57,9 +58,8 @@ def test_convert_nwb_dataset_no_session_id(
     nwbfile_path_with_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     try:
-        nwb2bids.convert_nwb_dataset(
-            nwb_directory=nwbfile_path_with_missing_session_id.parent, bids_directory=temporary_bids_directory
-        )
+        nwb_paths = [nwbfile_path_with_missing_session_id]
+        nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
     except Exception as exception:
         assert isinstance(exception, pydantic.ValidationError)
         assert "session_id\n  Input should be a valid string" in str(exception)
