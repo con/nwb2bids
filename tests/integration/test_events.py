@@ -6,9 +6,8 @@ import nwb2bids
 
 
 def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    nwb2bids.convert_nwb_dataset(
-        nwb_directory=trials_events_nwbfile_path.parent, bids_directory=temporary_bids_directory
-    )
+    nwb_paths = [trials_events_nwbfile_path]
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -44,9 +43,8 @@ def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_
 
 
 def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    nwb2bids.convert_nwb_dataset(
-        nwb_directory=epochs_events_nwbfile_path.parent, bids_directory=temporary_bids_directory
-    )
+    nwb_paths = [epochs_events_nwbfile_path]
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -82,9 +80,8 @@ def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_
 
 
 def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    nwb2bids.convert_nwb_dataset(
-        nwb_directory=multiple_events_nwbfile_path.parent, bids_directory=temporary_bids_directory
-    )
+    nwb_paths = [multiple_events_nwbfile_path]
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_structure = {
         temporary_bids_directory: {

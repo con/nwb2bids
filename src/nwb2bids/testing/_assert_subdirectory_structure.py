@@ -41,7 +41,7 @@ def assert_subdirectory_structure(
         assert set(directories) == set(expected["directories"]), (
             f"\n\nUnexpected directories in {subdirectory_path}.\n\n"
             f"Expected: {expected['directories']}\n"
-            f"Found: {directories}\n"
+            f"Found: {set(directories)}\n"
             f"Difference: {set(directories) - set(expected['directories'])}\n"
             f"Extra: {set(expected['directories']) - set(directories)}\n\n"
         )
