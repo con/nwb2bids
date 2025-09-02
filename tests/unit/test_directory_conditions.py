@@ -1,5 +1,4 @@
 import json
-import os
 import pathlib
 
 import pytest
@@ -21,38 +20,25 @@ def test_allowed_directory_conditions(
     minimal_nwbfile_path: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
+    monkeypatch,
 ):
-    """
-    Test the `_handle_bids_directory` conditions on a minimal case of writing the dataset description file.
-
-    The valid conditions for the BIDS directory are:
-        1. Explicitly passed and allowed to be empty.
-        2. Explicitly passed and already exists as a valid BIDS dataset.
-        3. Implicitly the current working directory, which is empty.
-        4. Implicitly the current working directory, which is a valid BIDS dataset.
-    """
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
 
     if "valid" in test_case:
         dataset_description_file_path.write_text(data='{"BIDSVersion": "1.10"}')
 
+    bids_directory = None
     if "implicit" in test_case:
-        initial_working_directory = pathlib.Path.cwd()
-        os.chdir(temporary_bids_directory)
-        bids_directory = None
+        monkeypatch.chdir(temporary_bids_directory)
     else:
         bids_directory = temporary_bids_directory
 
-    try:
-        dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(
-            nwb_directory=minimal_nwbfile_path.parent, additional_metadata_file_path=additional_metadata_file_path
-        )
-        dataset_converter.extract_metadata()
-
-        dataset_converter.write_dataset_description(bids_directory=bids_directory)
-    finally:
-        if "implicit" in test_case:
-            os.chdir(initial_working_directory)
+    nwb_paths = [minimal_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_file_path
+    )
+    dataset_converter.extract_metadata()
+    dataset_converter.write_dataset_description(bids_directory=bids_directory)
 
     expected_structure = {temporary_bids_directory: {"directories": set(), "files": {"dataset_description.json"}}}
     nwb2bids.testing.assert_subdirectory_structure(
@@ -88,13 +74,13 @@ def test_disallowed_directory_conditions(
     minimal_nwbfile_path: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
+    monkeypatch,
 ):
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
 
+    bids_directory = None
     if "implicit" in test_case:
-        initial_working_directory = pathlib.Path.cwd()
-        os.chdir(temporary_bids_directory)
-        bids_directory = None
+        monkeypatch.chdir(temporary_bids_directory)
     else:
         bids_directory = temporary_bids_directory
 
@@ -108,14 +94,10 @@ def test_disallowed_directory_conditions(
 
         expected_exception = "missing 'BIDSVersion' in 'dataset_description.json'"
 
-    try:
-        with pytest.raises(expected_exception=ValueError, match=expected_exception):
-            dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(
-                nwb_directory=minimal_nwbfile_path.parent, additional_metadata_file_path=additional_metadata_file_path
-            )
-            dataset_converter.extract_metadata()
-
-            dataset_converter.write_dataset_description(bids_directory=bids_directory)
-    finally:
-        if "implicit" in test_case:
-            os.chdir(initial_working_directory)
+    with pytest.raises(expected_exception=ValueError, match=expected_exception):
+        nwb_paths = [minimal_nwbfile_path]
+        dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+            nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_file_path
+        )
+        dataset_converter.extract_metadata()
+        dataset_converter.write_dataset_description(bids_directory=bids_directory)
