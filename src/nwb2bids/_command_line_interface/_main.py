@@ -55,7 +55,7 @@ def _run_convert_nwb_dataset(
     """
     Convert NWB files to BIDS format.
 
-    NWB_PATHS : A sequence of paths that point to either NWB files or directories containing NWB files.
+    NWB_PATHS : A sequence of paths, each pointing to either an NWB file or a directory containing NWB files.
     """
     if len(nwb_paths) == 0:
         message = "Please provide at least one NWB file or directory to convert."
