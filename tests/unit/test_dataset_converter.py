@@ -8,15 +8,47 @@ import pandas
 import nwb2bids
 
 
-def test_dataset_converter_initialization(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(nwb_directory=minimal_nwbfile_path.parent)
+def test_dataset_converter_directory_initialization(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [minimal_nwbfile_path.parent]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths)
+
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
+    assert isinstance(dataset_converter.session_converters, list)
+    assert len(dataset_converter.session_converters) == 1
+    assert isinstance(dataset_converter.session_converters[0], nwb2bids.SessionConverter)
+
+
+def test_dataset_converter_file_paths_initialization(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [minimal_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths)
+
+    assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
+    assert isinstance(dataset_converter.session_converters, list)
+    assert len(dataset_converter.session_converters) == 1
+    assert isinstance(dataset_converter.session_converters[0], nwb2bids.SessionConverter)
+
+
+def test_dataset_converter_both_file_and_directory_initialization(
+    minimal_nwbfile_path: pathlib.Path, ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [minimal_nwbfile_path.parent, ecephys_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths)
+
+    assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
+    assert isinstance(dataset_converter.session_converters, list)
+    assert len(dataset_converter.session_converters) == 2
+    assert all(isinstance(converter, nwb2bids.SessionConverter) for converter in dataset_converter.session_converters)
 
 
 def test_dataset_converter_metadata_extraction(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(nwb_directory=minimal_nwbfile_path.parent)
+    nwb_paths = [minimal_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths)
     dataset_converter.extract_metadata()
 
     expected_session_converters = [
@@ -43,8 +75,9 @@ def test_dataset_converter_write_dataset_description(
     additional_metadata_file_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ):
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(
-        nwb_directory=minimal_nwbfile_path.parent, additional_metadata_file_path=additional_metadata_file_path
+    nwb_paths = [minimal_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_file_path
     )
     dataset_converter.extract_metadata()
     dataset_converter.write_dataset_description(bids_directory=temporary_bids_directory)
@@ -72,8 +105,10 @@ def test_dataset_converter_write_dataset_description(
 def test_dataset_converter_write_subject_metadata(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(nwb_directory=minimal_nwbfile_path.parent)
+    nwb_paths = [minimal_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths)
     dataset_converter.extract_metadata()
+
     dataset_converter.write_participants_metadata(bids_directory=temporary_bids_directory)
 
     expected_structure = {
@@ -116,8 +151,10 @@ def test_dataset_converter_write_subject_metadata(
 def test_dataset_converter_write_sessions_metadata(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_directory(nwb_directory=minimal_nwbfile_path.parent)
+    nwb_paths = [minimal_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths)
     dataset_converter.extract_metadata()
+
     dataset_converter.write_sessions_metadata(bids_directory=temporary_bids_directory)
 
     expected_structure = {
