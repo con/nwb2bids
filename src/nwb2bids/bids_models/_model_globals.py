@@ -1,4 +1,4 @@
-_SPECIES_REGEX = r"[A-Za-z ]+|http://purl.obolibrary.org/obo/NCBITaxon_\d+"
+_SPECIES_REGEX = r"^([A-Za-z ]+|http://purl\.obolibrary\.org/obo/NCBITaxon_\d+)$"
 _ALLOWED_SEXES = {
     "male",
     "m",
