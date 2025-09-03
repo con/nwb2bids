@@ -2,6 +2,9 @@
 
 # Upcoming
 
+
+# v0.3.0
+
 # Deprecations
 
 The CLI call `nwb2bids reposit` and API function `nwb2bids.reposit` have been removed - please use `nwb2bids convert` and `nwb2bids.convert_nwb_dataset` instead.
@@ -23,6 +26,10 @@ Added an API argument `nwb_paths: list[str | pathlib.Path]` to all relevant conv
 The BIDS directory arguments to the CLI (`--bids-directory`/`-o`) and API (`bids_directory`) are now optional, with the default case being the current working directory (which must be either empty or BIDS-compatible).
 
 The default of all `file_mode` arguments is now the string `"auto"` instead of `None`.
+
+# Fixes
+
+Ensured removal of any temporary directory created by `BaseConverter._handle_file_mode()`. @candleindark [PR #44](https://github.com/con/nwb2bids/pull/44)
 
 # Documentation
 
