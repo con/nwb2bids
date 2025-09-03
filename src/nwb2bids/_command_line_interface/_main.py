@@ -18,7 +18,7 @@ def _nwb2bids_cli():
 @click.option(
     "--bids-directory",
     "-o",
-    help="The path to the folder where the BIDS dataset will be created.",
+    help="Path to the folder where the BIDS dataset will be created (default: current working directory).",
     required=False,
     type=click.Path(writable=True),
     default=None,
