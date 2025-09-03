@@ -37,7 +37,7 @@ check = "mypy --install-types --non-interactive {args:src/nwb2bids tests}"
 
 [project]
 name = "nwb2bids"
-version="0.2.0"
+version="0.3.0"
 authors = [
   { name="Cody Baker", email="cody.c.baker.phd@gmail.com" },
 ]
