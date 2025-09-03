@@ -23,8 +23,15 @@ post-install-commands = ["pip install --group coverage"]
 [tool.hatch.envs.dev]
 post-install-commands = ["pip install --group dev"]
 
+[tool.hatch.envs.types]
+post-install-commands = ["pip install --group types"]
+
 [tool.hatch.envs.all]
 post-install-commands = ["pip install --group all"]
+
+[tool.hatch.envs.types.scripts]
+# Define named script for type checking
+check = "mypy --install-types --non-interactive {args:src/nwb2bids tests}"
 
 
 
@@ -87,13 +94,16 @@ dandi = [
 ]
 
 [dependency-groups]
+type-stubs = ["pandas-stubs"]
 test = ["pytest"]
 coverage = ["pytest-cov"]
-dev = ["ipython", "pandas-stubs", "pre-commit"]
+dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
+types = ["mypy", {include-group = "type-stubs"}]
 all = [
     {include-group = "test"},
     {include-group = "coverage"},
-    {include-group = "dev"}
+    {include-group = "dev"},
+    {include-group = "types"},
 ]
 
 
