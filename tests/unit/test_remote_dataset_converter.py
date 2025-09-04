@@ -17,9 +17,7 @@ def test_remote_dataset_converter_initialization(temporary_bids_directory: pathl
 
 
 @pytest.mark.remote
-def test_remote_dataset_converter_metadata_extraction(
-    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
-):
+def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: pathlib.Path):
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003")
     dataset_converter.extract_metadata()
 
@@ -50,11 +48,7 @@ def test_remote_dataset_converter_metadata_extraction(
 
 
 @pytest.mark.remote
-def test_remote_dataset_converter_write_dataset_description(
-    minimal_nwbfile_path: pathlib.Path,
-    additional_metadata_file_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-):
+def test_remote_dataset_converter_write_dataset_description(temporary_bids_directory: pathlib.Path):
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003")
     dataset_converter.extract_metadata()
     dataset_converter.write_dataset_description(bids_directory=temporary_bids_directory)
@@ -80,9 +74,7 @@ def test_remote_dataset_converter_write_dataset_description(
 
 
 @pytest.mark.remote
-def test_remote_dataset_converter_write_subject_metadata(
-    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
-):
+def test_remote_dataset_converter_write_subject_metadata(temporary_bids_directory: pathlib.Path):
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003")
     dataset_converter.extract_metadata()
     dataset_converter.write_participants_metadata(bids_directory=temporary_bids_directory)
@@ -125,9 +117,7 @@ def test_remote_dataset_converter_write_subject_metadata(
 
 
 @pytest.mark.remote
-def test_remote_dataset_converter_write_sessions_metadata(
-    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
-):
+def test_remote_dataset_converter_write_sessions_metadata(temporary_bids_directory: pathlib.Path):
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003")
     dataset_converter.extract_metadata()
     dataset_converter.write_sessions_metadata(bids_directory=temporary_bids_directory)

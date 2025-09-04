@@ -125,6 +125,7 @@ class SessionConverter(BaseConverter):
             if not isinstance(nwbfile_path, pathlib.Path):
                 with session_file_path.open(mode="w") as file_stream:
                     file_stream.write(nwbfile_path)
+                continue
 
             if file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
