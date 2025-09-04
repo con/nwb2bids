@@ -1,13 +1,13 @@
 import typing
 import warnings
 
-import dandi.dandiapi
 import pydantic
 
 from ..bids_models import DatasetDescription
 
 
-def get_bids_dataset_description(dandiset: dandi.dandiapi.RemoteDandiset) -> DatasetDescription:
+def get_bids_dataset_description(dandiset) -> DatasetDescription:
+
     valid_or_raw: typing.Literal["raw", "valid"] = "valid"
     try:
         metadata = dandiset.get_metadata()
