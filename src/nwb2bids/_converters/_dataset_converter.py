@@ -8,6 +8,7 @@ import pydantic
 import typing_extensions
 
 from ._base_converter import BaseConverter
+from ._dandi_utils import get_bids_dataset_description
 from ._session_converter import SessionConverter
 from ..bids_models import DatasetDescription
 
@@ -27,10 +28,9 @@ class DatasetConverter(BaseConverter):
     def from_remote_dandiset(
         cls,
         dandiset_id: str = pydantic.Field(pattern=r"^\d{6}$"),
-        version_id: str | None = None,
         api_url: str | None = None,
         token: str | None = None,
-    ) -> typing_extensions.Self:
+    ) -> typing_extensions.Self | None:
         """
         Initialize a converter of Dandiset to BIDS format.
 
@@ -38,50 +38,28 @@ class DatasetConverter(BaseConverter):
         ----------
         dandiset_id : directory path
             The path to the Dandiset directory.
-        archive : str, optional
-            The archive of the Dandiset. Common options are "DANDI" or "EMBER".
-            The default is "DANDI".
+        api_url : str, optional
+            The API URL of a custom DANDI instance to use. If not provided, the default DANDI API URL will be used.
+        token : str, optional
+            The authentication token for accessing the DANDI instance.
+            If not provided, will attempt to read from the environment variable `DANDI_API_KEY` if it exists.
+            This is required for accessing embargoed Dandisets.
         """
         import dandi.dandiapi
 
         client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
+        version_id = "draft"  # Only allow running on draft version
         dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
-        dandiset_metadata = dandiset.get_metadata()
 
-        bids_rrid = "RRID:SCR_016124"
-        if any(data_standard.identifier == bids_rrid for data_standard in dandiset_metadata.assetsSummary.dataStandard):
-            message = (
-                "Dandiset already contains BIDS content. If only a partial conversion is desired, "
-                "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
-            )
-            raise ValueError(message)
-
-        dandiset_metadata_to_bids = dict()
-        dandiset_name = dandiset_metadata.name
-        if dandiset_metadata.description is not None:
-            dandiset_metadata_to_bids["Description"] = dandiset_metadata.description
-        if dandiset_metadata.contributor is not None:
-            dandiset_metadata_to_bids["Authors"] = [
-                contributor.name
-                for contributor in dandiset_metadata.contributor
-                for role in contributor.roleName
-                if role.value == "dcite:Author"
-            ]
-        if dandiset_metadata.license is not None:
-            dandiset_metadata_to_bids["License"] = dandiset_metadata.license[0].value.split(":")[1]
-        dataset_description = DatasetDescription(
-            Name=dandiset_name,
-            BIDSVersion="1.10",
-            **dandiset_metadata_to_bids,
-        )
+        dataset_description = get_bids_dataset_description(dandiset=dandiset)
 
         assets = list(dandiset.get_assets())
-        all_asset_metadata = [asset.get_metadata() for asset in assets]
+        all_asset_metadata = [asset.get_raw_metadata() for asset in assets]
         asset_and_session_id = [
-            (asset, session.identifier)
+            (asset, session["identifier"])
             for asset, asset_metadata in zip(assets, all_asset_metadata)
-            for session in asset_metadata.wasGeneratedBy
-            if session.schemaKey == "Session"
+            for session in asset_metadata["wasGeneratedBy"]
+            if session["schemaKey"] == "Session"
         ]
         unique_session_ids = set(session_id for _, session_id in asset_and_session_id)
         session_id_to_assets = {
