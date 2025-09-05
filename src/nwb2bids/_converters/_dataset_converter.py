@@ -30,6 +30,7 @@ class DatasetConverter(BaseConverter):
         dandiset_id: str = pydantic.Field(pattern=r"^\d{6}$"),
         api_url: str | None = None,
         token: str | None = None,
+        limit: int | None = None,
     ) -> typing_extensions.Self | None:
         """
         Initialize a converter of Dandiset to BIDS format.
@@ -44,6 +45,9 @@ class DatasetConverter(BaseConverter):
             The authentication token for accessing the DANDI instance.
             If not provided, will attempt to read from the environment variable `DANDI_API_KEY` if it exists.
             This is required for accessing embargoed Dandisets.
+        limit : int, optional
+            If specified, limits the number of sessions to convert.
+            This is mainly useful for testing purposes.
         """
         import dandi.dandiapi
 
@@ -53,7 +57,11 @@ class DatasetConverter(BaseConverter):
 
         dataset_description = get_bids_dataset_description(dandiset=dandiset)
 
-        assets = list(dandiset.get_assets())
+        if limit is None:
+            assets = list(dandiset.get_assets())
+        else:
+            assets = [asset for counter, asset in enumerate(dandiset.get_assets()) if counter < limit]
+
         all_asset_metadata = [asset.get_raw_metadata() for asset in assets]
         asset_and_session_id = [
             (asset, session["identifier"])
@@ -150,13 +158,11 @@ class DatasetConverter(BaseConverter):
         self.write_participants_metadata(bids_directory=bids_directory)
         self.write_sessions_metadata(bids_directory=bids_directory)
 
-        collections.deque(
-            (
-                session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
-                for session_converter in self.session_converters
-            ),
-            maxlen=0,
+        generator = (
+            session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
+            for session_converter in self.session_converters
         )
+        collections.deque(generator, maxlen=0)
 
     @pydantic.validate_call
     def write_dataset_description(self, bids_directory: str | pathlib.Path | None = None) -> None:

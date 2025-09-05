@@ -124,7 +124,7 @@ class SessionConverter(BaseConverter):
             # If not a local path, then it is a URL, so write simple 'symlink' pointing to the URL
             if not isinstance(nwbfile_path, pathlib.Path):
                 with session_file_path.open(mode="w") as file_stream:
-                    file_stream.write(nwbfile_path)
+                    file_stream.write(str(nwbfile_path))
                 continue
 
             if file_mode == "copy":
