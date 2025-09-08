@@ -7,8 +7,10 @@ import pydantic
 import pynwb
 import typing_extensions
 
+from ._base_metadata_model import BaseMetadataModel
 
-class Channel(pydantic.BaseModel):
+
+class Channel(BaseMetadataModel):
     channel_id: str
     electrode_id: str
     type: typing.Literal["EXT"] = "EXT"  # TODO
@@ -16,13 +18,8 @@ class Channel(pydantic.BaseModel):
     sampling_frequency: float | None = None
     gain: float | None = None
 
-    model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
-        extra="allow",  # Allow additional custom fields
-    )
 
-
-class ChannelTable(pydantic.BaseModel):
+class ChannelTable(BaseMetadataModel):
     channels: list[Channel]
 
     @classmethod

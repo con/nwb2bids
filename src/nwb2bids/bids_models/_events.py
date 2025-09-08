@@ -6,8 +6,10 @@ import pydantic
 import pynwb
 import typing_extensions
 
+from ._base_metadata_model import BaseMetadataModel
 
-class Events(pydantic.BaseModel):
+
+class Events(BaseMetadataModel):
     onset: list[float] = pydantic.Field(
         description=(
             "Onset (in seconds) of the event, measured from the beginning of the acquisition of the first data point "
@@ -28,11 +30,6 @@ class Events(pydantic.BaseModel):
     )
     _bids_events_data_frame: pandas.DataFrame
     _nwbfiles: list[pynwb.NWBFile]
-
-    model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
-        extra="allow",  # Allow additional custom fields
-    )
 
     @classmethod
     @pydantic.validate_call
