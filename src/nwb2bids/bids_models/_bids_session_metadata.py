@@ -2,6 +2,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
+from ._base_metadata_model import BaseMetadataModel
 from ._channels import ChannelTable
 from ._electrodes import ElectrodeTable
 from ._events import Events
@@ -9,7 +10,7 @@ from ._participant import Participant
 from ._probes import ProbeTable
 
 
-class BidsSessionMetadata(pydantic.BaseModel):
+class BidsSessionMetadata(BaseMetadataModel):
     """
     Schema for the metadata of a single BIDS session.
     """
@@ -19,9 +20,6 @@ class BidsSessionMetadata(pydantic.BaseModel):
         pattern=r"^[^_]+$",  # No underscores allowed
     )
     participant: Participant = pydantic.Field(description="Metadata about a participant used in this experiment.")
-    # general_metadata: GeneralMetadata = pydantic.Field(
-    #     description="General metadata about the setup for this experiment."
-    # )
     events: Events | None = pydantic.Field(
         description="Timing data and metadata regarding events that occur during this experiment.", default=None
     )

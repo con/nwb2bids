@@ -6,20 +6,17 @@ import pydantic
 import pynwb
 import typing_extensions
 
+from ._base_metadata_model import BaseMetadataModel
 
-class Probe(pydantic.BaseModel):
+
+class Probe(BaseMetadataModel):
     probe_id: str
     type: str | None = None
     description: str | None = None
     manufacturer: str | None = None
 
-    model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
-        extra="allow",  # Allow additional custom fields
-    )
 
-
-class ProbeTable(pydantic.BaseModel):
+class ProbeTable(BaseMetadataModel):
     probes: list[Probe]
 
     @classmethod
