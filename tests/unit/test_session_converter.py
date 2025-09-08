@@ -51,11 +51,6 @@ def test_session_converter_metadata_extraction(
     expected_session_metadata = nwb2bids.bids_models.BidsSessionMetadata(
         session_id="456",
         participant=nwb2bids.bids_models.Participant(participant_id="123", species="Mus musculus", sex="male"),
-        extra={
-            "session": {"session_id": "456", "number_of_trials": None, "comments": "session_description"},
-            "participant": {"participant_id": "123", "species": "Mus musculus", "strain": None, "sex": "male"},
-            "probes": [],
-        },
     )
     assert session_converters[0].session_metadata == expected_session_metadata
 
