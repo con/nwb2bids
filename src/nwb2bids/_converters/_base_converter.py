@@ -6,8 +6,13 @@ import typing
 
 import pydantic
 
+from .._messages._inspection_message import InspectionMessage
+
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):
+    messages: list[InspectionMessage] = pydantic.Field(
+        description="List of auto-detected suggestions.", ge=0, default_factory=list
+    )
 
     @abc.abstractmethod
     def extract_metadata(self) -> None:

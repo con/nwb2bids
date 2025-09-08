@@ -9,6 +9,7 @@ import typing_extensions
 
 from ._base_converter import BaseConverter
 from ._session_converter import SessionConverter
+from .._messages._inspection_message import InspectionMessage
 from ..bids_models import DatasetDescription
 
 
@@ -21,6 +22,17 @@ class DatasetConverter(BaseConverter):
         description="The BIDS-compatible dataset description.",
         default=None,
     )
+
+    @pydantic.computed_field
+    @property
+    def messages(self) -> list[InspectionMessage]:
+        """
+        All messages from contained session converters.
+
+        These can accumulate over time based on which instance methods have been called.
+        """
+        messages = [message for session_converter in self.session_converters for message in session_converter.messages]
+        return messages
 
     @classmethod
     @pydantic.validate_call
@@ -49,7 +61,17 @@ class DatasetConverter(BaseConverter):
         if additional_metadata_file_path is not None:
             dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
-        dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+        session_messages = [
+            message
+            for session_converter in session_converters
+            for message in session_converter.messages
+            if session_converter.messages is not None
+        ]
+        messages = session_messages if len(session_messages) > 0 else None
+
+        dataset_converter = cls(
+            session_converters=session_converters, dataset_description=dataset_description, messages=messages
+        )
         return dataset_converter
 
     def extract_metadata(self) -> None:

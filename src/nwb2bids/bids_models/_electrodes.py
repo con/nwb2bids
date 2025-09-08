@@ -7,6 +7,7 @@ import pynwb
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataModel
+from .._messages._inspection_message import InspectionMessage
 
 
 class Electrode(BaseMetadataModel):
@@ -17,6 +18,17 @@ class Electrode(BaseMetadataModel):
 
 class ElectrodeTable(BaseMetadataModel):
     electrodes: list[Electrode]
+
+    @pydantic.computed_field
+    @property
+    def messages(self) -> list[InspectionMessage]:
+        """
+        All messages from contained session converters.
+
+        These can accumulate over time based on which instance methods have been called.
+        """
+        messages = [message for electrode in self.electrodes for message in electrode.messages]
+        return messages
 
     @classmethod
     @pydantic.validate_call

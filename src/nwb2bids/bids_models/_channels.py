@@ -8,6 +8,7 @@ import pynwb
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataModel
+from .._messages._inspection_message import InspectionMessage
 
 
 class Channel(BaseMetadataModel):
@@ -21,6 +22,17 @@ class Channel(BaseMetadataModel):
 
 class ChannelTable(BaseMetadataModel):
     channels: list[Channel]
+
+    @pydantic.computed_field
+    @property
+    def messages(self) -> list[InspectionMessage]:
+        """
+        All messages from contained session converters.
+
+        These can accumulate over time based on which instance methods have been called.
+        """
+        messages = [message for channel in self.channels for message in channel.messages]
+        return messages
 
     @classmethod
     @pydantic.validate_call

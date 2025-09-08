@@ -7,6 +7,7 @@ import pynwb
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataModel
+from .._messages._inspection_message import InspectionMessage
 
 
 class Probe(BaseMetadataModel):
@@ -18,6 +19,17 @@ class Probe(BaseMetadataModel):
 
 class ProbeTable(BaseMetadataModel):
     probes: list[Probe]
+
+    @pydantic.computed_field
+    @property
+    def messages(self) -> list[InspectionMessage]:
+        """
+        All messages from contained session converters.
+
+        These can accumulate over time based on which instance methods have been called.
+        """
+        messages = [message for probe in self.probes for message in probe.messages]
+        return messages
 
     @classmethod
     @pydantic.validate_call
