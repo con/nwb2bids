@@ -4,7 +4,7 @@ import typing
 import pydantic
 import typing_extensions
 
-from ..bids_models._base_metadata_model import BaseMetadataModel
+from ._base_metadata_model import BaseMetadataModel
 
 
 class DatasetDescription(BaseMetadataModel):
