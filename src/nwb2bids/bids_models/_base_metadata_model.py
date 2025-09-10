@@ -1,3 +1,5 @@
+import abc
+
 import pydantic
 
 from .._messages._inspection_message import InspectionMessage
@@ -18,7 +20,7 @@ class BaseMetadataModel(pydantic.BaseModel):
     )
 
 
-class BaseMetadataContainerModel(pydantic.BaseModel):
+class BaseMetadataContainerModel(pydantic.BaseModel, abc.ABC):
     """
     Base Pydantic model for 'containing' some number of other metadata models plus any extra metadata.
     """
@@ -28,6 +30,7 @@ class BaseMetadataContainerModel(pydantic.BaseModel):
         extra="allow",  # Allow additional custom fields
     )
 
+    @abc.abstractmethod
     @pydantic.computed_field
     @property
     def messages(self) -> list[InspectionMessage]:
