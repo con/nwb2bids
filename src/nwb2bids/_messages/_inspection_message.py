@@ -11,3 +11,5 @@ class InspectionMessage(pydantic.BaseModel):
         ),
         ge=0,
     )
+
+    model_config = pydantic.ConfigDict(frozen=True)

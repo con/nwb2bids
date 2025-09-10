@@ -6,8 +6,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_metadata_model import BaseMetadataModel
 from .._messages._inspection_message import InspectionMessage
+from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 
 
 class Electrode(BaseMetadataModel):
@@ -16,7 +16,7 @@ class Electrode(BaseMetadataModel):
     location: str | None = None
 
 
-class ElectrodeTable(BaseMetadataModel):
+class ElectrodeTable(BaseMetadataContainerModel):
     electrodes: list[Electrode]
 
     @pydantic.computed_field
@@ -67,7 +67,13 @@ class ElectrodeTable(BaseMetadataModel):
         file_path : path
             The path to the output TSV file.
         """
-        data_frame = pandas.DataFrame(data=[electrode.model_dump() for electrode in self.electrodes])
+        data = []
+        for electrode in self.electrodes:
+            model_dump = electrode.model_dump()
+            del model_dump["messages"]
+            data.append(model_dump)
+
+        data_frame = pandas.DataFrame(data=data)
         data_frame.to_csv(file_path, sep="\t", index=False)
 
     @pydantic.validate_call

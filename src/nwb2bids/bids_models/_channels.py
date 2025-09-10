@@ -7,8 +7,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_metadata_model import BaseMetadataModel
 from .._messages._inspection_message import InspectionMessage
+from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 
 
 class Channel(BaseMetadataModel):
@@ -20,7 +20,7 @@ class Channel(BaseMetadataModel):
     gain: float | None = None
 
 
-class ChannelTable(BaseMetadataModel):
+class ChannelTable(BaseMetadataContainerModel):
     channels: list[Channel]
 
     @pydantic.computed_field
@@ -110,7 +110,13 @@ class ChannelTable(BaseMetadataModel):
         file_path : path
             The path where the TSV file will be saved.
         """
-        data_frame = pandas.DataFrame(data=[channel.model_dump() for channel in self.channels])
+        data = []
+        for channel in self.channels:
+            model_dump = channel.model_dump()
+            del model_dump["messages"]
+            data.append(model_dump)
+
+        data_frame = pandas.DataFrame(data=data)
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call

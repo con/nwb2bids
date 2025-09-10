@@ -7,8 +7,8 @@ import pandas
 import pydantic
 import typing_extensions
 
-from ._base_converter import BaseConverter
 from ._session_converter import SessionConverter
+from .._converters._base_converter import BaseConverter
 from .._messages._inspection_message import InspectionMessage
 from ..bids_models import DatasetDescription
 
@@ -128,6 +128,7 @@ class DatasetConverter(BaseConverter):
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
         dataset_description_dictionary = self.dataset_description.model_dump()
+        del dataset_description_dictionary["messages"]
 
         dataset_description_file_path = bids_directory / "dataset_description.json"
         with dataset_description_file_path.open(mode="w") as file_stream:
@@ -145,14 +146,16 @@ class DatasetConverter(BaseConverter):
         """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
+        model_dump_per_session = []
+        for session_converter in self.session_converters:
+            model_dump = session_converter.session_metadata.participant.model_dump()
+            del model_dump["messages"]
+            model_dump_per_session.append(model_dump)
+
         participants_data_frame = pandas.DataFrame.from_records(
             data=[
-                {
-                    key: value
-                    for key, value in session_converter.session_metadata.participant.model_dump().items()
-                    if value is not None
-                }
-                for session_converter in self.session_converters
+                {key: value for key, value in model_dump.items() if value is not None}
+                for model_dump in model_dump_per_session
             ]
         ).astype("string")
 

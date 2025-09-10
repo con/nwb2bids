@@ -3,7 +3,7 @@ import typing
 
 import click
 
-from .._base._convert_nwb_dataset import convert_nwb_dataset
+from .._core._convert_nwb_dataset import convert_nwb_dataset
 
 
 # nwb2bids

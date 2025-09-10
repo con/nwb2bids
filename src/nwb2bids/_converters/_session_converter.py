@@ -6,7 +6,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_converter import BaseConverter
+from .._converters._base_converter import BaseConverter
+from .._messages._inspection_message import InspectionMessage
 from ..bids_models import BidsSessionMetadata
 
 
@@ -24,6 +25,9 @@ class SessionConverter(BaseConverter):
     )
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
         description="BIDS metadata extracted for this session.", default=None
+    )
+    messages: list[InspectionMessage] = pydantic.Field(
+        description="List of auto-detected suggestions.", ge=0, default_factory=list
     )
 
     @classmethod
@@ -76,6 +80,7 @@ class SessionConverter(BaseConverter):
     def extract_metadata(self) -> None:
         if self.session_metadata is None:
             self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwbfile_paths)
+            self.messages += self.session_metadata.messages
 
     @pydantic.validate_call
     def convert_to_bids_session(

@@ -6,7 +6,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_metadata_model import BaseMetadataModel
+from ..bids_models._base_metadata_model import BaseMetadataModel
 
 
 class Events(BaseMetadataModel):

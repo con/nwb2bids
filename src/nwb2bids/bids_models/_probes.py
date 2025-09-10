@@ -6,8 +6,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_metadata_model import BaseMetadataModel
 from .._messages._inspection_message import InspectionMessage
+from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 
 
 class Probe(BaseMetadataModel):
@@ -17,7 +17,7 @@ class Probe(BaseMetadataModel):
     manufacturer: str | None = None
 
 
-class ProbeTable(BaseMetadataModel):
+class ProbeTable(BaseMetadataContainerModel):
     probes: list[Probe]
 
     @pydantic.computed_field
@@ -71,7 +71,13 @@ class ProbeTable(BaseMetadataModel):
         file_path : path
             The path to the output TSV file.
         """
-        data_frame = pandas.DataFrame(data=[probe.model_dump() for probe in self.probes])
+        data = []
+        for probe in self.probes:
+            model_dump = probe.model_dump()
+            del model_dump["messages"]
+            data.append(model_dump)
+
+        data_frame = pandas.DataFrame(data=data)
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call
