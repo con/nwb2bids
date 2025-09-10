@@ -5,6 +5,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
+
 from ._model_globals import _ALLOWED_SEXES, _INVALID_PARTICIPANT_ID_REGEX, _VALID_SPECIES_REGEX
 from .._messages._inspection_message import InspectionMessage
 from ..bids_models._base_metadata_model import BaseMetadataModel
@@ -39,6 +40,7 @@ class Participant(BaseMetadataModel):
         default=None,
     )
 
+
     def model_post_init(self, context: Any, /) -> None:
         if re.match(pattern=_INVALID_PARTICIPANT_ID_REGEX, string=self.participant_id) is not None:
             self.messages.append(
@@ -70,6 +72,7 @@ class Participant(BaseMetadataModel):
                     level=2,
                 )
             )
+
 
     @classmethod
     @pydantic.validate_call

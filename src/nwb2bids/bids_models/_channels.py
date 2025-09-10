@@ -7,6 +7,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
+
 from .._messages._inspection_message import InspectionMessage
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 
@@ -18,6 +19,7 @@ class Channel(BaseMetadataModel):
     unit: typing.Literal["V"] = "V"
     sampling_frequency: float | None = None
     gain: float | None = None
+
 
 
 class ChannelTable(BaseMetadataContainerModel):

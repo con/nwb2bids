@@ -16,6 +16,7 @@ class Electrode(BaseMetadataModel):
     location: str | None = None
 
 
+
 class ElectrodeTable(BaseMetadataContainerModel):
     electrodes: list[Electrode]
 

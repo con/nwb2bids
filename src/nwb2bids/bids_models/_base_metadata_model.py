@@ -1,5 +1,6 @@
 import pydantic
 
+
 from .._messages._inspection_message import InspectionMessage
 
 
@@ -7,6 +8,7 @@ class BaseMetadataModel(pydantic.BaseModel):
     """
     Base Pydantic model for all metadata handled by `nwb2bids`.
     """
+
 
     messages: list[InspectionMessage] = pydantic.Field(
         description="List of auto-detected suggestions.",
