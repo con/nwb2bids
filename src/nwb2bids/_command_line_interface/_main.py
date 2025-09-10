@@ -62,9 +62,18 @@ def _run_convert_nwb_dataset(
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
 
-    convert_nwb_dataset(
+    messages = convert_nwb_dataset(
         nwb_paths=handled_nwb_paths,
         bids_directory=bids_directory,
         file_mode=file_mode,
         additional_metadata_file_path=additional_metadata_file_path,
     )
+
+    if messages is not None:
+        text = (
+            f"{len(messages)} suggestion for improvement was found during conversion."
+            if len(messages) == 1
+            else f"{len(messages)} suggestions for improvement were found during conversion."
+        )
+        console_notification = click.style(text=text, fg="yellow")
+        click.echo(message=console_notification)
