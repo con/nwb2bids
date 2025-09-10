@@ -1,10 +1,8 @@
-
 from typing import Any
 
 import pydantic
 import pynwb
 import typing_extensions
-
 
 from ._base_metadata_model import BaseMetadataModel
 from ._channels import ChannelTable
@@ -31,7 +29,6 @@ class BidsSessionMetadata(BaseMetadataModel):
     channel_table: ChannelTable | None = None
     electrode_table: ElectrodeTable | None = None
 
-
     def model_post_init(self, context: Any, /) -> None:
         self.messages = self.participant.messages
         if self.events is not None:
@@ -42,7 +39,6 @@ class BidsSessionMetadata(BaseMetadataModel):
             self.messages += self.channel_table.messages
         if self.electrode_table is not None:
             self.messages += self.electrode_table.messages
-
 
     @classmethod
     @pydantic.validate_call

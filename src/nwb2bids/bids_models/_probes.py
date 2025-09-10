@@ -6,7 +6,6 @@ import pydantic
 import pynwb
 import typing_extensions
 
-
 from .._messages._inspection_message import InspectionMessage
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 
@@ -16,7 +15,6 @@ class Probe(BaseMetadataModel):
     type: str | None = None
     description: str | None = None
     manufacturer: str | None = None
-
 
 
 class ProbeTable(BaseMetadataContainerModel):
