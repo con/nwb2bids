@@ -5,10 +5,11 @@ import pydantic
 import pynwb
 import typing_extensions
 
+from ._base_metadata_model import BaseMetadataModel
 from ._model_globals import _ALLOWED_SEXES, _SPECIES_REGEX
 
 
-class Participant(pydantic.BaseModel):
+class Participant(BaseMetadataModel):
     participant_id: str = pydantic.Field(
         description="A unique identifier for this participant.",
         pattern=r"^[^_]+$",  # No underscores allowed
@@ -36,11 +37,6 @@ class Participant(pydantic.BaseModel):
             "(for example, C57BL/6J)."
         ),
         default=None,
-    )
-
-    model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
-        extra="allow",  # Allow additional custom fields
     )
 
     @classmethod

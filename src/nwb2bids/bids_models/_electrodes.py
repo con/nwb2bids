@@ -6,19 +6,16 @@ import pydantic
 import pynwb
 import typing_extensions
 
+from ._base_metadata_model import BaseMetadataModel
 
-class Electrode(pydantic.BaseModel):
+
+class Electrode(BaseMetadataModel):
     electrode_id: int
     probe_id: str
     location: str | None = None
 
-    model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
-        extra="allow",  # Allow additional custom fields
-    )
 
-
-class ElectrodeTable(pydantic.BaseModel):
+class ElectrodeTable(BaseMetadataModel):
     electrodes: list[Electrode]
 
     @classmethod

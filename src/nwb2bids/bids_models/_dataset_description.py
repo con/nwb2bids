@@ -4,8 +4,10 @@ import typing
 import pydantic
 import typing_extensions
 
+from ._base_metadata_model import BaseMetadataModel
 
-class DatasetDescription(pydantic.BaseModel):
+
+class DatasetDescription(BaseMetadataModel):
     """
     Schema for the dataset description in BIDS format.
     """
@@ -30,11 +32,6 @@ class DatasetDescription(pydantic.BaseModel):
     License: typing.Literal["CC-BY-4.0", "CC0-1.0"] | None = pydantic.Field(
         description="License under which the dataset is released.",
         default=None,
-    )
-
-    model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
-        extra="allow",  # Allow additional custom fields
     )
 
     @classmethod
