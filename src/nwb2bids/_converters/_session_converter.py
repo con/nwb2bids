@@ -1,3 +1,4 @@
+import collections
 import pathlib
 import shutil
 import typing
@@ -57,19 +58,13 @@ class SessionConverter(BaseConverter):
             elif nwb_path.is_dir():
                 all_nwbfile_paths += list(nwb_path.rglob(pattern="*.nwb"))
 
-        nwbfile_path_to_session_id = {
-            nwbfile_path: pynwb.read_nwb(nwbfile_path).session_id for nwbfile_path in all_nwbfile_paths
-        }  # IDEA: if this is too slow, could do direct h5py read instead, to avoid reading the entire file metadata
-
-        unique_session_ids = set(nwbfile_path_to_session_id.values())
-        unique_session_id_to_nwbfile_paths = {
-            unique_session_id: [
-                nwbfile_path
-                for nwbfile_path, session_id in nwbfile_path_to_session_id.items()
-                if session_id == unique_session_id
-            ]
-            for unique_session_id in unique_session_ids
-        }
+        unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
+        for nwbfile_path in all_nwbfile_paths:
+            unique_session_id_to_nwbfile_paths[
+                # IDEA: if this is too slow, could do direct h5py read instead,
+                # to avoid reading the entire file metadata
+                pynwb.read_nwb(nwbfile_path).session_id
+            ].append(nwbfile_path)
 
         session_converters = [
             cls(session_id=session_id, nwbfile_paths=nwbfile_paths)
