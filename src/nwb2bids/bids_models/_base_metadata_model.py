@@ -5,7 +5,18 @@ import pydantic
 from .._messages._inspection_message import InspectionMessage
 
 
-class BaseMetadataModel(pydantic.BaseModel):
+class MutableModel(pydantic.BaseModel):
+    """
+    Base Pydantic model for all mutable models in `nwb2bids`.
+    """
+
+    model_config = pydantic.ConfigDict(
+        validate_assignment=True,  # Re-validate model on mutation
+        extra="allow",  # Allow additional custom fields
+    )
+
+
+class BaseMetadataModel(MutableModel):
     """
     Base Pydantic model for all metadata handled by `nwb2bids`.
     """
@@ -14,21 +25,12 @@ class BaseMetadataModel(pydantic.BaseModel):
         description="List of auto-detected suggestions.",
         default_factory=list,
     )
-    model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
-        extra="allow",  # Allow additional custom fields
-    )
 
 
-class BaseMetadataContainerModel(pydantic.BaseModel, abc.ABC):
+class BaseMetadataContainerModel(MutableModel, abc.ABC):
     """
     Base Pydantic model for 'containing' some number of other metadata models plus any extra metadata.
     """
-
-    model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
-        extra="allow",  # Allow additional custom fields
-    )
 
     @abc.abstractmethod
     @pydantic.computed_field
