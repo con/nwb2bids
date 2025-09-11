@@ -19,10 +19,10 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
             level=2,
         ),
         nwb2bids.InspectionMessage(
-            title="Invalid species", text="Subject species is not a proper Latin binomial or NCBI Taxonomy id.", level=2
+            title="Invalid sex", text="Subject sex is not one of the allowed patterns.", level=2
         ),
         nwb2bids.InspectionMessage(
-            title="Invalid sex", text="Subject sex is not one of the allowed patterns.", level=2
+            title="Invalid species", text="Subject species is not a proper Latin binomial or NCBI Taxonomy id.", level=2
         ),
     ]
     assert messages == expected_messages
