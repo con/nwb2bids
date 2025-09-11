@@ -18,6 +18,7 @@ _VALID_BIDS_SEXES = {
         "O",
         "OTHER",
         "Other",
+        "n/a",
     ]
 }
 _VALID_ARCHIVES_SEXES = {
