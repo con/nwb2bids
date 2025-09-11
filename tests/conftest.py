@@ -22,7 +22,7 @@ def _make_minimal_nwbfile(session_id: str = "456") -> pynwb.NWBFile:
     subject = pynwb.file.Subject(
         subject_id="123",
         species="Mus musculus",
-        sex="male",
+        sex="M",
     )
     nwbfile.subject = subject
 
@@ -239,6 +239,27 @@ def problematic_nwbfile_path_2(testing_files_directory: pathlib.Path) -> pathlib
     problematic_subdirectory = testing_files_directory / "problematic"
     problematic_subdirectory.mkdir(exist_ok=True)
     nwbfile_path = problematic_subdirectory / "problematic2.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def problematic_nwbfile_path_3(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    A third NWB file with 'problematic' metadata (entirely missing entities) for testing the messaging feature.
+    """
+    nwbfile = pynwb.NWBFile(
+        identifier="not a UUID",
+        session_id="problematic3",
+        session_description="",
+        session_start_time=datetime.datetime.now().astimezone(),
+    )
+
+    problematic_subdirectory = testing_files_directory / "problematic"
+    problematic_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = problematic_subdirectory / "problematic3.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 

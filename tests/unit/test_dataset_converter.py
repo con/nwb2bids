@@ -58,12 +58,8 @@ def test_dataset_converter_metadata_extraction(
             session_metadata=nwb2bids.bids_models.BidsSessionMetadata(
                 session_id="456",
                 participant=nwb2bids.bids_models.Participant(
-                    participant_id="123", species="Mus musculus", sex="male", strain=None
+                    participant_id="123", species="Mus musculus", sex="M", strain=None
                 ),
-                events=None,
-                probe_table=None,
-                channel_table=None,
-                electrode_table=None,
             ),
         ),
     ]
@@ -124,9 +120,7 @@ def test_dataset_converter_write_subject_metadata(
     participants_tsv_file_path = temporary_bids_directory / "participants.tsv"
     participants_data_frame = pandas.read_csv(filepath_or_buffer=participants_tsv_file_path, sep="\t", dtype=str)
 
-    expected_data_frame = pandas.DataFrame(
-        {"participant_id": ["sub-123"], "species": ["Mus musculus"], "sex": ["male"]}
-    )
+    expected_data_frame = pandas.DataFrame({"participant_id": ["sub-123"], "species": ["Mus musculus"], "sex": ["M"]})
     pandas.testing.assert_frame_equal(left=participants_data_frame, right=expected_data_frame)
 
     participants_json_file_path = temporary_bids_directory / "participants.json"

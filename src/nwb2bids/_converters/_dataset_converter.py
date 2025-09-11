@@ -32,7 +32,7 @@ class DatasetConverter(BaseConverter):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for session_converter in self.session_converters for message in session_converter.messages]
-        messages.sort(key=lambda message: (-message.level, message.title))
+        messages.sort(key=lambda message: (-message.level.value, message.title))
         return messages
 
     @classmethod
@@ -129,7 +129,6 @@ class DatasetConverter(BaseConverter):
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
         dataset_description_dictionary = self.dataset_description.model_dump()
-        del dataset_description_dictionary["messages"]
 
         dataset_description_file_path = bids_directory / "dataset_description.json"
         with dataset_description_file_path.open(mode="w") as file_stream:
@@ -150,7 +149,6 @@ class DatasetConverter(BaseConverter):
         model_dump_per_session = []
         for session_converter in self.session_converters:
             model_dump = session_converter.session_metadata.participant.model_dump()
-            del model_dump["messages"]
             model_dump_per_session.append(model_dump)
 
         participants_data_frame = pandas.DataFrame.from_records(
@@ -159,6 +157,9 @@ class DatasetConverter(BaseConverter):
                 for model_dump in model_dump_per_session
             ]
         ).astype("string")
+
+        if participants_data_frame.empty:
+            return
 
         # BIDS requires sub- prefix in table values
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(

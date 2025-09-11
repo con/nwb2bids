@@ -1,6 +1,6 @@
-_INVALID_PARTICIPANT_ID_REGEX = r".*[\s_]"
+_VALID_PARTICIPANT_ID_REGEX = r"^[A-Za-z0-9]+$"
 _VALID_SPECIES_REGEX = r"([A-Z][a-z]* [a-z]+)|(http://purl.obolibrary.org/obo/NCBITaxon_\d+)"
-_ALLOWED_SEXES = {
+_VALID_BIDS_SEXES = {
     value: True
     for value in [
         "male",
@@ -18,5 +18,14 @@ _ALLOWED_SEXES = {
         "O",
         "OTHER",
         "Other",
+    ]
+}
+_VALID_ARCHIVES_SEXES = {
+    value: True
+    for value in [
+        "M",
+        "F",
+        "O",
+        "U",
     ]
 }

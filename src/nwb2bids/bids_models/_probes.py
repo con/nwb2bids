@@ -29,7 +29,7 @@ class ProbeTable(BaseMetadataContainerModel):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for probe in self.probes for message in probe.messages]
-        messages.sort(key=lambda message: (-message.level, message.title))
+        messages.sort(key=lambda message: (-message.level.value, message.title))
         return messages
 
     @classmethod
@@ -75,7 +75,6 @@ class ProbeTable(BaseMetadataContainerModel):
         data = []
         for probe in self.probes:
             model_dump = probe.model_dump()
-            del model_dump["messages"]
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)

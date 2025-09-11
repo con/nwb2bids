@@ -32,7 +32,7 @@ class ChannelTable(BaseMetadataContainerModel):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for channel in self.channels for message in channel.messages]
-        messages.sort(key=lambda message: (-message.level, message.title))
+        messages.sort(key=lambda message: (-message.level.value, message.title))
         return messages
 
     @classmethod
@@ -114,7 +114,6 @@ class ChannelTable(BaseMetadataContainerModel):
         data = []
         for channel in self.channels:
             model_dump = channel.model_dump()
-            del model_dump["messages"]
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)

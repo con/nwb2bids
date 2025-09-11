@@ -28,7 +28,7 @@ class ElectrodeTable(BaseMetadataContainerModel):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for electrode in self.electrodes for message in electrode.messages]
-        messages.sort(key=lambda message: (-message.level, message.title))
+        messages.sort(key=lambda message: (-message.level.value, message.title))
         return messages
 
     @classmethod
@@ -71,7 +71,6 @@ class ElectrodeTable(BaseMetadataContainerModel):
         data = []
         for electrode in self.electrodes:
             model_dump = electrode.model_dump()
-            del model_dump["messages"]
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)

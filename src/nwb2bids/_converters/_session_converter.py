@@ -60,11 +60,8 @@ class SessionConverter(BaseConverter):
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
         for nwbfile_path in all_nwbfile_paths:
-            unique_session_id_to_nwbfile_paths[
-                # IDEA: if this is too slow, could do direct h5py read instead,
-                # to avoid reading the entire file metadata
-                pynwb.read_nwb(nwbfile_path).session_id
-            ].append(nwbfile_path)
+            # IDEA: LRU cache the reading of NWB files to avoid re-reading
+            unique_session_id_to_nwbfile_paths[pynwb.read_nwb(path=nwbfile_path).session_id].append(nwbfile_path)
 
         session_converters = [
             cls(session_id=session_id, nwbfile_paths=nwbfile_paths)
