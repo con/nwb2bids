@@ -46,11 +46,13 @@ def _nwb2bids_cli():
     type=click.Path(exists=True, dir_okay=False, readable=True),
     default=None,
 )
+@click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     additional_metadata_file_path: str | None = None,
+    silent: bool = False,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -69,7 +71,7 @@ def _run_convert_nwb_dataset(
         additional_metadata_file_path=additional_metadata_file_path,
     )
 
-    if messages is not None:
+    if messages is not None and not silent:
         text = (
             f"{len(messages)} suggestion for improvement was found during conversion."
             if len(messages) == 1
