@@ -3,7 +3,7 @@ import typing
 
 import click
 
-from .._base._convert_nwb_dataset import convert_nwb_dataset
+from .._core._convert_nwb_dataset import convert_nwb_dataset
 
 
 # nwb2bids
@@ -46,11 +46,13 @@ def _nwb2bids_cli():
     type=click.Path(exists=True, dir_okay=False, readable=True),
     default=None,
 )
+@click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     additional_metadata_file_path: str | None = None,
+    silent: bool = False,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -62,9 +64,18 @@ def _run_convert_nwb_dataset(
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
 
-    convert_nwb_dataset(
+    messages = convert_nwb_dataset(
         nwb_paths=handled_nwb_paths,
         bids_directory=bids_directory,
         file_mode=file_mode,
         additional_metadata_file_path=additional_metadata_file_path,
     )
+
+    if messages is not None and not silent:
+        text = (
+            f"{len(messages)} suggestion for improvement was found during conversion."
+            if len(messages) == 1
+            else f"{len(messages)} suggestions for improvement were found during conversion."
+        )
+        console_notification = click.style(text=text, fg="yellow")
+        click.echo(message=console_notification)

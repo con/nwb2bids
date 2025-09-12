@@ -7,8 +7,9 @@ import pandas
 import pydantic
 import typing_extensions
 
-from ._base_converter import BaseConverter
 from ._session_converter import SessionConverter
+from .._converters._base_converter import BaseConverter
+from .._messages._inspection_message import InspectionMessage
 from ..bids_models import DatasetDescription
 
 
@@ -21,6 +22,18 @@ class DatasetConverter(BaseConverter):
         description="The BIDS-compatible dataset description.",
         default=None,
     )
+
+    @pydantic.computed_field
+    @property
+    def messages(self) -> list[InspectionMessage]:
+        """
+        All messages from contained session converters.
+
+        These can accumulate over time based on which instance methods have been called.
+        """
+        messages = [message for session_converter in self.session_converters for message in session_converter.messages]
+        messages.sort(key=lambda message: (-message.level.value, message.title))
+        return messages
 
     @classmethod
     @pydantic.validate_call
@@ -49,7 +62,17 @@ class DatasetConverter(BaseConverter):
         if additional_metadata_file_path is not None:
             dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
-        dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+        session_messages = [
+            message
+            for session_converter in session_converters
+            for message in session_converter.messages
+            if session_converter.messages is not None
+        ]
+        messages = session_messages if len(session_messages) > 0 else None
+
+        dataset_converter = cls(
+            session_converters=session_converters, dataset_description=dataset_description, messages=messages
+        )
         return dataset_converter
 
     def extract_metadata(self) -> None:
@@ -123,16 +146,20 @@ class DatasetConverter(BaseConverter):
         """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
+        model_dump_per_session = []
+        for session_converter in self.session_converters:
+            model_dump = session_converter.session_metadata.participant.model_dump()
+            model_dump_per_session.append(model_dump)
+
         participants_data_frame = pandas.DataFrame.from_records(
             data=[
-                {
-                    key: value
-                    for key, value in session_converter.session_metadata.participant.model_dump().items()
-                    if value is not None
-                }
-                for session_converter in self.session_converters
+                {key: value for key, value in model_dump.items() if value is not None}
+                for model_dump in model_dump_per_session
             ]
         ).astype("string")
+
+        if participants_data_frame.empty:
+            return
 
         # BIDS requires sub- prefix in table values
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(

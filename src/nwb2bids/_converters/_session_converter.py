@@ -7,7 +7,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_converter import BaseConverter
+from .._converters._base_converter import BaseConverter
+from .._messages._inspection_message import InspectionMessage
 from ..bids_models import BidsSessionMetadata
 
 
@@ -25,6 +26,9 @@ class SessionConverter(BaseConverter):
     )
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
         description="BIDS metadata extracted for this session.", default=None
+    )
+    messages: list[InspectionMessage] = pydantic.Field(
+        description="List of auto-detected suggestions.", ge=0, default_factory=list
     )
 
     @classmethod
@@ -56,11 +60,8 @@ class SessionConverter(BaseConverter):
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
         for nwbfile_path in all_nwbfile_paths:
-            unique_session_id_to_nwbfile_paths[
-                # IDEA: if this is too slow, could do direct h5py read instead,
-                # to avoid reading the entire file metadata
-                pynwb.read_nwb(nwbfile_path).session_id
-            ].append(nwbfile_path)
+            # IDEA: LRU cache the reading of NWB files to avoid re-reading
+            unique_session_id_to_nwbfile_paths[pynwb.read_nwb(path=nwbfile_path).session_id].append(nwbfile_path)
 
         session_converters = [
             cls(session_id=session_id, nwbfile_paths=nwbfile_paths)
@@ -71,6 +72,7 @@ class SessionConverter(BaseConverter):
     def extract_metadata(self) -> None:
         if self.session_metadata is None:
             self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwbfile_paths)
+            self.messages += self.session_metadata.messages
 
     @pydantic.validate_call
     def convert_to_bids_session(

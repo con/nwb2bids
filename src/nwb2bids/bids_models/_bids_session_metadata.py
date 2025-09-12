@@ -2,15 +2,16 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_metadata_model import BaseMetadataModel
+from ._base_metadata_model import BaseMetadataContainerModel
 from ._channels import ChannelTable
 from ._electrodes import ElectrodeTable
 from ._events import Events
 from ._participant import Participant
 from ._probes import ProbeTable
+from .._messages._inspection_message import InspectionMessage
 
 
-class BidsSessionMetadata(BaseMetadataModel):
+class BidsSessionMetadata(BaseMetadataContainerModel):
     """
     Schema for the metadata of a single BIDS session.
     """
@@ -26,6 +27,20 @@ class BidsSessionMetadata(BaseMetadataModel):
     probe_table: ProbeTable | None = None
     channel_table: ChannelTable | None = None
     electrode_table: ElectrodeTable | None = None
+
+    @pydantic.computed_field
+    @property
+    def messages(self) -> list[InspectionMessage]:
+        messages = self.participant.messages
+        if self.events is not None:
+            messages += self.events.messages
+        if self.probe_table is not None:
+            messages += self.probe_table.messages
+        if self.channel_table is not None:
+            messages += self.channel_table.messages
+        if self.electrode_table is not None:
+            messages += self.electrode_table.messages
+        return messages
 
     @classmethod
     @pydantic.validate_call

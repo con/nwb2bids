@@ -8,7 +8,6 @@ import pydantic
 
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):
-
     @abc.abstractmethod
     def extract_metadata(self) -> None:
         """
