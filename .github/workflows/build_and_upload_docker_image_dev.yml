@@ -1,0 +1,12 @@
+name: Build and upload Docker image of dev branch to GHCR
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release-image:
+    name: Build and upload Docker image of dev branch to GHCR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
