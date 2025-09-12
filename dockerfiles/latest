@@ -1,0 +1,7 @@
+FROM python:3.13.7-slim
+LABEL org.opencontainers.image.source=https://github.com/con/vandermeerlab-to-bids
+LABEL org.opencontainers.image.description="A Docker image for an official release of the nwb2bids project."
+
+RUN apt update && apt install musl-dev python3-dev -y
+RUN pip install "nwb2bids[all]"
+CMD ["python -m"]
