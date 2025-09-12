@@ -1,4 +1,4 @@
-name: Build and upload Docker image of dev branch to GHCR
+name: Build and Upload Docker Image of Latest Release to GHCR
 
 on:
   workflow_dispatch:
