@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  Tests:
     uses: ./.github/workflows/testing.yml
     with:
-      pytest_markexpr: 'remote'
+      pytest_markexpr: 'not remote'
       os_list: '["windows-2022","windows-latest","macos-13","macos-latest","ubuntu-latest"]'
       python_list: '["3.10","3.11","3.12","3.13"]'

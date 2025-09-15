@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  RemoteTests:
     uses: ./.github/workflows/testing.yml
     with:
       pytest_markexpr: 'remote'
