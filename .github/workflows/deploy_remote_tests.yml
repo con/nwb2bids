@@ -2,7 +2,13 @@ name: Deploy remote-only tests
 
 on:
   pull_request:
+    types: [synchronize, opened, reopened, ready_for_review]
+  merge_group:
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   RemoteTests:
