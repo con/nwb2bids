@@ -88,7 +88,6 @@ all = [
     "nwb2bids[dandi]",
 ]
 
-
 [project.urls]
 Repository = "https://github.com/con/nwb2bids/"
 Issues = "https://github.com/con/nwb2bids/issues"

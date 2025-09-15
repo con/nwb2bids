@@ -19,6 +19,10 @@ on:
         default: '["3.10","3.11","3.12","3.13"]'
         type: string
 
+    secrets:
+      CODECOV_TOKEN:
+        required: true
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
