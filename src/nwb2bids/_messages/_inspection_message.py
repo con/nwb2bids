@@ -41,7 +41,7 @@ class InspectionMessage(pydantic.BaseModel):
         default=None,
     )
     file_paths: list[pathlib.Path] | None = pydantic.Field(
-        description="If known, the paths of all files associated with the session where the issue was detected.",
+        description="The path(s) of the source file(s) associated with the issue.",
         default=None,
     )
     level: InspectionLevel = pydantic.Field(
