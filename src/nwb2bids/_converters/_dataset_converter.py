@@ -40,7 +40,7 @@ class DatasetConverter(BaseConverter):
         dandiset_id : str
             The dandiset ID of the Dandiset to be converted.
         api_url : str, optional
-            The API URL of a custom DANDI instance to use. If not provided, the API URL of the 
+            The API URL of a custom DANDI instance to use. If not provided, the API URL of the
             DANDI instance specified by the :envvar:`DANDI_INSTANCE` environment variable
             is used. If the :envvar:`DANDI_INSTANCE` environment variable is not specified,
             The API URL of the `"dandi"` DANDI instance is used.
