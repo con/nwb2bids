@@ -4,7 +4,7 @@ import typing
 import pydantic
 
 from .._converters._dataset_converter import DatasetConverter
-from .._messages._inspection_message import InspectionMessage
+from .._inspection._inspection_message import InspectionResult
 
 
 @pydantic.validate_call
@@ -14,7 +14,7 @@ def convert_nwb_dataset(
     bids_directory: str | pathlib.Path | None = None,
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     additional_metadata_file_path: pydantic.FilePath | None = None,
-) -> list[InspectionMessage, ...] | None:
+) -> list[InspectionResult, ...] | None:
     converter = DatasetConverter.from_nwb_paths(
         nwb_paths=nwb_paths,
         additional_metadata_file_path=additional_metadata_file_path,

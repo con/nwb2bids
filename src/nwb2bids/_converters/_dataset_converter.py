@@ -9,7 +9,7 @@ import typing_extensions
 
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
-from .._messages._inspection_message import InspectionMessage
+from .._inspection._inspection_message import InspectionResult
 from ..bids_models import DatasetDescription
 
 
@@ -25,7 +25,7 @@ class DatasetConverter(BaseConverter):
 
     @pydantic.computed_field
     @property
-    def messages(self) -> list[InspectionMessage]:
+    def messages(self) -> list[InspectionResult]:
         """
         All messages from contained session converters.
 

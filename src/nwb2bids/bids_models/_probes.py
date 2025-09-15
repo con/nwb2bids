@@ -6,7 +6,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from .._messages._inspection_message import InspectionMessage
+from .._inspection._inspection_message import InspectionResult
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 
 
@@ -22,7 +22,7 @@ class ProbeTable(BaseMetadataContainerModel):
 
     @pydantic.computed_field
     @property
-    def messages(self) -> list[InspectionMessage]:
+    def messages(self) -> list[InspectionResult]:
         """
         All messages from contained session converters.
 

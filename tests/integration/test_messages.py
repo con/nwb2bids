@@ -10,7 +10,7 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
     messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_messages = [
-        nwb2bids.InspectionMessage(
+        nwb2bids.InspectionResult(
             title="Invalid participant ID",
             reason=(
                 "The participant ID contains invalid characters. BIDS allows only dashes to be used as separators in "
@@ -19,20 +19,20 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
             ),
             solution="Rename the participants without using spaces or underscores.",
             examples=["`ab_01` -> `ab-01`", "`subject #2` -> `subject-2`", "`id 2 from 9/1/25` -> `id-2-9-1-25`"],
-            location_in_file="nwbfile.subject.subject_id",
-            file_paths=nwb_paths,
-            level=nwb2bids.InspectionLevel.INVALID_BIDS_VALUE,
+            field="nwbfile.subject.subject_id",
+            source_file_paths=nwb_paths,
+            level=nwb2bids.Severity.INVALID_BIDS_VALUE,
         ),
-        nwb2bids.InspectionMessage(
+        nwb2bids.InspectionResult(
             title="Invalid subject sex (BIDS)",
             reason="Subject sex is not one of the allowed patterns by BIDS.",
             solution="Rename the subject sex to be one of the accepted values.",
             examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
-            location_in_file="nwbfile.subject.sex",
-            file_paths=nwb_paths,
-            level=nwb2bids.InspectionLevel.INVALID_BIDS_VALUE,
+            field="nwbfile.subject.sex",
+            source_file_paths=nwb_paths,
+            level=nwb2bids.Severity.INVALID_BIDS_VALUE,
         ),
-        nwb2bids.InspectionMessage(
+        nwb2bids.InspectionResult(
             title="Invalid species",
             reason="Subject species is not a proper Latin binomial or NCBI Taxonomy id.",
             solution=(
@@ -40,18 +40,18 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
                 "reference."
             ),
             examples=[],
-            location_in_file="nwbfile.subject.species",
-            file_paths=nwb_paths,
-            level=nwb2bids.InspectionLevel.INVALID_ARCHIVE_VALUE,
+            field="nwbfile.subject.species",
+            source_file_paths=nwb_paths,
+            level=nwb2bids.Severity.INVALID_ARCHIVE_VALUE,
         ),
-        nwb2bids.InspectionMessage(
+        nwb2bids.InspectionResult(
             title="Invalid subject sex (archives)",
             reason="Subject sex is not one of the allowed patterns by the common archives.",
             solution="Rename the subject sex to be one of the accepted values.",
             examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
-            location_in_file="nwbfile.subject.sex",
-            file_paths=nwb_paths,
-            level=nwb2bids.InspectionLevel.INVALID_ARCHIVE_VALUE,
+            field="nwbfile.subject.sex",
+            source_file_paths=nwb_paths,
+            level=nwb2bids.Severity.INVALID_ARCHIVE_VALUE,
         ),
     ]
     assert messages == expected_messages
@@ -62,7 +62,7 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
     messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_messages = [
-        nwb2bids.InspectionMessage(
+        nwb2bids.InspectionResult(
             title="Invalid participant ID",
             reason=(
                 "The participant ID contains invalid characters. BIDS allows only dashes to be used as separators in "
@@ -71,11 +71,11 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
             ),
             solution="Rename the participants without using spaces or underscores.",
             examples=["`ab_01` -> `ab-01`", "`subject #2` -> `subject-2`", "`id 2 from 9/1/25` -> `id-2-9-1-25`"],
-            location_in_file="nwbfile.subject.subject_id",
-            file_paths=nwb_paths,
-            level=nwb2bids.InspectionLevel.INVALID_BIDS_VALUE,
+            field="nwbfile.subject.subject_id",
+            source_file_paths=nwb_paths,
+            level=nwb2bids.Severity.INVALID_BIDS_VALUE,
         ),
-        nwb2bids.InspectionMessage(
+        nwb2bids.InspectionResult(
             title="Missing participant sex",
             reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
             solution=(
@@ -85,11 +85,11 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
                 'specify the subtypes using other custom fields. For example, `c_elegans_sex="XO"`'
             ),
             examples=None,
-            location_in_file="nwbfile.subject.sex",
-            file_paths=nwb_paths,
-            level=nwb2bids.InspectionLevel.MISSING_ARCHIVE_FIELD,
+            field="nwbfile.subject.sex",
+            source_file_paths=nwb_paths,
+            level=nwb2bids.Severity.MISSING_ARCHIVE_FIELD,
         ),
-        nwb2bids.InspectionMessage(
+        nwb2bids.InspectionResult(
             title="Missing participant species",
             reason="Archives such as DANDI or EMBER require the subject species to be specified.",
             solution=(
@@ -97,9 +97,9 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
                 "obolibrary taxonomy link, or NCBI taxonomy reference."
             ),
             examples=None,
-            location_in_file="nwbfile.subject.species",
-            file_paths=nwb_paths,
-            level=nwb2bids.InspectionLevel.MISSING_ARCHIVE_FIELD,
+            field="nwbfile.subject.species",
+            source_file_paths=nwb_paths,
+            level=nwb2bids.Severity.MISSING_ARCHIVE_FIELD,
         ),
     ]
     assert messages == expected_messages
@@ -110,14 +110,14 @@ def test_messages_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bids_dir
     messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
     expected_messages = [
-        nwb2bids.InspectionMessage(
+        nwb2bids.InspectionResult(
             title="Missing subject",
             reason="BIDS requires a subject to be specified for each NWB file.",
             solution="Add a Subject object to each NWB file.",
             examples=None,
-            location_in_file="nwbfile.subject",
-            file_paths=nwb_paths,
-            level=nwb2bids.InspectionLevel.MISSING_BIDS_ENTITY,
+            field="nwbfile.subject",
+            source_file_paths=nwb_paths,
+            level=nwb2bids.Severity.MISSING_BIDS_ENTITY,
         )
     ]
     assert messages == expected_messages

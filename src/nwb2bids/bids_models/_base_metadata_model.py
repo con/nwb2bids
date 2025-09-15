@@ -2,7 +2,7 @@ import abc
 
 import pydantic
 
-from .._messages._inspection_message import InspectionMessage
+from .._inspection._inspection_message import InspectionResult
 
 
 class MutableModel(pydantic.BaseModel):
@@ -27,7 +27,7 @@ class BaseMetadataModel(MutableModel):
     Base Pydantic model for all metadata handled by `nwb2bids`.
     """
 
-    messages: list[InspectionMessage] = pydantic.Field(
+    messages: list[InspectionResult] = pydantic.Field(
         description="List of auto-detected suggestions.",
         default_factory=list,
     )
@@ -51,7 +51,7 @@ class BaseMetadataContainerModel(MutableModel, abc.ABC):
     @abc.abstractmethod
     @pydantic.computed_field
     @property
-    def messages(self) -> list[InspectionMessage]:
+    def messages(self) -> list[InspectionResult]:
         """
         All messages from contained session converters.
 

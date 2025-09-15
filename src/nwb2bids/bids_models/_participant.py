@@ -6,7 +6,7 @@ import pynwb
 import typing_extensions
 
 from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_PARTICIPANT_ID_REGEX, _VALID_SPECIES_REGEX
-from .._messages._inspection_message import InspectionLevel, InspectionMessage
+from .._inspection._inspection_message import InspectionResult, Severity
 from ..bids_models._base_metadata_model import BaseMetadataModel
 
 
@@ -43,32 +43,32 @@ class Participant(BaseMetadataModel):
         # Check if values are specified
         if self.participant_id is None:
             self.messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="Missing participant ID",
                     reason="BIDS requires a unique ID for all individual participants.",
                     solution="Specify the `subject_id` field of the Subject object attached to the NWB file.",
-                    location_in_file="nwbfile.subject.subject_id",
-                    file_paths=file_paths,
-                    level=InspectionLevel.MISSING_BIDS_FIELD,
+                    field="nwbfile.subject.subject_id",
+                    source_file_paths=file_paths,
+                    level=Severity.MISSING_BIDS_FIELD,
                 )
             )
         if self.species is None:
             self.messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="Missing participant species",
                     reason="Archives such as DANDI or EMBER require the subject species to be specified.",
                     solution=(
                         "Specify the `species` field of the Subject object attached to the NWB file as a "
                         "Latin binomial, obolibrary taxonomy link, or NCBI taxonomy reference."
                     ),
-                    location_in_file="nwbfile.subject.species",
-                    file_paths=file_paths,
-                    level=InspectionLevel.MISSING_ARCHIVE_FIELD,
+                    field="nwbfile.subject.species",
+                    source_file_paths=file_paths,
+                    level=Severity.MISSING_ARCHIVE_FIELD,
                 )
             )
         if self.sex is None:
             self.messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="Missing participant sex",
                     reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
                     solution=(
@@ -78,9 +78,9 @@ class Participant(BaseMetadataModel):
                         'use "O" (for other) then further specify the subtypes using other custom fields. For example, '
                         '`c_elegans_sex="XO"`'
                     ),
-                    location_in_file="nwbfile.subject.sex",
-                    file_paths=file_paths,
-                    level=InspectionLevel.MISSING_ARCHIVE_FIELD,
+                    field="nwbfile.subject.sex",
+                    source_file_paths=file_paths,
+                    level=Severity.MISSING_ARCHIVE_FIELD,
                 )
             )
 
@@ -90,7 +90,7 @@ class Participant(BaseMetadataModel):
             and re.match(pattern=_VALID_PARTICIPANT_ID_REGEX, string=self.participant_id) is None
         ):
             self.messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="Invalid participant ID",
                     reason=(
                         "The participant ID contains invalid characters. "
@@ -103,14 +103,14 @@ class Participant(BaseMetadataModel):
                         "`subject #2` -> `subject-2`",
                         "`id 2 from 9/1/25` -> `id-2-9-1-25`",
                     ],
-                    location_in_file="nwbfile.subject.subject_id",
-                    file_paths=file_paths,
-                    level=InspectionLevel.INVALID_BIDS_VALUE,
+                    field="nwbfile.subject.subject_id",
+                    source_file_paths=file_paths,
+                    level=Severity.INVALID_BIDS_VALUE,
                 )
             )
         if self.species is not None and re.match(pattern=_VALID_SPECIES_REGEX, string=self.species) is None:
             self.messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="Invalid species",
                     reason="Subject species is not a proper Latin binomial or NCBI Taxonomy id.",
                     solution=(
@@ -118,34 +118,34 @@ class Participant(BaseMetadataModel):
                         "NCBI taxonomy reference."
                     ),
                     examples=[],
-                    location_in_file="nwbfile.subject.species",
-                    file_paths=file_paths,
-                    level=InspectionLevel.INVALID_ARCHIVE_VALUE,
+                    field="nwbfile.subject.species",
+                    source_file_paths=file_paths,
+                    level=Severity.INVALID_ARCHIVE_VALUE,
                 )
             )
         if self.sex is not None and _VALID_BIDS_SEXES.get(self.sex, None) is None:
             self.messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="Invalid subject sex (BIDS)",
                     reason="Subject sex is not one of the allowed patterns by BIDS.",
                     solution="Rename the subject sex to be one of the accepted values.",
                     examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
-                    location_in_file="nwbfile.subject.sex",
-                    file_paths=file_paths,
-                    level=InspectionLevel.INVALID_BIDS_VALUE,
+                    field="nwbfile.subject.sex",
+                    source_file_paths=file_paths,
+                    level=Severity.INVALID_BIDS_VALUE,
                 )
             )
 
         if self.sex is not None and _VALID_ARCHIVES_SEXES.get(self.sex, None) is None:
             self.messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="Invalid subject sex (archives)",
                     reason="Subject sex is not one of the allowed patterns by the common archives.",
                     solution="Rename the subject sex to be one of the accepted values.",
                     examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
-                    location_in_file="nwbfile.subject.sex",
-                    file_paths=file_paths,
-                    level=InspectionLevel.INVALID_ARCHIVE_VALUE,
+                    field="nwbfile.subject.sex",
+                    source_file_paths=file_paths,
+                    level=Severity.INVALID_ARCHIVE_VALUE,
                 )
             )
 
@@ -160,15 +160,15 @@ class Participant(BaseMetadataModel):
         messages = []
         if len(nwbfiles) > 1:
             messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="NotImplemented: multiple NWB files",
                     reason=(
                         "The `Participant` model for `nwb2bids` does not yet support multiple NWB files. "
                         "Only the first will be used."
                     ),
                     solution="`nwb2bids` plans to add support for multiple NWB files in the future.",
-                    file_paths=file_paths,
-                    level=InspectionLevel.NOT_IMPLEMENTED,
+                    source_file_paths=file_paths,
+                    level=Severity.NOT_IMPLEMENTED,
                 )
             )
 
@@ -176,13 +176,13 @@ class Participant(BaseMetadataModel):
 
         if nwbfile.subject is None:
             messages.append(
-                InspectionMessage(
+                InspectionResult(
                     title="Missing subject",
                     reason="BIDS requires a subject to be specified for each NWB file.",
                     solution="Add a Subject object to each NWB file.",
-                    location_in_file="nwbfile.subject",
-                    file_paths=file_paths,
-                    level=InspectionLevel.MISSING_BIDS_ENTITY,
+                    field="nwbfile.subject",
+                    source_file_paths=file_paths,
+                    level=Severity.MISSING_BIDS_ENTITY,
                 )
             )
             participant = cls(messages=messages)

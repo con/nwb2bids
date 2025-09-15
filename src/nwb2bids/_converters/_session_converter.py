@@ -8,7 +8,7 @@ import pynwb
 import typing_extensions
 
 from .._converters._base_converter import BaseConverter
-from .._messages._inspection_message import InspectionMessage
+from .._inspection._inspection_message import InspectionResult
 from ..bids_models import BidsSessionMetadata
 
 
@@ -27,7 +27,7 @@ class SessionConverter(BaseConverter):
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
         description="BIDS metadata extracted for this session.", default=None
     )
-    messages: list[InspectionMessage] = pydantic.Field(
+    messages: list[InspectionResult] = pydantic.Field(
         description="List of auto-detected suggestions.", ge=0, default_factory=list
     )
 

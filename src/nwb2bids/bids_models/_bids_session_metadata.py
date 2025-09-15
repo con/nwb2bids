@@ -8,7 +8,7 @@ from ._electrodes import ElectrodeTable
 from ._events import Events
 from ._participant import Participant
 from ._probes import ProbeTable
-from .._messages._inspection_message import InspectionMessage
+from .._inspection._inspection_message import InspectionResult
 
 
 class BidsSessionMetadata(BaseMetadataContainerModel):
@@ -30,7 +30,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
 
     @pydantic.computed_field
     @property
-    def messages(self) -> list[InspectionMessage]:
+    def messages(self) -> list[InspectionResult]:
         messages = self.participant.messages
         if self.events is not None:
             messages += self.events.messages
