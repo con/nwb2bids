@@ -33,14 +33,17 @@ class DatasetConverter(BaseConverter):
         limit: int | None = None,
     ) -> typing_extensions.Self | None:
         """
-        Initialize a converter of Dandiset to BIDS format.
+        Initialize a converter of a Dandiset to BIDS format.
 
         Parameters
         ----------
-        dandiset_id : directory path
-            The path to the Dandiset directory.
+        dandiset_id : str
+            The dandiset ID of the Dandiset to be converted.
         api_url : str, optional
-            The API URL of a custom DANDI instance to use. If not provided, the default DANDI API URL will be used.
+            The API URL of a custom DANDI instance to use. If not provided, the API URL of the 
+            DANDI instance specified by the :envvar:`DANDI_INSTANCE` environment variable
+            is used. If the :envvar:`DANDI_INSTANCE` environment variable is not specified,
+            The API URL of the `"dandi"` DANDI instance is used.
         token : str, optional
             The authentication token for accessing the DANDI instance.
             If not provided, will attempt to read from the environment variable `DANDI_API_KEY` if it exists.
