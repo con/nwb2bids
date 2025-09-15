@@ -24,7 +24,7 @@ on:
         required: true
 
 jobs:
-  test:
+  run:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
