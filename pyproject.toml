@@ -79,6 +79,16 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 
+[project.optional-dependencies]
+dandi = [
+    "dandi",
+    "remfile",
+]
+all = [
+    "nwb2bids[dandi]",
+]
+
+
 [project.urls]
 Repository = "https://github.com/con/nwb2bids/"
 Issues = "https://github.com/con/nwb2bids/issues"
@@ -86,12 +96,6 @@ Changelog = "https://github.com/con/nwb2bids/blob/master/CHANGELOG.md"
 
 [project.scripts]
 nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
-
-[project.optional-dependencies]
-dandi = [
-    "dandi>=0.69.3",
-    "remfile",
-]
 
 [dependency-groups]
 type-stubs = ["pandas-stubs"]
@@ -160,3 +164,10 @@ known-first-party = ["nwb2bids"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/nwb2bids/_hidden_top_level_imports.py" = ["F401"]  # Must perform imports here even if not exposed
+
+
+
+[tool.pytest.ini_options]
+markers = [
+    "remote: mark a test as requiring remote resources"
+]
