@@ -5,20 +5,21 @@ import pydantic
 
 
 @enum.unique
-class Standard(enum.StrEnum):
+class DataStandard(enum.Enum):
     """Related standards used by the `nwb2bids` inspections."""
 
-    DANDI_SCHEMA = enum.auto()
+    BIDS = enum.auto()
+    DANDI = enum.auto()
     HED = enum.auto()
     NWB = enum.auto()
-    BIDS = enum.auto()
 
 
 @enum.unique
-class Category(enum.StrEnum):
+class Category(enum.Enum):
     """Types of inspection categories."""
 
     INTERNAL_ERROR = enum.auto()
+    SCHEMA_INVALIDATION = enum.auto()
     STYLE_SUGGESTION = enum.auto()
 
 
@@ -62,8 +63,13 @@ class InspectionResult(pydantic.BaseModel):
     target_file_paths: list[pathlib.Path] | None = pydantic.Field(
         description=(
             "If known, the target BIDS paths of all file(s) associated with the session where the issue was detected."
-        )
+        ),
+        default=None,
     )
+    data_standards: list[DataStandard] | None = pydantic.Field(
+        description="Data standard(s) related to the issue.", default=None
+    )
+    category: Category = pydantic.Field(description="Type of inspection category.")
     severity: Severity = pydantic.Field(
         description="Quantifier of relative severity. The larger the value, the more important it is.",
     )

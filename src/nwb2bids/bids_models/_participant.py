@@ -6,7 +6,7 @@ import pynwb
 import typing_extensions
 
 from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_PARTICIPANT_ID_REGEX, _VALID_SPECIES_REGEX
-from .._inspection._inspection_message import InspectionResult, Severity
+from .._inspection._inspection_message import Category, DataStandard, InspectionResult, Severity
 from ..bids_models._base_metadata_model import BaseMetadataModel
 
 
@@ -45,11 +45,13 @@ class Participant(BaseMetadataModel):
             self.messages.append(
                 InspectionResult(
                     title="Missing participant ID",
-                    reason="BIDS requires a unique ID for all individual participants.",
+                    reason="A unique ID is required for all individual participants.",
                     solution="Specify the `subject_id` field of the Subject object attached to the NWB file.",
                     field="nwbfile.subject.subject_id",
                     source_file_paths=file_paths,
-                    level=Severity.MISSING_BIDS_FIELD,
+                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
+                    category=Category.SCHEMA_INVALIDATION,
+                    severity=Severity.CRITICAL,
                 )
             )
         if self.species is None:
@@ -63,7 +65,9 @@ class Participant(BaseMetadataModel):
                     ),
                     field="nwbfile.subject.species",
                     source_file_paths=file_paths,
-                    level=Severity.MISSING_ARCHIVE_FIELD,
+                    data_standards=[DataStandard.DANDI],
+                    category=Category.SCHEMA_INVALIDATION,
+                    severity=Severity.CRITICAL,
                 )
             )
         if self.sex is None:
@@ -80,7 +84,9 @@ class Participant(BaseMetadataModel):
                     ),
                     field="nwbfile.subject.sex",
                     source_file_paths=file_paths,
-                    level=Severity.MISSING_ARCHIVE_FIELD,
+                    data_standards=[DataStandard.DANDI],
+                    category=Category.SCHEMA_INVALIDATION,
+                    severity=Severity.CRITICAL,
                 )
             )
 
@@ -97,7 +103,7 @@ class Participant(BaseMetadataModel):
                         "BIDS allows only dashes to be used as separators in subject entity label. "
                         "Underscores, spaces, slashes, and special characters (including #) are expressly forbidden."
                     ),
-                    solution="Rename the participants without using spaces or underscores.",
+                    solution="Rename the subject without using spaces or underscores.",
                     examples=[
                         "`ab_01` -> `ab-01`",
                         "`subject #2` -> `subject-2`",
@@ -105,47 +111,55 @@ class Participant(BaseMetadataModel):
                     ],
                     field="nwbfile.subject.subject_id",
                     source_file_paths=file_paths,
-                    level=Severity.INVALID_BIDS_VALUE,
+                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
+                    category=Category.STYLE_SUGGESTION,
+                    severity=Severity.ERROR,
                 )
             )
         if self.species is not None and re.match(pattern=_VALID_SPECIES_REGEX, string=self.species) is None:
             self.messages.append(
                 InspectionResult(
                     title="Invalid species",
-                    reason="Subject species is not a proper Latin binomial or NCBI Taxonomy id.",
+                    reason="Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
                     solution=(
-                        "Rename the participants species to a Latin binomial, obolibrary taxonomy link, or "
+                        "Rename the subject species to a Latin binomial, obolibrary taxonomy link, or "
                         "NCBI taxonomy reference."
                     ),
                     examples=[],
                     field="nwbfile.subject.species",
                     source_file_paths=file_paths,
-                    level=Severity.INVALID_ARCHIVE_VALUE,
+                    data_standards=[DataStandard.DANDI],
+                    category=Category.SCHEMA_INVALIDATION,
+                    severity=Severity.ERROR,
                 )
             )
         if self.sex is not None and _VALID_BIDS_SEXES.get(self.sex, None) is None:
             self.messages.append(
                 InspectionResult(
-                    title="Invalid subject sex (BIDS)",
-                    reason="Subject sex is not one of the allowed patterns by BIDS.",
+                    title="Invalid participant sex (BIDS)",
+                    reason="Participant sex is not one of the allowed patterns by BIDS.",
                     solution="Rename the subject sex to be one of the accepted values.",
                     examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
                     field="nwbfile.subject.sex",
                     source_file_paths=file_paths,
-                    level=Severity.INVALID_BIDS_VALUE,
+                    data_standards=[DataStandard.BIDS],
+                    category=Category.STYLE_SUGGESTION,
+                    severity=Severity.ERROR,
                 )
             )
 
         if self.sex is not None and _VALID_ARCHIVES_SEXES.get(self.sex, None) is None:
             self.messages.append(
                 InspectionResult(
-                    title="Invalid subject sex (archives)",
-                    reason="Subject sex is not one of the allowed patterns by the common archives.",
+                    title="Invalid participant sex (archives)",
+                    reason="Participant sex is not one of the allowed patterns by the common archives.",
                     solution="Rename the subject sex to be one of the accepted values.",
                     examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
                     field="nwbfile.subject.sex",
                     source_file_paths=file_paths,
-                    level=Severity.INVALID_ARCHIVE_VALUE,
+                    data_standards=[DataStandard.DANDI],
+                    category=Category.STYLE_SUGGESTION,
+                    severity=Severity.ERROR,
                 )
             )
 
@@ -168,7 +182,8 @@ class Participant(BaseMetadataModel):
                     ),
                     solution="`nwb2bids` plans to add support for multiple NWB files in the future.",
                     source_file_paths=file_paths,
-                    level=Severity.NOT_IMPLEMENTED,
+                    category=Category.INTERNAL_ERROR,
+                    severity=Severity.ERROR,
                 )
             )
 
@@ -177,12 +192,14 @@ class Participant(BaseMetadataModel):
         if nwbfile.subject is None:
             messages.append(
                 InspectionResult(
-                    title="Missing subject",
+                    title="Missing participant",
                     reason="BIDS requires a subject to be specified for each NWB file.",
                     solution="Add a Subject object to each NWB file.",
                     field="nwbfile.subject",
                     source_file_paths=file_paths,
-                    level=Severity.MISSING_BIDS_ENTITY,
+                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
+                    category=Category.STYLE_SUGGESTION,
+                    severity=Severity.CRITICAL,
                 )
             )
             participant = cls(messages=messages)

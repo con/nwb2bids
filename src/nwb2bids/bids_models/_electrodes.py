@@ -28,7 +28,7 @@ class ElectrodeTable(BaseMetadataContainerModel):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for electrode in self.electrodes for message in electrode.messages]
-        messages.sort(key=lambda message: (-message.level.value, message.title))
+        messages.sort(key=lambda message: (message.category.value, -message.severity.value, message.title))
         return messages
 
     @classmethod

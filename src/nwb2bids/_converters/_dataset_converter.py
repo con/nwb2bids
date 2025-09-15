@@ -32,7 +32,7 @@ class DatasetConverter(BaseConverter):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for session_converter in self.session_converters for message in session_converter.messages]
-        messages.sort(key=lambda message: (-message.level.value, message.title))
+        messages.sort(key=lambda message: (message.category.value, -message.severity.value, message.title))
         return messages
 
     @classmethod
