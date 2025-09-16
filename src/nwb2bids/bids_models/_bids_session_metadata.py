@@ -2,6 +2,7 @@ import pathlib
 
 import h5py
 import pydantic
+import pynwb
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataModel
