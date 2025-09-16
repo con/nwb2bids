@@ -2,7 +2,7 @@ import functools
 
 import pynwb
 
-read_nwb_memoize = functools.lru_cache(pynwb.read_nwb)
+cache_read_nwb = functools.lru_cache(pynwb.read_nwb)
 """
 A memoizing callable that wraps `pynwb.read_nwb`
 

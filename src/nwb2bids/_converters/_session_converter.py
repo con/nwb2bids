@@ -7,7 +7,7 @@ import pydantic
 import typing_extensions
 
 from ._base_converter import BaseConverter
-from .._tools import read_nwb_memoize
+from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
 
 
@@ -59,7 +59,7 @@ class SessionConverter(BaseConverter):
             unique_session_id_to_nwbfile_paths[
                 # IDEA: if this is too slow, could do direct h5py read instead,
                 # to avoid reading the entire file metadata
-                read_nwb_memoize(nwbfile_path).session_id
+                cache_read_nwb(nwbfile_path).session_id
             ].append(nwbfile_path)
 
         session_converters = [

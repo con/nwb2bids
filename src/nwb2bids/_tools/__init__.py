@@ -1,3 +1,3 @@
-from ._main import read_nwb_memoize
+from ._main import cache_read_nwb
 
-__all__ = ["read_nwb_memoize"]
+__all__ = ["cache_read_nwb"]
