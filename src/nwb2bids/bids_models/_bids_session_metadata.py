@@ -2,7 +2,6 @@ import pathlib
 
 import h5py
 import pydantic
-import pynwb
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataModel
@@ -11,6 +10,7 @@ from ._electrodes import ElectrodeTable
 from ._events import Events
 from ._participant import Participant
 from ._probes import ProbeTable
+from .._tools import cache_read_nwb
 
 
 class BidsSessionMetadata(BaseMetadataModel):
@@ -37,7 +37,7 @@ class BidsSessionMetadata(BaseMetadataModel):
     ) -> typing_extensions.Self:
         # Differentiate local path from URL
         if isinstance(nwbfile_paths[0], pathlib.Path):
-            nwbfiles = [pynwb.read_nwb(path=nwbfile_path) for nwbfile_path in nwbfile_paths]
+            nwbfiles = [cache_read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
         else:
             nwbfiles = [_stream_nwb(url=url) for url in nwbfile_paths]
 
