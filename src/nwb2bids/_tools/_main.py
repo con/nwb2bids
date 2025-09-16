@@ -1,10 +1,11 @@
 import functools
+import pathlib
 
 import pynwb
 
-cache_read_nwb = functools.lru_cache(pynwb.read_nwb)
-"""
-A memoizing callable that wraps `pynwb.read_nwb`
 
-It passes all arguments to `pynwb.read_nwb`, caches and returns the result.
-"""
+@functools.cache
+def cache_read_nwb(file_path: pathlib.Path) -> pynwb.NWBFile:
+    """Cache the read operation per NWB file path to speed up repeated calls."""
+    nwbfile = pynwb.read_nwb(path=file_path)
+    return nwbfile
