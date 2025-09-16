@@ -65,18 +65,19 @@ class DatasetConverter(BaseConverter):
         else:
             assets = [asset for counter, asset in enumerate(dandiset.get_assets()) if counter < limit]
 
-        all_asset_metadata = [asset.get_raw_metadata() for asset in assets]
-        asset_and_session_id = [
-            (asset, session["identifier"])
-            for asset, asset_metadata in zip(assets, all_asset_metadata)
-            for session in asset_metadata["wasGeneratedBy"]
-            if session["schemaKey"] == "Session"
-        ]
-        unique_session_ids = set(session_id for _, session_id in asset_and_session_id)
-        session_id_to_assets = {
-            unique_session_id: [asset for asset, session_id in asset_and_session_id if session_id == unique_session_id]
-            for unique_session_id in unique_session_ids
-        }
+        session_id_to_assets = collections.defaultdict(list)
+        for asset in assets:
+            asset_metadata = asset.get_raw_metadata()
+
+            for session in asset_metadata.get("wasGeneratedBy", []):
+                if session.get("schemaKey", "") != "Session":
+                    continue
+
+                session_id = session.get("identifier", "")
+                if session_id == "":
+                    continue
+
+                session_id_to_assets[session_id].append(asset)
         sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
 
         session_converters = [
