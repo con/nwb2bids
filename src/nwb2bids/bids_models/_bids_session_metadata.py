@@ -1,5 +1,4 @@
 import pydantic
-import pynwb
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataContainerModel
@@ -9,6 +8,7 @@ from ._events import Events
 from ._participant import Participant
 from ._probes import ProbeTable
 from .._inspection._inspection_message import InspectionResult
+from .._tools import cache_read_nwb
 
 
 class BidsSessionMetadata(BaseMetadataContainerModel):
@@ -45,7 +45,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     @classmethod
     @pydantic.validate_call
     def from_nwbfile_paths(cls, nwbfile_paths: list[pydantic.FilePath]) -> typing_extensions.Self:
-        nwbfiles = [pynwb.read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
+        nwbfiles = [cache_read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
         session_ids = list({nwbfile.session_id for nwbfile in nwbfiles})
         if len(session_ids) > 1:
             message = "Multiple differing session IDs found - please check how this method was called."

@@ -4,11 +4,11 @@ import shutil
 import typing
 
 import pydantic
-import pynwb
 import typing_extensions
 
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_message import InspectionResult
+from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
 
 
@@ -60,8 +60,7 @@ class SessionConverter(BaseConverter):
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
         for nwbfile_path in all_nwbfile_paths:
-            # IDEA: LRU cache the reading of NWB files to avoid re-reading
-            unique_session_id_to_nwbfile_paths[pynwb.read_nwb(path=nwbfile_path).session_id].append(nwbfile_path)
+            unique_session_id_to_nwbfile_paths[cache_read_nwb(nwbfile_path).session_id].append(nwbfile_path)
 
         session_converters = [
             cls(session_id=session_id, nwbfile_paths=nwbfile_paths)
