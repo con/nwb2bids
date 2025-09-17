@@ -20,6 +20,7 @@ def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription, list[Ins
     if valid_or_raw == "valid":
         dataset_description = _get_dataset_description_from_valid_dandiset_metadata(metadata=metadata)
     else:
+        dataset_description = None
         messages.append(
             InspectionResult(
                 title="NotImplemented: invalid Dandiset metadata",
