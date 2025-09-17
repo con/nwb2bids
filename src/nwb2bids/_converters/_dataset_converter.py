@@ -16,8 +16,7 @@ from ..bids_models import DatasetDescription
 
 class DatasetConverter(BaseConverter):
     session_converters: list[SessionConverter] = pydantic.Field(
-        description="List of session converters. Typically instantiated by calling `.from_nwb_paths()`.",
-        min_length=1,
+        description="List of session converters. Typically instantiated by calling `.from_nwb_paths()`."
     )
     dataset_description: DatasetDescription | None = pydantic.Field(
         description="The BIDS-compatible dataset description.",
