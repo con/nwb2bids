@@ -7,7 +7,6 @@ import pandas
 import pydantic
 import typing_extensions
 
-from ._base_converter import BaseConverter
 from ._dandi_utils import get_bids_dataset_description
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
