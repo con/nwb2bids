@@ -84,3 +84,15 @@ class InspectionResult(pydantic.BaseModel):
         )
         scrubbed_source_file_paths = None if len(scrubbed_source_file_paths) == 0 else self.source_file_paths
         self.source_file_paths = scrubbed_source_file_paths
+
+    def model_dump(self, **kwargs):
+        data = super().model_dump(**kwargs)
+
+        # Simplify enum values to their names for easier readability
+        for key, value in data.items():
+            if isinstance(value, enum.Enum):
+                data[key] = value.name
+            elif isinstance(value, list):
+                data[key] = [v.name if isinstance(v, enum.Enum) else v for v in value]
+
+        return data
