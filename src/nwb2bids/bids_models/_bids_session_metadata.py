@@ -1,4 +1,8 @@
+import pathlib
+
+import h5py
 import pydantic
+import pynwb
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataModel
@@ -29,8 +33,15 @@ class BidsSessionMetadata(BaseMetadataModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfile_paths(cls, nwbfile_paths: list[pydantic.FilePath]) -> typing_extensions.Self:
-        nwbfiles = [cache_read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
+    def from_nwbfile_paths(
+        cls, nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl]
+    ) -> typing_extensions.Self:
+        # Differentiate local path from URL
+        if isinstance(nwbfile_paths[0], pathlib.Path):
+            nwbfiles = [cache_read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
+        else:
+            nwbfiles = [_stream_nwb(url=url) for url in nwbfile_paths]
+
         session_ids = list({nwbfile.session_id for nwbfile in nwbfiles})
         if len(session_ids) > 1:
             message = "Multiple differing session IDs found - please check how this method was called."
@@ -58,3 +69,36 @@ class BidsSessionMetadata(BaseMetadataModel):
 
         session_metadata = BidsSessionMetadata(**dictionary)
         return session_metadata
+
+
+def _stream_nwb(url: pydantic.HttpUrl) -> pynwb.NWBFile:
+    """
+    Stream an NWB file from a URL using remfile.
+
+    Parameters
+    ----------
+    url : pydantic.HttpUrl
+        The URL of the NWB file to stream.
+
+    Returns
+    -------
+    pynwb.NWBFile
+        The streamed NWB file.
+    """
+    import remfile
+
+    rem_file = remfile.File(url=str(url))
+
+    try:
+        h5py_file = h5py.File(name=rem_file, mode="r")
+    except Exception as exception:
+        message = (
+            f"\nFailed to open NWB file from URL {url}: {exception}\n\n"
+            "Possible that backend is not supported.\n"
+            "Please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss."
+        )
+        raise ValueError(message)
+
+    file_io = pynwb.NWBHDF5IO(file=h5py_file, mode="r")
+    nwbfile = file_io.read()
+    return nwbfile

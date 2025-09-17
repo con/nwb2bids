@@ -20,8 +20,8 @@ class SessionConverter(BaseConverter):
         description="A unique session identifier.",
         pattern=r"^[^_]+$",  # No underscores allowed
     )
-    nwbfile_paths: list[pydantic.FilePath] = pydantic.Field(
-        description="List of NWB file paths which share this session ID.", min_length=1
+    nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl] = pydantic.Field(
+        description="List of file paths or URLs of NWB files which share this session ID.", min_length=1
     )
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
         description="BIDS metadata extracted for this session.", default=None
@@ -93,7 +93,10 @@ class SessionConverter(BaseConverter):
             - "auto": Decides between all the above based on the system, with preference for linking when possible.
         """
         if len(self.nwbfile_paths) > 1:
-            message = "Conversion of multiple NWB files per session is not yet supported."
+            message = (
+                "Conversion of multiple NWB files per session is not yet supported. "
+                "Please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
+            )
             raise NotImplementedError(message)
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
         file_mode = self._handle_file_mode(file_mode=file_mode)
@@ -112,6 +115,13 @@ class SessionConverter(BaseConverter):
         # TODO: determine icephys or ecephys suffix
         for nwbfile_path in self.nwbfile_paths:
             session_file_path = session_subdirectory / f"sub-{subject_id}_ses-{self.session_id}_ecephys.nwb"
+
+            # If not a local path, then it is a URL, so write simple 'symlink' pointing to the URL
+            if not isinstance(nwbfile_path, pathlib.Path):
+                with session_file_path.open(mode="w") as file_stream:
+                    file_stream.write(str(nwbfile_path))
+                continue
+
             if file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
             elif file_mode == "move":
