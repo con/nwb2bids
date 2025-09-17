@@ -102,11 +102,16 @@ test = ["pytest"]
 coverage = ["pytest-cov"]
 dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
 types = ["mypy", {include-group = "type-stubs"}]
+docs = [
+    "sphinx",
+    "pydata-sphinx-theme",
+]
 all = [
     {include-group = "test"},
     {include-group = "coverage"},
     {include-group = "dev"},
     {include-group = "types"},
+    {include-group = "docs"},
 ]
 
 
