@@ -33,12 +33,15 @@ template = "coverage"
 features = ["all"]
 
 [tool.hatch.envs.dev]
+features = ["all"]
 post-install-commands = ["pip install --group dev"]
 
 [tool.hatch.envs.types]
+features = ["all"]
 post-install-commands = ["pip install --group types"]
 
 [tool.hatch.envs.all]
+features = ["all"]
 post-install-commands = ["pip install --group dev-all"]
 
 [tool.hatch.envs.types.scripts]
