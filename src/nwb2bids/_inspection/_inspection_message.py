@@ -1,5 +1,6 @@
 import enum
 import pathlib
+from typing import Any
 
 import pydantic
 
@@ -74,4 +75,12 @@ class InspectionResult(pydantic.BaseModel):
         description="Quantifier of relative severity. The larger the value, the more important it is.",
     )
 
-    model_config = pydantic.ConfigDict(frozen=True)
+    # TODO: adjust how PyNWB reports container sources for streamed content
+    def model_post_init(self, context: Any, /) -> None:
+        scrubbed_source_file_paths = (
+            [path for path in self.source_file_paths if "remfile" not in str(path)]
+            if self.source_file_paths is not None
+            else []
+        )
+        scrubbed_source_file_paths = None if len(scrubbed_source_file_paths) == 0 else self.source_file_paths
+        self.source_file_paths = scrubbed_source_file_paths
