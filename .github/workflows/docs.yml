@@ -38,8 +38,7 @@ jobs:
 
       - name: Build documentation
         run: |
-          cd docs
-          make html
+          sphinx-build -b html docs/source docs/build/html
 
       # Deploy to main docs (GitHub Pages)
       - name: Upload artifact for GitHub Pages
