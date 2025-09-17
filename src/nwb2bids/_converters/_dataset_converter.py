@@ -7,6 +7,8 @@ import pandas
 import pydantic
 import typing_extensions
 
+from ._base_converter import BaseConverter
+from ._dandi_utils import get_bids_dataset_description
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_message import InspectionResult
@@ -34,6 +36,74 @@ class DatasetConverter(BaseConverter):
         messages = [message for session_converter in self.session_converters for message in session_converter.messages]
         messages.sort(key=lambda message: (message.category.value, -message.severity.value, message.title))
         return messages
+
+    @classmethod
+    @pydantic.validate_call
+    def from_remote_dandiset(
+        cls,
+        dandiset_id: str = pydantic.Field(pattern=r"^\d{6}$"),
+        api_url: str | None = None,
+        token: str | None = None,
+        limit: int | None = None,
+    ) -> typing_extensions.Self | None:
+        """
+        Initialize a converter of a Dandiset to BIDS format.
+
+        Parameters
+        ----------
+        dandiset_id : str
+            The dandiset ID of the Dandiset to be converted.
+        api_url : str, optional
+            The API URL of a custom DANDI instance to use. If not provided, the API URL of the
+            DANDI instance specified by the :envvar:`DANDI_INSTANCE` environment variable
+            is used. If the :envvar:`DANDI_INSTANCE` environment variable is not specified,
+            The API URL of the `"dandi"` DANDI instance is used.
+        token : str, optional
+            The authentication token for accessing the DANDI instance.
+            If not provided, will attempt to read from the environment variable `DANDI_API_KEY` if it exists.
+            This is required for accessing embargoed Dandisets.
+        limit : int, optional
+            If specified, limits the number of sessions to convert.
+            This is mainly useful for testing purposes.
+        """
+        import dandi.dandiapi
+
+        client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
+        version_id = "draft"  # Only allow running on draft version
+        dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
+
+        dataset_description = get_bids_dataset_description(dandiset=dandiset)
+
+        if limit is None:
+            assets = list(dandiset.get_assets())
+        else:
+            assets = [asset for counter, asset in enumerate(dandiset.get_assets()) if counter < limit]
+
+        session_id_to_assets = collections.defaultdict(list)
+        for asset in assets:
+            asset_metadata = asset.get_raw_metadata()
+
+            for session in asset_metadata.get("wasGeneratedBy", []):
+                if session.get("schemaKey", "") != "Session":
+                    continue
+
+                session_id = session.get("identifier", "")
+                if session_id == "":
+                    continue
+
+                session_id_to_assets[session_id].append(asset)
+        sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
+
+        session_converters = [
+            SessionConverter(
+                session_id=session_id,
+                nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
+            )
+            for session_id, assets in sorted_session_id_to_assets.items()
+        ]
+
+        dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+        return dataset_converter
 
     @classmethod
     @pydantic.validate_call
@@ -116,13 +186,11 @@ class DatasetConverter(BaseConverter):
         self.write_participants_metadata(bids_directory=bids_directory)
         self.write_sessions_metadata(bids_directory=bids_directory)
 
-        collections.deque(
-            (
-                session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
-                for session_converter in self.session_converters
-            ),
-            maxlen=0,
+        generator = (
+            session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
+            for session_converter in self.session_converters
         )
+        collections.deque(generator, maxlen=0)
 
     @pydantic.validate_call
     def write_dataset_description(self, bids_directory: str | pathlib.Path | None = None) -> None:
