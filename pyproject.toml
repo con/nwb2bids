@@ -17,8 +17,20 @@ packages = ["src/nwb2bids"]
 [tool.hatch.envs.test]
 post-install-commands = ["pip install --group test"]
 
+[tool.hatch.envs.test-dandi-extra]
+template = "test"
+features = ["dandi"]
+
 [tool.hatch.envs.coverage]
 post-install-commands = ["pip install --group coverage"]
+
+[tool.hatch.envs.coverage-dandi-extra]
+template = "coverage"
+features = ["dandi"]
+
+[tool.hatch.envs.coverage-all-extra]
+template = "coverage"
+features = ["all"]
 
 [tool.hatch.envs.dev]
 post-install-commands = ["pip install --group dev"]
