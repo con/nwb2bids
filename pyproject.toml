@@ -27,7 +27,7 @@ post-install-commands = ["pip install --group dev"]
 post-install-commands = ["pip install --group types"]
 
 [tool.hatch.envs.all]
-post-install-commands = ["pip install --group all"]
+post-install-commands = ["pip install --group dev-all"]
 
 [tool.hatch.envs.types.scripts]
 # Define named script for type checking
@@ -106,7 +106,7 @@ docs = [
     "sphinx",
     "pydata-sphinx-theme",
 ]
-all = [
+dev-all = [
     {include-group = "test"},
     {include-group = "coverage"},
     {include-group = "dev"},
