@@ -10,7 +10,7 @@ import typing_extensions
 from ._dandi_utils import get_bids_dataset_description
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
-from .._inspection._inspection_message import InspectionResult
+from .._inspection._inspection_result import InspectionResult
 from ..bids_models import DatasetDescription
 
 
@@ -31,7 +31,9 @@ class DatasetConverter(BaseConverter):
 
         These can accumulate over time based on which instance methods have been called.
         """
-        messages = [message for session_converter in self.session_converters for message in session_converter.messages]
+        messages = [
+            message for session_converter in self.session_converters for message in session_converter.messages
+        ] + self._internal_messages
         messages.sort(key=lambda message: (message.category.value, -message.severity.value, message.title))
         return messages
 
@@ -70,7 +72,7 @@ class DatasetConverter(BaseConverter):
         version_id = "draft"  # Only allow running on draft version
         dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
 
-        dataset_description = get_bids_dataset_description(dandiset=dandiset)
+        dataset_description, _internal_messages = get_bids_dataset_description(dandiset=dandiset)
 
         if limit is None:
             assets = list(dandiset.get_assets())
@@ -101,6 +103,7 @@ class DatasetConverter(BaseConverter):
         ]
 
         dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+        dataset_converter._internal_messages = _internal_messages
         return dataset_converter
 
     @classmethod

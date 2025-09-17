@@ -11,7 +11,7 @@ from ._electrodes import ElectrodeTable
 from ._events import Events
 from ._participant import Participant
 from ._probes import ProbeTable
-from .._inspection._inspection_message import InspectionResult
+from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
 
 

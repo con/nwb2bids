@@ -6,7 +6,7 @@ import pynwb
 import typing_extensions
 
 from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_PARTICIPANT_ID_REGEX, _VALID_SPECIES_REGEX
-from .._inspection._inspection_message import Category, DataStandard, InspectionResult, Severity
+from .._inspection._inspection_result import Category, DataStandard, InspectionResult, Severity
 from ..bids_models._base_metadata_model import BaseMetadataModel
 
 

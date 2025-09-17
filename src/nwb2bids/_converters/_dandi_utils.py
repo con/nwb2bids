@@ -3,11 +3,11 @@ import warnings
 
 import pydantic
 
+from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import DatasetDescription
 
 
-def get_bids_dataset_description(dandiset) -> DatasetDescription:
-
+def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription, list[InspectionResult]]:
     valid_or_raw: typing.Literal["raw", "valid"] = "valid"
     try:
         metadata = dandiset.get_metadata()
@@ -16,13 +16,21 @@ def get_bids_dataset_description(dandiset) -> DatasetDescription:
         # raw_dandiset_metadata = dandiset.get_raw_metadata()
         valid_or_raw = "raw"
 
+    messages = []
     if valid_or_raw == "valid":
         dataset_description = _get_dataset_description_from_valid_dandiset_metadata(metadata=metadata)
     else:
-        message = "Handling invalid Dandiset metadata is not yet implemented."
-        raise NotImplementedError(message)
+        messages.append(
+            InspectionResult(
+                title="NotImplemented: invalid Dandiset metadata",
+                reason="This Dandiset has invalid metadata.",
+                solution="`nwb2bids` plans to add support for reading from the raw metadata.",
+                category=Category.INTERNAL_ERROR,
+                severity=Severity.ERROR,
+            )
+        )
 
-    return dataset_description
+    return dataset_description, messages
 
 
 def _get_dataset_description_from_valid_dandiset_metadata(metadata: dict) -> DatasetDescription:

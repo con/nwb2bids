@@ -7,7 +7,7 @@ import pydantic
 import typing_extensions
 
 from .._converters._base_converter import BaseConverter
-from .._inspection._inspection_message import InspectionResult
+from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
 

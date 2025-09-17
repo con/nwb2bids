@@ -4,7 +4,7 @@ import typing
 import pydantic
 
 from .._converters._dataset_converter import DatasetConverter
-from .._inspection._inspection_message import InspectionResult
+from .._inspection._inspection_result import InspectionResult
 
 
 @pydantic.validate_call
