@@ -3,6 +3,13 @@
 # Upcoming
 
 
+
+# v0.4.0
+
+Added a `.from_remote_dandiset` instantiation method for the `DatasetConverter` class. This requires installing the `pip install nwb2bids[dandi]` extra dependencies.
+
+
+
 # v0.3.0
 
 # Deprecations
