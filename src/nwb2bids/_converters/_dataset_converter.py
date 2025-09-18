@@ -144,6 +144,7 @@ class DatasetConverter(BaseConverter):
         dataset_converter = cls(
             session_converters=session_converters, dataset_description=dataset_description, messages=messages
         )
+        dataset_converter._internal_messages = []
         return dataset_converter
 
     def extract_metadata(self) -> None:

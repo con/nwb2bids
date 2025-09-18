@@ -5,7 +5,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_PARTICIPANT_ID_REGEX, _VALID_SPECIES_REGEX
+from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_ID_REGEX, _VALID_SPECIES_REGEX
 from .._inspection._inspection_result import Category, DataStandard, InspectionResult, Severity
 from ..bids_models._base_metadata_model import BaseMetadataModel
 
@@ -91,10 +91,7 @@ class Participant(BaseMetadataModel):
             )
 
         # Check if specified values are valid
-        if (
-            self.participant_id is not None
-            and re.match(pattern=_VALID_PARTICIPANT_ID_REGEX, string=self.participant_id) is None
-        ):
+        if self.participant_id is not None and re.match(pattern=_VALID_ID_REGEX, string=self.participant_id) is None:
             self.messages.append(
                 InspectionResult(
                     title="Invalid participant ID",

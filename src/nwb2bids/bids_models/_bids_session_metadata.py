@@ -1,4 +1,5 @@
 import pathlib
+import re
 
 import h5py
 import pydantic
@@ -9,9 +10,10 @@ from ._base_metadata_model import BaseMetadataContainerModel
 from ._channels import ChannelTable
 from ._electrodes import ElectrodeTable
 from ._events import Events
+from ._model_globals import _VALID_ID_REGEX
 from ._participant import Participant
 from ._probes import ProbeTable
-from .._inspection._inspection_result import InspectionResult
+from .._inspection._inspection_result import Category, DataStandard, InspectionResult, Severity
 from .._tools import cache_read_nwb
 
 
@@ -20,10 +22,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     Schema for the metadata of a single BIDS session.
     """
 
-    session_id: str = pydantic.Field(
-        description="A unique session identifier.",
-        pattern=r"^[^_]+$",  # No underscores allowed
-    )
+    session_id: str | None = pydantic.Field(description="A unique session identifier.", default=None)
     participant: Participant = pydantic.Field(description="Metadata about a participant used in this experiment.")
     events: Events | None = pydantic.Field(
         description="Timing data and metadata regarding events that occur during this experiment.", default=None
@@ -45,6 +44,46 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         if self.electrode_table is not None:
             messages += self.electrode_table.messages
         return messages
+
+    def _check_fields(self, file_paths: list[pathlib.Path]) -> None:
+        # Check if values are specified
+        if self.session_id is None:
+            self.messages.append(
+                InspectionResult(
+                    title="Missing session ID",
+                    reason="A unique ID is required for all individual sessions.",
+                    solution="Specify the `session_id` field of the NWB file object.",
+                    field="nwbfile.session_id",
+                    source_file_paths=file_paths,
+                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
+                    category=Category.SCHEMA_INVALIDATION,
+                    severity=Severity.CRITICAL,
+                )
+            )
+
+        # Check if specified values are valid
+        if self.session_id is not None and re.match(pattern=_VALID_ID_REGEX, string=self.session_id) is None:
+            self.messages.append(
+                InspectionResult(
+                    title="Invalid session ID",
+                    reason=(
+                        "The session ID contains invalid characters. "
+                        "BIDS allows only dashes to be used as separators in session entity label. "
+                        "Underscores, spaces, slashes, and special characters (including #) are expressly forbidden."
+                    ),
+                    solution="Rename the session without using spaces or underscores.",
+                    examples=[
+                        "`ses_01` -> `ses-01`",
+                        "`session #2` -> `session-2`",
+                        "`id 2 from 9/1/25` -> `id-2-9-1-25`",
+                    ],
+                    field="nwbfile.session_id",
+                    source_file_paths=file_paths,
+                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
+                    category=Category.STYLE_SUGGESTION,
+                    severity=Severity.ERROR,
+                )
+            )
 
     @classmethod
     @pydantic.validate_call
@@ -83,6 +122,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             dictionary["electrode_table"] = electrode_table
 
         session_metadata = BidsSessionMetadata(**dictionary)
+        session_metadata._check_fields(file_paths=nwbfile_paths)
         return session_metadata
 
 
