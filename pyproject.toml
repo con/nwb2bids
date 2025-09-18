@@ -12,8 +12,10 @@ packages = ["src/nwb2bids"]
 #   Dependency Groups, in creating environments.
 #   See https://github.com/pypa/hatch/pull/1922 for more details.
 #
-# Execute `hatch env create test` to create the environment
-# Execute `hatch run test:pytest tests` to run tests in the hatch environment
+
+[tool.hatch.envs.default]
+pre-install-commands = ["pip install --upgrade pip"]
+
 [tool.hatch.envs.test]
 post-install-commands = ["pip install --group test"]
 
