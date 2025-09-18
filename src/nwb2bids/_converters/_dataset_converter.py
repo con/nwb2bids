@@ -1,7 +1,6 @@
 import collections
 import json
 import pathlib
-import traceback
 import typing
 
 import pandas
@@ -67,43 +66,62 @@ class DatasetConverter(BaseConverter):
             If specified, limits the number of sessions to convert.
             This is mainly useful for testing purposes.
         """
-        import dandi.dandiapi
+        try:
+            import dandi.dandiapi
 
-        client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
-        version_id = "draft"  # Only allow running on draft version
-        dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
+            client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
+            version_id = "draft"  # Only allow running on draft version
+            dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
 
-        dataset_description, _internal_messages = get_bids_dataset_description(dandiset=dandiset)
+            dataset_description, _internal_messages = get_bids_dataset_description(dandiset=dandiset)
 
-        if limit is None:
-            assets = list(dandiset.get_assets())
-        else:
-            assets = [asset for counter, asset in enumerate(dandiset.get_assets()) if counter < limit]
+            if limit is None:
+                assets = list(dandiset.get_assets())
+            else:
+                assets = [asset for counter, asset in enumerate(dandiset.get_assets()) if counter < limit]
 
-        session_id_to_assets = collections.defaultdict(list)
-        for asset in assets:
-            asset_metadata = asset.get_raw_metadata()
+            session_id_to_assets = collections.defaultdict(list)
+            for asset in assets:
+                asset_metadata = asset.get_raw_metadata()
 
-            for session in asset_metadata.get("wasGeneratedBy", []):
-                if session.get("schemaKey", "") != "Session":
-                    continue
+                for session in asset_metadata.get("wasGeneratedBy", []):
+                    if session.get("schemaKey", "") != "Session":
+                        continue
 
-                session_id = session.get("identifier", "")
-                if session_id == "":
-                    continue
+                    session_id = session.get("identifier", "")
+                    if session_id == "":
+                        continue
 
-                session_id_to_assets[session_id].append(asset)
-        sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
+                    session_id_to_assets[session_id].append(asset)
+            sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
 
-        session_converters = [
-            SessionConverter(
-                session_id=session_id,
-                nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
-            )
-            for session_id, assets in sorted_session_id_to_assets.items()
-        ]
+            session_converters = [
+                SessionConverter(
+                    session_id=session_id,
+                    nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
+                )
+                for session_id, assets in sorted_session_id_to_assets.items()
+            ]
 
-        dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+            dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+            dataset_converter._internal_messages = _internal_messages
+            return dataset_converter
+        except:  # noqa
+            _internal_messages = [
+                InspectionResult(
+                    title="Failed to initialize converter on remote Dandiset",
+                    reason=(
+                        "An error occurred while executing `DatasetConverter.from_remote_dandiset`."
+                        "\n\n{traceback.format_exc()}"
+                    ),
+                    solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
+                    category=Category.INTERNAL_ERROR,
+                    severity=Severity.ERROR,
+                )
+            ]
+
+            dataset_converter = cls(session_converters=[], dataset_description=None)
+
         dataset_converter._internal_messages = _internal_messages
         return dataset_converter
 
@@ -128,23 +146,37 @@ class DatasetConverter(BaseConverter):
         -------
         An instance of DatasetConverter.
         """
-        session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+        try:
+            session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
 
-        dataset_description = None
-        if additional_metadata_file_path is not None:
-            dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
+            dataset_description = None
+            if additional_metadata_file_path is not None:
+                dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
-        session_messages = [
-            message
-            for session_converter in session_converters
-            for message in session_converter.messages
-            if session_converter.messages is not None
-        ]
-        messages = session_messages if len(session_messages) > 0 else None
+            session_messages = [
+                message
+                for session_converter in session_converters
+                for message in session_converter.messages
+                if session_converter.messages is not None
+            ]
 
-        dataset_converter = cls(
-            session_converters=session_converters, dataset_description=dataset_description, messages=messages
-        )
+            dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+            dataset_converter._internal_messages = session_messages
+            return dataset_converter
+        except:  # noqa
+            _internal_messages = [
+                InspectionResult(
+                    title="Failed to initialize converter on local NWB files",
+                    reason=(
+                        "An error occurred while executing `DatasetConverter.from_nwb_paths`."
+                        "\n\n{traceback.format_exc()}"
+                    ),
+                    solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
+                    category=Category.INTERNAL_ERROR,
+                    severity=Severity.ERROR,
+                )
+            ]
+
         dataset_converter._internal_messages = []
         return dataset_converter
 
@@ -161,7 +193,10 @@ class DatasetConverter(BaseConverter):
         except:  # noqa
             message = InspectionResult(
                 title="Failed to extract metadata for one or more sessions",
-                reason=f"An error occurred while extracting metadata.\n\n{traceback.format_exc()}",
+                reason=(
+                    "An error occurred while executing `DatasetConverter.extract_metadata`."
+                    "\n\n{traceback.format_exc()}"
+                ),
                 solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
                 category=Category.INTERNAL_ERROR,
                 severity=Severity.ERROR,
@@ -208,7 +243,10 @@ class DatasetConverter(BaseConverter):
         except:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
-                reason=f"An error occurred while converting to BIDS format.\n\n{traceback.format_exc()}",
+                reason=(
+                    "An error occurred while executing `DatasetConverter.convert_to_bids_dataset`."
+                    "\n\n{traceback.format_exc()}"
+                ),
                 solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
                 category=Category.INTERNAL_ERROR,
                 severity=Severity.ERROR,
