@@ -57,11 +57,11 @@ class InspectionResult(pydantic.BaseModel):
         ),
         default=None,
     )
-    source_file_paths: list[pathlib.Path] | None = pydantic.Field(
+    source_file_paths: list[pathlib.Path | pydantic.HttpUrl] | None = pydantic.Field(
         description="If known, the paths of all source NWB file(s) where the issue was detected.",
         default=None,
     )
-    target_file_paths: list[pathlib.Path] | None = pydantic.Field(
+    target_file_paths: list[pathlib.Path | pydantic.HttpUrl] | None = pydantic.Field(
         description=(
             "If known, the target BIDS paths of all file(s) associated with the session where the issue was detected."
         ),
