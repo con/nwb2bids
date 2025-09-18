@@ -47,7 +47,9 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
         """
         dataset_description_file_path = bids_directory / "dataset_description.json"
 
-        current_directory_contents = [path for path in bids_directory.iterdir() if not path.name.startswith(".")]
+        current_directory_contents = {
+            path.stem for path in bids_directory.iterdir() if not path.name.startswith(".")
+        } - {"README", "CHANGES"}
         if len(current_directory_contents) == 0:
             default_dataset_description = {"BIDSVersion": "1.10"}
             with dataset_description_file_path.open(mode="w") as file_stream:
