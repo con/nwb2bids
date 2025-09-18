@@ -12,7 +12,7 @@ from ._dandi_utils import get_bids_dataset_description
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
-from ..bids_models import DatasetDescription
+from ..bids_models import BidsSessionMetadata, DatasetDescription
 
 
 class DatasetConverter(BaseConverter):
@@ -275,16 +275,17 @@ class DatasetConverter(BaseConverter):
             path_or_buf=participants_tsv_file_path, mode="w", index=False, sep="\t", columns=column_order
         )
 
-        is_field_in_table = {field: True for field in participants_data_frame.keys()}
-        participants_schema = self.session_converters[0].session_metadata.participant.model_json_schema()
-        participants_json = {
-            field: info["description"]
-            for field, info in participants_schema["properties"].items()
-            if is_field_in_table.get(field, False) is True
-        }
-        participants_json_file_path = bids_directory / "participants.json"
-        with participants_json_file_path.open(mode="w") as file_stream:
-            json.dump(obj=participants_json, fp=file_stream, indent=4)
+        if len(self.session_converters) > 0:
+            is_field_in_table = {field: True for field in participants_data_frame.keys()}
+            participants_schema = self.session_converters[0].session_metadata.participant.model_json_schema()
+            participants_json = {
+                field: info["description"]
+                for field, info in participants_schema["properties"].items()
+                if is_field_in_table.get(field, False) is True
+            }
+            participants_json_file_path = bids_directory / "participants.json"
+            with participants_json_file_path.open(mode="w") as file_stream:
+                json.dump(obj=participants_json, fp=file_stream, indent=4)
 
     @pydantic.validate_call
     def write_sessions_metadata(self, bids_directory: str | pathlib.Path | None = None) -> None:
@@ -305,7 +306,7 @@ class DatasetConverter(BaseConverter):
             )
 
         # TODO: expand beyond just session_id field (mainly via additional metadata)
-        sessions_schema = self.session_converters[0].session_metadata.model_json_schema()
+        sessions_schema = BidsSessionMetadata.model_json_schema()
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
         for subject_id, sessions_metadata in subject_id_to_sessions.items():
