@@ -1,8 +1,11 @@
 import enum
+import json
 import pathlib
-from typing import Any
+import typing
 
 import pydantic
+
+from ._json_encoder import CustomJSONEncoder
 
 
 @enum.unique
@@ -76,7 +79,7 @@ class InspectionResult(pydantic.BaseModel):
     )
 
     # TODO: adjust how PyNWB reports container sources for streamed content
-    def model_post_init(self, context: Any, /) -> None:
+    def model_post_init(self, context: typing.Any, /) -> None:
         scrubbed_source_file_paths = (
             [path for path in self.source_file_paths if "remfile" not in str(path)]
             if self.source_file_paths is not None
@@ -87,12 +90,5 @@ class InspectionResult(pydantic.BaseModel):
 
     def model_dump(self, **kwargs):
         data = super().model_dump(**kwargs)
-
-        # Simplify enum values to their names for easier readability
-        for key, value in data.items():
-            if isinstance(value, enum.Enum):
-                data[key] = value.name
-            elif isinstance(value, list):
-                data[key] = [v.name if isinstance(v, enum.Enum) else v for v in value]
-
-        return data
+        json_data = json.loads(CustomJSONEncoder().encode(data))
+        return json_data

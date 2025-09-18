@@ -1,6 +1,7 @@
 import collections
 import json
 import pathlib
+import traceback
 import typing
 
 import pandas
@@ -10,7 +11,7 @@ import typing_extensions
 from ._dandi_utils import get_bids_dataset_description
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
-from .._inspection._inspection_result import InspectionResult
+from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import DatasetDescription
 
 
@@ -148,14 +149,24 @@ class DatasetConverter(BaseConverter):
         return dataset_converter
 
     def extract_metadata(self) -> None:
-        collections.deque(
-            (
-                session_converter.extract_metadata()
-                for session_converter in self.session_converters
-                if session_converter.session_metadata is None
-            ),
-            maxlen=0,
-        )
+        try:
+            collections.deque(
+                (
+                    session_converter.extract_metadata()
+                    for session_converter in self.session_converters
+                    if session_converter.session_metadata is None
+                ),
+                maxlen=0,
+            )
+        except:  # noqa
+            message = InspectionResult(
+                title="Failed to extract metadata for one or more sessions",
+                reason=f"An error occurred while extracting metadata.\n\n{traceback.format_exc()}",
+                solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
+                category=Category.INTERNAL_ERROR,
+                severity=Severity.ERROR,
+            )
+            self._internal_messages.append(message)
 
     @pydantic.validate_call
     def convert_to_bids_dataset(
@@ -180,19 +191,29 @@ class DatasetConverter(BaseConverter):
             - "symlink": Create symbolic links to the files in the BIDS directory.
             - "auto": Decides between all the above based on the system, with preference for linking when possible.
         """
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
+        try:
+            bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
-        if self.dataset_description is not None:
-            self.write_dataset_description(bids_directory=bids_directory)
+            if self.dataset_description is not None:
+                self.write_dataset_description(bids_directory=bids_directory)
 
-        self.write_participants_metadata(bids_directory=bids_directory)
-        self.write_sessions_metadata(bids_directory=bids_directory)
+            self.write_participants_metadata(bids_directory=bids_directory)
+            self.write_sessions_metadata(bids_directory=bids_directory)
 
-        generator = (
-            session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
-            for session_converter in self.session_converters
-        )
-        collections.deque(generator, maxlen=0)
+            generator = (
+                session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
+                for session_converter in self.session_converters
+            )
+            collections.deque(generator, maxlen=0)
+        except:  # noqa
+            message = InspectionResult(
+                title="Failed to convert to BIDS dataset",
+                reason=f"An error occurred while converting to BIDS format.\n\n{traceback.format_exc()}",
+                solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
+                category=Category.INTERNAL_ERROR,
+                severity=Severity.ERROR,
+            )
+            self._internal_messages.append(message)
 
     @pydantic.validate_call
     def write_dataset_description(self, bids_directory: str | pathlib.Path | None = None) -> None:
