@@ -20,17 +20,17 @@ pre-install-commands = ["pip install --upgrade pip"]
 # Use `+` and `-` to select tests environments to run tests if needed
 # as documented in https://hatch.pypa.io/latest/cli/reference/#hatch-run.
 [[tool.hatch.envs.test.matrix]]
-python = ["3.10","3.11","3.12","3.13"]
+python = ["3.10", "3.11", "3.12", "3.13"]
 feature = ["none", "dandi", "all"]
 cov = ["off", "on"]
 [tool.hatch.envs.test.overrides]
 matrix.feature.features = [
   { value = "dandi", if = ["dandi"] },
-  { value = "all",   if = ["all"]   },
+  { value = "all", if = ["all"] },
 ]
 matrix.cov.post-install-commands = [
-  { value = "pip install --group test",     if = ["off"] },
-  { value = "pip install --group coverage", if = ["on"]  },
+  { value = "pip install --group test", if = ["off"] },
+  { value = "pip install --group coverage", if = ["on"] },
 ]
 [tool.hatch.envs.test.scripts]
 run = "pytest {args:tests}"
