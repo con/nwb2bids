@@ -12,26 +12,43 @@ packages = ["src/nwb2bids"]
 #   Dependency Groups, in creating environments.
 #   See https://github.com/pypa/hatch/pull/1922 for more details.
 #
-# Execute `hatch env create test` to create the environment
-# Execute `hatch run test:pytest tests` to run tests in the hatch environment
-[tool.hatch.envs.test]
-post-install-commands = ["pip install --group test"]
 
-[tool.hatch.envs.coverage]
-post-install-commands = ["pip install --group coverage"]
+[tool.hatch.envs.default]
+pre-install-commands = ["pip install --upgrade pip"]
+
+# Execute `hatch env create test` to create all test environments.
+# Use `+` and `-` to select tests environments to run tests if needed
+# as documented in https://hatch.pypa.io/latest/cli/reference/#hatch-run.
+[[tool.hatch.envs.test.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13"]
+feature = ["none", "dandi", "all"]
+cov = ["off", "on"]
+[tool.hatch.envs.test.overrides]
+matrix.feature.features = [
+  { value = "dandi", if = ["dandi"] },
+  { value = "all", if = ["all"] },
+]
+matrix.cov.post-install-commands = [
+  { value = "pip install --group test", if = ["off"] },
+  { value = "pip install --group coverage", if = ["on"] },
+]
+[tool.hatch.envs.test.scripts]
+run = "pytest {args:tests}"
 
 [tool.hatch.envs.dev]
+features = ["all"]
 post-install-commands = ["pip install --group dev"]
 
 [tool.hatch.envs.types]
+features = ["all"]
 post-install-commands = ["pip install --group types"]
-
-[tool.hatch.envs.all]
-post-install-commands = ["pip install --group all"]
-
 [tool.hatch.envs.types.scripts]
 # Define named script for type checking
 check = "mypy --install-types --non-interactive {args:src/nwb2bids tests}"
+
+[tool.hatch.envs.all]
+features = ["all"]
+post-install-commands = ["pip install --group dev-all"]
 
 
 
@@ -106,7 +123,7 @@ docs = [
     "sphinx",
     "pydata-sphinx-theme",
 ]
-all = [
+dev-all = [
     {include-group = "test"},
     {include-group = "coverage"},
     {include-group = "dev"},
