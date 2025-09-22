@@ -281,15 +281,18 @@ class DatasetConverter(BaseConverter):
             model_dump = session_converter.session_metadata.participant.model_dump()
             model_dump_per_session.append(model_dump)
 
-        participants_data_frame = pandas.DataFrame.from_records(
+        full_participants_data_frame = pandas.DataFrame.from_records(
             data=[
                 {key: value for key, value in model_dump.items() if value is not None}
                 for model_dump in model_dump_per_session
             ]
         ).astype("string")
 
-        if participants_data_frame.empty:
+        if full_participants_data_frame.empty:
             return
+
+        # Deduplicate all rows of the frame
+        participants_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
 
         # BIDS requires sub- prefix in table values
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
