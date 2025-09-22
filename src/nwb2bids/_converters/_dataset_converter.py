@@ -1,6 +1,7 @@
 import collections
 import json
 import pathlib
+import traceback
 import typing
 
 import pandas
@@ -112,7 +113,7 @@ class DatasetConverter(BaseConverter):
                     title="Failed to initialize converter on remote Dandiset",
                     reason=(
                         "An error occurred while executing `DatasetConverter.from_remote_dandiset`."
-                        "\n\n{traceback.format_exc()}"
+                        f"\n\n{traceback.format_exc()}"
                     ),
                     solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
                     category=Category.INTERNAL_ERROR,
@@ -169,7 +170,7 @@ class DatasetConverter(BaseConverter):
                     title="Failed to initialize converter on local NWB files",
                     reason=(
                         "An error occurred while executing `DatasetConverter.from_nwb_paths`."
-                        "\n\n{traceback.format_exc()}"
+                        f"\n\n{traceback.format_exc()}"
                     ),
                     solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
                     category=Category.INTERNAL_ERROR,
