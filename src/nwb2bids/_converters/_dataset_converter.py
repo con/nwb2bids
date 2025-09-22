@@ -292,9 +292,10 @@ class DatasetConverter(BaseConverter):
             return
 
         # Deduplicate all rows of the frame
-        participants_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
+        deduplicated_participants_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
 
         # BIDS requires sub- prefix in table values
+        participants_data_frame = deduplicated_participants_data_frame.copy()
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
             lambda participant_id: f"sub-{participant_id}"
         )

@@ -1,27 +1,30 @@
 import enum
+import json
 import pathlib
 import typing
 
 import pydantic
+
+from ._json_encoder import CustomJSONEncoder
 
 
 @enum.unique
 class DataStandard(enum.Enum):
     """Related standards used by the `nwb2bids` inspections."""
 
-    BIDS = enum.auto()
     DANDI = enum.auto()
     HED = enum.auto()
     NWB = enum.auto()
+    BIDS = enum.auto()
 
 
 @enum.unique
 class Category(enum.Enum):
     """Types of inspection categories."""
 
-    INTERNAL_ERROR = enum.auto()
-    SCHEMA_INVALIDATION = enum.auto()
     STYLE_SUGGESTION = enum.auto()
+    SCHEMA_INVALIDATION = enum.auto()
+    INTERNAL_ERROR = enum.auto()
 
 
 @enum.unique
@@ -57,11 +60,11 @@ class InspectionResult(pydantic.BaseModel):
         ),
         default=None,
     )
-    source_file_paths: list[pathlib.Path | pydantic.HttpUrl] | None = pydantic.Field(
+    source_file_paths: set[pathlib.Path | pydantic.HttpUrl] | None = pydantic.Field(
         description="If known, the paths of all source NWB file(s) where the issue was detected.",
         default=None,
     )
-    target_file_paths: list[pathlib.Path | pydantic.HttpUrl] | None = pydantic.Field(
+    target_file_paths: set[pathlib.Path | pydantic.HttpUrl] | None = pydantic.Field(
         description=(
             "If known, the target BIDS paths of all file(s) associated with the session where the issue was detected."
         ),
@@ -85,7 +88,8 @@ class InspectionResult(pydantic.BaseModel):
         scrubbed_source_file_paths = None if len(scrubbed_source_file_paths) == 0 else self.source_file_paths
         self.source_file_paths = scrubbed_source_file_paths
 
-    # def model_dump(self, **kwargs):
-    #     data = super().model_dump(**kwargs)
-    #     json_data = json.loads(CustomJSONEncoder().encode(data))
-    #     return json_data
+    # TODO: remove when StrEnum is integrated (3.11 minimum)
+    def model_dump(self, **kwargs):
+        data = super().model_dump(**kwargs)
+        json_data = json.loads(CustomJSONEncoder().encode(data))
+        return json_data
