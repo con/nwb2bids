@@ -196,7 +196,7 @@ class DatasetConverter(BaseConverter):
                 title="Failed to extract metadata for one or more sessions",
                 reason=(
                     "An error occurred while executing `DatasetConverter.extract_metadata`."
-                    "\n\n{traceback.format_exc()}"
+                    f"\n\n{traceback.format_exc()}"
                 ),
                 solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
                 category=Category.INTERNAL_ERROR,
@@ -246,7 +246,7 @@ class DatasetConverter(BaseConverter):
                 title="Failed to convert to BIDS dataset",
                 reason=(
                     "An error occurred while executing `DatasetConverter.convert_to_bids_dataset`."
-                    "\n\n{traceback.format_exc()}"
+                    f"\n\n{traceback.format_exc()}"
                 ),
                 solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
                 category=Category.INTERNAL_ERROR,
