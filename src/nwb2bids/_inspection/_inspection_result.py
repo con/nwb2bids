@@ -1,7 +1,6 @@
 import enum
 import json
 import pathlib
-import typing
 
 import pydantic
 
@@ -78,15 +77,17 @@ class InspectionResult(pydantic.BaseModel):
         description="Quantifier of relative severity. The larger the value, the more important it is.",
     )
 
-    # TODO: adjust how PyNWB reports container sources for streamed content
-    def model_post_init(self, context: typing.Any, /) -> None:
-        scrubbed_source_file_paths = (
-            [path for path in self.source_file_paths if "remfile" not in str(path)]
-            if self.source_file_paths is not None
-            else []
-        )
-        scrubbed_source_file_paths = None if len(scrubbed_source_file_paths) == 0 else self.source_file_paths
-        self.source_file_paths = scrubbed_source_file_paths
+    # TODO: remove this when/if PyNWB fixes source container for remfile objects
+    @pydantic.field_validator(field="source_file_paths", mode="after")
+    def validate_source_file_paths(
+        cls, value: set[pathlib.Path | pydantic.HttpUrl] | None
+    ) -> set[pathlib.Path | pydantic.HttpUrl] | None:
+        """Remove any paths that contain 'remfile', which NWB source container fields include automatically."""
+        if value is None:
+            return None
+        scrubbed = [path for path in value if "remfile" not in str(path)]
+        scrubbed_source_file_paths = None if len(scrubbed) == 0 else scrubbed
+        return scrubbed_source_file_paths
 
     # TODO: remove when StrEnum is integrated (3.11 minimum)
     def model_dump(self, **kwargs):
