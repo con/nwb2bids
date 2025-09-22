@@ -1,11 +1,8 @@
 import enum
-import json
 import pathlib
 import typing
 
 import pydantic
-
-from ._json_encoder import CustomJSONEncoder
 
 
 @enum.unique
@@ -88,7 +85,7 @@ class InspectionResult(pydantic.BaseModel):
         scrubbed_source_file_paths = None if len(scrubbed_source_file_paths) == 0 else self.source_file_paths
         self.source_file_paths = scrubbed_source_file_paths
 
-    def model_dump(self, **kwargs):
-        data = super().model_dump(**kwargs)
-        json_data = json.loads(CustomJSONEncoder().encode(data))
-        return json_data
+    # def model_dump(self, **kwargs):
+    #     data = super().model_dump(**kwargs)
+    #     json_data = json.loads(CustomJSONEncoder().encode(data))
+    #     return json_data
