@@ -14,7 +14,7 @@ def convert_nwb_dataset(
     bids_directory: str | pathlib.Path | None = None,
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     additional_metadata_file_path: pydantic.FilePath | None = None,
-) -> list[InspectionResult, ...] | None:
+) -> list[InspectionResult] | None:
     """
     Convert a dataset of NWB files to a BIDS dataset.
 
