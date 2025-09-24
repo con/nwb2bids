@@ -45,7 +45,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             messages += self.electrode_table.messages
         return messages
 
-    def _check_fields(self, file_paths: set[pathlib.Path] | set[pydantic.HttpUrl]) -> None:
+    def _check_fields(self, file_paths: list[pathlib.Path] | list[pydantic.HttpUrl]) -> None:
         # Check if values are specified
         if self.session_id is None:
             self.messages.append(
@@ -88,19 +88,19 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     @classmethod
     @pydantic.validate_call
     def from_nwbfile_paths(
-        cls, nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl]
+        cls, nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl] = pydantic.Field(min_length=1)
     ) -> typing_extensions.Self:
         # Differentiate local path from URL
-        if isinstance(nwbfile_paths[0], pathlib.Path):
+        if isinstance(next(iter(nwbfile_paths)), pathlib.Path):
             nwbfiles = [cache_read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
         else:
             nwbfiles = [_stream_nwb(url=url) for url in nwbfile_paths]
 
-        session_ids = list({nwbfile.session_id for nwbfile in nwbfiles})
+        session_ids = {nwbfile.session_id for nwbfile in nwbfiles}
         if len(session_ids) > 1:
             message = "Multiple differing session IDs found - please check how this method was called."
             raise ValueError(message)
-        session_id = session_ids[0]
+        session_id = next(iter(session_ids))
 
         participant = Participant.from_nwbfiles(nwbfiles=nwbfiles)
         events = Events.from_nwbfiles(nwbfiles=nwbfiles)

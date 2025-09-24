@@ -10,7 +10,7 @@ from .._inspection._inspection_result import InspectionResult
 @pydantic.validate_call
 def convert_nwb_dataset(
     *,
-    nwb_paths: typing.Iterable[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
+    nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
     bids_directory: str | pathlib.Path | None = None,
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     additional_metadata_file_path: pydantic.FilePath | None = None,

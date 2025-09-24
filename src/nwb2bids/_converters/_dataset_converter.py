@@ -130,7 +130,7 @@ class DatasetConverter(BaseConverter):
     @pydantic.validate_call
     def from_nwb_paths(
         cls,
-        nwb_paths: typing.Iterable[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
+        nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
         additional_metadata_file_path: pydantic.FilePath | None = None,
     ) -> typing_extensions.Self:
         """

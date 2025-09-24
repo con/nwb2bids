@@ -57,11 +57,11 @@ class InspectionResult(pydantic.BaseModel):
         ),
         default=None,
     )
-    source_file_paths: set[pathlib.Path] | set[pydantic.HttpUrl] | None = pydantic.Field(
+    source_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = pydantic.Field(
         description="If known, the paths of all source NWB file(s) where the issue was detected.",
         default=None,
     )
-    target_file_paths: set[pathlib.Path] | set[pydantic.HttpUrl] | None = pydantic.Field(
+    target_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = pydantic.Field(
         description=(
             "If known, the target BIDS paths of all file(s) associated with the session where the issue was detected."
         ),
@@ -77,7 +77,7 @@ class InspectionResult(pydantic.BaseModel):
 
     # TODO: remove this when/if PyNWB fixes source container for remfile objects
     @pydantic.field_validator("source_file_paths", mode="after")
-    def validate_source_file_paths(cls, value: set[str] | None) -> set[str] | None:
+    def validate_source_file_paths(cls, value: list[str] | None) -> list[str] | None:
         """Remove any paths that contain 'remfile', which NWB source container fields include automatically."""
         if value is None:
             return None
