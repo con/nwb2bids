@@ -1,14 +1,18 @@
 import enum
-import json
 import pathlib
+import sys
 
 import pydantic
 
-from ._json_encoder import CustomJSONEncoder
+# TODO: remove when 3.10 is no longer supported
+if sys.version_info < (3, 11):
+    from strenum import StrEnum
+else:
+    from enum import StrEnum
 
 
 @enum.unique
-class DataStandard(enum.Enum):
+class DataStandard(StrEnum):
     """Related standards used by the `nwb2bids` inspections."""
 
     DANDI = enum.auto()
@@ -18,7 +22,7 @@ class DataStandard(enum.Enum):
 
 
 @enum.unique
-class Category(enum.Enum):
+class Category(StrEnum):
     """Types of inspection categories."""
 
     STYLE_SUGGESTION = enum.auto()
@@ -27,7 +31,7 @@ class Category(enum.Enum):
 
 
 @enum.unique
-class Severity(enum.IntEnum):
+class Severity(StrEnum):
     """
     Quantifier of relative severity (how important it is to resolve) for inspection results.
 
@@ -78,7 +82,7 @@ class InspectionResult(pydantic.BaseModel):
     )
 
     # TODO: remove this when/if PyNWB fixes source container for remfile objects
-    @pydantic.field_validator(field="source_file_paths", mode="after")
+    @pydantic.field_validator("source_file_paths", mode="after")
     def validate_source_file_paths(
         cls, value: set[pathlib.Path | pydantic.HttpUrl] | None
     ) -> set[pathlib.Path | pydantic.HttpUrl] | None:
@@ -89,8 +93,8 @@ class InspectionResult(pydantic.BaseModel):
         scrubbed_source_file_paths = None if len(scrubbed) == 0 else scrubbed
         return scrubbed_source_file_paths
 
-    # TODO: remove when StrEnum is integrated (3.11 minimum)
-    def model_dump(self, **kwargs):
-        data = super().model_dump(**kwargs)
-        json_data = json.loads(CustomJSONEncoder().encode(data))
-        return json_data
+    # # TODO: remove when StrEnum is integrated (3.11 minimum)
+    # def model_dump(self, **kwargs):
+    #     data = super().model_dump(**kwargs)
+    #     json_data = json.loads(CustomJSONEncoder().encode(data))
+    #     return json_data

@@ -62,6 +62,7 @@ dependencies = [
     "click",
     "pydantic",
     "typing-extensions",  # TODO: remove when dropping support for Python 3.10
+    "StrEnum; python_version < '3.11'",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
