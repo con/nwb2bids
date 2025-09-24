@@ -1,5 +1,4 @@
 import typing
-import warnings
 
 import pydantic
 
@@ -19,7 +18,10 @@ def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription, list[Ins
 
     messages = []
     if valid_or_raw == "valid":
-        dataset_description = _get_dataset_description_from_valid_dandiset_metadata(metadata=metadata)
+        dataset_description, internal_messages = _get_dataset_description_from_valid_dandiset_metadata(
+            metadata=metadata
+        )
+        messages.extend(internal_messages)
     else:
         dataset_description = None
         message = InspectionResult(
@@ -56,8 +58,7 @@ def _get_dataset_description_from_valid_dandiset_metadata(
             severity=Severity.ERROR,
         )
         messages.append(message)
-        warnings.warn(message=message, category=RuntimeWarning)
-        return None
+        return None, messages
 
     if metadata.description is not None:
         dataset_description_kwargs["Description"] = metadata.description
@@ -72,4 +73,4 @@ def _get_dataset_description_from_valid_dandiset_metadata(
         dataset_description_kwargs["License"] = metadata.license[0].value.split(":")[1]
 
     dataset_description = DatasetDescription(**dataset_description_kwargs)
-    return dataset_description
+    return dataset_description, messages
