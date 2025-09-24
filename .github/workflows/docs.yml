@@ -45,7 +45,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets._GITHUB_API_TOKEN  }}
           publish_dir: ./docs/build/html
           keep_files: false
 
@@ -54,7 +54,7 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets._GITHUB_API_TOKEN }}
           publish_dir: ./docs/build/html
           destination_dir: pr-${{ github.event.pull_request.number }}
           keep_files: true
