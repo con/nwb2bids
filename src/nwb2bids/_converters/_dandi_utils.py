@@ -5,6 +5,7 @@ import pydantic
 
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import DatasetDescription
+from ..bids_models._model_globals import _BIDS_RRID
 
 
 def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription, list[InspectionResult]]:
@@ -21,31 +22,40 @@ def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription, list[Ins
         dataset_description = _get_dataset_description_from_valid_dandiset_metadata(metadata=metadata)
     else:
         dataset_description = None
-        messages.append(
-            InspectionResult(
-                title="NotImplemented: invalid Dandiset metadata",
-                reason="This Dandiset has invalid metadata.",
-                solution="`nwb2bids` plans to add support for reading from the raw metadata.",
-                category=Category.INTERNAL_ERROR,
-                severity=Severity.ERROR,
-            )
+        message = InspectionResult(
+            title="NotImplemented: invalid Dandiset metadata",
+            reason="This Dandiset has invalid metadata.",
+            solution="`nwb2bids` plans to add support for reading from the raw metadata.",
+            category=Category.INTERNAL_ERROR,
+            severity=Severity.ERROR,
         )
+        messages.append(message)
 
     return dataset_description, messages
 
 
-def _get_dataset_description_from_valid_dandiset_metadata(metadata: dict) -> DatasetDescription:
+def _get_dataset_description_from_valid_dandiset_metadata(
+    metadata: dict,
+) -> tuple[DatasetDescription, list[InspectionResult]]:
     dataset_description_kwargs = dict()
 
     dataset_description_kwargs["Name"] = metadata.name
     dataset_description_kwargs["BIDSVersion"] = "1.10"
 
-    bids_rrid = "RRID:SCR_016124"
-    if any(data_standard.identifier == bids_rrid for data_standard in metadata.assetsSummary.dataStandard):
-        message = (
-            "Dandiset already contains BIDS content. If only a partial conversion is desired, "
+    messages = []
+    if any(data_standard.identifier == _BIDS_RRID for data_standard in metadata.assetsSummary.dataStandard):
+        reason = (
+            "Dandiset is already organized to the BIDS standard. If only a partial conversion is desired, "
             "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
         )
+        message = InspectionResult(
+            title="Dandiset is already BIDS",
+            reason=reason,
+            solution="Skip the conversion of this Dandiset.",
+            category=Category.INTERNAL_ERROR,
+            severity=Severity.ERROR,
+        )
+        messages.append(message)
         warnings.warn(message=message, category=RuntimeWarning)
         return None
 

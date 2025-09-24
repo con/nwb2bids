@@ -178,7 +178,7 @@ class DatasetConverter(BaseConverter):
                 )
             ]
 
-        dataset_converter._internal_messages = []
+        dataset_converter._internal_messages = _internal_messages
         return dataset_converter
 
     def extract_metadata(self) -> None:

@@ -30,3 +30,5 @@ _VALID_ARCHIVES_SEXES = {
         "U",
     ]
 }
+
+_BIDS_RRID = "RRID:SCR_016124"
