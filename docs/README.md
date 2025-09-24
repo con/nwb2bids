@@ -4,7 +4,7 @@ To build the documentation locally:
 
 ```bash
 # Install documentation dependencies
-pip install -r docs/requirements.txt
+pip install --group docs -e .
 
 # Build HTML documentation
 cd docs
