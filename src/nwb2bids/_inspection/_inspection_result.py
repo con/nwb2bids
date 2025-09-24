@@ -1,18 +1,12 @@
 import enum
+import json
 import pathlib
-import sys
 
 import pydantic
 
-# TODO: remove when 3.10 is no longer supported
-if sys.version_info < (3, 11):
-    from strenum import StrEnum
-else:
-    from enum import StrEnum
-
 
 @enum.unique
-class DataStandard(StrEnum):
+class DataStandard(enum.Enum):
     """Related standards used by the `nwb2bids` inspections."""
 
     DANDI = enum.auto()
@@ -22,7 +16,7 @@ class DataStandard(StrEnum):
 
 
 @enum.unique
-class Category(StrEnum):
+class Category(enum.Enum):
     """Types of inspection categories."""
 
     STYLE_SUGGESTION = enum.auto()
@@ -31,7 +25,7 @@ class Category(StrEnum):
 
 
 @enum.unique
-class Severity(StrEnum):
+class Severity(enum.Enum):
     """
     Quantifier of relative severity (how important it is to resolve) for inspection results.
 
@@ -93,8 +87,29 @@ class InspectionResult(pydantic.BaseModel):
         scrubbed_source_file_paths = None if len(scrubbed) == 0 else scrubbed
         return scrubbed_source_file_paths
 
-    # # TODO: remove when StrEnum is integrated (3.11 minimum)
-    # def model_dump(self, **kwargs):
-    #     data = super().model_dump(**kwargs)
-    #     json_data = json.loads(CustomJSONEncoder().encode(data))
-    #     return json_data
+    def model_dump(self, **kwargs) -> dict:
+        mode = kwargs.pop("mode", "python")
+        python_data = super().model_dump(mode="python", **kwargs)
+
+        if mode == "json":
+            json_data = json.loads(_CustomJSONEncoder().encode(python_data))
+            return json_data
+
+        return python_data
+
+
+class _CustomJSONEncoder(json.JSONEncoder):
+    """
+    Required to generate custom desired JSON output when using the Enum fields.
+
+    Without the enum fields,
+    """
+
+    def default(self, obj):
+        if isinstance(obj, enum.Enum):
+            return obj.name
+        elif isinstance(obj, pydantic.HttpUrl):
+            return str(obj)
+        elif isinstance(obj, pathlib.Path):
+            return str(obj)
+        return super().default(obj)
