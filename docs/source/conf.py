@@ -51,3 +51,4 @@ autodoc_default_options = {
     "exclude-members": "__new__",
 }
 add_module_names = False
+toc_object_entries_show_parents = "hide"
