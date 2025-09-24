@@ -40,12 +40,14 @@ jobs:
         run: |
           sphinx-build -b html docs/source docs/build/html
 
-      # Deploy to main docs (GitHub Pages)
-      - name: Upload artifact for GitHub Pages
+      # Deploy main docs to gh-pages root
+      - name: Deploy main documentation
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v3
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: ./docs/build/html
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build/html
+          keep_files: false
 
       # Deploy PR preview to gh-pages branch
       - name: Deploy PR preview
@@ -97,15 +99,3 @@ jobs:
                 body: body
               });
             }
-
-  deploy-main:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
