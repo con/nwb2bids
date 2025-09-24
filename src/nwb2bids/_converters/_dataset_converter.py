@@ -107,7 +107,7 @@ class DatasetConverter(BaseConverter):
             dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
             dataset_converter._internal_messages = _internal_messages
             return dataset_converter
-        except:  # noqa
+        except Exception:  # noqa
             _internal_messages = [
                 InspectionResult(
                     title="Failed to initialize converter on remote Dandiset",
@@ -164,7 +164,7 @@ class DatasetConverter(BaseConverter):
             dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
             dataset_converter._internal_messages = session_messages
             return dataset_converter
-        except:  # noqa
+        except Exception:  # noqa
             _internal_messages = [
                 InspectionResult(
                     title="Failed to initialize converter on local NWB files",
@@ -191,7 +191,7 @@ class DatasetConverter(BaseConverter):
                 ),
                 maxlen=0,
             )
-        except:  # noqa
+        except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to extract metadata for one or more sessions",
                 reason=(
@@ -241,7 +241,7 @@ class DatasetConverter(BaseConverter):
                 for session_converter in self.session_converters
             )
             collections.deque(generator, maxlen=0)
-        except:  # noqa
+        except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
                 reason=(
