@@ -29,7 +29,7 @@ class ProbeTable(BaseMetadataContainerModel):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for probe in self.probes for message in probe.messages]
-        messages.sort(key=lambda message: (message.category.value, -message.severity.value, message.title))
+        messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
         return messages
 
     @classmethod

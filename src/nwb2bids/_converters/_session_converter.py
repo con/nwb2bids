@@ -34,7 +34,7 @@ class SessionConverter(BaseConverter):
     @pydantic.validate_call
     def from_nwb_paths(
         cls,
-        nwb_paths: typing.Iterable[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
+        nwb_paths: set[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
     ) -> list[typing_extensions.Self]:
         """
         Initialize a list of session converters from a list of NWB file paths.

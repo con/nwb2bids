@@ -5,6 +5,13 @@ import pathlib
 import nwb2bids
 
 
+def test_messages_baseline(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
+    nwb_paths = [minimal_nwbfile_path]
+    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+
+    assert len(messages) == 0
+
+
 def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_1]
     messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)

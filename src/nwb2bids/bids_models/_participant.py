@@ -39,7 +39,7 @@ class Participant(BaseMetadataModel):
         default=None,
     )
 
-    def _check_fields(self, file_paths: list[pathlib.Path]) -> None:
+    def _check_fields(self, file_paths: set[pathlib.Path] | set[pydantic.HttpUrl]) -> None:
         # Check if values are specified
         if self.participant_id is None:
             self.messages.append(
@@ -166,7 +166,7 @@ class Participant(BaseMetadataModel):
         """
         Extracts participant metadata from the in-memory NWBFile objects.
         """
-        file_paths = [nwbfile.container_source for nwbfile in nwbfiles]
+        file_paths = {nwbfile.container_source for nwbfile in nwbfiles}
 
         messages = []
         if len(nwbfiles) > 1:

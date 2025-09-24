@@ -45,7 +45,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             messages += self.electrode_table.messages
         return messages
 
-    def _check_fields(self, file_paths: list[pathlib.Path]) -> None:
+    def _check_fields(self, file_paths: set[pathlib.Path] | set[pydantic.HttpUrl]) -> None:
         # Check if values are specified
         if self.session_id is None:
             self.messages.append(

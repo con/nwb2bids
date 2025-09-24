@@ -32,7 +32,7 @@ class ChannelTable(BaseMetadataContainerModel):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for channel in self.channels for message in channel.messages]
-        messages.sort(key=lambda message: (message.category.value, -message.severity.value, message.title))
+        messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
         return messages
 
     @classmethod

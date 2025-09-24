@@ -47,6 +47,4 @@ def convert_nwb_dataset(
     converter.extract_metadata()
     converter.convert_to_bids_dataset(bids_directory=bids_directory, file_mode=file_mode)
 
-    if len(converter.messages) == 0:
-        return None
     return converter.messages
