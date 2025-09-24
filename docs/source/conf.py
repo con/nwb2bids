@@ -52,3 +52,8 @@ autodoc_default_options = {
 }
 add_module_names = False
 toc_object_entries_show_parents = "hide"
+
+# Format signatures for better readability
+autodoc_typehints = "signature"
+autodoc_typehints_format = "short"
+python_maximum_signature_line_length = 88
