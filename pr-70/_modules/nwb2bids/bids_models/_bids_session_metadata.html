@@ -445,7 +445,7 @@
         <span class="k">if</span> <span class="n">electrode_table</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dictionary</span><span class="p">[</span><span class="s2">&quot;electrode_table&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">electrode_table</span>
 
-        <span class="n">session_metadata</span> <span class="o">=</span> <span class="n">BidsSessionMetadata</span><span class="p">(</span><span class="o">**</span><span class="n">dictionary</span><span class="p">)</span>
+        <span class="n">session_metadata</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">dictionary</span><span class="p">)</span>
         <span class="n">session_metadata</span><span class="o">.</span><span class="n">_check_fields</span><span class="p">(</span><span class="n">file_paths</span><span class="o">=</span><span class="n">nwbfile_paths</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">session_metadata</span></div>
 </div>
