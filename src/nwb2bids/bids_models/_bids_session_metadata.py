@@ -125,7 +125,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         if electrode_table is not None:
             dictionary["electrode_table"] = electrode_table
 
-        session_metadata = BidsSessionMetadata(**dictionary)
+        session_metadata = cls(**dictionary)
         session_metadata._check_fields(file_paths=nwbfile_paths)
         return session_metadata
 
