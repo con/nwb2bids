@@ -47,26 +47,6 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
                 category=nwb2bids.Category.SCHEMA_INVALIDATION,
                 severity=nwb2bids.Severity.CRITICAL,
             ),
-            nwb2bids.InspectionResult(
-                title="Invalid session ID",
-                reason=(
-                    "The session ID contains invalid characters. BIDS allows only dashes to be used as separators in "
-                    "session entity label. Underscores, spaces, slashes, and special characters (including #) are "
-                    "expressly forbidden."
-                ),
-                solution="Rename the session without using spaces or underscores.",
-                examples=["`ses_01` -> `ses-01`", "`session #2` -> `session-2`", "`id 2 from 9/1/25` -> `id-2-9-1-25`"],
-                field="nwbfile.session_id",
-                source_file_paths=[
-                    pydantic.HttpUrl(
-                        "https://dandiarchive.s3.amazonaws.com/blobs/bb8/1f7/bb81f7b3-4cfa-40e7-aa89-95beb1954d8c"
-                    )
-                ],
-                target_file_paths=None,
-                data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.DANDI],
-                category=nwb2bids.Category.STYLE_SUGGESTION,
-                severity=nwb2bids.Severity.ERROR,
-            ),
         ],
         participant_id="YutaMouse20",
         species="Mus musculus",

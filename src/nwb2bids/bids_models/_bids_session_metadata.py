@@ -34,7 +34,9 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     @pydantic.computed_field
     @property
     def messages(self) -> list[InspectionResult]:
-        messages = self.participant.messages
+        messages = self.participant.messages.copy()
+        # internal_messages = getattr(self, "_internal_messages", [])
+        messages += self._internal_messages
         if self.events is not None:
             messages += self.events.messages
         if self.probe_table is not None:
@@ -43,12 +45,14 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             messages += self.channel_table.messages
         if self.electrode_table is not None:
             messages += self.electrode_table.messages
+        messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
         return messages
 
     def _check_fields(self, file_paths: list[pathlib.Path] | list[pydantic.HttpUrl]) -> None:
         # Check if values are specified
+        internal_messages = []
         if self.session_id is None:
-            self.messages.append(
+            internal_messages.append(
                 InspectionResult(
                     title="Missing session ID",
                     reason="A unique ID is required for all individual sessions.",
@@ -63,7 +67,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
 
         # Check if specified values are valid
         if self.session_id is not None and re.match(pattern=_VALID_ID_REGEX, string=self.session_id) is None:
-            self.messages.append(
+            internal_messages.append(
                 InspectionResult(
                     title="Invalid session ID",
                     reason=(
@@ -84,6 +88,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
                     severity=Severity.ERROR,
                 )
             )
+        self._internal_messages = internal_messages
 
     @classmethod
     @pydantic.validate_call
