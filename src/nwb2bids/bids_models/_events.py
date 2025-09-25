@@ -1,7 +1,5 @@
-import gzip
 import json
 import pathlib
-import shutil
 
 import pandas
 import pydantic
@@ -91,11 +89,6 @@ class Events(BaseMetadataModel):
 
         bids_events_data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False, columns=column_order)
 
-        compressed_file_path = file_path.with_suffix(file_path.suffix + ".gz")
-        with file_path.open(mode="rb") as uncompressed_file_stream:
-            with gzip.open(filename=compressed_file_path, mode="wb") as compressed_file_stream:
-                shutil.copyfileobj(fsrc=uncompressed_file_stream, fdst=compressed_file_stream)
-
     @pydantic.validate_call
     def to_json(self, file_path: str | pathlib.Path) -> None:
         """
@@ -144,6 +137,8 @@ def _get_events_data_frame(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
     all_data_frames = [time_interval.to_dataframe() for time_interval in time_intervals]
     for index, time_interval in enumerate(time_intervals):
         all_data_frames[index]["nwb_table"] = time_interval.name
+        if "timeseries" in all_data_frames[index].columns:
+            all_data_frames[index] = all_data_frames[index].drop(columns=["timeseries"])
 
     events_table = pandas.concat(objs=all_data_frames, ignore_index=True)
     return events_table
