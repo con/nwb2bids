@@ -30,17 +30,8 @@ class BaseMetadataModel(MutableModel):
     messages: list[InspectionResult] = pydantic.Field(
         description="List of auto-detected suggestions.",
         default_factory=list,
+        exclude=True,
     )
-
-    def model_dump(self, **kwargs) -> dict:
-        model_dump = super().model_dump(
-            exclude={
-                "messages": ...,
-                **{k: {"messages": ...} for k, v in self.__dict__.items() if isinstance(v, pydantic.BaseModel)},
-            },
-            **kwargs,
-        )
-        return model_dump
 
 
 class BaseMetadataContainerModel(MutableModel, abc.ABC):

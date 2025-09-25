@@ -7,7 +7,7 @@ from ..bids_models import DatasetDescription
 from ..bids_models._model_globals import _BIDS_RRID
 
 
-def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription, list[InspectionResult]]:
+def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, list[InspectionResult]]:
     valid_or_raw: typing.Literal["raw", "valid"] = "valid"
     try:
         metadata = dandiset.get_metadata()
@@ -37,8 +37,8 @@ def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription, list[Ins
 
 
 def _get_dataset_description_from_valid_dandiset_metadata(
-    metadata: dict,
-) -> tuple[DatasetDescription, list[InspectionResult]]:
+    metadata: typing.Any,
+) -> tuple[DatasetDescription | None, list[InspectionResult]]:
     dataset_description_kwargs = dict()
 
     dataset_description_kwargs["Name"] = metadata.name
