@@ -35,7 +35,6 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     @property
     def messages(self) -> list[InspectionResult]:
         messages = self.participant.messages.copy()
-        # internal_messages = getattr(self, "_internal_messages", [])
         messages += self._internal_messages
         if self.events is not None:
             messages += self.events.messages
