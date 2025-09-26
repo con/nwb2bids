@@ -322,7 +322,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pynwb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing_extensions</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">._base_metadata_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetadataModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._inspection._inspection_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">InspectionResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..bids_models._base_metadata_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetadataContainerModel</span><span class="p">,</span> <span class="n">BaseMetadataModel</span>
 
 
 <div class="viewcode-block" id="Electrode">
@@ -336,8 +337,20 @@
 
 <div class="viewcode-block" id="ElectrodeTable">
 <a class="viewcode-back" href="../../../api/bids_models.html#nwb2bids.bids_models.ElectrodeTable">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ElectrodeTable</span><span class="p">(</span><span class="n">BaseMetadataModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ElectrodeTable</span><span class="p">(</span><span class="n">BaseMetadataContainerModel</span><span class="p">):</span>
     <span class="n">electrodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Electrode</span><span class="p">]</span>
+
+    <span class="nd">@pydantic</span><span class="o">.</span><span class="n">computed_field</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">messages</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">InspectionResult</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        All messages from contained session converters.</span>
+
+<span class="sd">        These can accumulate over time based on which instance methods have been called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="n">message</span> <span class="k">for</span> <span class="n">electrode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrodes</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">electrode</span><span class="o">.</span><span class="n">messages</span><span class="p">]</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">message</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">message</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="o">-</span><span class="n">message</span><span class="o">.</span><span class="n">severity</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">title</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">messages</span>
 
 <div class="viewcode-block" id="ElectrodeTable.from_nwbfiles">
 <a class="viewcode-back" href="../../../api/bids_models.html#nwb2bids.bids_models.ElectrodeTable.from_nwbfiles">[docs]</a>
@@ -381,7 +394,12 @@
 <span class="sd">        file_path : path</span>
 <span class="sd">            The path to the output TSV file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data_frame</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">electrode</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span> <span class="k">for</span> <span class="n">electrode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrodes</span><span class="p">])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">electrode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrodes</span><span class="p">:</span>
+            <span class="n">model_dump</span> <span class="o">=</span> <span class="n">electrode</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_dump</span><span class="p">)</span>
+
+        <span class="n">data_frame</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="n">data_frame</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 

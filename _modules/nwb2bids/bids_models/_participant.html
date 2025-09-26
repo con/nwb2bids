@@ -314,15 +314,16 @@
                 <article class="bd-article">
                   
   <h1>Source code for nwb2bids.bids_models._participant</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pydantic</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pynwb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing_extensions</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">._base_metadata_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetadataModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">._model_globals</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ALLOWED_SEXES</span><span class="p">,</span> <span class="n">_SPECIES_REGEX</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._model_globals</span><span class="w"> </span><span class="kn">import</span> <span class="n">_VALID_ARCHIVES_SEXES</span><span class="p">,</span> <span class="n">_VALID_BIDS_SEXES</span><span class="p">,</span> <span class="n">_VALID_ID_REGEX</span><span class="p">,</span> <span class="n">_VALID_SPECIES_REGEX</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.._inspection._inspection_result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Category</span><span class="p">,</span> <span class="n">DataStandard</span><span class="p">,</span> <span class="n">InspectionResult</span><span class="p">,</span> <span class="n">Severity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..bids_models._base_metadata_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMetadataModel</span>
 
 
 <div class="viewcode-block" id="Participant">
@@ -330,14 +331,13 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">Participant</span><span class="p">(</span><span class="n">BaseMetadataModel</span><span class="p">):</span>
     <span class="n">participant_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;A unique identifier for this participant.&quot;</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^[^_]+$&quot;</span><span class="p">,</span>  <span class="c1"># No underscores allowed</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">species</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="p">(</span>
             <span class="s2">&quot;The species should be the proper Latin binomial species name from the NCBI Taxonomy &quot;</span>
             <span class="s2">&quot;(for example, Mus musculus).&quot;</span>
         <span class="p">),</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="n">_SPECIES_REGEX</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">sex</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">pydantic</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span>
@@ -357,6 +357,127 @@
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">pydantic</span><span class="o">.</span><span class="n">HttpUrl</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Check if values are specified</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">participant_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Missing participant ID&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;A unique ID is required for all individual participants.&quot;</span><span class="p">,</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;Specify the `subject_id` field of the Subject object attached to the NWB file.&quot;</span><span class="p">,</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;nwbfile.subject.subject_id&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">data_standards</span><span class="o">=</span><span class="p">[</span><span class="n">DataStandard</span><span class="o">.</span><span class="n">BIDS</span><span class="p">,</span> <span class="n">DataStandard</span><span class="o">.</span><span class="n">DANDI</span><span class="p">],</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">SCHEMA_INVALIDATION</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Missing participant species&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Archives such as DANDI or EMBER require the subject species to be specified.&quot;</span><span class="p">,</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;Specify the `species` field of the Subject object attached to the NWB file as a &quot;</span>
+                        <span class="s2">&quot;Latin binomial, obolibrary taxonomy link, or NCBI taxonomy reference.&quot;</span>
+                    <span class="p">),</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;nwbfile.subject.species&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">data_standards</span><span class="o">=</span><span class="p">[</span><span class="n">DataStandard</span><span class="o">.</span><span class="n">DANDI</span><span class="p">],</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">SCHEMA_INVALIDATION</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Missing participant sex&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Archives such as DANDI or EMBER require the subject sex to be specified.&quot;</span><span class="p">,</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;Specify the `sex` field of the Subject object attached to the NWB file as one of four &quot;</span>
+                        <span class="s1">&#39;options: &quot;M&quot; (for male), &quot;F&quot; (for female), &quot;U&quot; (for unknown), or &quot;O&quot; (for other).</span><span class="se">\n</span><span class="s1">&#39;</span>
+                        <span class="s2">&quot;NOTE: for certain animal species with more specific genetic determinants, such as C elegans, &quot;</span>
+                        <span class="s1">&#39;use &quot;O&quot; (for other) then further specify the subtypes using other custom fields. For example, &#39;</span>
+                        <span class="s1">&#39;`c_elegans_sex=&quot;XO&quot;`&#39;</span>
+                    <span class="p">),</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;nwbfile.subject.sex&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">data_standards</span><span class="o">=</span><span class="p">[</span><span class="n">DataStandard</span><span class="o">.</span><span class="n">DANDI</span><span class="p">],</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">SCHEMA_INVALIDATION</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Check if specified values are valid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">participant_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="n">_VALID_ID_REGEX</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">participant_id</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Invalid participant ID&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;The participant ID contains invalid characters. &quot;</span>
+                        <span class="s2">&quot;BIDS allows only dashes to be used as separators in subject entity label. &quot;</span>
+                        <span class="s2">&quot;Underscores, spaces, slashes, and special characters (including #) are expressly forbidden.&quot;</span>
+                    <span class="p">),</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;Rename the subject without using spaces or underscores.&quot;</span><span class="p">,</span>
+                    <span class="n">examples</span><span class="o">=</span><span class="p">[</span>
+                        <span class="s2">&quot;`ab_01` -&gt; `ab-01`&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;`subject #2` -&gt; `subject-2`&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;`id 2 from 9/1/25` -&gt; `id-2-9-1-25`&quot;</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;nwbfile.subject.subject_id&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">data_standards</span><span class="o">=</span><span class="p">[</span><span class="n">DataStandard</span><span class="o">.</span><span class="n">BIDS</span><span class="p">,</span> <span class="n">DataStandard</span><span class="o">.</span><span class="n">DANDI</span><span class="p">],</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">STYLE_SUGGESTION</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="n">_VALID_SPECIES_REGEX</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Invalid species&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Participant species is not a proper Latin binomial or NCBI Taxonomy id.&quot;</span><span class="p">,</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;Rename the subject species to a Latin binomial, obolibrary taxonomy link, or &quot;</span>
+                        <span class="s2">&quot;NCBI taxonomy reference.&quot;</span>
+                    <span class="p">),</span>
+                    <span class="n">examples</span><span class="o">=</span><span class="p">[],</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;nwbfile.subject.species&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">data_standards</span><span class="o">=</span><span class="p">[</span><span class="n">DataStandard</span><span class="o">.</span><span class="n">DANDI</span><span class="p">],</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">SCHEMA_INVALIDATION</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_VALID_BIDS_SEXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sex</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Invalid participant sex (BIDS)&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Participant sex is not one of the allowed patterns by BIDS.&quot;</span><span class="p">,</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;Rename the subject sex to be one of the accepted values.&quot;</span><span class="p">,</span>
+                    <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;`male` -&gt; `M`&quot;</span><span class="p">,</span> <span class="s2">&quot;`Female` -&gt; `F`&quot;</span><span class="p">,</span> <span class="s2">&quot;`n/a` -&gt; `U`&quot;</span><span class="p">,</span> <span class="s2">&quot;`hermaphrodite` -&gt; `O`&quot;</span><span class="p">],</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;nwbfile.subject.sex&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">data_standards</span><span class="o">=</span><span class="p">[</span><span class="n">DataStandard</span><span class="o">.</span><span class="n">BIDS</span><span class="p">],</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">STYLE_SUGGESTION</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_VALID_ARCHIVES_SEXES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sex</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Invalid participant sex (archives)&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Participant sex is not one of the allowed patterns by the common archives.&quot;</span><span class="p">,</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;Rename the subject sex to be one of the accepted values.&quot;</span><span class="p">,</span>
+                    <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;`male` -&gt; `M`&quot;</span><span class="p">,</span> <span class="s2">&quot;`Female` -&gt; `F`&quot;</span><span class="p">,</span> <span class="s2">&quot;`n/a` -&gt; `U`&quot;</span><span class="p">,</span> <span class="s2">&quot;`hermaphrodite` -&gt; `O`&quot;</span><span class="p">],</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;nwbfile.subject.sex&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">data_standards</span><span class="o">=</span><span class="p">[</span><span class="n">DataStandard</span><span class="o">.</span><span class="n">DANDI</span><span class="p">],</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">STYLE_SUGGESTION</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
 <div class="viewcode-block" id="Participant.from_nwbfiles">
 <a class="viewcode-back" href="../../../api/bids_models.html#nwb2bids.bids_models.Participant.from_nwbfiles">[docs]</a>
     <span class="nd">@classmethod</span>
@@ -365,41 +486,54 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extracts participant metadata from the in-memory NWBFile objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">nwbfile</span><span class="o">.</span><span class="n">container_source</span> <span class="k">for</span> <span class="n">nwbfile</span> <span class="ow">in</span> <span class="n">nwbfiles</span><span class="p">]</span>
+
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nwbfiles</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Conversion of multiple NWB files per session is not yet supported.&quot;</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NotImplemented: multiple NWB files&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="p">(</span>
+                        <span class="s2">&quot;The `Participant` model for `nwb2bids` does not yet support multiple NWB files. &quot;</span>
+                        <span class="s2">&quot;Only the first will be used.&quot;</span>
+                    <span class="p">),</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;`nwb2bids` plans to add support for multiple NWB files in the future.&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">INTERNAL_ERROR</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="n">nwbfile</span> <span class="o">=</span> <span class="n">nwbfiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">participant_id</span> <span class="o">=</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
 
-        <span class="n">species</span> <span class="o">=</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">species</span>
-        <span class="k">if</span> <span class="n">species</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="n">_SPECIES_REGEX</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="n">species</span><span class="p">):</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Subject species &#39;</span><span class="si">{</span><span class="n">species</span><span class="si">}</span><span class="s2">&#39; within NWB file is not a proper Latin binomial or NCBI Taxonomy link. &quot;</span>
-                <span class="s2">&quot;Skipping automated extraction.&quot;</span>
+        <span class="k">if</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">InspectionResult</span><span class="p">(</span>
+                    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Missing participant&quot;</span><span class="p">,</span>
+                    <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;BIDS requires a subject to be specified for each NWB file.&quot;</span><span class="p">,</span>
+                    <span class="n">solution</span><span class="o">=</span><span class="s2">&quot;Add a Subject object to each NWB file.&quot;</span><span class="p">,</span>
+                    <span class="n">field</span><span class="o">=</span><span class="s2">&quot;nwbfile.subject&quot;</span><span class="p">,</span>
+                    <span class="n">source_file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">,</span>
+                    <span class="n">data_standards</span><span class="o">=</span><span class="p">[</span><span class="n">DataStandard</span><span class="o">.</span><span class="n">BIDS</span><span class="p">,</span> <span class="n">DataStandard</span><span class="o">.</span><span class="n">DANDI</span><span class="p">],</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">Category</span><span class="o">.</span><span class="n">STYLE_SUGGESTION</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="n">Severity</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">species</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">participant</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">participant</span>
 
-        <span class="n">sex</span> <span class="o">=</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">sex</span>
-        <span class="k">if</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">sex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">sex</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ALLOWED_SEXES</span><span class="p">:</span>
-            <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Subject sex &#39;</span><span class="si">{</span><span class="n">sex</span><span class="si">}</span><span class="s2">&#39; within NWB file is not one of the allowed patterns. &quot;</span>
-                <span class="s2">&quot;Skipping automated extraction.&quot;</span>
-            <span class="p">)</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">sex</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="n">subject</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">participant_id</span><span class="o">=</span><span class="n">participant_id</span><span class="p">,</span>
-            <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
-            <span class="n">sex</span><span class="o">=</span><span class="n">sex</span><span class="p">,</span>
+        <span class="n">participant</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">participant_id</span><span class="o">=</span><span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">subject_id</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">species</span><span class="p">,</span>
+            <span class="n">sex</span><span class="o">=</span><span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">sex</span><span class="p">,</span>
             <span class="n">strain</span><span class="o">=</span><span class="n">nwbfile</span><span class="o">.</span><span class="n">subject</span><span class="o">.</span><span class="n">strain</span><span class="p">,</span>
+            <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
             <span class="c1"># TODO: add more</span>
             <span class="c1"># birthday=nwbfile.participant.date_of_birth,</span>
             <span class="c1"># age=nwbfile.participant.age</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">subject</span></div>
+        <span class="n">participant</span><span class="o">.</span><span class="n">_check_fields</span><span class="p">(</span><span class="n">file_paths</span><span class="o">=</span><span class="n">file_paths</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">participant</span></div>
 </div>
 
 </pre></div>
