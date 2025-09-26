@@ -21,9 +21,9 @@ class DatasetDescription(BaseMetadataModel):
         description="Description of the dataset.",
         default=None,
     )
-    DatasetType: typing.Literal["raw", "derivative"] | None = pydantic.Field(
+    DatasetType: typing.Literal["raw", "derivative"] = pydantic.Field(
         description="The interpretation of the dataset.",
-        default=None,
+        default="raw",
     )
     Authors: list[str] | None = pydantic.Field(
         description="List of individuals who contributed to the creation/curation of the dataset.",

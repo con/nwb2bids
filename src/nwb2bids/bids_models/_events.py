@@ -6,7 +6,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_metadata_model import BaseMetadataModel
+from ..bids_models._base_metadata_model import BaseMetadataModel
 
 
 class Events(BaseMetadataModel):
@@ -137,6 +137,8 @@ def _get_events_data_frame(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
     all_data_frames = [time_interval.to_dataframe() for time_interval in time_intervals]
     for index, time_interval in enumerate(time_intervals):
         all_data_frames[index]["nwb_table"] = time_interval.name
+        if "timeseries" in all_data_frames[index].columns:
+            all_data_frames[index] = all_data_frames[index].drop(columns=["timeseries"])
 
     events_table = pandas.concat(objs=all_data_frames, ignore_index=True)
     return events_table

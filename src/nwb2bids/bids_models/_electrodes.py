@@ -6,7 +6,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._base_metadata_model import BaseMetadataModel
+from .._inspection._inspection_result import InspectionResult
+from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 
 
 class Electrode(BaseMetadataModel):
@@ -15,8 +16,20 @@ class Electrode(BaseMetadataModel):
     location: str | None = None
 
 
-class ElectrodeTable(BaseMetadataModel):
+class ElectrodeTable(BaseMetadataContainerModel):
     electrodes: list[Electrode]
+
+    @pydantic.computed_field
+    @property
+    def messages(self) -> list[InspectionResult]:
+        """
+        All messages from contained session converters.
+
+        These can accumulate over time based on which instance methods have been called.
+        """
+        messages = [message for electrode in self.electrodes for message in electrode.messages]
+        messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
+        return messages
 
     @classmethod
     @pydantic.validate_call
@@ -55,7 +68,12 @@ class ElectrodeTable(BaseMetadataModel):
         file_path : path
             The path to the output TSV file.
         """
-        data_frame = pandas.DataFrame(data=[electrode.model_dump() for electrode in self.electrodes])
+        data = []
+        for electrode in self.electrodes:
+            model_dump = electrode.model_dump()
+            data.append(model_dump)
+
+        data_frame = pandas.DataFrame(data=data)
         data_frame.to_csv(file_path, sep="\t", index=False)
 
     @pydantic.validate_call

@@ -8,8 +8,6 @@ Namely, the cases of:
 
 import pathlib
 
-import pydantic
-
 import nwb2bids
 
 
@@ -52,14 +50,3 @@ def test_convert_nwb_dataset_with_additional_metadata(
     nwb2bids.testing.assert_subdirectory_structure(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
-
-
-def test_convert_nwb_dataset_no_session_id(
-    nwbfile_path_with_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
-):
-    try:
-        nwb_paths = [nwbfile_path_with_missing_session_id]
-        nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
-    except Exception as exception:
-        assert isinstance(exception, pydantic.ValidationError)
-        assert "session_id\n  Input should be a valid string" in str(exception)

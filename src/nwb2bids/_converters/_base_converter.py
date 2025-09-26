@@ -8,7 +8,6 @@ import pydantic
 
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):
-
     @abc.abstractmethod
     def extract_metadata(self) -> None:
         """
@@ -47,10 +46,12 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
             The path to the directory to validate.
         """
         dataset_description_file_path = bids_directory / "dataset_description.json"
-        if len(list(bids_directory.iterdir())) == 0:
-            default_dataset_description = {
-                "BIDSVersion": "1.10",
-            }
+
+        current_directory_contents = {
+            path.stem for path in bids_directory.iterdir() if not path.name.startswith(".")
+        } - {"README", "CHANGES", "derivatives", "dandiset"}
+        if len(current_directory_contents) == 0:
+            default_dataset_description = {"BIDSVersion": "1.10"}
             with dataset_description_file_path.open(mode="w") as file_stream:
                 json.dump(obj=default_dataset_description, fp=file_stream, indent=4)
             return

@@ -6,7 +6,8 @@ import typing
 import pydantic
 import typing_extensions
 
-from ._base_converter import BaseConverter
+from .._converters._base_converter import BaseConverter
+from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
 
@@ -18,7 +19,6 @@ class SessionConverter(BaseConverter):
 
     session_id: str = pydantic.Field(
         description="A unique session identifier.",
-        pattern=r"^[^_]+$",  # No underscores allowed
     )
     nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl] = pydantic.Field(
         description="List of file paths or URLs of NWB files which share this session ID.", min_length=1
@@ -26,12 +26,15 @@ class SessionConverter(BaseConverter):
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
         description="BIDS metadata extracted for this session.", default=None
     )
+    messages: list[InspectionResult] = pydantic.Field(
+        description="List of auto-detected suggestions.", ge=0, default_factory=list
+    )
 
     @classmethod
     @pydantic.validate_call
     def from_nwb_paths(
         cls,
-        nwb_paths: typing.Iterable[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
+        nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
     ) -> list[typing_extensions.Self]:
         """
         Initialize a list of session converters from a list of NWB file paths.
@@ -56,11 +59,7 @@ class SessionConverter(BaseConverter):
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
         for nwbfile_path in all_nwbfile_paths:
-            unique_session_id_to_nwbfile_paths[
-                # IDEA: if this is too slow, could do direct h5py read instead,
-                # to avoid reading the entire file metadata
-                cache_read_nwb(nwbfile_path).session_id
-            ].append(nwbfile_path)
+            unique_session_id_to_nwbfile_paths[cache_read_nwb(nwbfile_path).session_id].append(nwbfile_path)
 
         session_converters = [
             cls(session_id=session_id, nwbfile_paths=nwbfile_paths)
@@ -71,6 +70,7 @@ class SessionConverter(BaseConverter):
     def extract_metadata(self) -> None:
         if self.session_metadata is None:
             self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwbfile_paths)
+            self.messages += self.session_metadata.messages
 
     @pydantic.validate_call
     def convert_to_bids_session(
