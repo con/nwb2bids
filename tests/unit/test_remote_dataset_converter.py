@@ -97,6 +97,6 @@ def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_b
             "ventral posterolateral nucleus (vpm) in whisker-based object locating task."
         ),
         DatasetType="raw",
-        Authors=None,
+        Authors=["Yu, Jianing", "Gutnisky, Diego A", "Hires, S Andrew", "Svoboda, Karel"],
         License="CC-BY-4.0",
     )

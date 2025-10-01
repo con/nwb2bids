@@ -112,11 +112,11 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
         dataset_description_kwargs["Description"] = dandiset_description
 
     bids_authors = []
-    dandiset_contributors = raw_metadata.get("contributors", [])
+    dandiset_contributors = raw_metadata.get("contributor", [])
     for contributor in dandiset_contributors:
         contributor_name = contributor.get("name", None)
-        authorship = [role_value == "dcite:Author" for role_value in contributor.get("roleName", [])]
-        if contributor_name is not None and any(authorship):
+        is_author = "dcite:Author" in contributor.get("roleName", [])
+        if contributor_name is not None and is_author:
             bids_authors.append(contributor_name)
 
     if any(bids_authors):
