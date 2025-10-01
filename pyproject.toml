@@ -54,7 +54,6 @@ post-install-commands = ["pip install --group dev-all"]
 
 [project]
 name = "nwb2bids"
-version="0.4.0"
 authors = [
   { name="Cody Baker", email="cody.c.baker.phd@gmail.com" },
 ]
@@ -96,6 +95,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
     "License :: OSI Approved :: MIT License",
 ]
+dynamic = ["version"]
 
 [project.optional-dependencies]
 dandi = [
