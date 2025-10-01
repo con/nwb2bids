@@ -74,3 +74,29 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.electrode_table.electrodes[0] == nwb2bids.bids_models.Electrode(
         electrode_id=0, probe_id="Implant", location="unknown"
     )
+
+
+@pytest.mark.remote
+def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_bids_directory: pathlib.Path):
+    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000005", limit=2)
+    assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
+    assert len(dataset_converter.messages) == 1
+    assert dataset_converter.messages[0] == nwb2bids.InspectionResult(
+        title="INFO: invalid Dandiset metadata",
+        reason="This Dandiset has invalid metadata.",
+        solution="Required dataset description fields are inferred from the raw metadata instead.",
+        category=nwb2bids.Category.INTERNAL_ERROR,
+        severity=nwb2bids.Severity.INFO,
+    )
+
+    assert dataset_converter.dataset_description == nwb2bids.bids_models.DatasetDescription(
+        Name="Electrophysiology data from thalamic and cortical neurons during somatosensation",
+        BIDSVersion="1.10",
+        Description=(
+            "intracellular and extracellular electrophysiology recordings performed on mouse barrel cortex and "
+            "ventral posterolateral nucleus (vpm) in whisker-based object locating task."
+        ),
+        DatasetType="raw",
+        Authors=None,
+        License="CC-BY-4.0",
+    )
