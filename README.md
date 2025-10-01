@@ -1,5 +1,6 @@
 <p align="center">
-  <h1 align="center">nwb2bids</h3>
+  <img src="assets/nwb2bids-color.svg" alt="nwb2bids logo" width="200">
+  <h1 align="center">nwb2bids</h1>
   <p align="center">
     <a href="https://pypi.org/project/nwb2bids/"><img alt="Supported Python versions" src="https://img.shields.io/pypi/pyversions/nwb2bids.svg"></a>
     <a href="https://codecov.io/github/con/nwb2bids?branch=main"><img alt="codecov" src="https://codecov.io/github/con/nwb2bids/coverage.svg?branch=main"></a>
