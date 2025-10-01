@@ -17,4 +17,6 @@ sphinx:
 # Install Python dependencies required to build documentation
 python:
    install:
+   - method: pip
+     path: .
    - requirements: docs/requirements.txt
