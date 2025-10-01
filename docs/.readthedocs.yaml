@@ -14,10 +14,7 @@ build:
 sphinx:
    configuration: docs/conf.py
 
-# Install Python dependencies including the docs dependency group
+# Install Python dependencies required to build documentation
 python:
    install:
-   - method: pip
-     path: .
-     extra_requirements:
-       - docs
+   - requirements: docs/requirements.txt
