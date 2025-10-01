@@ -11,7 +11,8 @@ build:
     python: "3.13"
   jobs:
     install:
-      - pip install --group 'docs' .
+      - pip install --upgrade pip
+      - pip install --group docs .
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
