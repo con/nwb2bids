@@ -15,30 +15,30 @@ def test_convert_nwb_dataset_level_1_sanitization(
         sanitization_level=nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS,
     )
 
-    assert len(notifications) == 0
+    assert len(notifications) == 3
     expected_structure = {
         temporary_bids_directory: {
-            "directories": {"sub-123"},
+            "directories": {"sub-bad+subject+id"},
             "files": {"dataset_description.json", "participants.json", "participants.tsv"},
         },
         temporary_bids_directory
-        / "sub-123": {
-            "directories": {"ses-456"},
-            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        / "sub-bad+subject+id": {
+            "directories": {"ses-problematic+2"},
+            "files": {"sub-bad+subject+id_sessions.json", "sub-bad+subject+id_sessions.tsv"},
         },
         temporary_bids_directory
-        / "sub-123"
-        / "ses-456": {
+        / "sub-bad+subject+id"
+        / "ses-problematic+2": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
-        / "sub-123"
-        / "ses-456"
+        / "sub-bad+subject+id"
+        / "ses-problematic+2"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ses-456_ecephys.nwb",
+                "sub-bad+subject+id_ses-problematic+2_ecephys.nwb",
             },
         },
     }

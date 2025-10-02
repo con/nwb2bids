@@ -378,9 +378,9 @@ class DatasetConverter(BaseConverter):
         """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
-        subject_id_to_sessions = collections.defaultdict(list)
+        participant_id_to_sessions = collections.defaultdict(list)
         for session_converter in self.session_converters:
-            subject_id_to_sessions[session_converter.session_metadata.participant.participant_id].append(
+            participant_id_to_sessions[session_converter.session_metadata.participant.participant_id].append(
                 session_converter
             )
 
@@ -388,10 +388,10 @@ class DatasetConverter(BaseConverter):
         sessions_schema = BidsSessionMetadata.model_json_schema()
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
-        for subject_id, sessions_metadata in subject_id_to_sessions.items():
+        for participant_id, sessions_metadata in participant_id_to_sessions.items():
             # Apply sanitization
             sanitized_participant_id = sanitize_participant_id(
-                subject_id=subject_id, sanitization_level=sanitization_level
+                participant_id=participant_id, sanitization_level=sanitization_level
             )
             sanitized_session_ids = [
                 sanitize_session_id(session_id=session_metadata.session_id, sanitization_level=sanitization_level)
