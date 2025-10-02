@@ -10,7 +10,7 @@ from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
-from ..sanitization import SanitizationLevel, sanitize_participant_id
+from ..sanitization import SanitizationLevel, sanitize_participant_id, sanitize_session_id
 
 
 class SessionConverter(BaseConverter):
@@ -112,7 +112,8 @@ class SessionConverter(BaseConverter):
         participant_id = sanitize_participant_id(
             participant_id=self.session_metadata.participant.participant_id, sanitization_level=sanitization_level
         )
-        session_subdirectory = bids_directory / f"sub-{participant_id}" / f"ses-{self.session_id}" / "ecephys"
+        session_id = sanitize_session_id(session_id=self.session_id, sanitization_level=sanitization_level)
+        session_subdirectory = bids_directory / f"sub-{participant_id}" / f"ses-{session_id}" / "ecephys"
         session_subdirectory.mkdir(parents=True, exist_ok=True)
 
         self.write_ecephys_files(bids_directory=bids_directory)
@@ -121,7 +122,7 @@ class SessionConverter(BaseConverter):
 
         # TODO: determine icephys or ecephys suffix
         for nwbfile_path in self.nwbfile_paths:
-            session_file_path = session_subdirectory / f"sub-{participant_id}_ses-{self.session_id}_ecephys.nwb"
+            session_file_path = session_subdirectory / f"sub-{participant_id}_ses-{session_id}_ecephys.nwb"
 
             # If not a local path, then it is a URL, so write simple 'symlink' pointing to the URL
             if not isinstance(nwbfile_path, pathlib.Path):
@@ -167,7 +168,7 @@ class SessionConverter(BaseConverter):
         ecephys_directory = self._establish_ecephys_subdirectory(bids_directory=bids_directory)
 
         participant_id = sanitize_participant_id(participant_id=self.session_metadata.participant.participant_id)
-        session_id = self.session_id
+        session_id = sanitize_session_id(session_id=self.session_id, sanitization_level=sanitization_level)
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         if self.session_metadata.probe_table is not None:
@@ -220,7 +221,8 @@ class SessionConverter(BaseConverter):
         participant_id = sanitize_participant_id(
             participant_id=self.session_metadata.participant.participant_id, sanitization_level=sanitization_level
         )
-        file_prefix = f"sub-{participant_id}_ses-{self.session_id}"
+        session_id = sanitize_session_id(session_id=self.session_id, sanitization_level=sanitization_level)
+        file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         session_events_tsv_file_path = ecephys_directory / f"{file_prefix}_events.tsv"
         self.session_metadata.events.to_tsv(file_path=session_events_tsv_file_path)

@@ -9,8 +9,10 @@ Increasing the level of sanitization increases the validity of the resulting BID
 
 from ._levels import SanitizationLevel
 from ._participant import sanitize_participant_id
+from ._session import sanitize_session_id
 
 __all__ = [
     "SanitizationLevel",
     "sanitize_participant_id",
+    "sanitize_session_id",
 ]

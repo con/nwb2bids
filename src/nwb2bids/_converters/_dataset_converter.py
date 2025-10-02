@@ -13,7 +13,7 @@ from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..sanitization import SanitizationLevel, sanitize_participant_id
+from ..sanitization import SanitizationLevel, sanitize_participant_id, sanitize_session_id
 
 
 class DatasetConverter(BaseConverter):
@@ -389,21 +389,30 @@ class DatasetConverter(BaseConverter):
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
         for subject_id, sessions_metadata in subject_id_to_sessions.items():
-            subject_directory = bids_directory / f"sub-{subject_id}"
+            # Apply sanitization
+            sanitized_participant_id = sanitize_participant_id(
+                subject_id=subject_id, sanitization_level=sanitization_level
+            )
+            sanitized_session_ids = [
+                sanitize_session_id(session_id=session_metadata.session_id, sanitization_level=sanitization_level)
+                for session_metadata in sessions_metadata
+            ]
+
+            subject_directory = bids_directory / f"sub-{sanitized_participant_id}"
             subject_directory.mkdir(exist_ok=True)
 
             # BIDS requires ses- prefix in table values
             sessions_data_frame = pandas.DataFrame(
-                {"session_id": [f"ses-{session_metadata.session_id}" for session_metadata in sessions_metadata]}
+                {"session_id": [f"ses-{session_id}" for session_id in sanitized_session_ids]}
             )
 
-            session_tsv_file_path = subject_directory / f"sub-{subject_id}_sessions.tsv"
+            session_tsv_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.tsv"
             sessions_data_frame.to_csv(path_or_buf=session_tsv_file_path, mode="w", index=False, sep="\t")
 
-            session_json_file_path = subject_directory / f"sub-{subject_id}_sessions.json"
+            session_json_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.json"
             with session_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=sessions_json, fp=file_stream, indent=4)
 
-            for session_metadata in sessions_metadata:
-                session_directory = subject_directory / f"ses-{session_metadata.session_id}"
+            for session_id in sanitized_session_ids:
+                session_directory = subject_directory / f"ses-{session_id}"
                 session_directory.mkdir(exist_ok=True)
