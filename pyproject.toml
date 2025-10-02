@@ -14,6 +14,7 @@ packages = ["src/nwb2bids"]
 #
 
 [tool.hatch.envs.default]
+python = "3.10"
 pre-install-commands = ["pip install --upgrade pip"]
 
 # Execute `hatch env create test` to create all test environments.
