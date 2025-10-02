@@ -13,14 +13,15 @@ from ._inspection._inspection_result import InspectionResult, Severity, Category
 __all__ = [
     # Public methods and classes
     "convert_nwb_dataset",
-    "Category",
     "DatasetConverter",
     "SessionConverter",
-    "Severity",
     "DataStandard",
     "InspectionResult",
+    "Category",
+    "Severity",
     # Public submodules
     "bids_models",
+    "sanitization",
     "testing",
 ]
 

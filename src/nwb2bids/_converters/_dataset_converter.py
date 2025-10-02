@@ -13,6 +13,7 @@ from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
+from ..sanitization import SanitizationLevel, sanitize_participant_id
 
 
 class DatasetConverter(BaseConverter):
@@ -209,6 +210,7 @@ class DatasetConverter(BaseConverter):
         self,
         bids_directory: str | pathlib.Path | None = None,
         file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
+        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
     ) -> None:
         """
         Convert the directory of NWB files to a BIDS dataset.
@@ -226,6 +228,9 @@ class DatasetConverter(BaseConverter):
             - "copy": Copy the files to the BIDS directory.
             - "symlink": Create symbolic links to the files in the BIDS directory.
             - "auto": Decides between all the above based on the system, with preference for linking when possible.
+        sanitization_level : nwb2bids.SanitizationLevel
+            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
+            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
         """
         try:
             bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
@@ -233,11 +238,13 @@ class DatasetConverter(BaseConverter):
             if self.dataset_description is not None:
                 self.write_dataset_description(bids_directory=bids_directory)
 
-            self.write_participants_metadata(bids_directory=bids_directory)
-            self.write_sessions_metadata(bids_directory=bids_directory)
+            self.write_participants_metadata(bids_directory=bids_directory, sanitization_level=sanitization_level)
+            self.write_sessions_metadata(bids_directory=bids_directory, sanitization_level=sanitization_level)
 
             generator = (
-                session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
+                session_converter.convert_to_bids_session(
+                    bids_directory=bids_directory, file_mode=file_mode, sanitization_level=sanitization_level
+                )
                 for session_converter in self.session_converters
             )
             collections.deque(generator, maxlen=0)
@@ -256,6 +263,14 @@ class DatasetConverter(BaseConverter):
 
     @pydantic.validate_call
     def write_dataset_description(self, bids_directory: str | pathlib.Path | None = None) -> None:
+        """
+        Write the `dataset_description.json` file.
+
+        Parameters
+        ----------
+        bids_directory : directory path
+            The path to the directory where the BIDS dataset will be created.
+        """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
         dataset_description_dictionary = self.dataset_description.model_dump()
@@ -265,7 +280,11 @@ class DatasetConverter(BaseConverter):
             json.dump(obj=dataset_description_dictionary, fp=file_stream, indent=4)
 
     @pydantic.validate_call
-    def write_participants_metadata(self, bids_directory: str | pathlib.Path | None = None) -> None:
+    def write_participants_metadata(
+        self,
+        bids_directory: str | pathlib.Path | None = None,
+        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
+    ) -> None:
         """
         Write the `participants.tsv` and `participants.json` files.
 
@@ -273,6 +292,9 @@ class DatasetConverter(BaseConverter):
         ----------
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
+        sanitization_level : nwb2bids.SanitizationLevel
+            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
+            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
         """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
@@ -292,10 +314,17 @@ class DatasetConverter(BaseConverter):
             return
 
         # Deduplicate all rows of the frame
-        deduplicated_participants_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
+        deduplicated_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
+
+        # Apply sanitization
+        deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
+            lambda participant_id: sanitize_participant_id(
+                participant_id=participant_id, sanitization_level=sanitization_level
+            )
+        )
 
         # BIDS requires sub- prefix in table values
-        participants_data_frame = deduplicated_participants_data_frame.copy()
+        participants_data_frame = deduplicated_data_frame.copy()
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
             lambda participant_id: f"sub-{participant_id}"
         )
@@ -331,7 +360,11 @@ class DatasetConverter(BaseConverter):
                 json.dump(obj=participants_json, fp=file_stream, indent=4)
 
     @pydantic.validate_call
-    def write_sessions_metadata(self, bids_directory: str | pathlib.Path | None = None) -> None:
+    def write_sessions_metadata(
+        self,
+        bids_directory: str | pathlib.Path | None = None,
+        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
+    ) -> None:
         """
         Write the `_sessions.tsv` and `_sessions.json` files, then create empty participant and session directories.
 
@@ -339,6 +372,9 @@ class DatasetConverter(BaseConverter):
         ----------
         bids_directory : directory path
             The path to the directory where the BIDS dataset will be created.
+        sanitization_level : nwb2bids.SanitizationLevel
+            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
+            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
         """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
 
