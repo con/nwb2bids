@@ -3,6 +3,14 @@
 # Upcoming
 
 
+# v0.5.1
+
+# Fixes
+
+Fixed a bug where failure points would not be captured and reported as notifications.
+
+
+
 # v0.5.0
 
 # Features

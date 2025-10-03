@@ -54,7 +54,7 @@ post-install-commands = ["pip install --group dev-all"]
 
 [project]
 name = "nwb2bids"
-version="0.5.0"
+version="0.5.1"
 authors = [
   { name="Cody Baker", email="cody.c.baker.phd@gmail.com" },
 ]
