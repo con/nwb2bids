@@ -71,9 +71,9 @@ def _run_convert_nwb_dataset(
         additional_metadata_file_path=additional_metadata_file_path,
     )
 
-    if messages is not None and not silent:
+    if len(messages) > 0 and not silent:
         text = (
-            f"{len(messages)} suggestion for improvement was found during conversion."
+            f"\n{len(messages)} suggestion for improvement was found during conversion."
             if len(messages) == 1
             else f"{len(messages)} suggestions for improvement were found during conversion."
         )

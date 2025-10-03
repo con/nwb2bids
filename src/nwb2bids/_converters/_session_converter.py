@@ -55,7 +55,11 @@ class SessionConverter(BaseConverter):
             if nwb_path.is_file():
                 all_nwbfile_paths.append(nwb_path)
             elif nwb_path.is_dir():
-                all_nwbfile_paths += list(nwb_path.rglob(pattern="*.nwb"))
+                all_nwbfile_paths += [
+                    path
+                    for path in nwb_path.rglob(pattern="*.nwb")
+                    if not any(part.startswith(".") for part in path.parts)
+                ]
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
         for nwbfile_path in all_nwbfile_paths:
