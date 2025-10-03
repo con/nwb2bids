@@ -21,4 +21,5 @@ def sanitize_participant_id(participant_id: str, sanitization_level: Sanitizatio
     """
     if sanitization_level > SanitizationLevel.NONE:
         sanitized_participant_id = _sanitize_label(label=participant_id)
-    return sanitized_participant_id
+        return sanitized_participant_id
+    return participant_id

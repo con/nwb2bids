@@ -21,4 +21,5 @@ def sanitize_session_id(session_id: str, sanitization_level: SanitizationLevel =
     """
     if sanitization_level > SanitizationLevel.NONE:
         sanitized_session_id = _sanitize_label(label=session_id)
-    return sanitized_session_id
+        return sanitized_session_id
+    return session_id

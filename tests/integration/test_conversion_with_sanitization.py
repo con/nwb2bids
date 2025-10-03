@@ -15,7 +15,7 @@ def test_convert_nwb_dataset_level_1_sanitization(
         sanitization_level=nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS,
     )
 
-    assert len(notifications) == 3
+    assert len(notifications) == 4
     expected_structure = {
         temporary_bids_directory: {
             "directories": {"sub-bad+subject+id"},
