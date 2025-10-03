@@ -177,9 +177,9 @@ class DatasetConverter(BaseConverter):
                     severity=Severity.ERROR,
                 )
             ]
-
-        dataset_converter._internal_messages = _internal_messages
-        return dataset_converter
+            dataset_converter = cls(session_converters=[], dataset_description=None)
+            dataset_converter._internal_messages = _internal_messages
+            return dataset_converter
 
     def extract_metadata(self) -> None:
         try:
