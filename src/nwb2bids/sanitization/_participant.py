@@ -4,7 +4,7 @@ from ._common import _sanitize_label
 from ._levels import SanitizationLevel
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def sanitize_participant_id(participant_id: str, sanitization_level: SanitizationLevel = SanitizationLevel.NONE) -> str:
     """
     Sanitize a participant ID.
