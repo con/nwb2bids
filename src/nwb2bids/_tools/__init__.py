@@ -1,3 +1,3 @@
-from ._main import cache_read_nwb
+from ._cache_nwb import cache_read_nwb
 
 __all__ = ["cache_read_nwb"]
