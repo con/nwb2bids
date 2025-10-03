@@ -91,7 +91,10 @@ class Participant(BaseMetadataModel):
             )
 
         # Check if specified values are valid
-        if self.participant_id is not None and re.match(pattern=_VALID_ID_REGEX, string=self.participant_id) is None:
+        if (
+            self.participant_id is not None
+            and re.match(pattern=f"{_VALID_ID_REGEX}$", string=self.participant_id) is None
+        ):
             self.messages.append(
                 InspectionResult(
                     title="Invalid participant ID",
