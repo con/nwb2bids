@@ -3,8 +3,25 @@
 # Upcoming
 
 
+# v0.5.0
+
+# Features
+
+Added a notification system via the return of `nwb2bids.convert_nwb_dataset` and attached as the `.messages` attribute to all converter objects.
+
+# Improvements
+
+Began filtering benign PyNWB warnings during read operations.
+
+# Documentation
+
+Preliminary documentation is now available at [nwb2bids.readthedocs.io](https://nwb2bids.readthedocs.io/en/latest/).
+
+
 
 # v0.4.0
+
+# Features
 
 Added a `.from_remote_dandiset` instantiation method for the `DatasetConverter` class. This requires installing the `pip install nwb2bids[dandi]` extra dependencies.
 
