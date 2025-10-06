@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/nwb2bids-color.svg" alt="nwb2bids logo" width="200">
+  <img src="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color.svg" alt="nwb2bids logo" width="200">
   <h1 align="center">nwb2bids</h1>
   <p align="center">
     <a href="https://pypi.org/project/nwb2bids/"><img alt="Supported Python versions" src="https://img.shields.io/pypi/pyversions/nwb2bids.svg"></a>
