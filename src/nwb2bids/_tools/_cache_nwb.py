@@ -10,6 +10,7 @@ ignored_pynwb_message_patterns = [
     "Ignoring the following cached .+",
     "Stimulus description 'NA' for .+",
     "Use of icephys_filtering is deprecated and will be removed .+",
+    "Date is missing timezone .+",
 ]
 for message in ignored_pynwb_message_patterns:
     warnings.filterwarnings(action="ignore", message=message)
