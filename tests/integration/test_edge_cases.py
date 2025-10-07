@@ -50,3 +50,38 @@ def test_convert_nwb_dataset_with_additional_metadata(
     nwb2bids.testing.assert_subdirectory_structure(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
+
+
+def test_convert_nwb_dataset_on_mock_datalad_dataset(
+    mock_datalad_dataset: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [mock_datalad_dataset]
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+
+    expected_structure = {
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"participants.json", "participants.tsv", "dataset_description.json"},
+        },
+        temporary_bids_directory
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
+            "directories": set(),
+            "files": {"sub-123_ses-456_ecephys.nwb"},
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )

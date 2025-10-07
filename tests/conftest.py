@@ -1,6 +1,7 @@
 import datetime
 import json
 import pathlib
+import shutil
 
 import py.path
 import pynwb
@@ -264,3 +265,41 @@ def problematic_nwbfile_path_3(testing_files_directory: pathlib.Path) -> pathlib
         file_stream.write(nwbfile)
 
     return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_path: pathlib.Path) -> pathlib.Path:
+    """
+    A mock datalad dataset for testing purposes.
+
+    Original globbing pattern was too broad and found files within the git-annex.
+    """
+    dataset_subdirectory = testing_files_directory / "datalad_dataset"
+    dataset_subdirectory.mkdir(exist_ok=True)
+
+    datalad_subdirectory = dataset_subdirectory / ".datalad"
+    datalad_subdirectory.mkdir(exist_ok=True)
+    gitattributes_file_path = datalad_subdirectory / ".gitattributes"
+    gitattributes_file_path.write_text("config annex.largefiles=nothing\n")
+    config_file_path = datalad_subdirectory / "config"
+    config_file_path.write_text('[datalad "dataset"]\n\tid = NOT-A-REAL-DATALAD-DATASET')
+
+    git_subdirectory = dataset_subdirectory / ".git"
+    git_subdirectory.mkdir(exist_ok=True)
+    annex_subdirectory = git_subdirectory / "annex"
+    annex_subdirectory.mkdir(exist_ok=True)
+    objects_subdirectory = annex_subdirectory / "objects"
+    objects_subdirectory.mkdir(exist_ok=True)
+    head1_subdirectory = objects_subdirectory / "abc"
+    head1_subdirectory.mkdir(exist_ok=True)
+    head2_subdirectory = head1_subdirectory / "def"
+    head2_subdirectory.mkdir(exist_ok=True)
+    content_subdirectory = head2_subdirectory / "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
+    content_subdirectory.mkdir(exist_ok=True)
+    content_file_path = content_subdirectory / "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
+    shutil.copy2(src=minimal_nwbfile_path, dst=content_file_path)
+
+    annexed_file_path = dataset_subdirectory / "minimal.nwb"
+    annexed_file_path.symlink_to(target=content_file_path)
+
+    return dataset_subdirectory
