@@ -1,29 +1,29 @@
 import pathlib
 import typing
 
-import click
+import rich_click
 
 from .._core._convert_nwb_dataset import convert_nwb_dataset
 
 
 # nwb2bids
-@click.group(name="nwb2bids")
+@rich_click.group(name="nwb2bids")
 def _nwb2bids_cli():
     pass
 
 
 # nwb2bids convert [OPTIONS] [NWB_PATHS]...
 @_nwb2bids_cli.command(name="convert")
-@click.argument("nwb_paths", type=str, nargs=-1)
-@click.option(
+@rich_click.argument("nwb_paths", type=str, nargs=-1)
+@rich_click.option(
     "--bids-directory",
     "-o",
     help="Path to the folder where the BIDS dataset will be created (default: current working directory).",
     required=False,
-    type=click.Path(writable=True),
+    type=rich_click.Path(writable=True),
     default=None,
 )
-@click.option(
+@rich_click.option(
     "--file-mode",
     help=(
         "How to handle the source NWB files when converting to BIDS format. "
@@ -32,10 +32,10 @@ def _nwb2bids_cli():
         "Use 'move' for fastest speeds if you do not wish to keep the original NWB directory structure."
     ),
     required=False,
-    type=click.Choice(["copy", "move", "symlink", "auto"], case_sensitive=False),
+    type=rich_click.Choice(["copy", "move", "symlink", "auto"], case_sensitive=False),
     default="auto",
 )
-@click.option(
+@rich_click.option(
     "--additional-metadata-file-path",
     "additional_metadata_file_path",
     help=(
@@ -43,10 +43,10 @@ def _nwb2bids_cli():
         "This file should contain a dictionary with keys corresponding to BIDS entities."
     ),
     required=False,
-    type=click.Path(exists=True, dir_okay=False, readable=True),
+    type=rich_click.Path(exists=True, dir_okay=False, readable=True),
     default=None,
 )
-@click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
+@rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
@@ -77,5 +77,5 @@ def _run_convert_nwb_dataset(
             if len(messages) == 1
             else f"{len(messages)} suggestions for improvement were found during conversion."
         )
-        console_notification = click.style(text=text, fg="yellow")
-        click.echo(message=console_notification)
+        console_notification = rich_click.style(text=text, fg="yellow")
+        rich_click.echo(message=console_notification)
