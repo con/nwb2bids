@@ -38,7 +38,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: nwb2bids Daily Test Failure
+          subject: "CI Failure: nwb2bids Daily Tests"
           to: cody.c.baker.phd@gmail.com  # Add more with comma separation (no spaces)
           from: nwb2bids
           body: "The daily test workflow failed, please check status at https://github.com/con/nbw2bids/actions/workflows/dailies.yml"
@@ -54,7 +54,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: nwb2bids Daily Remote Test Failure
+          subject: "CI Failure: nwb2bids Daily Tests (Remote)"
           to: cody.c.baker.phd@gmail.com  # Add more with comma separation (no spaces)
           from: nwb2bids
-          body: "The daily remote test workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/dailies.yml"
+          body: "The daily tests (remote) workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/dailies.yml"
