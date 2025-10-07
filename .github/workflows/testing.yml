@@ -48,8 +48,8 @@ jobs:
       - if: ${{ inputs.pytest_markexpr == 'remote' }}
         name: Configure git for DataLad
         run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Run tests
         run: python -m pytest -m "${{ inputs.pytest_markexpr }}" -vv --cov=nwb2bids --cov-report xml:./codecov.xml
