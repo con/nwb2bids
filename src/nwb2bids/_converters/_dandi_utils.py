@@ -80,7 +80,7 @@ def _get_dataset_description_from_valid_dandiset_metadata(
 
 
 def _get_dataset_description_from_invalid_dandiset_metadata(
-    raw_metadata: typing.Any,
+    raw_metadata: dict[str, typing.Any],
 ) -> tuple[DatasetDescription | None, list[InspectionResult]]:
     dataset_description_kwargs = dict()
 
