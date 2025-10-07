@@ -51,7 +51,7 @@ def _nwb2bids_cli():
     "--sanitization",
     help=("Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset."),
     required=False,
-    type=click.Choice(["NONE", "0", "CRITICAL_BIDS_LABELS", "1"], case_sensitive=False),
+    type=rich_click.Choice(["NONE", "0", "CRITICAL_BIDS_LABELS", "1"], case_sensitive=False),
     default="NONE",
 )
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
