@@ -45,7 +45,6 @@ coverage.xml
 docs/build
 docs/_build
 docs/make.bat
-docs/Makefile
 
 # PyBuilder
 target/
