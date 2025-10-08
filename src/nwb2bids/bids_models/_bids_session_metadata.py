@@ -65,7 +65,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             )
 
         # Check if specified values are valid
-        if self.session_id is not None and re.match(pattern=_VALID_ID_REGEX, string=self.session_id) is None:
+        if self.session_id is not None and re.match(pattern=f"{_VALID_ID_REGEX}$", string=self.session_id) is None:
             internal_messages.append(
                 InspectionResult(
                     title="Invalid session ID",

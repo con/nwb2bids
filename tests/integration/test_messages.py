@@ -125,6 +125,25 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
             category=nwb2bids.Category.STYLE_SUGGESTION,
             severity=nwb2bids.Severity.ERROR,
         ),
+        nwb2bids.InspectionResult(
+            title="Invalid session ID",
+            reason=(
+                "The session ID contains invalid characters. "
+                "BIDS allows only dashes to be used as separators in session entity label. "
+                "Underscores, spaces, slashes, and special characters (including #) are expressly forbidden."
+            ),
+            solution="Rename the session without using spaces or underscores.",
+            examples=[
+                "`ses_01` -> `ses-01`",
+                "`session #2` -> `session-2`",
+                "`id 2 from 9/1/25` -> `id-2-9-1-25`",
+            ],
+            field="nwbfile.session_id",
+            source_file_paths=nwb_paths,
+            data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.DANDI],
+            category=nwb2bids.Category.STYLE_SUGGESTION,
+            severity=nwb2bids.Severity.ERROR,
+        ),
     ]
     assert messages == expected_messages
 
