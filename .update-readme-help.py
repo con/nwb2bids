@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from pathlib import Path
 import re
 import subprocess
+from pathlib import Path
 
 help_content = subprocess.run(
     ["nwb2bids", "--help"], check=True, text=True, encoding="utf-8", stdout=subprocess.PIPE

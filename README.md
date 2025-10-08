@@ -33,9 +33,9 @@ The package ships the `nwb2bids` CLI command.
 ```shell
 $ nwb2bids --help
 
-                                                                                                               
- Usage: nwb2bids [OPTIONS] COMMAND [ARGS]...                                                                   
-                                                                                                               
+
+ Usage: nwb2bids [OPTIONS] COMMAND [ARGS]...
+
 ╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --help  Show this message and exit.                                                                         │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
@@ -52,12 +52,12 @@ $ nwb2bids --help
 ```shell
 $ nwb2bids convert --help
 
-                                                                                                               
- Usage: nwb2bids convert [OPTIONS] [NWB_PATHS]...                                                              
-                                                                                                               
- Convert NWB files to BIDS format.                                                                             
- NWB_PATHS : A sequence of paths, each pointing to either an NWB file or a directory containing NWB files.     
-                                                                                                               
+
+ Usage: nwb2bids convert [OPTIONS] [NWB_PATHS]...
+
+ Convert NWB files to BIDS format.
+ NWB_PATHS : A sequence of paths, each pointing to either an NWB file or a directory containing NWB files.
+
 ╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --bids-directory                 -o  PATH                      Path to the folder where the BIDS dataset    │
 │                                                                will be created (default: current working    │
