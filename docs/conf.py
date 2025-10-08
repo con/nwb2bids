@@ -15,16 +15,23 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    "sphinx_tabs.tabs",
 ]
 
 exclude_patterns = []
 
 html_theme = "pydata_sphinx_theme"
 
+html_static_path = ["_static"]
+
 html_theme_options = {
     "github_url": "https://github.com/con/nwb2bids",
     "use_edit_page_button": True,
     "show_toc_level": 2,
+    "logo": {
+        "image_light": "assets/nwb2bids-black.svg",
+        "image_dark": "assets/nwb2bids-white.svg",
+    }
 }
 
 html_context = {
