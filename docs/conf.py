@@ -31,7 +31,7 @@ html_context = {
     "github_user": "con",
     "github_repo": "nwb2bids",
     "github_version": "main",
-    "doc_path": "docs/source",
+    "doc_path": "docs",
 }
 
 # Napoleon settings
