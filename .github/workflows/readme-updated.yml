@@ -1,0 +1,36 @@
+name: Check README.md helptext
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+
+jobs:
+  check_script_and_diff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch all commits so that versioningit will return something
+          # compatible with semantic-version
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install nwb2bids
+        run: |
+          pip install . --user
+
+      - name: Update README.md helptext
+        run: |
+          ./.update-readme-help.py
+
+      - name: Ensure no diff
+        run: |
+          git diff --exit-code
