@@ -30,11 +30,54 @@ Currently developed for the `microephys` BIDS modality, which encompasses both t
 The package ships the `nwb2bids` CLI command.
 
 <!-- BEGIN HELP -->
+```shell
+$ nwb2bids --help
+
+                                                                                                               
+ Usage: nwb2bids [OPTIONS] COMMAND [ARGS]...                                                                   
+                                                                                                               
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --help  Show this message and exit.                                                                         │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ──────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ convert               Convert NWB files to BIDS format.                                                     │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+```
 <!-- END HELP -->
 
 ## Convert Command
 
 <!-- BEGIN CONVERT HELP -->
+```shell
+$ nwb2bids convert --help
+
+                                                                                                               
+ Usage: nwb2bids convert [OPTIONS] [NWB_PATHS]...                                                              
+                                                                                                               
+ Convert NWB files to BIDS format.                                                                             
+ NWB_PATHS : A sequence of paths, each pointing to either an NWB file or a directory containing NWB files.     
+                                                                                                               
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --bids-directory                 -o  PATH                      Path to the folder where the BIDS dataset    │
+│                                                                will be created (default: current working    │
+│                                                                directory).                                  │
+│ --file-mode                          [copy|move|symlink|auto]  How to handle the source NWB files when      │
+│                                                                converting to BIDS format. By default, will  │
+│                                                                attempt to utilize 'symlink' if the system   │
+│                                                                allows. Otherwise, will 'copy' to preserve   │
+│                                                                directory integrity. Use 'move' for fastest  │
+│                                                                speeds if you do not wish to keep the        │
+│                                                                original NWB directory structure.            │
+│ --additional-metadata-file-path      FILE                      Path to a JSON file containing additional    │
+│                                                                metadata to be included in the BIDS dataset. │
+│                                                                This file should contain a dictionary with   │
+│                                                                keys corresponding to BIDS entities.         │
+│ --silent                         -s                            Suppress all console output.                 │
+│ --help                                                         Show this message and exit.                  │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+```
 <!-- END CONVERT HELP -->
 
 ### Example
