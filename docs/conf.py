@@ -48,7 +48,7 @@ autodoc_default_options = {
     "private-members": False,
     "undoc-members": True,
     "show-inheritance": False,
-    "exclude-members": "__new__",
+    "exclude-members": "__new__,model_dump",
 }
 add_module_names = False
 toc_object_entries_show_parents = "hide"
