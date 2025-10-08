@@ -1,5 +1,10 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color.svg" alt="nwb2bids logo" width="200">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color.svg">
+    <img alt="nwb2bids logo" src="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color.svg" width="200">
+  </picture>
+
   <h1 align="center">nwb2bids</h1>
   <p align="center">
     <a href="https://pypi.org/project/nwb2bids/"><img alt="Supported Python versions" src="https://img.shields.io/pypi/pyversions/nwb2bids.svg"></a>
