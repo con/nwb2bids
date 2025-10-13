@@ -110,7 +110,7 @@ all = [
 [project.urls]
 Repository = "https://github.com/con/nwb2bids/"
 Issues = "https://github.com/con/nwb2bids/issues"
-Changelog = "https://github.com/con/nwb2bids/blob/master/CHANGELOG.md"
+Changelog = "https://github.com/con/nwb2bids/blob/main/CHANGELOG.md"
 
 [project.scripts]
 nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
