@@ -17,6 +17,6 @@ jobs:
           wget -O- "$auto_download_url" | gunzip > ~/auto
           chmod a+x ~/auto
       - name: Create labels
-        run: ~/auto create-labels
+        run: ~/auto create-labels -vv
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
