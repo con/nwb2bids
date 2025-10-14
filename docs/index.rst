@@ -15,7 +15,7 @@ Features:
 
 * Automatically renames NWB files and their directories to conform to BIDS conventions.
 * Extracts relevant metadata from NWB files to populate BIDS sidecar TSV & JSON files.
-* Currently supports `BEP32 <https://github.com/bids-standard/bids-specification/pull/1705>`_ (micro-electrode electrophysiology) data types, such as extracellular (ecephys) and intracellular (icephys) electrophysiology, as well as associated behavioral events.
+* Currently supports `BEP32 <https://github.com/bids-standard/bids-specification/pull/1705>`_ (micro-electrode electrophysiology) data types, such as extracellular (``ecephys``) and intracellular (``icephys``) electrophysiology, as well as associated behavioral events.
 
 In the future, we plan to support:
 
@@ -73,7 +73,7 @@ Below is an overview of the key sections to help you navigate our documentation 
 
 * **Getting Started: Conversion Examples Gallery**
 
-  If you're new to NeuroConv or NWB, start with the :ref:`Conversion Examples Gallery <conversion_gallery>`.
+  If you're new to **nwb2bids** or NWB, start with the :ref:`Conversion Examples Gallery <conversion_gallery>`.
   This section provides concise scripts for converting data from common formats (e.g., Blackrock, Plexon, Neuralynx) to NWB. It's designed to get you up and running quickly.
 
 * **User Guide**
