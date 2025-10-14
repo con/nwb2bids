@@ -20,16 +20,16 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '20'
-          check-latest: true
+      - name: Download Latest Auto Binary
+        run: |
+          auto_download_url="$(curl -fsSL https://api.github.com/repos/intuit/auto/releases/latest | jq -r '.assets[] | select(.name == "auto-linux.gz") | .browser_download_url')"
+          wget -O- "$auto_download_url" | gunzip > ~/auto
+          chmod a+x ~/auto
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Create Release
-        run: npx -y auto@latest shipit
+        run: ~/auto shipit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
