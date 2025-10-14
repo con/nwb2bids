@@ -1,0 +1,14 @@
+{
+  "plugins": [
+    "git-tag",
+    "first-time-contributor",
+    "released"
+  ],
+  "owner": "con",
+  "repo": "nwb2bids",
+  "name": "github-actions[bot]",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com",
+  "onlyPublishWithReleaseLabel": true,
+  "noVersionPrefix": false,
+  "releaseBranches": ["main"]
+}
