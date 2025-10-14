@@ -56,7 +56,10 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset(
     mock_datalad_dataset: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [mock_datalad_dataset]
-    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+
+    errors = [notification for notification in notifications if notification.severity == nwb2bids.Severity.ERROR]
+    assert len(errors) == 0, f"Errors were raised during conversion: {errors}"
 
     expected_structure = {
         temporary_bids_directory: {
