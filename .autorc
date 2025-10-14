@@ -1,0 +1,9 @@
+{
+  "onlyPublishWithReleaseLabel": true,
+  "noVersionPrefix": false,
+  "releaseBranches": ["main"],
+  "plugins": [
+    "released",
+    "first-time-contributor"
+  ]
+}
