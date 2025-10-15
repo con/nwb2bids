@@ -6,10 +6,12 @@ from pathlib import Path
 # Add source directory to path for autodoc
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
+# Project details
 project = "nwb2bids"
 copyright = "2025, Cody Baker"
 author = "Cody Baker"
 
+# Sphinx extensions
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
@@ -18,8 +20,7 @@ extensions = [
     "sphinx_tabs.tabs",
 ]
 
-exclude_patterns = []
-
+# HTML configuration
 html_theme = "pydata_sphinx_theme"
 html_favicon = "assets/favicon.ico"
 

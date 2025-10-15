@@ -11,6 +11,7 @@
    :alt: nwb2bids logo
    :align: center
    :width: 200px
+   :target: #
 
 nwb2bids
 ========
@@ -68,12 +69,6 @@ The easiest way to install these extras is to run:
       .. code-block:: bash
 
          pip install "nwb2bids[dandi]"
-
-   .. tab:: conda-forge
-
-      .. code-block:: bash
-
-         conda install -c conda-forge nwb2bids dandi remfile
 
 
 How to use the documentation
