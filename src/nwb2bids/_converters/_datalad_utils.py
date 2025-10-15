@@ -1,6 +1,5 @@
 import os
 import pathlib
-import platform
 
 
 def _read_first_bytes(file_path: pathlib.Path, n: int = 6) -> bytes:
@@ -26,18 +25,14 @@ def _content_is_retrieved(file_path: pathlib.Path) -> bool:
     bool
         True if the file is a pointer to annex contents, False otherwise.
     """
-    # On Windows, symlinks are supported indirectly; files begin with "/annex/..."
-    # then `datalad get` replaces the original file with the retrieved content
-    if platform.system() == "Windows" and _read_first_bytes(file_path=file_path) == b"/annex":
+    if not file_path.exists():
         return False
 
-    is_symlink = file_path.is_symlink()
-    if not is_symlink:
-        return True
+    if file_path.is_symlink():
+        if file_path.stat().st_size > 1024:  # No currently annexed file can be larger than this
+            return True
+        if "/annex" not in os.readlink(path=file_path):
+            return True
+        return file_path.resolve().exists()
 
-    linked_path = os.readlink(path=file_path)
-    if "/annex" not in linked_path:
-        return True
-
-    file_exists = file_path.resolve().exists()
-    return file_exists
+    return _read_first_bytes(file_path=file_path, n=6) != b"/annex"

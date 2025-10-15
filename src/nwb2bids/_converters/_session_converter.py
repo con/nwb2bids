@@ -59,7 +59,12 @@ class SessionConverter(BaseConverter):
                 all_nwbfile_paths += [
                     path
                     for path in nwb_path.rglob(pattern="*.nwb")
-                    if not any(part.startswith(".") for part in path.parts) and _content_is_retrieved(file_path=path)
+                    if (
+                        # Ignore contents in hidden folders; e.g. .git, __pycache__, etc.
+                        not any(part.startswith(".") for part in path.parts)
+                        # Ignore DataLad files that are not yet retrieved from the annex
+                        and _content_is_retrieved(file_path=path)
+                    )
                 ]
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
