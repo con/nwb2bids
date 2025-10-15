@@ -5,14 +5,13 @@ To build the documentation locally:
 ```bash
 # Install documentation dependencies
 pip install -e . --group docs
-cd docs
 
-# Unix: Build HTML documentation
-make html
+# Clean any previous local runs first
+rm -r ./docs/_build
 
-# Windows: Build HTML documentation
-sphinx-build -b html docs ./docs/_build/html
+# Build
+sphinx-build -b html -W --keep-going docs ./docs/_build
 
 # View the built documentation
-# Open docs/build/html/index.html in your favorite web browser
+# Open ./docs/_build/html/index.html in your favorite web browser
 ```
