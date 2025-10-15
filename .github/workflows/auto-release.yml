@@ -32,4 +32,4 @@ jobs:
       - name: Create Release
         run: ~/auto shipit -vv
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets._GITHUB_API_KEY }}
