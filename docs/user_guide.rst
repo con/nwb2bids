@@ -29,3 +29,40 @@ The main input to the interface can be any combination of directories containing
 .. code-block:: bash
 
    nwb2bids convert path/to/many/nwb single.nwb another.nwb
+
+
+
+Application Programming Interface (API)
+---------------------------------------
+
+A more advanced usage of **nwb2bids** is through its Python library. A thorough description of all publicly exposed
+functions and classes can be found in the :ref:`API <api>` section of the documentation.
+
+The core function is the ``convert_nwb_to_bids`` function, which can be used as follows:
+
+.. code-block:: python
+
+   import nwb2bids
+
+   nwb2bids.convert_nwb_to_bids(
+       nwb_paths=["path/to/many/nwb", "single.nwb", "another.nwb"],
+       bids_directory="path/to/bids/directory"  # Optional, defaults to current working directory
+   )
+
+Essentially, this function is direct wrapper used by the CLI and behaves in the same way.
+
+One key programmatic difference however is the ability to interact with the notifications returned by the operation:
+
+.. code-block:: python
+
+   import nwb2bids
+
+   notifications = nwb2bids.convert_nwb_to_bids(
+       nwb_paths=["path/to/many/nwb", "single.nwb", "another.nwb"],
+       bids_directory="path/to/bids/directory"
+   )
+
+   for notification in notifications:
+       print(notification)
+
+More examples to follow soon...
