@@ -67,12 +67,6 @@ Then, from the root of the repository, run:
 
 .. code-block:: bash
 
-    sphinx-build -b html docs ./docs/_build/
+    sphinx-build -b html -W --keep-going docs ./docs/_build/
 
 And launch the resulting ``./docs/_build/index.html`` file in your web browser.
-
-If you want to fail on errors or warnings, you can add the ``-W`` flag to the command above.
-
-.. code-block:: bash
-
-    sphinx-build -bW --keep-going html docs ./docs/_build/
