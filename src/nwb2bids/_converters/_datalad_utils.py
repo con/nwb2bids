@@ -3,12 +3,12 @@ import pathlib
 import platform
 
 
-def _read_first_bytes(file_path: pathlib.Path) -> bytes:
+def _read_first_bytes(file_path: pathlib.Path, n: int = 6) -> bytes:
     """
-    Read the first 6 bytes of a file; necessary for Windows 'symlinks'.
+    Read the first n (by default 6) bytes of a file; necessary for Windows 'symlinks'.
     """
     with file_path.open(mode="rb") as file_stream:
-        first_bytes = file_stream.read(6)
+        first_bytes = file_stream.read(n)
         return first_bytes
 
 
