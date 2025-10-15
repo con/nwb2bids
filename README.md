@@ -21,17 +21,3 @@
 Reorganize NWB files into a BIDS directory layout.
 
 Currently developed for the `microephys` BIDS modality, which encompasses both the NWB `ecephys` and `icephys` neurodata subtypes, and which is currently pending formal inclusion in BIDS schema as part of [BEP032](https://github.com/bids-standard/bids-specification/pull/1705).
-
-# Usage
-
-The package ships the `nwb2bids` CLI command.
-
-```bash
-nwb2bids convert <directory of NWB files> <BIDS organized directory>
-```
-
-For example:
-
-```bash
-nwb2bids convert /mnt/my_existing_nwbfiles/ /mnt/my_new_bids_dataset/
-```

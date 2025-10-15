@@ -1,10 +1,16 @@
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents
+   :hidden:
+
+   user_guide
+   developer_guide
+   api/index
 
 .. image:: assets/nwb2bids-color.svg
-   :width: 300
-
-..
-  :scale: 100 %
-  :align: center
+   :alt: nwb2bids logo
+   :align: center
+   :width: 200px
 
 nwb2bids
 ========
@@ -21,10 +27,10 @@ In the future, we plan to support:
 
 * stimuli
 * videos
-* ndx-events
-* HED
+* ``ndx-events``
+* Hierarchical Event Descriptors (HED)
 * microscopy
-* pose + motion
+* ``ndx-pose`` + BIDS motion
 * eye tracking
 
 
@@ -63,6 +69,11 @@ The easiest way to install these extras is to run:
 
          pip install "nwb2bids[dandi]"
 
+   .. tab:: conda-forge
+
+      .. code-block:: bash
+
+         conda install -c conda-forge nwb2bids dandi remfile
 
 
 How to use the documentation
@@ -71,20 +82,10 @@ How to use the documentation
 Our documentation is structured to cater to users ranging from beginners to advanced developers and contributors.
 Below is an overview of the key sections to help you navigate our documentation effectively
 
-* **Getting Started: Conversion Examples Gallery**
-
-  If you're new to **nwb2bids** or NWB, start with the :ref:`Conversion Examples Gallery <conversion_gallery>`.
-  This section provides concise scripts for converting data from common formats (e.g., Blackrock, Plexon, Neuralynx) to NWB. It's designed to get you up and running quickly.
-
 * **User Guide**
 
-  The :ref:`User Guide <user_guide>` offers a comprehensive overview of NeuroConv's data model and functionalities.
+  The :ref:`User Guide <user_guide>` offers a comprehensive overview of our data models and core functionalities.
   It is recommended for users who wish to understand the underlying concepts and extend their scripts beyond basic conversions.
-
-* **How To Guides**
-
-  The :ref:`How To Guides <how_to>` section contains practical guides for using NeuroConv effectively and solve
-  common problems.
 
 * **Developer Guide**
 
@@ -102,35 +103,15 @@ We are happy to help and appreciate your feedback.
 
 
 
-Contents
---------
-
-.. toctree::
-   :maxdepth: 2
-
-   installation
-   api/index
-
-
-
 Related links
 -------------
 
-`NWB Overview <https://nwb-overview.readthedocs.io/en/latest/>`_: An overview of the NWB standard and ecosystem
+- `NWB Overview <https://nwb-overview.readthedocs.io/en/latest/>`_: An overview of the NWB standard and ecosystem.
 
-`NWB Guide <https://nwb-guide.readthedocs.io/en/latest/>`_: A no-code solution to conversion to NWB format
+- `NWB Guide <https://nwb-guide.readthedocs.io/en/latest/>`_: A no-code solution to conversion to NWB format.
 
-`NeuroConv <https://neuroconv.readthedocs.io/en/latest/>`_: A low-code Python library for conversion to NWB format
+- `NeuroConv <https://neuroconv.readthedocs.io/en/latest/>`_: A low-code Python library for conversion to NWB format.
 
-`NWB Format Specification <https://nwb-schema.readthedocs.io/en/latest/>`_: More information regarding the core NWB
-format
+- `NWB Format Specification <https://nwb-schema.readthedocs.io/en/latest/>`_: More information regarding the core NWB format.
 
-`BIDS Specification <https://bids.neuroimaging.io/>`_: More information regarding the core BIDS standard
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+- `BIDS Specification <https://bids.neuroimaging.io/>`_: More information regarding the core BIDS standard.
