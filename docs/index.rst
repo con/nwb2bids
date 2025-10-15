@@ -79,8 +79,7 @@ The easiest way to install these extras is to run:
 How to use the documentation
 ----------------------------
 
-Our documentation is structured to cater to users ranging from beginners to advanced developers and contributors.
-Below is an overview of the key sections to help you navigate our documentation effectively
+Our documentation is structured to cater to users ranging from beginners to advanced developers and contributors. Below is an overview of the key sections to help you navigate our documentation effectively
 
 * **User Guide**
 
@@ -89,9 +88,7 @@ Below is an overview of the key sections to help you navigate our documentation 
 
 * **Developer Guide**
 
-  For developers interested in contributing to NeuroConv, the :ref:`Developer Guide <developer_guide>` provides essential information such as
-  instructions for building your own classes,  our coding style, instructions on how to build the documentation,
-  run the testing suite, etc.
+  For developers interested in contributing to **nwb2bids**, the :ref:`Developer Guide <developer_guide>` provides essential information such as instructions for building your own classes,  our coding style, instructions on how to build the documentation, run the testing suite, etc.
 
 * **API Reference**
 
