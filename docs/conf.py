@@ -38,7 +38,7 @@ html_context = {
     "github_user": "con",
     "github_repo": "nwb2bids",
     "github_version": "main",
-    "doc_path": "docs/source",
+    "doc_path": "docs",
 }
 
 # Format signatures for better readability
@@ -74,7 +74,7 @@ autodoc_default_options = {
     "private-members": False,
     "undoc-members": True,
     "show-inheritance": False,
-    "exclude-members": "__new__",
+    "exclude-members": "__new__,model_dump",
 }
 add_module_names = False
 toc_object_entries_show_parents = "hide"

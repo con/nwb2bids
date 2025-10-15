@@ -55,7 +55,6 @@ post-install-commands = ["pip install --group dev-all"]
 
 [project]
 name = "nwb2bids"
-version="0.5.1"
 authors = [
   { name="Cody Baker", email="cody.c.baker.phd@gmail.com" },
 ]
@@ -81,6 +80,7 @@ dependencies = [
     "pydantic",
     "typing-extensions",  # TODO: remove when dropping support for Python 3.10
     "ruamel.yaml~=0.18.15",  # https://sourceforge.net/p/ruamel-yaml-clib/tickets/47/
+    "h5py!=3.15.0 ; sys_platform == 'darwin'",  # Reinstate when MacOS14 is minimum
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -97,6 +97,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
     "License :: OSI Approved :: MIT License",
 ]
+dynamic = ["version"]
 
 [project.optional-dependencies]
 dandi = [
@@ -110,7 +111,7 @@ all = [
 [project.urls]
 Repository = "https://github.com/con/nwb2bids/"
 Issues = "https://github.com/con/nwb2bids/issues"
-Changelog = "https://github.com/con/nwb2bids/blob/master/CHANGELOG.md"
+Changelog = "https://github.com/con/nwb2bids/blob/main/CHANGELOG.md"
 
 [project.scripts]
 nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
