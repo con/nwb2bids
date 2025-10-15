@@ -277,28 +277,16 @@ def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_
     dataset_subdirectory = testing_files_directory / "mock_datalad_dataset"
     dataset_subdirectory.mkdir(exist_ok=True)
 
+    annex_filename = "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
     structure = {
         ".datalad": {
             ".gitattributes": "config annex.largefiles=nothing\n",
             "config": '[datalad "dataset"]\n\tid = NOT-A-REAL-DATALAD-DATASET',
         },
-        ".git": {
-            "annex": {
-                "objects": {
-                    "abc": {
-                        "def": {
-                            "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb": {
-                                "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb": ""
-                            }
-                        }
-                    }
-                }
-            }
-        },
+        ".git": {"annex": {"objects": {"abc": {"def": {annex_filename: {annex_filename: ""}}}}}},
     }
     nwb2bids.testing.create_file_tree(directory=dataset_subdirectory, structure=structure)
 
-    annex_filename = "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
     content_file_path = dataset_subdirectory / ".git/annex/objects/abc/def" / annex_filename / annex_filename
     shutil.copy2(src=minimal_nwbfile_path, dst=content_file_path)
 
