@@ -18,7 +18,55 @@ TODO
 Testing
 -------
 
-TODO
+This project uses ``pytest`` for testing with comprehensive coverage across multiple platforms and Python versions.
+
+Tests are organized into three categories:
+
+- **Unit tests** (``tests/unit/``): Test individual components in isolation
+- **Integration tests** (``tests/integration/``): Test interactions between components
+- **CLI tests** (``tests/convert_nwb_dataset/``): Test command-line interface behavior
+
+Some tests are marked as ``remote`` when they require downloading data from remote sources (e.g., DANDI Archive).
+
+Running Tests Locally
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+   Installing with ``[all]`` extra includes the ``dandi`` optional dependencies needed only for remote tests.
+
+First, install the package with test dependencies:
+
+.. code-block:: bash
+
+   pip install -e ".[all]" --group test
+
+For coverage reporting, also add the ``coverage`` group:
+
+.. code-block:: bash
+
+   pip install -e ".[all]" --group test --group coverage
+
+Run non-remote tests (does not require network):
+
+.. code-block:: bash
+
+   pytest -m "not remote" -vv
+
+Run only remote tests:
+
+.. code-block:: bash
+
+   pytest -m "remote" -vv
+
+Run tests with coverage:
+
+.. code-block:: bash
+
+   pytest -m "not remote" -vv --cov=nwb2bids --cov-report html
+
+The coverage report will be generated in ``htmlcov/index.html``.
+
 
 Releasing
 ---------
