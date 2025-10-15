@@ -124,6 +124,7 @@ dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
 types = ["mypy", {include-group = "type-stubs"}]
 docs = [
     "sphinx",
+    "sphinx-tabs",
     "pydata-sphinx-theme",
 ]
 dev-all = [

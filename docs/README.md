@@ -4,12 +4,14 @@ To build the documentation locally:
 
 ```bash
 # Install documentation dependencies
-pip install --group docs -e .
+pip install -e . --group docs
 
-# Build HTML documentation
-cd docs
-make html
+# Clean any previous local runs first
+rm -r ./docs/_build
+
+# Build
+sphinx-build -b html -W --keep-going docs ./docs/_build
 
 # View the built documentation
-# Open docs/build/html/index.html in your browser
+# Open ./docs/_build/html/index.html in your favorite web browser
 ```
