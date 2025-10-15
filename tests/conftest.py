@@ -298,29 +298,8 @@ def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_
     }
     nwb2bids.testing.create_file_tree(directory=dataset_subdirectory, structure=structure)
 
-    # datalad_subdirectory = dataset_subdirectory / ".datalad"
-    # datalad_subdirectory.mkdir(exist_ok=True)
-    # gitattributes_file_path = datalad_subdirectory / ".gitattributes"
-    # gitattributes_file_path.write_text("config annex.largefiles=nothing\n")
-    # config_file_path = datalad_subdirectory / "config"
-    # config_file_path.write_text('[datalad "dataset"]\n\tid = NOT-A-REAL-DATALAD-DATASET')
-    #
-    # git_subdirectory = dataset_subdirectory / ".git"
-    # git_subdirectory.mkdir(exist_ok=True)
-    # annex_subdirectory = git_subdirectory / "annex"
-    # annex_subdirectory.mkdir(exist_ok=True)
-    # objects_subdirectory = annex_subdirectory / "objects"
-    # objects_subdirectory.mkdir(exist_ok=True)
-    # head1_subdirectory = objects_subdirectory / "abc"
-    # head1_subdirectory.mkdir(exist_ok=True)
-    # head2_subdirectory = head1_subdirectory / "def"
-    # head2_subdirectory.mkdir(exist_ok=True)
-    # content_subdirectory = head2_subdirectory / "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
-    # content_subdirectory.mkdir(exist_ok=True)
-
-    content_file_path = (
-        dataset_subdirectory / ".git/annex/objects/abc/def/MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
-    )
+    annex_filename = "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
+    content_file_path = dataset_subdirectory / ".git/annex/objects/abc/def" / annex_filename / annex_filename
     shutil.copy2(src=minimal_nwbfile_path, dst=content_file_path)
 
     annexed_file_path = dataset_subdirectory / "minimal.nwb"
