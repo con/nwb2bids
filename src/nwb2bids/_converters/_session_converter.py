@@ -6,7 +6,7 @@ import typing
 import pydantic
 import typing_extensions
 
-from ._datalad_utils import is_file_annexed
+from ._datalad_utils import _content_is_retrieved
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
@@ -59,7 +59,7 @@ class SessionConverter(BaseConverter):
                 all_nwbfile_paths += [
                     path
                     for path in nwb_path.rglob(pattern="*.nwb")
-                    if not any(part.startswith(".") for part in path.parts) and not is_file_annexed(file_path=path)
+                    if not any(part.startswith(".") for part in path.parts) and _content_is_retrieved(file_path=path)
                 ]
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)

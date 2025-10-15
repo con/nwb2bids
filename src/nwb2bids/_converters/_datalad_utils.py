@@ -1,10 +1,20 @@
 import os
 import pathlib
+import platform
 
 
-def is_file_annexed(file_path: pathlib.Path) -> bool:
+def _read_first_bytes(file_path: pathlib.Path) -> bytes:
     """
-    Check if a file contents are not fetched from the git-annex.
+    Read the first 6 bytes of a file; necessary for Windows 'symlinks'.
+    """
+    with file_path.open(mode="rb") as file_stream:
+        first_bytes = file_stream.read(6)
+        return first_bytes
+
+
+def _content_is_retrieved(file_path: pathlib.Path) -> bool:
+    """
+    Check if a file contents are fetched from the git-annex.
 
     Parameters
     ----------
@@ -16,12 +26,18 @@ def is_file_annexed(file_path: pathlib.Path) -> bool:
     bool
         True if the file is a pointer to annex contents, False otherwise.
     """
-    # Unix systems
-    if file_path.is_symlink() and os.readlink(file_path).startswith("/annex"):
+    # On Windows, symlinks are supported indirectly; files begin with "/annex/..."
+    # then `datalad get` replaces the original file with the retrieved content
+    if platform.system() == "Windows" and _read_first_bytes(file_path=file_path) == b"/annex":
+        return False
+
+    is_symlink = file_path.is_symlink()
+    if not is_symlink:
         return True
 
-    # Windows may require manual introspection
-    with file_path.open(mode="rb") as file_stream:
-        first_bytes = file_stream.read(6)
-        is_annexed = first_bytes == b"/annex"
-        return is_annexed
+    linked_path = os.readlink(path=file_path)
+    if "/annex" not in linked_path:
+        return True
+
+    file_exists = file_path.resolve().exists()
+    return file_exists
