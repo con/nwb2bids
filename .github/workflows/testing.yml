@@ -10,13 +10,11 @@ on:
         type: string
       os_list:
         description: 'JSON array of OS versions'
-        required: false
-        default: '["windows-2022","windows-latest","macos-15-intel","macos-latest","ubuntu-latest"]'
+        required: true
         type: string
       python_list:
         description: 'JSON array of Python versions'
-        required: false
-        default: '["3.10","3.11","3.12","3.13"]'
+        required: true
         type: string
 
     secrets:
