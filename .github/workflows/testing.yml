@@ -11,7 +11,7 @@ on:
       os_list:
         description: 'JSON array of OS versions'
         required: false
-        default: '["windows-2022","windows-latest","macos-13","macos-latest","ubuntu-latest"]'
+        default: '["windows-2022","windows-latest","macos-15-intel","macos-latest","ubuntu-latest"]'
         type: string
       python_list:
         description: 'JSON array of Python versions'
