@@ -1,6 +1,7 @@
 import datetime
 import json
 import pathlib
+import shutil
 
 import py.path
 import pynwb
@@ -264,3 +265,32 @@ def problematic_nwbfile_path_3(testing_files_directory: pathlib.Path) -> pathlib
         file_stream.write(nwbfile)
 
     return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_path: pathlib.Path) -> pathlib.Path:
+    """
+    A mock datalad dataset for testing purposes.
+
+    Original globbing pattern was too broad and found files within the git-annex.
+    """
+    dataset_subdirectory = testing_files_directory / "mock_datalad_dataset"
+    dataset_subdirectory.mkdir(exist_ok=True)
+
+    annex_filename = "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
+    structure = {
+        ".datalad": {
+            ".gitattributes": "config annex.largefiles=nothing\n",
+            "config": '[datalad "dataset"]\n\tid = NOT-A-REAL-DATALAD-DATASET',
+        },
+        ".git": {"annex": {"objects": {"abc": {"def": {annex_filename: {annex_filename: ""}}}}}},
+    }
+    nwb2bids.testing.create_file_tree(directory=dataset_subdirectory, structure=structure)
+
+    content_file_path = dataset_subdirectory / ".git/annex/objects/abc/def" / annex_filename / annex_filename
+    shutil.copy2(src=minimal_nwbfile_path, dst=content_file_path)
+
+    annexed_file_path = dataset_subdirectory / "minimal.nwb"
+    annexed_file_path.symlink_to(target=content_file_path)
+
+    return dataset_subdirectory

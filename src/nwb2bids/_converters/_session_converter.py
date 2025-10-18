@@ -6,6 +6,7 @@ import typing
 import pydantic
 import typing_extensions
 
+from ._datalad_utils import _content_is_retrieved
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
@@ -55,7 +56,16 @@ class SessionConverter(BaseConverter):
             if nwb_path.is_file():
                 all_nwbfile_paths.append(nwb_path)
             elif nwb_path.is_dir():
-                all_nwbfile_paths += list(nwb_path.rglob(pattern="*.nwb"))
+                all_nwbfile_paths += [
+                    path
+                    for path in nwb_path.rglob(pattern="*.nwb")
+                    if (
+                        # Ignore contents in hidden folders; e.g. .git, __pycache__, etc.
+                        not any(part.startswith(".") for part in path.parts)
+                        # Ignore DataLad files that are not yet retrieved from the annex
+                        and _content_is_retrieved(file_path=path)
+                    )
+                ]
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
         for nwbfile_path in all_nwbfile_paths:
