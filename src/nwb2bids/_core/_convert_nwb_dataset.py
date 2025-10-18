@@ -5,6 +5,7 @@ import pydantic
 
 from .._converters._dataset_converter import DatasetConverter
 from .._inspection._inspection_result import InspectionResult
+from ..sanitization import SanitizationLevel
 
 
 @pydantic.validate_call
@@ -14,6 +15,7 @@ def convert_nwb_dataset(
     bids_directory: str | pathlib.Path | None = None,
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     additional_metadata_file_path: pydantic.FilePath | None = None,
+    sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
 ) -> list[InspectionResult]:
     """
     Convert a dataset of NWB files to a BIDS dataset.
@@ -34,6 +36,9 @@ def convert_nwb_dataset(
     additional_metadata_file_path : file path, optional
         The path to a YAML file containing additional metadata not included within the NWB files
         that you wish to include in the BIDS dataset.
+    sanitization_level : nwb2bids.SanitizationLevel
+        Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
+        Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
 
     Returns
     -------
@@ -45,6 +50,8 @@ def convert_nwb_dataset(
         additional_metadata_file_path=additional_metadata_file_path,
     )
     converter.extract_metadata()
-    converter.convert_to_bids_dataset(bids_directory=bids_directory, file_mode=file_mode)
+    converter.convert_to_bids_dataset(
+        bids_directory=bids_directory, file_mode=file_mode, sanitization_level=sanitization_level
+    )
 
     return converter.messages
