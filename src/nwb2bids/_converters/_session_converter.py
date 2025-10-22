@@ -60,7 +60,8 @@ class SessionConverter(BaseConverter):
                 all_nwbfile_paths.append(nwb_path)
             elif nwb_path.is_dir():
                 all_nwbfile_paths += [
-                    path for path in nwb_path.rglob(pattern="*.nwb")
+                    path
+                    for path in nwb_path.rglob(pattern="*.nwb")
                     # Ignore DataLad files not retrieved from the annex
                     if not any(part == ".git" for part in path.parts) and _content_is_retrieved(file_path=path)
                 ]
@@ -70,8 +71,7 @@ class SessionConverter(BaseConverter):
             # Ignore contents in hidden folders
             # Such as .git since contains .git/annex which might include NWB extensions, DS_Store, etc.
             nwbfile_paths_to_convert = [
-                path for path in all_nwbfile_paths
-                if not any(part.startswith(".") for part in path.parts)
+                path for path in all_nwbfile_paths if not any(part.startswith(".") for part in path.parts)
             ]
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)

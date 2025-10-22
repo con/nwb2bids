@@ -89,6 +89,7 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
+
 def test_convert_nwb_dataset_on_mock_datalad_dataset_with_broken_symlink(
     mock_datalad_dataset: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
