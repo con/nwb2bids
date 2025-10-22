@@ -29,10 +29,6 @@ def _content_is_retrieved(file_path: pathlib.Path) -> bool:
         return False
 
     if file_path.is_symlink():
-        if file_path.stat().st_size > 1024:  # No currently annexed file can be larger than this
-            return True
-        if "/annex" not in os.readlink(path=file_path):
-            return True
-        return file_path.resolve().exists()
-
+        return True
+        
     return _read_first_bytes(file_path=file_path, n=6) != b"/annex"
