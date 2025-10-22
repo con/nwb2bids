@@ -55,7 +55,7 @@ def convert_nwb_dataset(
     home_dir.mkdir(exist_ok=True)
     log_dir = home_dir / "logs"
     log_dir.mkdir(exist_ok=True)
-    log_file_path = log_dir / f"{datetime.datetime.now()}.txt"
+    log_file_path = log_dir / f"{datetime.datetime.now()}.json"
     notifications_dump = [notification.model_dump(mode="json") for notification in converter.messages]
     if len(notifications_dump) > 0:
         log_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
