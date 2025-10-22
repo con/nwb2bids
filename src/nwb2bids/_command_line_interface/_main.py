@@ -64,18 +64,19 @@ def _run_convert_nwb_dataset(
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
 
-    messages = convert_nwb_dataset(
+    notifications, log_file_path = convert_nwb_dataset(
         nwb_paths=handled_nwb_paths,
         bids_directory=bids_directory,
         file_mode=file_mode,
         additional_metadata_file_path=additional_metadata_file_path,
     )
 
-    if messages is not None and not silent:
+    if notifications is not None and not silent:
         text = (
-            f"{len(messages)} suggestion for improvement was found during conversion."
-            if len(messages) == 1
-            else f"{len(messages)} suggestions for improvement were found during conversion."
+            f"{len(notifications)} suggestion for improvement was found during conversion."
+            if len(notifications) == 1
+            else f"{len(notifications)} suggestions for improvement were found during conversion."
         )
+        text += f"\n\nPlease see the log file at {log_file_path} for specific details."
         console_notification = rich_click.style(text=text, fg="yellow")
         rich_click.echo(message=console_notification)

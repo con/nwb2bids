@@ -1,3 +1,5 @@
+import datetime
+import json
 import pathlib
 import typing
 
@@ -14,7 +16,7 @@ def convert_nwb_dataset(
     bids_directory: str | pathlib.Path | None = None,
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     additional_metadata_file_path: pydantic.FilePath | None = None,
-) -> list[InspectionResult]:
+) -> tuple[list[InspectionResult], pathlib.Path]:
     """
     Convert a dataset of NWB files to a BIDS dataset.
 
@@ -39,6 +41,8 @@ def convert_nwb_dataset(
     -------
     notifications : list of InspectionResult or None
         A list of inspection results, or None if there are no internal messages.
+    log_file_path : pathlib.Path
+        The path to the log file where the notifications have been recorded.
     """
     converter = DatasetConverter.from_nwb_paths(
         nwb_paths=nwb_paths,
@@ -47,4 +51,13 @@ def convert_nwb_dataset(
     converter.extract_metadata()
     converter.convert_to_bids_dataset(bids_directory=bids_directory, file_mode=file_mode)
 
-    return converter.messages
+    home_dir = pathlib.Path.home() / ".nwb2bids"
+    home_dir.mkdir(exist_ok=True)
+    log_dir = home_dir / "logs"
+    log_dir.mkdir(exist_ok=True)
+    log_file_path = log_dir / f"{datetime.datetime.now()}.txt"
+    notifications_dump = [notification.model_dump(mode="json") for notification in converter.messages]
+    if len(notifications_dump) > 0:
+        log_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
+
+    return converter.messages, log_file_path
