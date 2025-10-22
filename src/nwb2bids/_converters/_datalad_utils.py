@@ -27,6 +27,8 @@ def _content_is_retrieved(file_path: pathlib.Path) -> bool:
     if not file_path.exists():
         return False
 
+    # Note that if the file path is a 'broken' symlink (the target does not exist)
+    # the call to `.exists()` would actually return False
     if file_path.is_symlink():
         return True
 
