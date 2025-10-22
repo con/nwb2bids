@@ -1,4 +1,3 @@
-import os
 import pathlib
 
 
@@ -30,5 +29,5 @@ def _content_is_retrieved(file_path: pathlib.Path) -> bool:
 
     if file_path.is_symlink():
         return True
-        
+
     return _read_first_bytes(file_path=file_path, n=6) != b"/annex"
