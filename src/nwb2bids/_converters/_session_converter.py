@@ -60,7 +60,7 @@ class SessionConverter(BaseConverter):
                     path
                     for path in nwb_path.rglob(pattern="*.nwb")
                     if (
-                        # Ignore contents in hidden folders; e.g. .git, __pycache__, etc.
+                        # Ignore contents in hidden folders; .git since contains .git/annex which might include NWB extensions, DS_Store, etc.
                         not any(part.startswith(".") for part in path.parts)
                         # Ignore DataLad files that are not yet retrieved from the annex
                         and _content_is_retrieved(file_path=path)
