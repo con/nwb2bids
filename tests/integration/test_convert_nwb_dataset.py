@@ -2,6 +2,8 @@
 
 import pathlib
 
+import pytest
+
 import nwb2bids
 
 
@@ -156,3 +158,22 @@ def test_optional_bids_directory(
         },
     }
     nwb2bids.testing.assert_subdirectory_structure(directory=new_bids_directory, expected_structure=expected_structure)
+
+
+def test_convert_empty_nwb_paths(tmp_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    """
+    Test the case that no NWB files are found in the provided paths.
+    """
+
+    # Set up empty directory structure
+    dir_1 = tmp_path / "dir_1"
+    dir_1_1 = dir_1 / "dir_1_1"
+    dir_1_1_1 = dir_1_1 / "dir_1_1_1"
+    dir_2 = tmp_path / "dir_2"
+    dir_1_1_1.mkdir(parents=True)
+    dir_2.mkdir()
+
+    nwb_paths = [dir_1, dir_2]
+
+    with pytest.raises(ValueError, match="No NWB files found in the provided paths."):
+        nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
