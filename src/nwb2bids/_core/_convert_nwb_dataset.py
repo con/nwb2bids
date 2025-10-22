@@ -4,7 +4,7 @@ import typing
 import pydantic
 
 from .._converters._dataset_converter import DatasetConverter
-from .._inspection._inspection_result import InspectionResult
+from .._inspection._inspection_result import Category, InspectionResult, Severity
 
 
 @pydantic.validate_call
@@ -39,6 +39,24 @@ def convert_nwb_dataset(
     -------
     notifications : list of InspectionResult
     """
+    all_nwbfile_paths = []
+    for nwb_path in nwb_paths:
+        if nwb_path.is_file():
+            all_nwbfile_paths.append(nwb_path)
+        elif nwb_path.is_dir():
+            all_nwbfile_paths += list(nwb_path.rglob(pattern="*.nwb"))
+
+    if not all_nwbfile_paths:
+        return [
+            InspectionResult(
+                title="No NWB Files Found",
+                reason="No NWB files were found in the provided paths.",
+                solution="Please provide paths that point to a NWB files or a directory containing NWB files.",
+                category=Category.INTERNAL_ERROR,
+                severity=Severity.CRITICAL,
+            )
+        ]
+
     converter = DatasetConverter.from_nwb_paths(
         nwb_paths=nwb_paths,
         additional_metadata_file_path=additional_metadata_file_path,
