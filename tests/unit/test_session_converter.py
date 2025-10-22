@@ -41,6 +41,19 @@ def test_session_converter_both_file_and_directory_initialization(
     assert all(isinstance(converter, nwb2bids.SessionConverter) for converter in session_converters)
 
 
+def test_session_converter_defaults_missing_session_id(
+    problematic_nwbfile_path_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(
+        nwb_paths=[problematic_nwbfile_path_missing_session_id]
+    )
+
+    assert isinstance(session_converters, list)
+    assert len(session_converters) == 1
+    assert isinstance(session_converters[0], nwb2bids.SessionConverter)
+    assert session_converters[0].session_id == "0"
+
+
 def test_session_converter_metadata_extraction(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
