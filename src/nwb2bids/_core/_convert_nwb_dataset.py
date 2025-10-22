@@ -37,8 +37,7 @@ def convert_nwb_dataset(
 
     Returns
     -------
-    notifications : list of InspectionResult or None
-        A list of inspection results, or None if there are no internal messages.
+    notifications : list of InspectionResult
     """
     converter = DatasetConverter.from_nwb_paths(
         nwb_paths=nwb_paths,
