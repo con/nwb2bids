@@ -157,26 +157,6 @@ def multiple_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathl
 
 
 @pytest.fixture(scope="session")
-def nwbfile_path_with_missing_session_id(testing_files_directory: pathlib.Path) -> pathlib.Path:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
-
-    subject = pynwb.file.Subject(
-        subject_id="123",
-        species="Mus musculus",
-        sex="M",
-    )
-    nwbfile.subject = subject
-
-    events_subdirectory = testing_files_directory / "missing_session_id"
-    events_subdirectory.mkdir(exist_ok=True)
-    nwbfile_path = events_subdirectory / "missing_session_id.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
-        file_stream.write(nwbfile)
-
-    return nwbfile_path
-
-
-@pytest.fixture(scope="session")
 def directory_with_multiple_nwbfiles(testing_files_directory: pathlib.Path) -> pathlib.Path:
     multiple_nwbfiles_subdirectory = testing_files_directory / "multiple_nwbfiles"
     multiple_nwbfiles_subdirectory.mkdir(exist_ok=True)
@@ -260,6 +240,26 @@ def problematic_nwbfile_path_3(testing_files_directory: pathlib.Path) -> pathlib
     problematic_subdirectory = testing_files_directory / "problematic"
     problematic_subdirectory.mkdir(exist_ok=True)
     nwbfile_path = problematic_subdirectory / "problematic3.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def problematic_nwbfile_path_missing_session_id(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
+
+    subject = pynwb.file.Subject(
+        subject_id="123",
+        species="Mus musculus",
+        sex="M",
+    )
+    nwbfile.subject = subject
+
+    events_subdirectory = testing_files_directory / "missing_session_id"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "missing_session_id.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 
