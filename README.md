@@ -21,6 +21,7 @@
   </p>
 </p>
 
+
 Reorganize NWB files into a BIDS directory layout.
 
 Currently developed for the `microephys` BIDS modality, which encompasses both the NWB `ecephys` and `icephys` neurodata subtypes, and which is currently pending formal inclusion in BIDS schema as part of [BEP032](https://github.com/bids-standard/bids-specification/pull/1705).
