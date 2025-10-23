@@ -79,6 +79,7 @@ class SessionConverter(BaseConverter):
         bids_directory: str | pathlib.Path | None = None,
         file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
         sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
+        sanitization_report_file_path: pydantic.FilePath | None = None,
     ) -> None:
         """
         Convert the NWB file to a BIDS session directory.
@@ -96,6 +97,10 @@ class SessionConverter(BaseConverter):
         sanitization_level : nwb2bids.SanitizationLevel
             Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
             Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
+        sanitization_report_file_path : file path, optional
+            The path to a file where a report of the sanitization actions taken will be written.
+            If None, a report ID will be generated based off the time the conversion is run and the report will be
+            found under `~/.nwb2bids/sanitization_reports/`.
         """
         if len(self.nwbfile_paths) > 1:
             message = (
@@ -110,9 +115,15 @@ class SessionConverter(BaseConverter):
             self.extract_metadata()
 
         participant_id = sanitize_participant_id(
-            participant_id=self.session_metadata.participant.participant_id, sanitization_level=sanitization_level
+            participant_id=self.session_metadata.participant.participant_id,
+            sanitization_level=sanitization_level,
+            sanitization_report_file_path=sanitization_report_file_path,
         )
-        session_id = sanitize_session_id(session_id=self.session_id, sanitization_level=sanitization_level)
+        session_id = sanitize_session_id(
+            session_id=self.session_id,
+            sanitization_level=sanitization_level,
+            sanitization_report_file_path=sanitization_report_file_path,
+        )
         session_subdirectory = bids_directory / f"sub-{participant_id}" / f"ses-{session_id}" / "ecephys"
         session_subdirectory.mkdir(parents=True, exist_ok=True)
 

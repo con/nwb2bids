@@ -76,7 +76,7 @@ def _run_convert_nwb_dataset(
         SanitizationLevel(int(sanitization)) if sanitization.isdigit() else getattr(SanitizationLevel, sanitization)
     )
 
-    messages = convert_nwb_dataset(
+    converter = convert_nwb_dataset(
         nwb_paths=handled_nwb_paths,
         bids_directory=bids_directory,
         file_mode=file_mode,
@@ -84,11 +84,22 @@ def _run_convert_nwb_dataset(
         sanitization_level=handled_sanitization_level,
     )
 
-    if messages is not None and not silent:
-        text = (
+    messages = converter.messages
+    console_notification = ""
+    if messages is not None:
+        notification_text = (
             f"{len(messages)} suggestion for improvement was found during conversion."
             if len(messages) == 1
             else f"{len(messages)} suggestions for improvement were found during conversion."
         )
-        console_notification = rich_click.style(text=text, fg="yellow")
+        console_notification += rich_click.style(text=notification_text, fg="yellow")
+
+    if sanitization != "NONE" or sanitization != "0":
+        sanitization_text = (
+            "Note: Sanitization was applied to file and directory names during conversion. "
+            "Please review the converted BIDS dataset to ensure all names are appropriate."
+        )
+        console_notification += rich_click.style(text=sanitization_text, fg="yellow")
+
+    if console_notification != "" and not silent:
         rich_click.echo(message=console_notification)

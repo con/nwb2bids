@@ -211,6 +211,7 @@ class DatasetConverter(BaseConverter):
         bids_directory: str | pathlib.Path | None = None,
         file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
         sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
+        sanitization_report_file_path: pydantic.FilePath | None = None,
     ) -> None:
         """
         Convert the directory of NWB files to a BIDS dataset.
@@ -231,9 +232,14 @@ class DatasetConverter(BaseConverter):
         sanitization_level : nwb2bids.SanitizationLevel
             Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
             Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
+        sanitization_report_file_path : file path, optional
+            The path to a file where a report of the sanitization actions taken will be written.
+            If None, a report ID will be generated based off the time the conversion is run and the report will be
+            found under `~/.nwb2bids/sanitization_reports/`.
         """
         try:
             bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
+            self._handle_sanitization_report_file_path(sanitization_report_file_path=sanitization_report_file_path)
 
             if self.dataset_description is not None:
                 self.write_dataset_description(bids_directory=bids_directory)
@@ -243,7 +249,10 @@ class DatasetConverter(BaseConverter):
 
             generator = (
                 session_converter.convert_to_bids_session(
-                    bids_directory=bids_directory, file_mode=file_mode, sanitization_level=sanitization_level
+                    bids_directory=bids_directory,
+                    file_mode=file_mode,
+                    sanitization_level=sanitization_level,
+                    sanitization_report_file_path=sanitization_report_file_path,
                 )
                 for session_converter in self.session_converters
             )
