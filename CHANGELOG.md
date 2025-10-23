@@ -1,3 +1,45 @@
+# v0.5.1 (Thu Oct 23 2025)
+
+#### 🐛 Bug Fix
+
+- Trivial change for release test [#152](https://github.com/con/nwb2bids/pull/152) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Resolve protected branch problem in execution of the "Release with Auto" GH workflow [#151](https://github.com/con/nwb2bids/pull/151) ([@candleindark](https://github.com/candleindark))
+- bf: always include session entity, even 1 sub [#148](https://github.com/con/nwb2bids/pull/148) ([@asmacdo](https://github.com/asmacdo))
+- [pre-commit.ci] pre-commit autoupdate [#146](https://github.com/con/nwb2bids/pull/146) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Add macos-15-intel runner; deprecate macos-13; remove temporary pin on h5py [#145](https://github.com/con/nwb2bids/pull/145) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Document how to install and run tests locally [#144](https://github.com/con/nwb2bids/pull/144) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Move repo files under .github [#143](https://github.com/con/nwb2bids/pull/143) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- add contributing file [#142](https://github.com/con/nwb2bids/pull/142) ([@asmacdo](https://github.com/asmacdo) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fill in docs [#139](https://github.com/con/nwb2bids/pull/139) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Improve and consolidate release and deploy workflow [#138](https://github.com/con/nwb2bids/pull/138) ([@candleindark](https://github.com/candleindark))
+- Provide fix for Setup Release Labels workflow [#137](https://github.com/con/nwb2bids/pull/137) ([@candleindark](https://github.com/candleindark))
+- Automate release and versioning with AUTO and `hatch-vcs` [#114](https://github.com/con/nwb2bids/pull/114) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#134](https://github.com/con/nwb2bids/pull/134) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Update email notification conditions and body URL [#135](https://github.com/con/nwb2bids/pull/135) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Blacklist h5py version dependency for macOS platform [#136](https://github.com/con/nwb2bids/pull/136) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixup rtd build [#131](https://github.com/con/nwb2bids/pull/131) ([@asmacdo](https://github.com/asmacdo) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- add logo for dark theme [#127](https://github.com/con/nwb2bids/pull/127) ([@asmacdo](https://github.com/asmacdo) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Remove project title from README [#125](https://github.com/con/nwb2bids/pull/125) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Add daily tests and notifications [#110](https://github.com/con/nwb2bids/pull/110) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Add ability to read from raw dandiset metadata when invalid [#107](https://github.com/con/nwb2bids/pull/107) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Set the default python version in a Hatch-managed environment to the project's lowest support Python version [#117](https://github.com/con/nwb2bids/pull/117) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Upgrade to rich-click [#121](https://github.com/con/nwb2bids/pull/121) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#122](https://github.com/con/nwb2bids/pull/122) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Update logo image source in README.md [#120](https://github.com/con/nwb2bids/pull/120) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### ⚠️ Pushed to `main`
+
+- fix: hotfix failure point ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### Authors: 4
+
+- [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
+- Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Isaac To ([@candleindark](https://github.com/candleindark))
+
+---
+
 # CHANGELOG
 
 # Upcoming
