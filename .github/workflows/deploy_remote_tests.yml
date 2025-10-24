@@ -15,7 +15,7 @@ jobs:
     uses: ./.github/workflows/testing.yml
     with:
       pytest_markexpr: 'remote'
-      os_list: '["ubuntu-latest"]'
+      os_list: '["macos-13","macos-latest","ubuntu-latest"]'
       python_list: '["3.13"]'
     secrets:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

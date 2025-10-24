@@ -9,7 +9,7 @@ def test_problematic_cli_messages(problematic_nwbfile_path_1: pathlib.Path, temp
 
     result = subprocess.run(args=command, shell=True, capture_output=True)
     assert result.returncode == 0
-    assert b"4 suggestions for improvement were found during conversion." in result.stdout
+    assert b"4 suggestions for improvement were found during conversion." in result.stdout.strip()
     assert result.stderr == b""
 
 
