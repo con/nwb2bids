@@ -35,4 +35,4 @@ jobs:
         run: ~/auto shipit -vv
         env:
           GITHUB_TOKEN: ${{ secrets._GITHUB_API_KEY }}
-          PROTECTED_BRANCH_REVIEWER_TOKEN: ${{ secrets._GITHUB_API_KEY }}
+          PROTECTED_BRANCH_REVIEWER_TOKEN: ${{ secrets.GH_TOKEN }}
