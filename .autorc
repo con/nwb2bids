@@ -5,7 +5,7 @@
     [
          "protected-branch",
          {
-            "requiredStatusChecks": ["DailyTests / run (ubuntu-latest, 3.10)"]
+            "requiredStatusChecks": ["Tests / run (ubuntu-latest, 3.10)"]
          }
     ],
     "released"
