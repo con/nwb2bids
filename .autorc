@@ -2,6 +2,7 @@
   "plugins": [
     "git-tag",
     "first-time-contributor",
+    "protected-branch",
     "released"
   ],
   "owner": "con",
