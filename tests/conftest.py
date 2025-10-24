@@ -158,26 +158,6 @@ def multiple_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathl
 
 
 @pytest.fixture(scope="session")
-def nwbfile_path_with_missing_session_id(testing_files_directory: pathlib.Path) -> pathlib.Path:
-    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
-
-    subject = pynwb.file.Subject(
-        subject_id="123",
-        species="Mus musculus",
-        sex="M",
-    )
-    nwbfile.subject = subject
-
-    events_subdirectory = testing_files_directory / "missing_session_id"
-    events_subdirectory.mkdir(exist_ok=True)
-    nwbfile_path = events_subdirectory / "missing_session_id.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
-        file_stream.write(nwbfile)
-
-    return nwbfile_path
-
-
-@pytest.fixture(scope="session")
 def directory_with_multiple_nwbfiles(testing_files_directory: pathlib.Path) -> pathlib.Path:
     multiple_nwbfiles_subdirectory = testing_files_directory / "multiple_nwbfiles"
     multiple_nwbfiles_subdirectory.mkdir(exist_ok=True)
@@ -191,7 +171,35 @@ def directory_with_multiple_nwbfiles(testing_files_directory: pathlib.Path) -> p
 
     return multiple_nwbfiles_subdirectory
 
+@pytest.fixture(scope="session")
+def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_path: pathlib.Path) -> pathlib.Path:
+    """
+    A mock datalad dataset for testing purposes.
 
+    Original globbing pattern was too broad and found files within the git-annex.
+    """
+    dataset_subdirectory = testing_files_directory / "mock_datalad_dataset"
+    dataset_subdirectory.mkdir(exist_ok=True)
+
+    annex_filename = "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
+    structure = {
+        ".datalad": {
+            ".gitattributes": "config annex.largefiles=nothing\n",
+            "config": '[datalad "dataset"]\n\tid = NOT-A-REAL-DATALAD-DATASET',
+        },
+        ".git": {"annex": {"objects": {"abc": {"def": {annex_filename: {annex_filename: ""}}}}}},
+    }
+    nwb2bids.testing.create_file_tree(directory=dataset_subdirectory, structure=structure)
+
+    content_file_path = dataset_subdirectory / ".git/annex/objects/abc/def" / annex_filename / annex_filename
+    shutil.copy2(src=minimal_nwbfile_path, dst=content_file_path)
+
+    annexed_file_path = dataset_subdirectory / "minimal.nwb"
+    annexed_file_path.symlink_to(target=content_file_path)
+
+    return dataset_subdirectory
+
+# Problematic test cases
 @pytest.fixture(scope="session")
 def problematic_nwbfile_path_1(testing_files_directory: pathlib.Path) -> pathlib.Path:
     """
@@ -265,32 +273,22 @@ def problematic_nwbfile_path_3(testing_files_directory: pathlib.Path) -> pathlib
         file_stream.write(nwbfile)
 
     return nwbfile_path
-
-
+  
 @pytest.fixture(scope="session")
-def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_path: pathlib.Path) -> pathlib.Path:
-    """
-    A mock datalad dataset for testing purposes.
+def problematic_nwbfile_path_missing_session_id(testing_files_directory: pathlib.Path) -> pathlib.Path:
+  nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
 
-    Original globbing pattern was too broad and found files within the git-annex.
-    """
-    dataset_subdirectory = testing_files_directory / "mock_datalad_dataset"
-    dataset_subdirectory.mkdir(exist_ok=True)
+  subject = pynwb.file.Subject(
+      subject_id="123",
+      species="Mus musculus",
+      sex="M",
+  )
+  nwbfile.subject = subject
 
-    annex_filename = "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
-    structure = {
-        ".datalad": {
-            ".gitattributes": "config annex.largefiles=nothing\n",
-            "config": '[datalad "dataset"]\n\tid = NOT-A-REAL-DATALAD-DATASET',
-        },
-        ".git": {"annex": {"objects": {"abc": {"def": {annex_filename: {annex_filename: ""}}}}}},
-    }
-    nwb2bids.testing.create_file_tree(directory=dataset_subdirectory, structure=structure)
+  events_subdirectory = testing_files_directory / "missing_session_id"
+  events_subdirectory.mkdir(exist_ok=True)
+  nwbfile_path = events_subdirectory / "missing_session_id.nwb"
+  with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+      file_stream.write(nwbfile)
 
-    content_file_path = dataset_subdirectory / ".git/annex/objects/abc/def" / annex_filename / annex_filename
-    shutil.copy2(src=minimal_nwbfile_path, dst=content_file_path)
-
-    annexed_file_path = dataset_subdirectory / "minimal.nwb"
-    annexed_file_path.symlink_to(target=content_file_path)
-
-    return dataset_subdirectory
+  return nwbfile_path

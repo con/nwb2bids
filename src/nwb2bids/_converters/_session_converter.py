@@ -79,7 +79,10 @@ class SessionConverter(BaseConverter):
             unique_session_id_to_nwbfile_paths[cache_read_nwb(nwbfile_path).session_id].append(nwbfile_path)
 
         session_converters = [
-            cls(session_id=session_id, nwbfile_paths=nwbfile_paths)
+            cls(
+                session_id=session_id or "0",  # always include ses entity, even 1-session subjects
+                nwbfile_paths=nwbfile_paths,
+            )
             for session_id, nwbfile_paths in unique_session_id_to_nwbfile_paths.items()
         ]
         return session_converters
