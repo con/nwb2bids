@@ -1,14 +1,13 @@
 import collections
 import json
-import pathlib
 import traceback
-import typing
 
 import pandas
 import pydantic
 import typing_extensions
 
 from ._dandi_utils import get_bids_dataset_description
+from ._run_config import RunConfig
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
@@ -46,6 +45,7 @@ class DatasetConverter(BaseConverter):
         api_url: str | None = None,
         token: str | None = None,
         limit: int | None = None,
+        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
     ) -> typing_extensions.Self | None:
         """
         Initialize a converter of a Dandiset to BIDS format.
@@ -66,6 +66,8 @@ class DatasetConverter(BaseConverter):
         limit : int, optional
             If specified, limits the number of sessions to convert.
             This is mainly useful for testing purposes.
+        run_config : RunConfig, optional
+            The configuration for this conversion run.
         """
         try:
             import dandi.dandiapi
@@ -100,11 +102,14 @@ class DatasetConverter(BaseConverter):
                 SessionConverter(
                     session_id=session_id,
                     nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
+                    run_config=run_config,
                 )
                 for session_id, assets in sorted_session_id_to_assets.items()
             ]
 
-            dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+            dataset_converter = cls(
+                session_converters=session_converters, dataset_description=dataset_description, run_config=run_config
+            )
             dataset_converter._internal_messages = _internal_messages
             return dataset_converter
         except Exception:  # noqa
@@ -121,7 +126,7 @@ class DatasetConverter(BaseConverter):
                 )
             ]
 
-            dataset_converter = cls(session_converters=[], dataset_description=None)
+            dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
 
         dataset_converter._internal_messages = _internal_messages
         return dataset_converter
@@ -131,7 +136,7 @@ class DatasetConverter(BaseConverter):
     def from_nwb_paths(
         cls,
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
-        additional_metadata_file_path: pydantic.FilePath | None = None,
+        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
     ) -> typing_extensions.Self:
         """
         Initialize a converter of NWB files to BIDS format.
@@ -140,18 +145,19 @@ class DatasetConverter(BaseConverter):
         ----------
         nwb_paths : iterable of file and directory paths
             An iterable of NWB file paths and directories containing NWB files.
-        additional_metadata_file_path : file path, optional
-            The path to a JSON file containing additional metadata to be included in the BIDS dataset.
+        run_config : RunConfig, optional
+            The configuration for this conversion run.
 
         Returns
         -------
         An instance of DatasetConverter.
         """
         try:
-            session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+            session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
 
             dataset_description = None
-            if additional_metadata_file_path is not None:
+            additional_metadata_file_path = run_config.additional_metadata_file_path
+            if run_config.additional_metadata_file_path is not None:
                 dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
             session_messages = [
@@ -161,7 +167,9 @@ class DatasetConverter(BaseConverter):
                 if session_converter.messages is not None
             ]
 
-            dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+            dataset_converter = cls(
+                session_converters=session_converters, dataset_description=dataset_description, run_config=run_config
+            )
             dataset_converter._internal_messages = session_messages
             return dataset_converter
         except Exception:  # noqa
@@ -177,7 +185,7 @@ class DatasetConverter(BaseConverter):
                     severity=Severity.ERROR,
                 )
             ]
-            dataset_converter = cls(session_converters=[], dataset_description=None)
+            dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
             dataset_converter._internal_messages = _internal_messages
             return dataset_converter
 
@@ -204,43 +212,18 @@ class DatasetConverter(BaseConverter):
             )
             self._internal_messages.append(message)
 
-    @pydantic.validate_call
-    def convert_to_bids_dataset(
-        self,
-        bids_directory: str | pathlib.Path | None = None,
-        file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
-    ) -> None:
-        """
-        Convert the directory of NWB files to a BIDS dataset.
-
-        Parameters
-        ----------
-        bids_directory : directory path, optional
-            The path to the directory where the BIDS dataset will be created.
-            If not specified, the current working directory will be used if it is valid to become a BIDS dataset.
-            To be a valid BIDS dataset, the directory must either start off empty or otherwise contain BIDS-compatible
-            files, such as `dataset_description.json`, `participants.tsv`, `README.md`, and so on.
-        file_mode : one of "move", "copy", "symlink", or "auto", default: "auto"
-            Specifies how to handle the NWB files when converting to BIDS format.
-            - "move": Move the files to the BIDS directory.
-            - "copy": Copy the files to the BIDS directory.
-            - "symlink": Create symbolic links to the files in the BIDS directory.
-            - "auto": Decides between all the above based on the system, with preference for linking when possible.
-        """
+    def convert_to_bids_dataset(self) -> None:
+        """Convert the directory of NWB files to a BIDS dataset."""
         try:
-            bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-
             if self.dataset_description is not None:
-                self.write_dataset_description(bids_directory=bids_directory)
+                self.write_dataset_description()
 
-            self.write_participants_metadata(bids_directory=bids_directory)
-            self.write_sessions_metadata(bids_directory=bids_directory)
+            self.write_participants_metadata()
+            self.write_sessions_metadata()
 
-            generator = (
-                session_converter.convert_to_bids_session(bids_directory=bids_directory, file_mode=file_mode)
-                for session_converter in self.session_converters
-            )
-            collections.deque(generator, maxlen=0)
+            for session_converter in self.session_converters:
+                session_converter.convert_to_bids_session()
+
         except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
@@ -254,28 +237,16 @@ class DatasetConverter(BaseConverter):
             )
             self._internal_messages.append(message)
 
-    @pydantic.validate_call
-    def write_dataset_description(self, bids_directory: str | pathlib.Path | None = None) -> None:
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-
+    def write_dataset_description(self) -> None:
+        """Write the `dataset_description.json` file."""
         dataset_description_dictionary = self.dataset_description.model_dump()
 
-        dataset_description_file_path = bids_directory / "dataset_description.json"
+        dataset_description_file_path = self.run_config.bids_directory / "dataset_description.json"
         with dataset_description_file_path.open(mode="w") as file_stream:
             json.dump(obj=dataset_description_dictionary, fp=file_stream, indent=4)
 
-    @pydantic.validate_call
-    def write_participants_metadata(self, bids_directory: str | pathlib.Path | None = None) -> None:
-        """
-        Write the `participants.tsv` and `participants.json` files.
-
-        Parameters
-        ----------
-        bids_directory : directory path
-            The path to the directory where the BIDS dataset will be created.
-        """
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-
+    def write_participants_metadata(self) -> None:
+        """Write the `participants.tsv` and `participants.json` files."""
         model_dump_per_session = []
         for session_converter in self.session_converters:
             model_dump = session_converter.session_metadata.participant.model_dump()
@@ -292,10 +263,10 @@ class DatasetConverter(BaseConverter):
             return
 
         # Deduplicate all rows of the frame
-        deduplicated_participants_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
+        deduplicated_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
 
         # BIDS requires sub- prefix in table values
-        participants_data_frame = deduplicated_participants_data_frame.copy()
+        participants_data_frame = deduplicated_data_frame.copy()
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
             lambda participant_id: f"sub-{participant_id}"
         )
@@ -313,7 +284,7 @@ class DatasetConverter(BaseConverter):
             if is_field_in_table.get(field, False) is True and field not in required_column_order
         ]
 
-        participants_tsv_file_path = bids_directory / "participants.tsv"
+        participants_tsv_file_path = self.run_config.bids_directory / "participants.tsv"
         participants_data_frame.to_csv(
             path_or_buf=participants_tsv_file_path, mode="w", index=False, sep="\t", columns=column_order
         )
@@ -326,25 +297,17 @@ class DatasetConverter(BaseConverter):
                 for field, info in participants_schema["properties"].items()
                 if is_field_in_table.get(field, False) is True
             }
-            participants_json_file_path = bids_directory / "participants.json"
+            participants_json_file_path = self.run_config.bids_directory / "participants.json"
             with participants_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=participants_json, fp=file_stream, indent=4)
 
-    @pydantic.validate_call
-    def write_sessions_metadata(self, bids_directory: str | pathlib.Path | None = None) -> None:
+    def write_sessions_metadata(self) -> None:
         """
         Write the `_sessions.tsv` and `_sessions.json` files, then create empty participant and session directories.
-
-        Parameters
-        ----------
-        bids_directory : directory path
-            The path to the directory where the BIDS dataset will be created.
         """
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-
-        subject_id_to_sessions = collections.defaultdict(list)
+        participant_id_to_sessions = collections.defaultdict(list)
         for session_converter in self.session_converters:
-            subject_id_to_sessions[session_converter.session_metadata.participant.participant_id].append(
+            participant_id_to_sessions[session_converter.session_metadata.participant.participant_id].append(
                 session_converter
             )
 
@@ -352,22 +315,21 @@ class DatasetConverter(BaseConverter):
         sessions_schema = BidsSessionMetadata.model_json_schema()
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
-        for subject_id, sessions_metadata in subject_id_to_sessions.items():
-            subject_directory = bids_directory / f"sub-{subject_id}"
+        for participant_id, sessions_metadata in participant_id_to_sessions.items():
+            subject_directory = self.run_config.bids_directory / f"sub-{participant_id}"
             subject_directory.mkdir(exist_ok=True)
 
             # BIDS requires ses- prefix in table values
-            sessions_data_frame = pandas.DataFrame(
-                {"session_id": [f"ses-{session_metadata.session_id}" for session_metadata in sessions_metadata]}
-            )
+            session_ids = [session_converter.session_id for session_converter in sessions_metadata]
+            sessions_data_frame = pandas.DataFrame({"session_id": [f"ses-{session_id}" for session_id in session_ids]})
 
-            session_tsv_file_path = subject_directory / f"sub-{subject_id}_sessions.tsv"
+            session_tsv_file_path = subject_directory / f"sub-{participant_id}_sessions.tsv"
             sessions_data_frame.to_csv(path_or_buf=session_tsv_file_path, mode="w", index=False, sep="\t")
 
-            session_json_file_path = subject_directory / f"sub-{subject_id}_sessions.json"
+            session_json_file_path = subject_directory / f"sub-{participant_id}_sessions.json"
             with session_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=sessions_json, fp=file_stream, indent=4)
 
-            for session_metadata in sessions_metadata:
-                session_directory = subject_directory / f"ses-{session_metadata.session_id}"
+            for session_id in session_ids:
+                session_directory = subject_directory / f"ses-{session_id}"
                 session_directory.mkdir(exist_ok=True)
