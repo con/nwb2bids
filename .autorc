@@ -2,12 +2,7 @@
   "plugins": [
     "git-tag",
     "first-time-contributor",
-    [
-         "protected-branch",
-         {
-            "requiredStatusChecks": ["Tests / run (ubuntu-latest, 3.10)"]
-         }
-    ],
+    "protected-branch",
     "released"
   ],
   "owner": "con",
