@@ -2,7 +2,12 @@
   "plugins": [
     "git-tag",
     "first-time-contributor",
-    "protected-branch",
+    [
+         "protected-branch",
+         {
+            "requiredStatusChecks": ["DailyTests / run (ubuntu-latest, 3.10)"]
+         }
+    ],
     "released"
   ],
   "owner": "con",
