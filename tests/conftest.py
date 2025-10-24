@@ -171,6 +171,7 @@ def directory_with_multiple_nwbfiles(testing_files_directory: pathlib.Path) -> p
 
     return multiple_nwbfiles_subdirectory
 
+
 @pytest.fixture(scope="session")
 def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_path: pathlib.Path) -> pathlib.Path:
     """
@@ -198,6 +199,7 @@ def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_
     annexed_file_path.symlink_to(target=content_file_path)
 
     return dataset_subdirectory
+
 
 # Problematic test cases
 @pytest.fixture(scope="session")
@@ -273,22 +275,23 @@ def problematic_nwbfile_path_3(testing_files_directory: pathlib.Path) -> pathlib
         file_stream.write(nwbfile)
 
     return nwbfile_path
-  
+
+
 @pytest.fixture(scope="session")
 def problematic_nwbfile_path_missing_session_id(testing_files_directory: pathlib.Path) -> pathlib.Path:
-  nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=None)
 
-  subject = pynwb.file.Subject(
-      subject_id="123",
-      species="Mus musculus",
-      sex="M",
-  )
-  nwbfile.subject = subject
+    subject = pynwb.file.Subject(
+        subject_id="123",
+        species="Mus musculus",
+        sex="M",
+    )
+    nwbfile.subject = subject
 
-  events_subdirectory = testing_files_directory / "missing_session_id"
-  events_subdirectory.mkdir(exist_ok=True)
-  nwbfile_path = events_subdirectory / "missing_session_id.nwb"
-  with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
-      file_stream.write(nwbfile)
+    events_subdirectory = testing_files_directory / "missing_session_id"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "missing_session_id.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
 
-  return nwbfile_path
+    return nwbfile_path
