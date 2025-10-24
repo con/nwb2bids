@@ -2,23 +2,18 @@
 
 ### Release Notes
 
-#### Always include session entity, even with only one subject ([#148](https://github.com/con/nwb2bids/pull/148))
-
-Previously this would fail validation: `session_id` is expected to be a `str`. Elsewhere, there are assumptions that a session entity exists, so we should always use it.
-
----
-
 #### 🚀 Enhancement
 
 - Use two GitHub tokens in Release with Auto workflow [#154](https://github.com/con/nwb2bids/pull/154) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Always include session entity, even with only one subject. Previously this would fail validation: `session_id` is expected to be a `str`. Elsewhere, there are assumptions that a session entity exists, so we should always use it. ([#148](https://github.com/con/nwb2bids/pull/148))
+- Add ability to read from raw dandiset metadata when invalid [#107](https://github.com/con/nwb2bids/pull/107) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Upgraded to `rich-click` backend for CLI [#121](https://github.com/con/nwb2bids/pull/121) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 
 #### 🐛 Bug Fix
 
+- Use two GitHub tokens in Release with Auto workflow [#154](https://github.com/con/nwb2bids/pull/154) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD)
 - Testing auto release [#152](https://github.com/con/nwb2bids/pull/152) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 - Resolved protected branch problem in execution of the "Release with Auto" GH workflow [#151](https://github.com/con/nwb2bids/pull/151) ([@candleindark](https://github.com/candleindark))
-- Always include session entity, even with only one subject [#148](https://github.com/con/nwb2bids/pull/148) ([@asmacdo](https://github.com/asmacdo))
-- Add ability to read from raw dandiset metadata when invalid [#107](https://github.com/con/nwb2bids/pull/107) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
-- Upgraded to `rich-click` backend for CLI [#121](https://github.com/con/nwb2bids/pull/121) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 
 #### ⚠️ Pushed to `main`
 
