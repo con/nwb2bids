@@ -7,14 +7,18 @@ import nwb2bids
 
 def test_messages_baseline(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [minimal_nwbfile_path]
-    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
 
     assert len(messages) == 0
 
 
 def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_1]
-    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
 
     expected_messages = [
         nwb2bids.InspectionResult(
@@ -74,7 +78,9 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
 
 def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_2]
-    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
 
     expected_messages = [
         nwb2bids.InspectionResult(
@@ -150,7 +156,9 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
 
 def test_messages_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_3]
-    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
 
     expected_messages = [
         nwb2bids.InspectionResult(

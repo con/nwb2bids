@@ -1,17 +1,16 @@
 import collections
 import pathlib
 import shutil
-import typing
 
 import pydantic
 import typing_extensions
 
+from ._run_config import RunConfig
 from .._converters._base_converter import BaseConverter
-from .._core._run_id import _generate_run_id
 from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
-from ..sanitization import SanitizationLevel, sanitize_participant_id, sanitize_session_id
+from ..sanitization import sanitize_participant_id, sanitize_session_id
 
 
 class SessionConverter(BaseConverter):
@@ -37,7 +36,7 @@ class SessionConverter(BaseConverter):
     def from_nwb_paths(
         cls,
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
-        run_id: str | None = None,
+        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
     ) -> list[typing_extensions.Self]:
         """
         Initialize a list of session converters from a list of NWB file paths.
@@ -48,19 +47,13 @@ class SessionConverter(BaseConverter):
         ----------
         nwb_paths : iterable of file and directory paths
             An iterable of NWB file paths and directories containing NWB files.
-        run_id : str, optional
-            On each unique run of nwb2bids, a run ID is generated.
-            Set this option to override this to any identifying string.
-            This ID is used in the naming of the notification and sanitization reports saved to your cache directory.
-            The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
+        run_config : RunConfig, optional
+            The configuration for this conversion run.
 
         Returns
         -------
         A list of SessionConverter instances, one per unique session ID.
         """
-        if run_id is None:
-            run_id = _generate_run_id()
-
         all_nwbfile_paths = []
         for nwb_path in nwb_paths:
             if nwb_path.is_file():
@@ -74,9 +67,9 @@ class SessionConverter(BaseConverter):
 
         session_converters = [
             cls(
-                session_id=session_id or "0",  # always include ses entity, even 1-session subjects
+                session_id=session_id or "0",  # Always include `ses-` entity, even for single-session subjects
                 nwbfile_paths=nwbfile_paths,
-                run_id=run_id,
+                run_config=run_config,
             )
             for session_id, nwbfile_paths in unique_session_id_to_nwbfile_paths.items()
         ]
@@ -87,29 +80,9 @@ class SessionConverter(BaseConverter):
             self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwbfile_paths)
             self.messages += self.session_metadata.messages
 
-    @pydantic.validate_call
-    def convert_to_bids_session(
-        self,
-        bids_directory: str | pathlib.Path | None = None,
-        file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
-        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
-    ) -> None:
+    def convert_to_bids_session(self) -> None:
         """
         Convert the NWB file to a BIDS session directory.
-
-        Parameters
-        ----------
-        bids_directory : directory path
-            The path to the directory where the BIDS dataset will be created.
-        file_mode : one of "move", "copy", "symlink", or "auto", default: "auto"
-            Specifies how to handle the NWB files when converting to BIDS format.
-            - "move": Move the files to the BIDS directory.
-            - "copy": Copy the files to the BIDS directory.
-            - "symlink": Create symbolic links to the files in the BIDS directory.
-            - "auto": Decides between all the above based on the system, with preference for linking when possible.
-        sanitization_level : nwb2bids.SanitizationLevel
-            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
-            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
         """
         if len(self.nwbfile_paths) > 1:
             message = (
@@ -117,35 +90,32 @@ class SessionConverter(BaseConverter):
                 "Please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
             )
             raise NotImplementedError(message)
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-        file_mode = self._handle_file_mode(file_mode=file_mode)
-        sanitization_report_file_path = self._handle_sanitization_report()
 
         if self.session_metadata is None:
             self.extract_metadata()
 
         participant_id = sanitize_participant_id(
             participant_id=self.session_metadata.participant.participant_id,
-            sanitization_level=sanitization_level,
-            sanitization_report_file_path=sanitization_report_file_path,
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
             sanitization_report_context="SessionConverter.convert_to_bids_session",
         )
         session_id = sanitize_session_id(
             session_id=self.session_id,
-            sanitization_level=sanitization_level,
-            sanitization_report_file_path=sanitization_report_file_path,
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
             sanitization_report_context="SessionConverter.convert_to_bids_session",
         )
-        session_subdirectory = bids_directory / f"sub-{participant_id}" / f"ses-{session_id}" / "ecephys"
-        session_subdirectory.mkdir(parents=True, exist_ok=True)
+        file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
-        self.write_ecephys_files(bids_directory=bids_directory, sanitization_level=sanitization_level)
+        self.write_ecephys_files()
         if self.session_metadata.events is not None:
-            self.write_events_files(bids_directory=bids_directory, sanitization_level=sanitization_level)
+            self.write_events_files()
 
         # TODO: determine icephys or ecephys suffix
+        ecephys_directory = self._establish_ecephys_subdirectory()
         for nwbfile_path in self.nwbfile_paths:
-            session_file_path = session_subdirectory / f"sub-{participant_id}_ses-{session_id}_ecephys.nwb"
+            session_file_path = ecephys_directory / f"{file_prefix}_ecephys.nwb"
 
             # If not a local path, then it is a URL, so write simple 'symlink' pointing to the URL
             if not isinstance(nwbfile_path, pathlib.Path):
@@ -153,29 +123,16 @@ class SessionConverter(BaseConverter):
                     file_stream.write(str(nwbfile_path))
                 continue
 
-            if file_mode == "copy":
+            if self.run_config.file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
-            elif file_mode == "move":
+            elif self.run_config.file_mode == "move":
                 shutil.move(src=nwbfile_path, dst=session_file_path)
-            elif file_mode == "symlink":
+            elif self.run_config.file_mode == "symlink":
                 session_file_path.symlink_to(target=nwbfile_path)
 
-    @pydantic.validate_call
-    def write_ecephys_files(
-        self,
-        bids_directory: str | pathlib.Path | None = None,
-        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
-    ) -> None:
+    def write_ecephys_files(self) -> None:
         """
         Write the `_probes`, `_channels`, and `_electrodes` metadata files, both `.tsv` and `.json`, for this session .
-
-        Parameters
-        ----------
-        bids_directory : directory path
-            The path to the directory where the BIDS dataset will be created.
-        sanitization_level : nwb2bids.SanitizationLevel
-            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
-            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
         """
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
@@ -187,24 +144,22 @@ class SessionConverter(BaseConverter):
             and self.session_metadata.electrode_table is None
         ):
             return
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-        ecephys_directory = self._establish_ecephys_subdirectory(bids_directory=bids_directory)
-        sanitization_report_file_path = self._handle_sanitization_report()
 
         participant_id = sanitize_participant_id(
             participant_id=self.session_metadata.participant.participant_id,
-            sanitization_level=sanitization_level,
-            sanitization_report_file_path=sanitization_report_file_path,
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
             sanitization_report_context="SessionConverter.write_ecephys_files",
         )
         session_id = sanitize_session_id(
             session_id=self.session_id,
-            sanitization_level=sanitization_level,
-            sanitization_report_file_path=sanitization_report_file_path,
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
             sanitization_report_context="SessionConverter.write_ecephys_files",
         )
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
+        ecephys_directory = self._establish_ecephys_subdirectory()
         if self.session_metadata.probe_table is not None:
             probes_tsv_file_path = ecephys_directory / f"{file_prefix}_probes.tsv"
             self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)
@@ -226,47 +181,30 @@ class SessionConverter(BaseConverter):
             electrodes_json_file_path = ecephys_directory / f"{file_prefix}_electrodes.json"
             self.session_metadata.electrode_table.to_json(file_path=electrodes_json_file_path)
 
-    @pydantic.validate_call
-    def write_events_files(
-        self,
-        bids_directory: str | pathlib.Path | None = None,
-        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
-    ) -> None:
-        """
-        Write the `_events.tsv` and `_events.json` files for this session.
-
-        Parameters
-        ----------
-        bids_directory : directory path
-            The path to the directory where the BIDS dataset will be created.
-        sanitization_level : nwb2bids.SanitizationLevel
-            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
-            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
-        """
+    def write_events_files(self) -> None:
+        """Write the `_events.tsv` and `_events.json` files for this session."""
         if self.session_metadata.events is None:
             message = "No events metadata found in the session metadata - unable to write events TSV."
             raise ValueError(message)
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-        ecephys_directory = self._establish_ecephys_subdirectory(bids_directory=bids_directory)
-        sanitization_report_file_path = self._handle_sanitization_report()
 
         participant_id = sanitize_participant_id(
             participant_id=self.session_metadata.participant.participant_id,
-            sanitization_level=sanitization_level,
-            sanitization_report_file_path=sanitization_report_file_path,
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
             sanitization_report_context="SessionConverter.write_events_files",
         )
         session_id = sanitize_session_id(
             session_id=self.session_id,
-            sanitization_level=sanitization_level,
-            sanitization_report_file_path=sanitization_report_file_path,
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
             sanitization_report_context="SessionConverter.write_events_files",
         )
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
+        ecephys_directory = self._establish_ecephys_subdirectory()
         session_events_tsv_file_path = ecephys_directory / f"{file_prefix}_events.tsv"
         self.session_metadata.events.to_tsv(file_path=session_events_tsv_file_path)
 
@@ -274,10 +212,8 @@ class SessionConverter(BaseConverter):
         session_events_metadata_file_path = ecephys_directory / f"{file_prefix}_events.json"
         self.session_metadata.events.to_json(file_path=session_events_metadata_file_path)
 
-        # IDEA: check events.json files, see if all are the same and if so remove the duplicates and move to outer level
-
-    def _establish_ecephys_subdirectory(self, bids_directory: pathlib.Path) -> pathlib.Path:
-        subject_directory = bids_directory / f"sub-{self.session_metadata.participant.participant_id}"
+    def _establish_ecephys_subdirectory(self) -> pathlib.Path:
+        subject_directory = self.run_config.bids_directory / f"sub-{self.session_metadata.participant.participant_id}"
         subject_directory.mkdir(exist_ok=True)
         session_directory = subject_directory / f"ses-{self.session_id}"
         session_directory.mkdir(exist_ok=True)

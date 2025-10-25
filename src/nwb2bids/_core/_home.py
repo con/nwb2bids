@@ -11,5 +11,4 @@ def _get_home_directory() -> pathlib.Path:
     user_home = pathlib.Path.home()
     nwb2bids_home = user_home / ".nwb2bids"
     nwb2bids_home.mkdir(exist_ok=True)
-
     return nwb2bids_home

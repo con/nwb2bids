@@ -9,13 +9,13 @@ def test_convert_nwb_dataset_level_1_sanitization(
     problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [problematic_nwbfile_path_2]
-    notifications = nwb2bids.convert_nwb_dataset(
-        nwb_paths=nwb_paths,
+    run_config = nwb2bids.RunConfig(
         bids_directory=temporary_bids_directory,
         sanitization_level=nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS,
     )
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
-    assert len(notifications) == 4
+    assert len(converter.messages) == 4
     expected_structure = {
         temporary_bids_directory: {
             "directories": {"sub-bad+subject+id"},

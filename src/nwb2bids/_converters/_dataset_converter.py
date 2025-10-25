@@ -1,20 +1,18 @@
 import collections
 import json
-import pathlib
 import traceback
-import typing
 
 import pandas
 import pydantic
 import typing_extensions
 
 from ._dandi_utils import get_bids_dataset_description
+from ._run_config import RunConfig
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
-from .._core._run_id import _generate_run_id
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..sanitization import SanitizationLevel, sanitize_participant_id, sanitize_session_id
+from ..sanitization import sanitize_participant_id, sanitize_session_id
 
 
 class DatasetConverter(BaseConverter):
@@ -48,7 +46,7 @@ class DatasetConverter(BaseConverter):
         api_url: str | None = None,
         token: str | None = None,
         limit: int | None = None,
-        run_id: str | None = None,
+        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
     ) -> typing_extensions.Self | None:
         """
         Initialize a converter of a Dandiset to BIDS format.
@@ -69,15 +67,9 @@ class DatasetConverter(BaseConverter):
         limit : int, optional
             If specified, limits the number of sessions to convert.
             This is mainly useful for testing purposes.
-        run_id : str, optional
-            On each unique run of nwb2bids, a run ID is generated.
-            Set this option to override this to any identifying string.
-            This ID is used in the naming of the notification and sanitization reports saved to your cache directory.
-            The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
+        run_config : RunConfig, optional
+            The configuration for this conversion run.
         """
-        if run_id is None:
-            run_id = _generate_run_id()
-
         try:
             import dandi.dandiapi
 
@@ -111,13 +103,13 @@ class DatasetConverter(BaseConverter):
                 SessionConverter(
                     session_id=session_id,
                     nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
-                    run_id=run_id,
+                    run_config=run_config,
                 )
                 for session_id, assets in sorted_session_id_to_assets.items()
             ]
 
             dataset_converter = cls(
-                session_converters=session_converters, dataset_description=dataset_description, run_id=run_id
+                session_converters=session_converters, dataset_description=dataset_description, run_config=run_config
             )
             dataset_converter._internal_messages = _internal_messages
             return dataset_converter
@@ -135,7 +127,7 @@ class DatasetConverter(BaseConverter):
                 )
             ]
 
-            dataset_converter = cls(session_converters=[], dataset_description=None, run_id=run_id)
+            dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
 
         dataset_converter._internal_messages = _internal_messages
         return dataset_converter
@@ -145,8 +137,7 @@ class DatasetConverter(BaseConverter):
     def from_nwb_paths(
         cls,
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
-        additional_metadata_file_path: pydantic.FilePath | None = None,
-        run_id: str | None = None,
+        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
     ) -> typing_extensions.Self:
         """
         Initialize a converter of NWB files to BIDS format.
@@ -155,26 +146,19 @@ class DatasetConverter(BaseConverter):
         ----------
         nwb_paths : iterable of file and directory paths
             An iterable of NWB file paths and directories containing NWB files.
-        additional_metadata_file_path : file path, optional
-            The path to a JSON file containing additional metadata to be included in the BIDS dataset.
-        run_id : str, optional
-            On each unique run of nwb2bids, a run ID is generated.
-            Set this option to override this to any identifying string.
-            This ID is used in the naming of the notification and sanitization reports saved to your cache directory.
-            The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
+        run_config : RunConfig, optional
+            The configuration for this conversion run.
 
         Returns
         -------
         An instance of DatasetConverter.
         """
-        if run_id is None:
-            run_id = _generate_run_id()
-
         try:
-            session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+            session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
 
             dataset_description = None
-            if additional_metadata_file_path is not None:
+            additional_metadata_file_path = run_config.additional_metadata_file_path
+            if run_config.additional_metadata_file_path is not None:
                 dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
             session_messages = [
@@ -185,7 +169,7 @@ class DatasetConverter(BaseConverter):
             ]
 
             dataset_converter = cls(
-                session_converters=session_converters, dataset_description=dataset_description, run_id=run_id
+                session_converters=session_converters, dataset_description=dataset_description, run_config=run_config
             )
             dataset_converter._internal_messages = session_messages
             return dataset_converter
@@ -202,7 +186,7 @@ class DatasetConverter(BaseConverter):
                     severity=Severity.ERROR,
                 )
             ]
-            dataset_converter = cls(session_converters=[], dataset_description=None, run_id=run_id)
+            dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
             dataset_converter._internal_messages = _internal_messages
             return dataset_converter
 
@@ -229,51 +213,18 @@ class DatasetConverter(BaseConverter):
             )
             self._internal_messages.append(message)
 
-    @pydantic.validate_call
-    def convert_to_bids_dataset(
-        self,
-        bids_directory: str | pathlib.Path | None = None,
-        file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
-        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
-    ) -> None:
-        """
-        Convert the directory of NWB files to a BIDS dataset.
-
-        Parameters
-        ----------
-        bids_directory : directory path, optional
-            The path to the directory where the BIDS dataset will be created.
-            If not specified, the current working directory will be used if it is valid to become a BIDS dataset.
-            To be a valid BIDS dataset, the directory must either start off empty or otherwise contain BIDS-compatible
-            files, such as `dataset_description.json`, `participants.tsv`, `README.md`, and so on.
-        file_mode : one of "move", "copy", "symlink", or "auto", default: "auto"
-            Specifies how to handle the NWB files when converting to BIDS format.
-            - "move": Move the files to the BIDS directory.
-            - "copy": Copy the files to the BIDS directory.
-            - "symlink": Create symbolic links to the files in the BIDS directory.
-            - "auto": Decides between all the above based on the system, with preference for linking when possible.
-        sanitization_level : nwb2bids.SanitizationLevel
-            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
-            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
-        """
+    def convert_to_bids_dataset(self) -> None:
+        """Convert the directory of NWB files to a BIDS dataset."""
         try:
-            bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-
             if self.dataset_description is not None:
-                self.write_dataset_description(bids_directory=bids_directory)
+                self.write_dataset_description()
 
-            self.write_participants_metadata(bids_directory=bids_directory, sanitization_level=sanitization_level)
-            self.write_sessions_metadata(bids_directory=bids_directory, sanitization_level=sanitization_level)
+            self.write_participants_metadata()
+            self.write_sessions_metadata()
 
-            generator = (
-                session_converter.convert_to_bids_session(
-                    bids_directory=bids_directory,
-                    file_mode=file_mode,
-                    sanitization_level=sanitization_level,
-                )
-                for session_converter in self.session_converters
-            )
-            collections.deque(generator, maxlen=0)
+            for session_converter in self.session_converters:
+                session_converter.convert_to_bids_session()
+
         except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
@@ -287,44 +238,16 @@ class DatasetConverter(BaseConverter):
             )
             self._internal_messages.append(message)
 
-    @pydantic.validate_call
-    def write_dataset_description(self, bids_directory: str | pathlib.Path | None = None) -> None:
-        """
-        Write the `dataset_description.json` file.
-
-        Parameters
-        ----------
-        bids_directory : directory path
-            The path to the directory where the BIDS dataset will be created.
-        """
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-
+    def write_dataset_description(self) -> None:
+        """Write the `dataset_description.json` file."""
         dataset_description_dictionary = self.dataset_description.model_dump()
 
-        dataset_description_file_path = bids_directory / "dataset_description.json"
+        dataset_description_file_path = self.run_config.bids_directory / "dataset_description.json"
         with dataset_description_file_path.open(mode="w") as file_stream:
             json.dump(obj=dataset_description_dictionary, fp=file_stream, indent=4)
 
-    @pydantic.validate_call
-    def write_participants_metadata(
-        self,
-        bids_directory: str | pathlib.Path | None = None,
-        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
-    ) -> None:
-        """
-        Write the `participants.tsv` and `participants.json` files.
-
-        Parameters
-        ----------
-        bids_directory : directory path
-            The path to the directory where the BIDS dataset will be created.
-        sanitization_level : nwb2bids.SanitizationLevel
-            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
-            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
-        """
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-        sanitization_report_file_path = self._handle_sanitization_report()
-
+    def write_participants_metadata(self) -> None:
+        """Write the `participants.tsv` and `participants.json` files."""
         model_dump_per_session = []
         for session_converter in self.session_converters:
             model_dump = session_converter.session_metadata.participant.model_dump()
@@ -347,8 +270,8 @@ class DatasetConverter(BaseConverter):
         deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
             lambda participant_id: sanitize_participant_id(
                 participant_id=participant_id,
-                sanitization_level=sanitization_level,
-                sanitization_report_file_path=sanitization_report_file_path,
+                sanitization_level=self.run_config.sanitization_level,
+                sanitization_file_path=self.run_config.sanitization_file_path,
                 sanitization_report_context="DatasetConverter.write_participants_metadata",
             )
         )
@@ -372,7 +295,7 @@ class DatasetConverter(BaseConverter):
             if is_field_in_table.get(field, False) is True and field not in required_column_order
         ]
 
-        participants_tsv_file_path = bids_directory / "participants.tsv"
+        participants_tsv_file_path = self.run_config.bids_directory / "participants.tsv"
         participants_data_frame.to_csv(
             path_or_buf=participants_tsv_file_path, mode="w", index=False, sep="\t", columns=column_order
         )
@@ -385,30 +308,14 @@ class DatasetConverter(BaseConverter):
                 for field, info in participants_schema["properties"].items()
                 if is_field_in_table.get(field, False) is True
             }
-            participants_json_file_path = bids_directory / "participants.json"
+            participants_json_file_path = self.run_config.bids_directory / "participants.json"
             with participants_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=participants_json, fp=file_stream, indent=4)
 
-    @pydantic.validate_call
-    def write_sessions_metadata(
-        self,
-        bids_directory: str | pathlib.Path | None = None,
-        sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
-    ) -> None:
+    def write_sessions_metadata(self) -> None:
         """
         Write the `_sessions.tsv` and `_sessions.json` files, then create empty participant and session directories.
-
-        Parameters
-        ----------
-        bids_directory : directory path
-            The path to the directory where the BIDS dataset will be created.
-        sanitization_level : nwb2bids.SanitizationLevel
-            Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
-            Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
         """
-        bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-        sanitization_report_file_path = self._handle_sanitization_report()
-
         participant_id_to_sessions = collections.defaultdict(list)
         for session_converter in self.session_converters:
             participant_id_to_sessions[session_converter.session_metadata.participant.participant_id].append(
@@ -423,21 +330,21 @@ class DatasetConverter(BaseConverter):
             # Apply sanitization
             sanitized_participant_id = sanitize_participant_id(
                 participant_id=participant_id,
-                sanitization_level=sanitization_level,
-                sanitization_report_file_path=sanitization_report_file_path,
+                sanitization_level=self.run_config.sanitization_level,
+                sanitization_file_path=self.run_config.sanitization_file_path,
                 sanitization_report_context="DatasetConverter.write_sessions_metadata",
             )
             sanitized_session_ids = [
                 sanitize_session_id(
                     session_id=session_metadata.session_id,
-                    sanitization_level=sanitization_level,
-                    sanitization_report_file_path=sanitization_report_file_path,
+                    sanitization_level=self.run_config.sanitization_level,
+                    sanitization_file_path=self.run_config.sanitization_file_path,
                     sanitization_report_context="DatasetConverter.write_sessions_metadata",
                 )
                 for session_metadata in sessions_metadata
             ]
 
-            subject_directory = bids_directory / f"sub-{sanitized_participant_id}"
+            subject_directory = self.run_config.bids_directory / f"sub-{sanitized_participant_id}"
             subject_directory.mkdir(exist_ok=True)
 
             # BIDS requires ses- prefix in table values
