@@ -11,6 +11,7 @@ import typing_extensions
 from ._dandi_utils import get_bids_dataset_description
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
+from .._core._run_id import _generate_run_id
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
 from ..sanitization import SanitizationLevel, sanitize_participant_id, sanitize_session_id
@@ -47,6 +48,7 @@ class DatasetConverter(BaseConverter):
         api_url: str | None = None,
         token: str | None = None,
         limit: int | None = None,
+        run_id: str | None = None,
     ) -> typing_extensions.Self | None:
         """
         Initialize a converter of a Dandiset to BIDS format.
@@ -67,7 +69,15 @@ class DatasetConverter(BaseConverter):
         limit : int, optional
             If specified, limits the number of sessions to convert.
             This is mainly useful for testing purposes.
+        run_id : str, optional
+            On each unique run of nwb2bids, a run ID is generated.
+            Set this option to override this to any identifying string.
+            This ID is used in the naming of the notification and sanitization reports saved to your cache directory.
+            The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
         """
+        if run_id is None:
+            run_id = _generate_run_id()
+
         try:
             import dandi.dandiapi
 
@@ -101,11 +111,14 @@ class DatasetConverter(BaseConverter):
                 SessionConverter(
                     session_id=session_id,
                     nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
+                    run_id=run_id,
                 )
                 for session_id, assets in sorted_session_id_to_assets.items()
             ]
 
-            dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+            dataset_converter = cls(
+                session_converters=session_converters, dataset_description=dataset_description, run_id=run_id
+            )
             dataset_converter._internal_messages = _internal_messages
             return dataset_converter
         except Exception:  # noqa
@@ -122,7 +135,7 @@ class DatasetConverter(BaseConverter):
                 )
             ]
 
-            dataset_converter = cls(session_converters=[], dataset_description=None)
+            dataset_converter = cls(session_converters=[], dataset_description=None, run_id=run_id)
 
         dataset_converter._internal_messages = _internal_messages
         return dataset_converter
@@ -133,6 +146,7 @@ class DatasetConverter(BaseConverter):
         cls,
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
         additional_metadata_file_path: pydantic.FilePath | None = None,
+        run_id: str | None = None,
     ) -> typing_extensions.Self:
         """
         Initialize a converter of NWB files to BIDS format.
@@ -143,11 +157,19 @@ class DatasetConverter(BaseConverter):
             An iterable of NWB file paths and directories containing NWB files.
         additional_metadata_file_path : file path, optional
             The path to a JSON file containing additional metadata to be included in the BIDS dataset.
+        run_id : str, optional
+            On each unique run of nwb2bids, a run ID is generated.
+            Set this option to override this to any identifying string.
+            This ID is used in the naming of the notification and sanitization reports saved to your cache directory.
+            The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
 
         Returns
         -------
         An instance of DatasetConverter.
         """
+        if run_id is None:
+            run_id = _generate_run_id()
+
         try:
             session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
 
@@ -162,7 +184,9 @@ class DatasetConverter(BaseConverter):
                 if session_converter.messages is not None
             ]
 
-            dataset_converter = cls(session_converters=session_converters, dataset_description=dataset_description)
+            dataset_converter = cls(
+                session_converters=session_converters, dataset_description=dataset_description, run_id=run_id
+            )
             dataset_converter._internal_messages = session_messages
             return dataset_converter
         except Exception:  # noqa
@@ -178,7 +202,7 @@ class DatasetConverter(BaseConverter):
                     severity=Severity.ERROR,
                 )
             ]
-            dataset_converter = cls(session_converters=[], dataset_description=None)
+            dataset_converter = cls(session_converters=[], dataset_description=None, run_id=run_id)
             dataset_converter._internal_messages = _internal_messages
             return dataset_converter
 
@@ -211,7 +235,6 @@ class DatasetConverter(BaseConverter):
         bids_directory: str | pathlib.Path | None = None,
         file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
         sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
-        sanitization_report_file_path: pydantic.FilePath | None = None,
     ) -> None:
         """
         Convert the directory of NWB files to a BIDS dataset.
@@ -232,14 +255,9 @@ class DatasetConverter(BaseConverter):
         sanitization_level : nwb2bids.SanitizationLevel
             Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
             Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
-        sanitization_report_file_path : file path, optional
-            The path to a file where a report of the sanitization actions taken will be written.
-            If None, a report ID will be generated based off the time the conversion is run and the report will be
-            found under `~/.nwb2bids/sanitization_reports/`.
         """
         try:
             bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-            self._handle_sanitization_report_file_path(sanitization_report_file_path=sanitization_report_file_path)
 
             if self.dataset_description is not None:
                 self.write_dataset_description(bids_directory=bids_directory)
@@ -252,7 +270,6 @@ class DatasetConverter(BaseConverter):
                     bids_directory=bids_directory,
                     file_mode=file_mode,
                     sanitization_level=sanitization_level,
-                    sanitization_report_file_path=sanitization_report_file_path,
                 )
                 for session_converter in self.session_converters
             )
@@ -306,6 +323,7 @@ class DatasetConverter(BaseConverter):
             Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
         """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
+        sanitization_report_file_path = self._handle_sanitization_report()
 
         model_dump_per_session = []
         for session_converter in self.session_converters:
@@ -328,7 +346,10 @@ class DatasetConverter(BaseConverter):
         # Apply sanitization
         deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
             lambda participant_id: sanitize_participant_id(
-                participant_id=participant_id, sanitization_level=sanitization_level
+                participant_id=participant_id,
+                sanitization_level=sanitization_level,
+                sanitization_report_file_path=sanitization_report_file_path,
+                sanitization_report_context="DatasetConverter.write_participants_metadata",
             )
         )
 
@@ -386,6 +407,7 @@ class DatasetConverter(BaseConverter):
             Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
         """
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
+        sanitization_report_file_path = self._handle_sanitization_report()
 
         participant_id_to_sessions = collections.defaultdict(list)
         for session_converter in self.session_converters:
@@ -400,10 +422,18 @@ class DatasetConverter(BaseConverter):
         for participant_id, sessions_metadata in participant_id_to_sessions.items():
             # Apply sanitization
             sanitized_participant_id = sanitize_participant_id(
-                participant_id=participant_id, sanitization_level=sanitization_level
+                participant_id=participant_id,
+                sanitization_level=sanitization_level,
+                sanitization_report_file_path=sanitization_report_file_path,
+                sanitization_report_context="DatasetConverter.write_sessions_metadata",
             )
             sanitized_session_ids = [
-                sanitize_session_id(session_id=session_metadata.session_id, sanitization_level=sanitization_level)
+                sanitize_session_id(
+                    session_id=session_metadata.session_id,
+                    sanitization_level=sanitization_level,
+                    sanitization_report_file_path=sanitization_report_file_path,
+                    sanitization_report_context="DatasetConverter.write_sessions_metadata",
+                )
                 for session_metadata in sessions_metadata
             ]
 

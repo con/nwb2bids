@@ -1,5 +1,4 @@
 import abc
-import datetime
 import json
 import pathlib
 import tempfile
@@ -7,9 +6,11 @@ import typing
 
 import pydantic
 
+from .._core._home import _get_home_directory
+
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):
-    sanitization_report_file_path: pydantic.FilePath | None = None
+    run_id: str
 
     @abc.abstractmethod
     def extract_metadata(self) -> None:
@@ -38,20 +39,14 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
 
         return bids_directory
 
-    def _handle_sanitization_report(self, sanitization_report_file_path: pathlib.Path | None = None) -> None:
-        if sanitization_report_file_path is None:
-            report_id = datetime.datetime.now().isoformat(timespec="minutes").replace(":", "-")
+    def _handle_sanitization_report(self) -> pathlib.Path:
+        nwb2bids_home_dir = _get_home_directory()
+        run_dir = nwb2bids_home_dir / self.run_id
+        run_dir.mkdir(exist_ok=True)
+        sanitization_report_file_path = run_dir / f"{self.run_id}_sanitization.txt"
+        sanitization_report_file_path.touch()
 
-            nwb2bids_home_dir = (
-                pathlib.Path.home() / ".nwb2bids"
-            )  # TODO: make this configurable (and default to cache/tmp)
-            nwb2bids_home_dir.mkdir(exist_ok=True)
-            sanitization_reports_dir = nwb2bids_home_dir / "sanitization_reports"
-            sanitization_reports_dir.mkdir(exist_ok=True)
-            sanitization_report_file_path = sanitization_reports_dir / f"{report_id}.txt"
-            sanitization_report_file_path.touch(exist_ok=True)
-
-        self.sanitization_report_file_path = sanitization_report_file_path
+        return sanitization_report_file_path
 
     @staticmethod
     def _validate_existing_directory_as_bids(bids_directory: pathlib.Path) -> None:

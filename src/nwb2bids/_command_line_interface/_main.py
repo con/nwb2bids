@@ -55,6 +55,18 @@ def _nwb2bids_cli():
     default="NONE",
 )
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
+@rich_click.option(
+    "--run-id",
+    help=(
+        "On each unique run of nwb2bids, a run ID is generated. "
+        "Set this option to override this to any identifying string. "
+        "This ID is used in the naming of the notification and sanitization reports saved to your cache directory. "
+        'The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."'
+    ),
+    required=False,
+    type=str,
+    default=None,
+)
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
@@ -62,6 +74,7 @@ def _run_convert_nwb_dataset(
     additional_metadata_file_path: str | None = None,
     sanitization: typing.Literal["NONE", "0", "CRITICAL_BIDS_LABELS", "1"] = "NONE",
     silent: bool = False,
+    run_id: str | None = None,
 ) -> None:
     """
     Convert NWB files to BIDS format.

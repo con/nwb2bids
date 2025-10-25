@@ -4,6 +4,7 @@ import typing
 import pydantic
 
 from .._converters._dataset_converter import DatasetConverter
+from .._core._run_id import _generate_run_id
 from ..sanitization import SanitizationLevel
 
 
@@ -15,7 +16,7 @@ def convert_nwb_dataset(
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto",
     additional_metadata_file_path: pydantic.FilePath | None = None,
     sanitization_level: SanitizationLevel = SanitizationLevel.NONE,
-    sanitization_report_file_path: pydantic.FilePath | None = None,
+    run_id: str | None = None,
 ) -> DatasetConverter:
     """
     Convert a dataset of NWB files to a BIDS dataset.
@@ -39,10 +40,11 @@ def convert_nwb_dataset(
     sanitization_level : nwb2bids.SanitizationLevel
         Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
         Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
-    sanitization_report_file_path : file path, optional
-        The path to a file where a report of the sanitization actions taken will be written.
-        If None, a report ID will be generated based off the time the conversion is run and the report will be
-        found under `~/.nwb2bids/sanitization_reports/`.
+    run_id : str, optional
+        On each unique run of nwb2bids, a run ID is generated.
+        Set this option to override this to any identifying string.
+        This ID is used in the naming of the notification and sanitization reports saved to your cache directory.
+        The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
 
     Returns
     -------
@@ -50,9 +52,13 @@ def convert_nwb_dataset(
         The DatasetConverter used to perform the conversion.
         Contains notifications and other contextual information about the conversion process.
     """
+    if run_id is None:
+        run_id = _generate_run_id()
+
     converter = DatasetConverter.from_nwb_paths(
         nwb_paths=nwb_paths,
         additional_metadata_file_path=additional_metadata_file_path,
+        run_id=run_id,
     )
     converter.extract_metadata()
     converter.convert_to_bids_dataset(
