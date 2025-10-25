@@ -6,8 +6,12 @@ import typing
 
 import pydantic
 
+from .._core._home import _get_home_directory
+
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):
+    run_id: str
+
     @abc.abstractmethod
     def extract_metadata(self) -> None:
         """
@@ -34,6 +38,15 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
         self.extract_metadata()
 
         return bids_directory
+
+    def _handle_sanitization_report(self) -> pathlib.Path:
+        nwb2bids_home_dir = _get_home_directory()
+        run_dir = nwb2bids_home_dir / self.run_id
+        run_dir.mkdir(exist_ok=True)
+        sanitization_report_file_path = run_dir / f"{self.run_id}_sanitization.txt"
+        sanitization_report_file_path.touch()
+
+        return sanitization_report_file_path
 
     @staticmethod
     def _validate_existing_directory_as_bids(bids_directory: pathlib.Path) -> None:

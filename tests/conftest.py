@@ -206,7 +206,7 @@ def problematic_nwbfile_path_2(testing_files_directory: pathlib.Path) -> pathlib
     """
     nwbfile = pynwb.NWBFile(
         identifier="not a UUID",
-        session_id="problematic2",
+        session_id="#problematic!2~",
         session_description="",
         session_start_time=datetime.datetime.now().astimezone(),
     )

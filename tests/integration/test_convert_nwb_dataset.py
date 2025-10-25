@@ -9,8 +9,9 @@ def test_minimal_convert_nwb_dataset_from_directory(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path.parent]
-    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
 
+    assert len(notifications) < 3
     expected_structure = {
         temporary_bids_directory: {
             "directories": {"sub-123"},
