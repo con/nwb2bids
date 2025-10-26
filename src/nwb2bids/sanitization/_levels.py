@@ -15,7 +15,11 @@ class SanitizationLevel(enum.IntEnum):
         This primarily includes the session and subject labels,
         where any non-alphanumeric characters are replaced with plus signs.
 
-        For example: `nwbfile.subject.subject_id = "My Subject_01"` becomes `sub-My+Subject+01` entity in BIDS filenames when using the first level of saniziation. Otherwise, the filenames would have included `sub-My Subject_01`.
+    Examples
+    --------
+    A file such as `nwbfile.subject.subject_id = "My Subject_01"` becomes the `sub-My+Subject+01` entity-label pair
+    in BIDS filenames when using the first level of saniziation.
+    Otherwise, the filenames would have included the string `sub-My Subject_01`.
     """
 
     NONE = 0
