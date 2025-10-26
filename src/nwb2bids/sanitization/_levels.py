@@ -18,7 +18,7 @@ class SanitizationLevel(enum.IntEnum):
     Examples
     --------
     A file such as `nwbfile.subject.subject_id = "My Subject_01"` becomes the `sub-My+Subject+01` entity-label pair
-    in BIDS filenames when using the first level of saniziation.
+    in BIDS filenames when using the first level of sanitization.
     Otherwise, the filenames would have included the string `sub-My Subject_01`.
     """
 
