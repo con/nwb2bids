@@ -7,11 +7,10 @@ import pydantic
 
 from .._core._home import _get_home_directory
 from .._core._run_id import _generate_run_id
-from ..bids_models._base_metadata_model import MutableModel  # TODO: move this to an outer common level
 from ..sanitization import SanitizationLevel
 
 
-class RunConfig(MutableModel):
+class RunConfig(pydantic.BaseModel):
     """
     Specifies configuration options for a single run of NWB to BIDS conversion.
 
@@ -42,24 +41,36 @@ class RunConfig(MutableModel):
         The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
     """
 
-    bids_directory: pydantic.DirectoryPath = pydantic.Field(default_factory=pathlib.Path.cwd)
+    bids_directory: pydantic.DirectoryPath | None = None
     sanitization_level: SanitizationLevel = SanitizationLevel.NONE
     additional_metadata_file_path: pydantic.FilePath | None = None
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto"
     cache_directory: pydantic.DirectoryPath | None = None
-    run_id: str = pydantic.Field(default_factory=_generate_run_id)
+    run_id: str | None = None
+    _parent_run_directory: pathlib.Path | None = pydantic.PrivateAttr(default=None)
+    _run_directory: pathlib.Path | None = pydantic.PrivateAttr(default=None)
+
+    model_config = pydantic.ConfigDict(
+        validate_assignment=True,  # Re-validate model on mutation
+    )
 
     def model_post_init(self, context: typing.Any, /) -> None:
         """Ensure the various run directories and files are created."""
+        if self.run_id is None:
+            self.run_id = _generate_run_id()
+
+        if self.bids_directory is None:
+            self.bids_directory = pathlib.Path.cwd()
+
         self._validate_existing_directory_as_bids()
         self._determine_file_mode()
 
         if self.cache_directory is None:
             self.cache_directory = _get_home_directory()
-        self.parent_run_directory = self.cache_directory / "runs"
-        self.parent_run_directory.mkdir(exist_ok=True)
-        self.session_run_directory = self.parent_run_directory / self.run_id
-        self.run_directory.mkdir(exist_ok=True)
+        self._parent_run_directory = self.cache_directory / "runs"
+        self._parent_run_directory.mkdir(exist_ok=True)
+        self._run_directory = self._parent_run_directory / self.run_id
+        self._run_directory.mkdir(exist_ok=True)
 
         self.sanitization_file_path.touch()
         self.notifications_file_path.touch()
@@ -69,21 +80,21 @@ class RunConfig(MutableModel):
     @property
     def sanitization_file_path(self) -> pathlib.Path:
         """The file path leading to a record of sanitizations made."""
-        sanitization_file_path = self.run_directory / f"{self.run_id}_sanitization.txt"
+        sanitization_file_path = self._run_directory / f"{self.run_id}_sanitization.txt"
         return sanitization_file_path
 
     @pydantic.computed_field
     @property
     def notifications_file_path(self) -> pathlib.Path:
         """The file path leading to a human-readable notifications report."""
-        notifications_file_path = self.run_directory / f"{self.run_id}_notifications.txt"
+        notifications_file_path = self._run_directory / f"{self.run_id}_notifications.txt"
         return notifications_file_path
 
     @pydantic.computed_field
     @property
     def notifications_json_file_path(self) -> pathlib.Path:
         """The file path leading to a JSON dump of the notifications."""
-        notifications_file_path = self.run_directory / f"{self.run_id}_notifications.json"
+        notifications_file_path = self._run_directory / f"{self.run_id}_notifications.json"
         return notifications_file_path
 
     def _validate_existing_directory_as_bids(self) -> None:

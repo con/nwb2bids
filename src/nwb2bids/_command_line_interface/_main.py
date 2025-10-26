@@ -3,6 +3,7 @@ import typing
 
 import rich_click
 
+from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
 from ..sanitization import SanitizationLevel
 
@@ -70,11 +71,12 @@ def _nwb2bids_cli():
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
-    file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
-    additional_metadata_file_path: str | None = None,
     sanitization: typing.Literal["NONE", "0", "CRITICAL_BIDS_LABELS", "1"] = "NONE",
-    silent: bool = False,
+    additional_metadata_file_path: str | None = None,
+    file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
+    cache_directory: str | None = None,
     run_id: str | None = None,
+    silent: bool = False,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -89,13 +91,15 @@ def _run_convert_nwb_dataset(
         SanitizationLevel(int(sanitization)) if sanitization.isdigit() else getattr(SanitizationLevel, sanitization)
     )
 
-    converter = convert_nwb_dataset(
-        nwb_paths=handled_nwb_paths,
+    run_config = RunConfig(
         bids_directory=bids_directory,
-        file_mode=file_mode,
-        additional_metadata_file_path=additional_metadata_file_path,
         sanitization_level=handled_sanitization_level,
+        additional_metadata_file_path=additional_metadata_file_path,
+        file_mode=file_mode,
+        cache_directory=cache_directory,
+        run_id=run_id,
     )
+    converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
     messages = converter.messages
     console_notification = ""

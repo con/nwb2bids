@@ -213,9 +213,22 @@ class SessionConverter(BaseConverter):
         self.session_metadata.events.to_json(file_path=session_events_metadata_file_path)
 
     def _establish_ecephys_subdirectory(self) -> pathlib.Path:
-        subject_directory = self.run_config.bids_directory / f"sub-{self.session_metadata.participant.participant_id}"
+        participant_id = sanitize_participant_id(
+            participant_id=self.session_metadata.participant.participant_id,
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
+            sanitization_report_context="SessionConverter.write_events_files",
+        )
+        session_id = sanitize_session_id(
+            session_id=self.session_id,
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
+            sanitization_report_context="SessionConverter.write_events_files",
+        )
+
+        subject_directory = self.run_config.bids_directory / f"sub-{participant_id}"
         subject_directory.mkdir(exist_ok=True)
-        session_directory = subject_directory / f"ses-{self.session_id}"
+        session_directory = subject_directory / f"ses-{session_id}"
         session_directory.mkdir(exist_ok=True)
         ecephys_directory = session_directory / "ecephys"
         ecephys_directory.mkdir(exist_ok=True)

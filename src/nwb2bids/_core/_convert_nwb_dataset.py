@@ -17,7 +17,8 @@ def convert_nwb_dataset(
     ----------
     nwb_paths : any iterable of file or directory paths
         An iterable of NWB file paths and directories containing NWB files.
-
+    run_config : RunConfig, optional
+        The configuration for this conversion run.
 
     Returns
     -------
