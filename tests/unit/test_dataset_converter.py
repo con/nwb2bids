@@ -65,6 +65,7 @@ def test_dataset_converter_metadata_extraction(
                 participant=nwb2bids.bids_models.Participant(
                     participant_id="123", species="Mus musculus", sex="M", strain=None
                 ),
+                run_config=run_config,
             ),
         ),
     ]
