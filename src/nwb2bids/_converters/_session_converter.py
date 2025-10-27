@@ -95,18 +95,6 @@ class SessionConverter(BaseConverter):
         if self.session_metadata is None:
             self.extract_metadata()
 
-        # participant_id = sanitize_participant_id(
-        #     participant_id=self.session_metadata.participant.participant_id,
-        #     sanitization_level=self.run_config.sanitization_level,
-        #     sanitization_file_path=self.run_config.sanitization_file_path,
-        #     sanitization_report_context="SessionConverter.convert_to_bids_session",
-        # )
-        # session_id = sanitize_session_id(
-        #     session_id=self.session_id,
-        #     sanitization_level=self.run_config.sanitization_level,
-        #     sanitization_file_path=self.run_config.sanitization_file_path,
-        #     sanitization_report_context="SessionConverter.convert_to_bids_session",
-        # )
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
@@ -148,18 +136,6 @@ class SessionConverter(BaseConverter):
         ):
             return
 
-        # participant_id = sanitize_participant_id(
-        #     participant_id=self.session_metadata.participant.participant_id,
-        #     sanitization_level=self.run_config.sanitization_level,
-        #     sanitization_file_path=self.run_config.sanitization_file_path,
-        #     sanitization_report_context="SessionConverter.write_ecephys_files",
-        # )
-        # session_id = sanitize_session_id(
-        #     session_id=self.session_id,
-        #     sanitization_level=self.run_config.sanitization_level,
-        #     sanitization_file_path=self.run_config.sanitization_file_path,
-        #     sanitization_report_context="SessionConverter.write_ecephys_files",
-        # )
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
@@ -195,18 +171,6 @@ class SessionConverter(BaseConverter):
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
 
-        # participant_id = sanitize_participant_id(
-        #     participant_id=self.session_metadata.participant.participant_id,
-        #     sanitization_level=self.run_config.sanitization_level,
-        #     sanitization_file_path=self.run_config.sanitization_file_path,
-        #     sanitization_report_context="SessionConverter.write_events_files",
-        # )
-        # session_id = sanitize_session_id(
-        #     session_id=self.session_id,
-        #     sanitization_level=self.run_config.sanitization_level,
-        #     sanitization_file_path=self.run_config.sanitization_file_path,
-        #     sanitization_report_context="SessionConverter.write_events_files",
-        # )
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
@@ -220,18 +184,6 @@ class SessionConverter(BaseConverter):
         self.session_metadata.events.to_json(file_path=session_events_metadata_file_path)
 
     def _establish_ecephys_subdirectory(self) -> pathlib.Path:
-        # participant_id = sanitize_participant_id(
-        #     participant_id=self.session_metadata.participant.participant_id,
-        #     sanitization_level=self.run_config.sanitization_level,
-        #     sanitization_file_path=self.run_config.sanitization_file_path,
-        #     sanitization_report_context="SessionConverter.write_events_files",
-        # )
-        # session_id = sanitize_session_id(
-        #     session_id=self.session_id,
-        #     sanitization_level=self.run_config.sanitization_level,
-        #     sanitization_file_path=self.run_config.sanitization_file_path,
-        #     sanitization_report_context="SessionConverter.write_events_files",
-        # )
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
 
