@@ -7,6 +7,19 @@ import typing_extensions
 from ._base_metadata_model import BaseMetadataModel
 
 
+class GeneratedByItem(BaseMetadataModel):
+    """
+    Schema for a single GeneratedBy entry in BIDS dataset_description.json.
+
+    Represents provenance information about a pipeline or process that generated the dataset.
+    """
+
+    Name: str = pydantic.Field(description="Name of the pipeline or process that generated the outputs.")
+    Version: str = pydantic.Field(description="Version of the pipeline.")
+    Description: str = pydantic.Field(description="Description of the pipeline or process.")
+    CodeURL: str = pydantic.Field(description="URL where the code used to generate the dataset may be found.")
+
+
 class DatasetDescription(BaseMetadataModel):
     """
     Schema for the dataset description in BIDS format.
@@ -31,6 +44,10 @@ class DatasetDescription(BaseMetadataModel):
     )
     License: typing.Literal["CC-BY-4.0", "CC0-1.0"] | None = pydantic.Field(
         description="License under which the dataset is released.",
+        default=None,
+    )
+    GeneratedBy: list[GeneratedByItem] | None = pydantic.Field(
+        description="Provenance information - pipelines that generated this dataset.",
         default=None,
     )
 
