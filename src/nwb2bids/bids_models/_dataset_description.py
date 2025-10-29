@@ -7,7 +7,7 @@ import typing_extensions
 from ._base_metadata_model import BaseMetadataModel
 
 
-class GeneratedByItem(BaseMetadataModel):
+class GeneratedByNwb2bids(BaseMetadataModel):
     """
     Schema for a single GeneratedBy entry in BIDS dataset_description.json.
 
@@ -49,7 +49,12 @@ class DatasetDescription(BaseMetadataModel):
     GeneratedBy: list[GeneratedByItem] | None = pydantic.Field(
         description="Provenance information - pipelines that generated this dataset.",
         default=None,
-    )
+    def model_post_init(self, context: typing.Any, /) -> None:
+        generated_by_nwb2bids = GeneratedByNwb2bids()
+        if self.GeneratedBy is None:
+            self.GeneratedBy = [generated_by_nwb2bids]
+        else:
+            self.GeneratedBy.append(generated_by_nwb2bids)
 
     @classmethod
     @pydantic.validate_call
