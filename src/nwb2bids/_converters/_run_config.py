@@ -14,8 +14,6 @@ class RunConfig(pydantic.BaseModel):
     """
     Specifies configuration options for a single run of NWB to BIDS conversion.
 
-    Parameters
-    ----------
     bids_directory : directory path
         The path to the directory where the BIDS dataset will be created.
         Defaults to the current working directory and checks if it is either empty or a BIDS dataset.
