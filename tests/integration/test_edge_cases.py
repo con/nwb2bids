@@ -50,3 +50,81 @@ def test_convert_nwb_dataset_with_additional_metadata(
     nwb2bids.testing.assert_subdirectory_structure(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
+
+
+def test_convert_nwb_dataset_on_mock_datalad_dataset(
+    mock_datalad_dataset: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [mock_datalad_dataset]
+    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+
+    errors = [notification for notification in notifications if notification.severity == nwb2bids.Severity.ERROR]
+    assert len(errors) == 0, f"Errors were raised during conversion: {errors}"
+
+    expected_structure = {
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"participants.json", "participants.tsv", "dataset_description.json"},
+        },
+        temporary_bids_directory
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
+            "directories": set(),
+            "files": {"sub-123_ses-456_ecephys.nwb"},
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
+
+
+def test_convert_nwb_dataset_on_mock_datalad_dataset_with_broken_symlink(
+    mock_datalad_dataset: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    broken_symlink = mock_datalad_dataset / "broken_symlink.nwb"
+    broken_symlink.symlink_to(target="non_existent_file.nwb")
+    nwb_paths = [mock_datalad_dataset]
+    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+
+    errors = [notification for notification in notifications if notification.severity == nwb2bids.Severity.ERROR]
+    assert len(errors) == 0, f"Errors were raised during conversion: {errors}"
+
+    expected_structure = {
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"participants.json", "participants.tsv", "dataset_description.json"},
+        },
+        temporary_bids_directory
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
+            "directories": set(),
+            "files": {"sub-123_ses-456_ecephys.nwb"},
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
