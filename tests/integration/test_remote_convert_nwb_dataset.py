@@ -7,9 +7,12 @@ import nwb2bids
 
 @pytest.mark.remote
 def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
-    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003", limit=2)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
+        dandiset_id="000003", limit=2, run_config=run_config
+    )
     dataset_converter.extract_metadata()
-    dataset_converter.convert_to_bids_dataset(bids_directory=temporary_bids_directory)
+    dataset_converter.convert_to_bids_dataset()
 
     expected_structure = {
         temporary_bids_directory: {

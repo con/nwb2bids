@@ -20,25 +20,24 @@ def test_allowed_directory_conditions(
     minimal_nwbfile_path: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
 
     if "valid" in test_case:
         dataset_description_file_path.write_text(data='{"BIDSVersion": "1.10"}')
 
-    bids_directory = None
+    run_config_kwargs = {"additional_metadata_file_path": additional_metadata_file_path}
     if "implicit" in test_case:
         monkeypatch.chdir(temporary_bids_directory)
     else:
-        bids_directory = temporary_bids_directory
+        run_config_kwargs["bids_directory"] = temporary_bids_directory
 
     nwb_paths = [minimal_nwbfile_path]
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
-        nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_file_path
-    )
+    run_config = nwb2bids.RunConfig(**run_config_kwargs)
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     dataset_converter.extract_metadata()
-    dataset_converter.write_dataset_description(bids_directory=bids_directory)
+    dataset_converter.write_dataset_description()
 
     expected_structure = {temporary_bids_directory: {"directories": set(), "files": {"dataset_description.json"}}}
     nwb2bids.testing.assert_subdirectory_structure(
@@ -72,17 +71,17 @@ def test_allowed_directory_conditions(
 def test_disallowed_directory_conditions(
     test_case: str,
     minimal_nwbfile_path: pathlib.Path,
-    additional_metadata_file_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
+    additional_metadata_file_path: pathlib.Path,
     monkeypatch,
 ):
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
 
-    bids_directory = None
+    run_config_kwargs = {"additional_metadata_file_path": additional_metadata_file_path}
     if "implicit" in test_case:
         monkeypatch.chdir(temporary_bids_directory)
     else:
-        bids_directory = temporary_bids_directory
+        run_config_kwargs["bids_directory"] = temporary_bids_directory
 
     if "no_dataset_description" in test_case:
         other_file_path = dataset_description_file_path.parent / "other_file.txt"
@@ -96,8 +95,7 @@ def test_disallowed_directory_conditions(
 
     with pytest.raises(expected_exception=ValueError, match=expected_exception):
         nwb_paths = [minimal_nwbfile_path]
-        dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
-            nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_file_path
-        )
+        run_config = nwb2bids.RunConfig(**run_config_kwargs)
+        dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
         dataset_converter.extract_metadata()
-        dataset_converter.write_dataset_description(bids_directory=bids_directory)
+        dataset_converter.write_dataset_description()

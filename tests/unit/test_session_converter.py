@@ -12,7 +12,8 @@ def test_session_converter_directory_initialization(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path.parent]
-    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
 
     assert isinstance(session_converters, list)
     assert len(session_converters) == 1
@@ -23,7 +24,8 @@ def test_session_converter_file_path_initialization(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path]
-    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
 
     assert isinstance(session_converters, list)
     assert len(session_converters) == 1
@@ -34,7 +36,8 @@ def test_session_converter_both_file_and_directory_initialization(
     minimal_nwbfile_path: pathlib.Path, ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path.parent, ecephys_nwbfile_path]
-    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
 
     assert isinstance(session_converters, list)
     assert len(session_converters) == 2
@@ -44,8 +47,9 @@ def test_session_converter_both_file_and_directory_initialization(
 def test_session_converter_defaults_missing_session_id(
     problematic_nwbfile_path_missing_session_id: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     session_converters = nwb2bids.SessionConverter.from_nwb_paths(
-        nwb_paths=[problematic_nwbfile_path_missing_session_id]
+        nwb_paths=[problematic_nwbfile_path_missing_session_id], run_config=run_config
     )
 
     assert isinstance(session_converters, list)
@@ -58,7 +62,8 @@ def test_session_converter_metadata_extraction(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path]
-    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     session_converters[0].extract_metadata()
 
     expected_session_metadata = nwb2bids.bids_models.BidsSessionMetadata(
@@ -72,10 +77,11 @@ def test_session_converter_write_ecephys_metadata(
     ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [ecephys_nwbfile_path]
-    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     session_converter = session_converters[0]
     session_converter.extract_metadata()
-    session_converter.write_ecephys_files(bids_directory=temporary_bids_directory)
+    session_converter.write_ecephys_files()
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
@@ -116,10 +122,11 @@ def test_session_converter_write_events_metadata(
     trials_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [trials_events_nwbfile_path]
-    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     session_converter = session_converters[0]
     session_converter.extract_metadata()
-    session_converter.write_events_files(bids_directory=temporary_bids_directory)
+    session_converter.write_events_files()
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},

@@ -17,11 +17,10 @@ def test_convert_nwb_dataset_with_additional_metadata(
     additional_metadata_file_path: pathlib.Path,
 ):
     nwb_paths = [minimal_nwbfile_path]
-    nwb2bids.convert_nwb_dataset(
-        nwb_paths=nwb_paths,
-        bids_directory=temporary_bids_directory,
-        additional_metadata_file_path=additional_metadata_file_path,
+    run_config = nwb2bids.RunConfig(
+        bids_directory=temporary_bids_directory, additional_metadata_file_path=additional_metadata_file_path
     )
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
     expected_structure = {
         temporary_bids_directory: {
