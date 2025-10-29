@@ -7,6 +7,7 @@ import pydantic
 
 from .._core._home import _get_home_directory
 from .._core._run_id import _generate_run_id
+from ..sanitization import SanitizationLevel
 
 
 class RunConfig(pydantic.BaseModel):
@@ -16,6 +17,9 @@ class RunConfig(pydantic.BaseModel):
     bids_directory : directory path
         The path to the directory where the BIDS dataset will be created.
         Defaults to the current working directory and checks if it is either empty or a BIDS dataset.
+    sanitization_level : nwb2bids.SanitizationLevel
+        Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
+        Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
     additional_metadata_file_path : file path, optional
         The path to a YAML file containing additional metadata not included within the NWB files
         that you wish to include in the BIDS dataset.
@@ -36,6 +40,7 @@ class RunConfig(pydantic.BaseModel):
     """
 
     bids_directory: pydantic.DirectoryPath | None = None
+    sanitization_level: SanitizationLevel = SanitizationLevel.NONE
     additional_metadata_file_path: pydantic.FilePath | None = None
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto"
     cache_directory: pydantic.DirectoryPath | None = None
@@ -65,8 +70,16 @@ class RunConfig(pydantic.BaseModel):
         self._run_directory = self._parent_run_directory / self.run_id
         self._run_directory.mkdir(exist_ok=True)
 
+        self.sanitization_file_path.touch()
         self.notifications_file_path.touch()
         self.notifications_json_file_path.touch()
+
+    @pydantic.computed_field
+    @property
+    def sanitization_file_path(self) -> pathlib.Path:
+        """The file path leading to a record of sanitizations made."""
+        sanitization_file_path = self._run_directory / f"{self.run_id}_sanitization.txt"
+        return sanitization_file_path
 
     @pydantic.computed_field
     @property

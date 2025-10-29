@@ -5,6 +5,7 @@ import rich_click
 
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
+from ..sanitization import SanitizationLevel
 
 
 # nwb2bids
@@ -47,6 +48,13 @@ def _nwb2bids_cli():
     type=rich_click.Path(exists=True, dir_okay=False, readable=True),
     default=None,
 )
+@rich_click.option(
+    "--sanitization",
+    help=("Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset."),
+    required=False,
+    type=rich_click.Choice(["NONE", "0", "CRITICAL_BIDS_LABELS", "1"], case_sensitive=False),
+    default="NONE",
+)
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 @rich_click.option(
     "--run-id",
@@ -63,6 +71,7 @@ def _nwb2bids_cli():
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
+    sanitization: typing.Literal["NONE", "0", "CRITICAL_BIDS_LABELS", "1"] = "NONE",
     additional_metadata_file_path: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
@@ -78,9 +87,13 @@ def _run_convert_nwb_dataset(
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
+    handled_sanitization_level = (
+        SanitizationLevel(int(sanitization)) if sanitization.isdigit() else getattr(SanitizationLevel, sanitization)
+    )
 
     run_config = RunConfig(
         bids_directory=bids_directory,
+        sanitization_level=handled_sanitization_level,
         additional_metadata_file_path=additional_metadata_file_path,
         file_mode=file_mode,
         cache_directory=cache_directory,
@@ -97,6 +110,13 @@ def _run_convert_nwb_dataset(
             else f"{len(messages)} suggestions for improvement were found during conversion."
         )
         console_notification += rich_click.style(text=notification_text, fg="yellow")
+
+    if sanitization != "NONE" or sanitization != "0":
+        sanitization_text = (
+            "Note: Sanitization was applied to file and directory names during conversion. "
+            "Please review the converted BIDS dataset to ensure all names are appropriate."
+        )
+        console_notification += rich_click.style(text=sanitization_text, fg="yellow")
 
     if console_notification != "" and not silent:
         rich_click.echo(message=console_notification)
