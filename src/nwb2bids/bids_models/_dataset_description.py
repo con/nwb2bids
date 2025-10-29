@@ -1,3 +1,4 @@
+import importlib.metadata
 import json
 import typing
 
@@ -5,6 +6,19 @@ import pydantic
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataModel
+
+
+class GeneratedByNwb2bids(BaseMetadataModel):
+    """
+    Schema for a single GeneratedBy entry in BIDS dataset_description.json.
+
+    Represents provenance information about a pipeline or process that generated the dataset.
+    """
+
+    Name: str = pydantic.Field(description="Name of the pipeline or process that generated the outputs.")
+    Version: str = pydantic.Field(description="Version of the pipeline.", default=importlib.metadata.version(distribution_name="nwb2bids"))
+    Description: str = pydantic.Field(description="Description of the pipeline or process.")
+    CodeURL: str = pydantic.Field(description="URL where the code used to generate the dataset may be found.")
 
 
 class DatasetDescription(BaseMetadataModel):
@@ -33,6 +47,15 @@ class DatasetDescription(BaseMetadataModel):
         description="License under which the dataset is released.",
         default=None,
     )
+    GeneratedBy: list[GeneratedByItem] | None = pydantic.Field(
+        description="Provenance information - pipelines that generated this dataset.",
+        default=None,
+    def model_post_init(self, context: typing.Any, /) -> None:
+        generated_by_nwb2bids = GeneratedByNwb2bids()
+        if self.GeneratedBy is None:
+            self.GeneratedBy = [generated_by_nwb2bids]
+        else:
+            self.GeneratedBy.append(generated_by_nwb2bids)
 
     @classmethod
     @pydantic.validate_call
