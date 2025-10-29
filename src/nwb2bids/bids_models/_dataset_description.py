@@ -1,3 +1,4 @@
+import importlib.metadata
 import json
 import typing
 
@@ -15,7 +16,7 @@ class GeneratedByNwb2bids(BaseMetadataModel):
     """
 
     Name: str = pydantic.Field(description="Name of the pipeline or process that generated the outputs.")
-    Version: str = pydantic.Field(description="Version of the pipeline.")
+    Version: str = pydantic.Field(description="Version of the pipeline.", default=importlib.metadata.version(distribution_name="nwb2bids"))
     Description: str = pydantic.Field(description="Description of the pipeline or process.")
     CodeURL: str = pydantic.Field(description="URL where the code used to generate the dataset may be found.")
 
