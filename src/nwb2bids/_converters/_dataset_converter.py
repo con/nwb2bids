@@ -271,7 +271,7 @@ class DatasetConverter(BaseConverter):
             sanitization.original_participant_id: sanitization.sanitized_participant_id
             for sanitization in sanitizations
         }
-        deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
+        deduplicated_data_frame.loc[:, "participant_id"] = deduplicated_data_frame["participant_id"].apply(
             lambda participant_id: sanitized_participant_ids[participant_id]
         )
 
