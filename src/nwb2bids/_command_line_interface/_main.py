@@ -4,6 +4,7 @@ import typing
 import rich_click
 
 from .._core._convert_nwb_dataset import convert_nwb_dataset
+from ..testing import generate_ephys_tutorial
 
 
 # nwb2bids
@@ -79,3 +80,27 @@ def _run_convert_nwb_dataset(
         )
         console_notification = rich_click.style(text=text, fg="yellow")
         rich_click.echo(message=console_notification)
+
+
+# nwb2bids tutorial
+@_nwb2bids_cli.group(name="tutorial")
+def _nwb2bids_tutorial_cli():
+    pass
+
+
+# nwb2bids tutorial ephys
+@_nwb2bids_tutorial_cli.command(name="ephys")
+@rich_click.option(
+    "--output-directory",
+    "-o",
+    help="Path to the folder where the tutorial files will be created (default: user home directory).",
+    required=False,
+    type=rich_click.Path(writable=True),
+    default=None,
+)
+def _nwb2bids_tutorial_ephys_cli(output_directory: str | None = None) -> None:
+    file_path = generate_ephys_tutorial(output_directory=output_directory)
+
+    text = f"Example single session NWB file generated successfully at {file_path}."
+    message = rich_click.style(text=text, fg="green")
+    rich_click.echo(message=message)
