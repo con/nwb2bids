@@ -39,7 +39,7 @@ class RunConfig(pydantic.BaseModel):
     additional_metadata_file_path: pydantic.FilePath | None = None
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto"
     cache_directory: pydantic.DirectoryPath | None = None
-    run_id: str | None = None
+    run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
 
     model_config = pydantic.ConfigDict(
         validate_assignment=True,  # Re-validate model on mutation
@@ -47,8 +47,6 @@ class RunConfig(pydantic.BaseModel):
 
     def model_post_init(self, context: typing.Any, /) -> None:
         """Ensure the various run directories and files are created."""
-        if self.run_id is None:
-            self.run_id = _generate_run_id()
 
         if self.bids_directory is None:
             self.bids_directory = pathlib.Path.cwd()
