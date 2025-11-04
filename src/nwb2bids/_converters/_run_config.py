@@ -38,7 +38,7 @@ class RunConfig(pydantic.BaseModel):
     bids_directory: pydantic.DirectoryPath | None = None
     additional_metadata_file_path: pydantic.FilePath | None = None
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto"
-    cache_directory: pydantic.DirectoryPath | None = None
+    cache_directory: typing.Annotated[pydantic.DirectoryPath, pydantic.Field(default_factory=_get_home_directory)]
     run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
 
     model_config = pydantic.ConfigDict(
@@ -53,9 +53,6 @@ class RunConfig(pydantic.BaseModel):
 
         self._validate_existing_directory_as_bids()
         self._determine_file_mode()
-
-        if self.cache_directory is None:
-            self.cache_directory = _get_home_directory()
 
         # Ensure run directory and its parent exist
         self._parent_run_directory.mkdir(exist_ok=True)
