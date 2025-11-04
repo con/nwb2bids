@@ -125,6 +125,7 @@ docs = [
     "sphinx",
     "sphinx-tabs",
     "pydata-sphinx-theme",
+    "sphinx_copybutton",
 ]
 dev-all = [
     {include-group = "test"},
