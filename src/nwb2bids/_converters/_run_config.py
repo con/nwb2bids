@@ -9,6 +9,49 @@ from .._core._home import _get_home_directory
 from .._core._run_id import _generate_run_id
 
 
+def _validate_existing_directory_as_bids(directory: pathlib.Path) -> pathlib.Path:
+
+    dataset_description_file_path = directory / "dataset_description.json"
+    current_directory_contents = {path.stem for path in directory.iterdir() if not path.name.startswith(".")} - {
+        "README",
+        "CHANGES",
+        "derivatives",
+        "dandiset",
+    }
+
+    if len(current_directory_contents) == 0:
+        # The directory is considered empty, not containing any meaningful content.
+        # Populate the directory with `dataset_description.json` to make it
+        # a valid (though minimal) BIDS dataset.
+
+        default_dataset_description = {"BIDSVersion": "1.10"}
+        with dataset_description_file_path.open(mode="w") as file_stream:
+            json.dump(obj=default_dataset_description, fp=file_stream, indent=4)
+    else:
+        # The directory is considered non-empty
+
+        if not dataset_description_file_path.exists():
+            # The directory is without `dataset_description.json`
+            # It is an invalid BIDS dataset.
+
+            message = (
+                f"The directory ({directory}) exists and is not empty, but is not a valid BIDS dataset: "
+                "missing 'dataset_description.json'."
+            )
+            raise ValueError(message)
+
+        with dataset_description_file_path.open(mode="r") as file_stream:
+            dataset_description = json.load(fp=file_stream)
+        if dataset_description.get("BIDSVersion", None) is None:
+            message = (
+                f"The directory ({directory}) exists but is not a valid BIDS dataset: "
+                "missing 'BIDSVersion' in 'dataset_description.json'."
+            )
+            raise ValueError(message)
+
+    return directory
+
+
 class RunConfig(pydantic.BaseModel):
     """
     Specifies configuration options for a single run of NWB to BIDS conversion.
@@ -36,7 +79,11 @@ class RunConfig(pydantic.BaseModel):
         The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
     """
 
-    bids_directory: typing.Annotated[pydantic.DirectoryPath, pydantic.Field(default_factory=pathlib.Path.cwd)]
+    bids_directory: typing.Annotated[
+        pydantic.DirectoryPath,
+        pydantic.Field(default_factory=pathlib.Path.cwd),
+        pydantic.AfterValidator(_validate_existing_directory_as_bids),
+    ]
     additional_metadata_file_path: pydantic.FilePath | None = None
     file_mode: typing.Annotated[
         typing.Literal["move", "copy", "symlink"], pydantic.Field(default_factory=_determine_file_mode)
@@ -46,12 +93,10 @@ class RunConfig(pydantic.BaseModel):
 
     model_config = pydantic.ConfigDict(
         validate_assignment=True,  # Re-validate model on mutation
+        validate_default=True,  # Validate default values as well
     )
 
     def model_post_init(self, context: typing.Any, /) -> None:
-        """Ensure the various run directories and files are created."""
-
-        self._validate_existing_directory_as_bids()
 
         # Ensure run directory and its parent exist
         self._parent_run_directory.mkdir(exist_ok=True)
@@ -83,32 +128,3 @@ class RunConfig(pydantic.BaseModel):
         """The file path leading to a JSON dump of the notifications."""
         notifications_file_path = self._run_directory / f"{self.run_id}_notifications.json"
         return notifications_file_path
-
-    def _validate_existing_directory_as_bids(self) -> None:
-        bids_directory = self.bids_directory
-
-        dataset_description_file_path = bids_directory / "dataset_description.json"
-        current_directory_contents = {
-            path.stem for path in bids_directory.iterdir() if not path.name.startswith(".")
-        } - {"README", "CHANGES", "derivatives", "dandiset"}
-        if len(current_directory_contents) == 0:
-            default_dataset_description = {"BIDSVersion": "1.10"}
-            with dataset_description_file_path.open(mode="w") as file_stream:
-                json.dump(obj=default_dataset_description, fp=file_stream, indent=4)
-            return
-
-        if not dataset_description_file_path.exists():
-            message = (
-                f"The directory ({bids_directory}) exists and is not empty, but is not a valid BIDS dataset: "
-                "missing 'dataset_description.json'."
-            )
-            raise ValueError(message)
-
-        with dataset_description_file_path.open(mode="r") as file_stream:
-            dataset_description = json.load(fp=file_stream)
-        if dataset_description.get("BIDSVersion", None) is None:
-            message = (
-                f"The directory ({bids_directory}) exists but is not a valid BIDS dataset: "
-                "missing 'BIDSVersion' in 'dataset_description.json'."
-            )
-            raise ValueError(message)
