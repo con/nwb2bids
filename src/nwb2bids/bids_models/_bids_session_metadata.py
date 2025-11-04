@@ -75,7 +75,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
                         "Underscores, dashes, spaces, slashes, and other special characters (including #) are "
                         "expressly forbidden."
                     ),
-                    solution="Rename the session without using spaces or underscores.",
+                    solution="Rename the session without using any special characters except for `+`.",
                     examples=[
                         "`ses_01` -> `ses+01`",
                         "`session #2` -> `session+2`",
