@@ -5,6 +5,7 @@ import rich_click
 
 from .._core._convert_nwb_dataset import convert_nwb_dataset
 from .._inspection._inspection_result import Severity
+from .._tools._pluralize import _pluralize
 from ..testing import generate_ephys_tutorial
 
 
@@ -75,9 +76,8 @@ def _run_convert_nwb_dataset(
 
     if messages and not silent:
         text = (
-            f"{len(messages)} suggestion for improvement was found during conversion."
-            if len(messages) == 1
-            else f"{len(messages)} suggestions for improvement were found during conversion."
+            f'\n{(n := len(messages))} {_pluralize(n=n, word="suggestion")} for improvement '
+            f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
         )
         console_notification = rich_click.style(text=text, fg="yellow")
         rich_click.echo(message=console_notification)

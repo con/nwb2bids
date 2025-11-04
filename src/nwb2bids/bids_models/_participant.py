@@ -101,7 +101,7 @@ class Participant(BaseMetadataModel):
                         "Underscores, dashes, spaces, slashes, and other special characters (including #) are "
                         "expressly forbidden."
                     ),
-                    solution="Rename the subject without using spaces or underscores.",
+                    solution="Rename the subject without using any special characters except for `+`.",
                     examples=[
                         "`ab_01` -> `ab+01`",
                         "`subject #2` -> `subject+2`",
