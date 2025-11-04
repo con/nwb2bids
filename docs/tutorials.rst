@@ -244,10 +244,10 @@ And our BIDS dataset should look like:
 
 
 
-.. _tutorial-mixed-inputs:
+.. _tutorial-multiple-inputs:
 
-Tutorial 3 - Converting files & directories
--------------------------------------------
+Tutorial 3 - Multiple inputs
+----------------------------
 
 Using the same example dataset as in :ref:`tutorial-multiple-files`, we will now show how to convert any mix of
 individual NWB files and directories containing NWB files.
@@ -334,3 +334,134 @@ Our resulting BIDS dataset should now contain all three NWB files converted to B
 
 Tutorial 4 - Implicit BIDS directory
 ------------------------------------
+
+In the previous tutorials we have always specified the target BIDS directory as an explicit path. It is also possible
+to use the current working directory as the BIDS directory, provided that it is either empty or already a partial BIDS
+dataset as defined by a ``dataset_description.json`` file with a ``BIDSVersion`` value specified within.
+
+To test this out, we can create a new empty directory and navigate into it before converting:
+
+.. tabs::
+    .. tab:: CLI
+
+        .. code-block:: bash
+
+            mkdir ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+            cd ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+
+            nwb2bids convert ^
+                ~/.nwb2bids/tutorials/ephys_tutorial_dataset/ephys_session_3.nwb ^
+                ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions
+
+        The command line can take any number of inputs (separated by spaces) prior to other flags such as
+        ``--bids-directory``. These inputs can be any mix of files or directories.
+
+    .. tab:: Python Library
+
+        .. code-block:: python
+
+            import os
+            import pathlib
+
+            import nwb2bids
+
+            bids_directory = pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_dataset/implicit_bids_dataset"
+            bids_directory.mkdir(exist_ok=True)
+            os.chdir(path=bids_directory)
+
+            nwb_paths = [
+                pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_dataset/ephys_session_3.nwb",
+                pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions",
+            ]
+            nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+
+And the results should match what we saw at the end of :ref:`tutorial-multiple-inputs`.
+
+
+
+.. _tutorial-additional-metadata:
+
+Tutorial 4 - Additional metadata
+---------------------------------
+
+NWB files don't always include all the little metadata details you might want to include in BIDS. To include manual
+metadata that is unable to be extracted from the source files, you can provide additional metadata through a JSON
+structure that mirrors the BIDS specification nested under subject and session identifiers (which should match the
+``subject_id`` and ``session_id`` found within each file).
+
+To show how such additional metadata can be included through **nwb2bids**, start by creating a file named ``metadata
+.json`` inside the ``ephys_tutorial_dataset`` directory we used in :ref:`tutorial-multiple-files`. Then fill the
+contents
+of the file to match below:
+
+..code-block:: json
+
+    {
+      "dataset_description": {
+        "Name": "My Custom BIDS Dataset",
+        "BIDSVersion": "1.8.0",
+        "Authors": ["First Last", "Second Author"]
+      },
+      "sub-subject+1": {
+        "ses-session+1": {
+          "TaskName": "MyCustomTask",
+          "InstitutionName": "MyInstitution",
+          "CustomField": "CustomValue"
+        },
+        "ses-session+2": {
+          "TaskName": "AnotherTask",
+          "InstitutionName": "MyInstitution"
+        }
+      },
+      "sub-subject+2": {
+        "ses-session+3": {
+          "TaskName": "ThirdTask",
+          "InstitutionName": "MyInstitution"
+        }
+      }
+    }
+
+To include this additional metadata during conversion, we can use the following commands:
+
+.. tabs::
+    .. tab:: CLI
+
+        .. code-block:: bash
+
+            nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb ^
+                --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_file/bids_dataset ^
+                --additional-metadata-file-path ~/.nwb2bids/tutorials/ephys_tutorial_file/metadata.json
+
+    .. tab:: Python Library
+
+        .. code-block:: python
+
+            import pathlib
+
+            import nwb2bids
+
+            nwb_paths = [pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb"]
+            bids_directory = pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file/bids_dataset"
+            additional
+
+            nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=bids_directory)
+
+
+
+.. _tutorial-future:
+
+
+
+Tutorial 5 - Library customization
+----------------------------------
+
+
+
+
+Tutorial 6+ - Work in progress!
+-------------------------------
+
+We are still compiling some detailed tutorials for more advanced use cases, such as sanitization, run configurations,
+non-ephys data types, and more!
+
+Check back soon for updates.
