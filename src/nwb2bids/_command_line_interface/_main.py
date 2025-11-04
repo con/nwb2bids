@@ -4,6 +4,8 @@ import typing
 import rich_click
 
 from .._core._convert_nwb_dataset import convert_nwb_dataset
+from .._inspection._inspection_result import Severity
+from .._tools._pluralize import _pluralize
 
 
 # nwb2bids
@@ -71,11 +73,16 @@ def _run_convert_nwb_dataset(
         additional_metadata_file_path=additional_metadata_file_path,
     )
 
-    if messages is not None and not silent:
+    if messages and not silent:
         text = (
-            f"{len(messages)} suggestion for improvement was found during conversion."
-            if len(messages) == 1
-            else f"{len(messages)} suggestions for improvement were found during conversion."
+            f'\n{(n := len(messages))} {_pluralize(n=n, word="suggestion")} for improvement '
+            f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
         )
         console_notification = rich_click.style(text=text, fg="yellow")
+        rich_click.echo(message=console_notification)
+
+    not_any_failures = not messages or not any(message.severity == Severity.ERROR for message in messages)
+    if not_any_failures and not silent:
+        text = "BIDS dataset was successfully created!"
+        console_notification = rich_click.style(text=text, fg="green")
         rich_click.echo(message=console_notification)

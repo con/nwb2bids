@@ -34,12 +34,12 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
         nwb2bids.InspectionResult(
             title="Invalid participant ID",
             reason=(
-                "The participant ID contains invalid characters. BIDS allows only dashes to be used as separators in "
-                "subject entity label. Underscores, spaces, slashes, and special characters (including #) are "
-                "expressly forbidden."
+                "The participant ID contains invalid characters. BIDS allows only the plus sign to be used as a "
+                "separator in the subject entity label. Underscores, dashes, spaces, slashes, and other special "
+                "characters (including #) are expressly forbidden."
             ),
-            solution="Rename the subject without using spaces or underscores.",
-            examples=["`ab_01` -> `ab-01`", "`subject #2` -> `subject-2`", "`id 2 from 9/1/25` -> `id-2-9-1-25`"],
+            solution="Rename the subject without using any special characters except for `+`.",
+            examples=["`ab_01` -> `ab+01`", "`subject #2` -> `subject+2`", "`id 2 from 9/1/25` -> `id+2+9+1+25`"],
             field="nwbfile.subject.subject_id",
             source_file_paths=nwb_paths,
             data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.DANDI],
@@ -112,12 +112,12 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
         nwb2bids.InspectionResult(
             title="Invalid participant ID",
             reason=(
-                "The participant ID contains invalid characters. BIDS allows only dashes to be used as separators in "
-                "subject entity label. Underscores, spaces, slashes, and special characters (including #) are "
-                "expressly forbidden."
+                "The participant ID contains invalid characters. BIDS allows only the plus sign to be used as a "
+                "separator in the subject entity label. Underscores, dashes, spaces, slashes, and other special "
+                "characters (including #) are expressly forbidden."
             ),
-            solution="Rename the subject without using spaces or underscores.",
-            examples=["`ab_01` -> `ab-01`", "`subject #2` -> `subject-2`", "`id 2 from 9/1/25` -> `id-2-9-1-25`"],
+            solution="Rename the subject without using any special characters except for `+`.",
+            examples=["`ab_01` -> `ab+01`", "`subject #2` -> `subject+2`", "`id 2 from 9/1/25` -> `id+2+9+1+25`"],
             field="nwbfile.subject.subject_id",
             source_file_paths=nwb_paths,
             target_file_paths=None,
