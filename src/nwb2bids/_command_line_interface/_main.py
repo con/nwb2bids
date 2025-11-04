@@ -4,6 +4,7 @@ import typing
 import rich_click
 
 from .._core._convert_nwb_dataset import convert_nwb_dataset
+from .._inspection._inspection_result import Severity
 from ..testing import generate_ephys_tutorial
 
 
@@ -72,13 +73,19 @@ def _run_convert_nwb_dataset(
         additional_metadata_file_path=additional_metadata_file_path,
     )
 
-    if messages is not None and not silent:
+    if messages and not silent:
         text = (
             f"{len(messages)} suggestion for improvement was found during conversion."
             if len(messages) == 1
             else f"{len(messages)} suggestions for improvement were found during conversion."
         )
         console_notification = rich_click.style(text=text, fg="yellow")
+        rich_click.echo(message=console_notification)
+
+    not_any_failures = not messages or not any(message.severity == Severity.ERROR for message in messages)
+    if not_any_failures and not silent:
+        text = "BIDS dataset was successfully created!"
+        console_notification = rich_click.style(text=text, fg="green")
         rich_click.echo(message=console_notification)
 
 
@@ -89,7 +96,31 @@ def _nwb2bids_tutorial_cli():
 
 
 # nwb2bids tutorial ephys
-@_nwb2bids_tutorial_cli.command(name="ephys")
+@_nwb2bids_tutorial_cli.group(name="ephys")
+def _nwb2bids_tutorial_ephys_cli():
+    pass
+
+
+# nwb2bids tutorial ephys file
+@_nwb2bids_tutorial_ephys_cli.command(name="file")
+@rich_click.option(
+    "--output-directory",
+    "-o",
+    help="Path to the folder where the tutorial file(s) will be created (default: user home directory).",
+    required=False,
+    type=rich_click.Path(writable=True),
+    default=None,
+)
+def _nwb2bids_tutorial_ephys_file_cli(output_directory: str | None = None) -> None:
+    file_path = generate_ephys_tutorial(output_directory=output_directory, mode="file")
+
+    text = f"An example NWB file has been created at: {file_path}"
+    message = rich_click.style(text=text, fg="green")
+    rich_click.echo(message=message)
+
+
+# nwb2bids tutorial ephys dataset
+@_nwb2bids_tutorial_ephys_cli.command(name="dataset")
 @rich_click.option(
     "--output-directory",
     "-o",
@@ -98,9 +129,9 @@ def _nwb2bids_tutorial_cli():
     type=rich_click.Path(writable=True),
     default=None,
 )
-def _nwb2bids_tutorial_ephys_cli(output_directory: str | None = None) -> None:
-    file_path = generate_ephys_tutorial(output_directory=output_directory)
+def _nwb2bids_tutorial_ephys_dataset_cli(output_directory: str | None = None) -> None:
+    tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset")
 
-    text = f"Example single session NWB file generated successfully at {file_path}."
+    text = f"An example NWB dataset has been created at: {tutorial_directory}"
     message = rich_click.style(text=text, fg="green")
     rich_click.echo(message=message)

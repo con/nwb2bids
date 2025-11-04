@@ -71,14 +71,15 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
                     title="Invalid session ID",
                     reason=(
                         "The session ID contains invalid characters. "
-                        "BIDS allows only dashes to be used as separators in session entity label. "
-                        "Underscores, spaces, slashes, and special characters (including #) are expressly forbidden."
+                        "BIDS allows only the plus sign to be used as a separator in the subject entity label. "
+                        "Underscores, dashes, spaces, slashes, and other special characters (including #) are "
+                        "expressly forbidden."
                     ),
                     solution="Rename the session without using spaces or underscores.",
                     examples=[
-                        "`ses_01` -> `ses-01`",
-                        "`session #2` -> `session-2`",
-                        "`id 2 from 9/1/25` -> `id-2-9-1-25`",
+                        "`ses_01` -> `ses+01`",
+                        "`session #2` -> `session+2`",
+                        "`id 2 from 9/1/25` -> `id+2+9+1+25`",
                     ],
                     field="nwbfile.session_id",
                     source_file_paths=file_paths,

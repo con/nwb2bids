@@ -97,14 +97,15 @@ class Participant(BaseMetadataModel):
                     title="Invalid participant ID",
                     reason=(
                         "The participant ID contains invalid characters. "
-                        "BIDS allows only dashes to be used as separators in subject entity label. "
-                        "Underscores, spaces, slashes, and special characters (including #) are expressly forbidden."
+                        "BIDS allows only the plus sign to be used as a separator in the subject entity label. "
+                        "Underscores, dashes, spaces, slashes, and other special characters (including #) are "
+                        "expressly forbidden."
                     ),
                     solution="Rename the subject without using spaces or underscores.",
                     examples=[
-                        "`ab_01` -> `ab-01`",
-                        "`subject #2` -> `subject-2`",
-                        "`id 2 from 9/1/25` -> `id-2-9-1-25`",
+                        "`ab_01` -> `ab+01`",
+                        "`subject #2` -> `subject+2`",
+                        "`id 2 from 9/1/25` -> `id+2+9+1+25`",
                     ],
                     field="nwbfile.subject.subject_id",
                     source_file_paths=file_paths,

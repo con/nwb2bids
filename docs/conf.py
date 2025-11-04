@@ -18,6 +18,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_tabs.tabs",
+    "sphinx_copybutton",
 ]
 
 # HTML configuration
@@ -53,6 +54,7 @@ linkcheck_ignore = []
 # Disable sidebars for specific sections
 html_sidebars = {
     'user_guide': [],
+    'tutorials': [],
     "developer_guide": [],
 }
 
