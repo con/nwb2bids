@@ -90,7 +90,7 @@ def _run_convert_nwb_dataset(
         }.items()
         # Filter out values that indicate absence of direct user input or
         # signal to use default
-        if k != "file_mode" and v is not None or k == "file_mode" and v != "auto"
+        if (k != "file_mode" and v is not None) or (k == "file_mode" and v != "auto")
     }
 
     run_config = RunConfig.model_validate(run_config_kwargs)
