@@ -1,10 +1,10 @@
 import json
 import pathlib
-import tempfile
 import typing
 
 import pydantic
 
+from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_home_directory
 from .._core._run_id import _generate_run_id
 
@@ -19,12 +19,13 @@ class RunConfig(pydantic.BaseModel):
     additional_metadata_file_path : file path, optional
         The path to a YAML file containing additional metadata not included within the NWB files
         that you wish to include in the BIDS dataset.
-    file_mode : one of "move", "copy", "symlink", or "auto", default: "auto"
+    file_mode : one of "move", "copy", or "symlink"
         Specifies how to handle the NWB files when converting to BIDS format.
             - "move": Move the files to the BIDS directory.
             - "copy": Copy the files to the BIDS directory.
             - "symlink": Create symbolic links to the files in the BIDS directory.
-            - "auto": Decides between all the above based on the system, with preference for linking when possible.
+            - if not specified, decide between all the above based on the system,
+              with preference for linking when possible.
     cache_directory : directory path
         The directory where run specific files (e.g., notifications, sanitization reports) will be stored.
         Defaults to `~/.nwb2bids`.
@@ -37,7 +38,9 @@ class RunConfig(pydantic.BaseModel):
 
     bids_directory: typing.Annotated[pydantic.DirectoryPath, pydantic.Field(default_factory=pathlib.Path.cwd)]
     additional_metadata_file_path: pydantic.FilePath | None = None
-    file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto"
+    file_mode: typing.Annotated[
+        typing.Literal["move", "copy", "symlink"], pydantic.Field(default_factory=_determine_file_mode)
+    ]
     cache_directory: typing.Annotated[pydantic.DirectoryPath, pydantic.Field(default_factory=_get_home_directory)]
     run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
 
@@ -49,7 +52,6 @@ class RunConfig(pydantic.BaseModel):
         """Ensure the various run directories and files are created."""
 
         self._validate_existing_directory_as_bids()
-        self._determine_file_mode()
 
         # Ensure run directory and its parent exist
         self._parent_run_directory.mkdir(exist_ok=True)
@@ -110,26 +112,3 @@ class RunConfig(pydantic.BaseModel):
                 "missing 'BIDSVersion' in 'dataset_description.json'."
             )
             raise ValueError(message)
-
-    def _determine_file_mode(self) -> None:
-        if self.file_mode != "auto":
-            return
-
-        with tempfile.TemporaryDirectory(prefix="nwb2bids-") as temp_dir_str:
-            temp_dir_path = pathlib.Path(temp_dir_str)
-
-            # Create a test file to determine if symlinks are supported
-            test_file_path = temp_dir_path / "test_file.txt"
-            test_file_path.touch()
-
-            try:
-                # Create a symlink to the test file
-                (temp_dir_path / "test_symlink.txt").symlink_to(target=test_file_path)
-            except (OSError, PermissionError, NotImplementedError):  # Windows can sometimes have trouble with symlinks
-                # TODO: log a INFO message here when logging is set up
-                self.file_mode = "copy"
-                return
-            else:
-                # If symlink creation was successful, return "symlink"
-                self.file_mode = "symlink"
-                return
