@@ -41,7 +41,15 @@ def _validate_existing_directory_as_bids(directory: pathlib.Path) -> pathlib.Pat
             raise ValueError(message)
 
         with dataset_description_file_path.open(mode="r") as file_stream:
-            dataset_description = json.load(fp=file_stream)
+            try:
+                dataset_description = json.load(fp=file_stream)
+            except json.JSONDecodeError as exc:
+                message = (
+                    f"The directory ({directory}) exists and contains a 'dataset_description.json' file, "
+                    "but it is not a valid JSON file."
+                )
+                raise ValueError(message) from exc
+
         if dataset_description.get("BIDSVersion", None) is None:
             message = (
                 f"The directory ({directory}) exists but is not a valid BIDS dataset: "
