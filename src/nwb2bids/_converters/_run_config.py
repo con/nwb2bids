@@ -30,13 +30,13 @@ def _validate_existing_directory_as_bids(directory: pathlib.Path) -> pathlib.Pat
     else:
         # The directory is considered non-empty
 
-        if not dataset_description_file_path.exists():
-            # The directory is without `dataset_description.json`
+        if not dataset_description_file_path.is_file():
+            # The directory is without `dataset_description.json` file
             # It is an invalid BIDS dataset.
 
             message = (
                 f"The directory ({directory}) exists and is not empty, but is not a valid BIDS dataset: "
-                "missing 'dataset_description.json'."
+                "missing 'dataset_description.json' file."
             )
             raise ValueError(message)
 
