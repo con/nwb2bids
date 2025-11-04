@@ -40,8 +40,6 @@ class RunConfig(pydantic.BaseModel):
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto"
     cache_directory: pydantic.DirectoryPath | None = None
     run_id: str | None = None
-    _parent_run_directory: pathlib.Path | None = pydantic.PrivateAttr(default=None)
-    _run_directory: pathlib.Path | None = pydantic.PrivateAttr(default=None)
 
     model_config = pydantic.ConfigDict(
         validate_assignment=True,  # Re-validate model on mutation
@@ -60,13 +58,23 @@ class RunConfig(pydantic.BaseModel):
 
         if self.cache_directory is None:
             self.cache_directory = _get_home_directory()
-        self._parent_run_directory = self.cache_directory / "runs"
+
+        # Ensure run directory and its parent exist
         self._parent_run_directory.mkdir(exist_ok=True)
-        self._run_directory = self._parent_run_directory / self.run_id
         self._run_directory.mkdir(exist_ok=True)
 
         self.notifications_file_path.touch()
         self.notifications_json_file_path.touch()
+
+    @property
+    def _parent_run_directory(self) -> pathlib.Path:
+        """The parent directory where all run-specific directories are stored."""
+        return self.cache_directory / "runs"
+
+    @property
+    def _run_directory(self) -> pathlib.Path:
+        """The directory specific to this run."""
+        return self._parent_run_directory / self.run_id
 
     @pydantic.computed_field
     @property
