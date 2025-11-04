@@ -35,7 +35,7 @@ class RunConfig(pydantic.BaseModel):
         The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
     """
 
-    bids_directory: pydantic.DirectoryPath | None = None
+    bids_directory: typing.Annotated[pydantic.DirectoryPath, pydantic.Field(default_factory=pathlib.Path.cwd)]
     additional_metadata_file_path: pydantic.FilePath | None = None
     file_mode: typing.Literal["move", "copy", "symlink", "auto"] = "auto"
     cache_directory: typing.Annotated[pydantic.DirectoryPath, pydantic.Field(default_factory=_get_home_directory)]
@@ -47,9 +47,6 @@ class RunConfig(pydantic.BaseModel):
 
     def model_post_init(self, context: typing.Any, /) -> None:
         """Ensure the various run directories and files are created."""
-
-        if self.bids_directory is None:
-            self.bids_directory = pathlib.Path.cwd()
 
         self._validate_existing_directory_as_bids()
         self._determine_file_mode()
