@@ -5,8 +5,8 @@ import rich_click
 
 from .._core._convert_nwb_dataset import convert_nwb_dataset
 from .._inspection._inspection_result import Severity
-from ..testing import generate_ephys_tutorial
 from .._tools._pluralize import _pluralize
+from ..testing import generate_ephys_tutorial
 
 
 # nwb2bids
