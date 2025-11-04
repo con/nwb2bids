@@ -79,13 +79,21 @@ def _run_convert_nwb_dataset(
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
 
-    run_config = RunConfig(
-        bids_directory=bids_directory,
-        additional_metadata_file_path=additional_metadata_file_path,
-        file_mode=file_mode,
-        cache_directory=cache_directory,
-        run_id=run_id,
-    )
+    run_config_kwargs = {
+        k: v
+        for k, v in {
+            "bids_directory": bids_directory,
+            "additional_metadata_file_path": additional_metadata_file_path,
+            "file_mode": file_mode,
+            "cache_directory": cache_directory,
+            "run_id": run_id,
+        }.items()
+        # Filter out values that indicate absence of direct user input or
+        # signal to use default
+        if k != "file_mode" and v is not None or k == "file_mode" and v != "auto"
+    }
+
+    run_config = RunConfig.model_validate(run_config_kwargs)
     converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
     messages = converter.messages
