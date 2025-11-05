@@ -106,6 +106,48 @@ def test_dataset_converter_write_dataset_description(
     assert dataset_description_json == expected_dataset_description
 
 
+def test_dataset_converter_write_dataset_description_with_user_generated_by(
+    minimal_nwbfile_path: pathlib.Path,
+    additional_metadata_with_generated_by_file_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+):
+    nwb_paths = [minimal_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_with_generated_by_file_path
+    )
+    dataset_converter.extract_metadata()
+    dataset_converter.write_dataset_description(bids_directory=temporary_bids_directory)
+
+    dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
+    with dataset_description_file_path.open(mode="r") as file_stream:
+        dataset_description_json = json.load(fp=file_stream)
+
+    # User's custom pipeline should be first, nwb2bids appended second
+    expected_dataset_description = {
+        "Name": "test",
+        "Description": "Dataset with user-provided GeneratedBy",
+        "BIDSVersion": "1.10",
+        "DatasetType": "raw",
+        "License": "CC-BY-4.0",
+        "Authors": ["Cody Baker", "Yaroslav Halchenko"],
+        "GeneratedBy": [
+            {
+                "Name": "custom-pipeline",
+                "Version": "1.0.0",
+                "Description": "Custom data processing pipeline",
+                "CodeURL": "https://github.com/example/custom-pipeline",
+            },
+            {
+                "Name": "nwb2bids",
+                "Version": dataset_description_json["GeneratedBy"][1]["Version"],  # Use actual version from output
+                "Description": "Tool to reorganize NWB files into a BIDS directory layout.",
+                "CodeURL": "https://github.com/con/nwb2bids",
+            },
+        ],
+    }
+    assert dataset_description_json == expected_dataset_description
+
+
 def test_dataset_converter_write_subject_metadata(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):

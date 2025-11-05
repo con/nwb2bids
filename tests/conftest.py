@@ -69,6 +69,36 @@ def additional_metadata_file_path(testing_files_directory: pathlib.Path) -> path
 
 
 @pytest.fixture(scope="session")
+def additional_metadata_with_generated_by_file_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    additional_metadata_dictionary = {
+        "dataset_description": {
+            "Name": "test",
+            "Description": "Dataset with user-provided GeneratedBy",
+            "BIDSVersion": "1.10",
+            "DatasetType": "raw",
+            "License": "CC-BY-4.0",
+            "Authors": ["Cody Baker", "Yaroslav Halchenko"],
+            "GeneratedBy": [
+                {
+                    "Name": "custom-pipeline",
+                    "Version": "1.0.0",
+                    "Description": "Custom data processing pipeline",
+                    "CodeURL": "https://github.com/example/custom-pipeline",
+                }
+            ],
+        }
+    }
+
+    additional_metadata_subdirectory = testing_files_directory / "additional_metadata"
+    additional_metadata_subdirectory.mkdir(exist_ok=True)
+    file_path = additional_metadata_subdirectory / "test_additional_metadata_with_generated_by.json"
+    with file_path.open(mode="w") as file_stream:
+        json.dump(obj=additional_metadata_dictionary, fp=file_stream)
+
+    return file_path
+
+
+@pytest.fixture(scope="session")
 def minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     """
     A minimally valid NWB file for testing purposes.
