@@ -13,7 +13,6 @@ from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..bids_models._dataset_description import GeneratedByItem
 
 
 class DatasetConverter(BaseConverter):
@@ -258,9 +257,6 @@ class DatasetConverter(BaseConverter):
     @pydantic.validate_call
     def write_dataset_description(self, bids_directory: str | pathlib.Path | None = None) -> None:
         bids_directory = self._handle_bids_directory(bids_directory=bids_directory)
-
-        generated_by_metadata = self._get_generated_by_metadata()
-        self.dataset_description.GeneratedBy = [GeneratedByItem(**item) for item in generated_by_metadata]
 
         dataset_description_dictionary = self.dataset_description.model_dump()
 

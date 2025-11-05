@@ -8,27 +8,6 @@ import pydantic
 
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):
-    @staticmethod
-    def _get_generated_by_metadata() -> list[dict[str, str]]:
-        """
-        Get the GeneratedBy metadata for nwb2bids provenance.
-
-        Returns
-        -------
-        list of dict
-            A list containing a single dictionary with nwb2bids provenance information.
-        """
-        from importlib.metadata import version
-
-        return [
-            {
-                "Name": "nwb2bids",
-                "Version": version("nwb2bids"),
-                "Description": "Tool to reorganize NWB files into a BIDS directory layout.",
-                "CodeURL": "https://github.com/con/nwb2bids",
-            }
-        ]
-
     @abc.abstractmethod
     def extract_metadata(self) -> None:
         """
@@ -72,12 +51,17 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
             path.stem for path in bids_directory.iterdir() if not path.name.startswith(".")
         } - {"README", "CHANGES", "derivatives", "dandiset"}
         if len(current_directory_contents) == 0:
-            default_dataset_description = {
-                "BIDSVersion": "1.10",
-                "GeneratedBy": BaseConverter._get_generated_by_metadata(),
-            }
+            # Import here to avoid circular import
+            from ..bids_models import DatasetDescription
+
+            # Create minimal dataset description using the model
+            # model_post_init() will automatically add GeneratedBy
+            minimal_dataset_description = DatasetDescription(
+                Name=bids_directory.name if bids_directory.name else "BIDS dataset",
+                BIDSVersion="1.10",
+            )
             with dataset_description_file_path.open(mode="w") as file_stream:
-                json.dump(obj=default_dataset_description, fp=file_stream, indent=4)
+                json.dump(obj=minimal_dataset_description.model_dump(), fp=file_stream, indent=4)
             return
 
         if not dataset_description_file_path.exists():

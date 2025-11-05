@@ -15,10 +15,22 @@ class GeneratedByNwb2bids(BaseMetadataModel):
     Represents provenance information about a pipeline or process that generated the dataset.
     """
 
-    Name: str = pydantic.Field(description="Name of the pipeline or process that generated the outputs.")
-    Version: str = pydantic.Field(description="Version of the pipeline.", default=importlib.metadata.version(distribution_name="nwb2bids"))
-    Description: str = pydantic.Field(description="Description of the pipeline or process.")
-    CodeURL: str = pydantic.Field(description="URL where the code used to generate the dataset may be found.")
+    Name: str = pydantic.Field(
+        description="Name of the pipeline or process that generated the outputs.",
+        default="nwb2bids",
+    )
+    Version: str = pydantic.Field(
+        description="Version of the pipeline.",
+        default_factory=lambda: importlib.metadata.version(distribution_name="nwb2bids"),
+    )
+    Description: str = pydantic.Field(
+        description="Description of the pipeline or process.",
+        default="Tool to reorganize NWB files into a BIDS directory layout.",
+    )
+    CodeURL: str = pydantic.Field(
+        description="URL where the code used to generate the dataset may be found.",
+        default="https://github.com/con/nwb2bids",
+    )
 
 
 class DatasetDescription(BaseMetadataModel):
@@ -47,9 +59,11 @@ class DatasetDescription(BaseMetadataModel):
         description="License under which the dataset is released.",
         default=None,
     )
-    GeneratedBy: list[GeneratedByItem] | None = pydantic.Field(
+    GeneratedBy: list[GeneratedByNwb2bids] | None = pydantic.Field(
         description="Provenance information - pipelines that generated this dataset.",
         default=None,
+    )
+
     def model_post_init(self, context: typing.Any, /) -> None:
         generated_by_nwb2bids = GeneratedByNwb2bids()
         if self.GeneratedBy is None:
