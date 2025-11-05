@@ -29,7 +29,7 @@ def _content_is_retrieved(file_path: pathlib.Path) -> bool:
 
     # Note that if the file path is a 'broken' symlink (the target does not exist)
     # the call to `.exists()` would actually return False
-    if file_path.is_symlink() and ('.git' in file_path.readlink().parts):
+    if file_path.is_symlink() and (".git" in file_path.readlink().parts):
         return True
 
     return _read_first_bytes(file_path=file_path, n=6) != b"/annex"
