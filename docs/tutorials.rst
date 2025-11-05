@@ -87,10 +87,20 @@ Now that we have an NWB file, we can convert it to BIDS using the following comm
 .. tabs::
     .. tab:: CLI
 
-        .. code-block:: bash
+        .. tabs::
+            .. tab:: Unix / macOS
 
-            nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb ^
-                --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_file/bids_dataset
+                .. code-block:: bash
+
+                    nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb \
+                        --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_file/bids_dataset
+
+            .. tab:: Windows
+
+                .. code-block:: bash
+
+                    nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb ^
+                        --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_file/bids_dataset
 
     .. tab:: Python Library
 
@@ -194,10 +204,20 @@ Now, to convert only the subset of files under `some_sessions/` to BIDS, we can 
 .. tabs::
     .. tab:: CLI
 
-        .. code-block:: bash
+        .. tabs::
+            .. tab:: Unix / macOS
 
-            nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions ^
-                --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions_bids_dataset
+                .. code-block:: bash
+
+                    nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions \
+                        --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions_bids_dataset
+
+            .. tab:: Windows
+
+                .. code-block:: bash
+
+                    nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions ^
+                        --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions_bids_dataset
 
     .. tab:: Python Library
 
@@ -260,12 +280,24 @@ We can select which files and directories to convert like so:
 .. tabs::
     .. tab:: CLI
 
-        .. code-block:: bash
+        .. tabs::
+            .. tab:: Unix / macOS
 
-            nwb2bids convert ^
-                ~/.nwb2bids/tutorials/ephys_tutorial_dataset/ephys_session_3.nwb ^
-                ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions ^
-                --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+                .. code-block:: bash
+
+                    nwb2bids convert \
+                        ~/.nwb2bids/tutorials/ephys_tutorial_dataset/ephys_session_3.nwb \
+                        ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions \
+                        --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+
+            .. tab:: Windows
+
+                .. code-block:: bash
+
+                    nwb2bids convert ^
+                        ~/.nwb2bids/tutorials/ephys_tutorial_dataset/ephys_session_3.nwb ^
+                        ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions ^
+                        --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
 
         The command line can take any number of inputs (separated by spaces) prior to other flags such as
         ``--bids-directory``. These inputs can be any mix of files or directories.
@@ -344,14 +376,28 @@ To test this out, we can create a new empty directory and navigate into it befor
 .. tabs::
     .. tab:: CLI
 
-        .. code-block:: bash
+        .. tabs::
+            .. tab:: Unix / macOS
 
-            mkdir ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
-            cd ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+                .. code-block:: bash
 
-            nwb2bids convert ^
-                ~/.nwb2bids/tutorials/ephys_tutorial_dataset/ephys_session_3.nwb ^
-                ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions
+                    mkdir ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+                    cd ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+
+                    nwb2bids convert \
+                        ~/.nwb2bids/tutorials/ephys_tutorial_dataset/ephys_session_3.nwb \
+                        ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions
+
+            .. tab:: Windows
+
+                .. code-block:: bash
+
+                    mkdir ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+                    cd ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
+
+                    nwb2bids convert ^
+                        ~/.nwb2bids/tutorials/ephys_tutorial_dataset/ephys_session_3.nwb ^
+                        ~/.nwb2bids/tutorials/ephys_tutorial_dataset/some_sessions
 
         The command line can take any number of inputs (separated by spaces) prior to other flags such as
         ``--bids-directory``. These inputs can be any mix of files or directories.
@@ -389,36 +435,18 @@ metadata that is unable to be extracted from the source files, you can provide a
 structure that mirrors the BIDS specification nested under subject and session identifiers (which should match the
 ``subject_id`` and ``session_id`` found within each file).
 
-To show how such additional metadata can be included through **nwb2bids**, start by creating a file named ``metadata
-.json`` inside the ``ephys_tutorial_dataset`` directory we used in :ref:`tutorial-multiple-files`. Then fill the
-contents
-of the file to match below:
+To show how such additional metadata can be included through **nwb2bids**, start by creating a file named
+``metadata.json`` inside the ``ephys_tutorial_dataset`` directory we used in :ref:`tutorial-multiple-files`.
+Then fill the contents of the file to match below:
 
-..code-block:: json
+.. code-block:: json
 
     {
-      "dataset_description": {
-        "Name": "My Custom BIDS Dataset",
-        "BIDSVersion": "1.8.0",
-        "Authors": ["First Last", "Second Author"]
-      },
-      "sub-subject+1": {
-        "ses-session+1": {
-          "TaskName": "MyCustomTask",
-          "InstitutionName": "MyInstitution",
-          "CustomField": "CustomValue"
-        },
-        "ses-session+2": {
-          "TaskName": "AnotherTask",
-          "InstitutionName": "MyInstitution"
+        "dataset_description": {
+            "Name": "My Custom BIDS Dataset",
+            "BIDSVersion": "1.8.0",
+            "Authors": ["First Last", "Second Author"]
         }
-      },
-      "sub-subject+2": {
-        "ses-session+3": {
-          "TaskName": "ThirdTask",
-          "InstitutionName": "MyInstitution"
-        }
-      }
     }
 
 To include this additional metadata during conversion, we can use the following commands:
@@ -426,11 +454,22 @@ To include this additional metadata during conversion, we can use the following 
 .. tabs::
     .. tab:: CLI
 
-        .. code-block:: bash
+        .. tabs::
+            .. tab:: Unix / macOS
 
-            nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb ^
-                --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_file/bids_dataset ^
-                --additional-metadata-file-path ~/.nwb2bids/tutorials/ephys_tutorial_file/metadata.json
+                .. code-block:: bash
+
+                    nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb \
+                        --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_file/bids_dataset \
+                        --additional-metadata-file-path ~/.nwb2bids/tutorials/ephys_tutorial_file/metadata.json
+
+            .. tab:: Windows
+
+                .. code-block:: bash
+
+                    nwb2bids convert ~/.nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb ^
+                        --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_file/bids_dataset ^
+                        --additional-metadata-file-path ~/.nwb2bids/tutorials/ephys_tutorial_file/metadata.json
 
     .. tab:: Python Library
 
@@ -440,26 +479,63 @@ To include this additional metadata during conversion, we can use the following 
 
             import nwb2bids
 
-            nwb_paths = [pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb"]
-            bids_directory = pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file/bids_dataset"
-            additional
+            ephys_tutorial_file_directory = pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file"
+            nwb_paths = [ephys_tutorial_file_directory / "ephys.nwb"]
+            bids_directory = ephys_tutorial_file_directory / "bids_dataset"
+            additional_metadata_file_path = ephys_tutorial_file_directory / "metadata.json"
 
             nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=bids_directory)
+
+.. note::
+
+    Currently only ``dataset_description`` metadata is supported, but more detailed subject- and session-level
+    metadata will be supported in the future.
+
+
+
+.. _tutorial-library-customization:
+
+Tutorial 5 - Library customization
+----------------------------------
+
+The **nwb2bids** Python library is much easier to customize and interact with than the CLI usage.
+
+The workflow that is automatically run by the helper function :func:`~nwb2bids.convert_nwb_dataset()` can be
+broken down into the following distinct steps:
+
+.. code-block:: python
+
+    import nwb2bids
+
+    ephys_tutorial_file_directory = pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file"
+    nwb_paths = [ephys_tutorial_file_directory / "ephys.nwb"]
+    bids_directory = ephys_tutorial_file_directory / "bids_dataset"
+    additional_metadata_file_path = ephys_tutorial_file_directory / "metadata.json"
+
+    # Step 1: Initialize the DatasetConverter object
+    converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=nwb_paths,
+        additional_metadata_file_path=additional_metadata_file_path,
+    )
+
+    # Step 2: Extract metadata from NWB contents
+    converter.extract_metadata()
+
+    # Step 3: Convert NWB files to BIDS structure
+    converter.convert_to_bids_dataset(bids_directory=bids_directory)
+
+The ``converter`` object (a type of :class:`~nwb2bids.DatasetConverter`) exposes many useful attributes and methods
+that may useful to explore. In particular, it contains all of the :class:`~nwb2bids.SessionConverter` objects that were
+assembled from the input NWB files. These in turn attach various metadata models,
+such as :class:`~nwb2bids.bids_models.BidsSessionMetadata`, from which all metadata attributes used during the BIDS
+conversion process may be inspected and modified prior to writing the resulting files.
 
 
 
 .. _tutorial-future:
 
-
-
-Tutorial 5 - Library customization
-----------------------------------
-
-
-
-
-Tutorial 6+ - Work in progress!
--------------------------------
+More tutorials coming soon!
+---------------------------
 
 We are still compiling some detailed tutorials for more advanced use cases, such as sanitization, run configurations,
 non-ephys data types, and more!

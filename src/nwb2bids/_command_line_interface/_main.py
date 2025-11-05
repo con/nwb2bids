@@ -84,7 +84,7 @@ def _run_convert_nwb_dataset(
 
     not_any_failures = not messages or not any(message.severity == Severity.ERROR for message in messages)
     if not_any_failures and not silent:
-        text = "BIDS dataset was successfully created!"
+        text = "\nBIDS dataset was successfully created!\n\n"
         console_notification = rich_click.style(text=text, fg="green")
         rich_click.echo(message=console_notification)
 
@@ -114,7 +114,7 @@ def _nwb2bids_tutorial_ephys_cli():
 def _nwb2bids_tutorial_ephys_file_cli(output_directory: str | None = None) -> None:
     file_path = generate_ephys_tutorial(output_directory=output_directory, mode="file")
 
-    text = f"An example NWB file has been created at: {file_path}"
+    text = f"\nAn example NWB file has been created at: {file_path}\n\n"
     message = rich_click.style(text=text, fg="green")
     rich_click.echo(message=message)
 
@@ -132,6 +132,6 @@ def _nwb2bids_tutorial_ephys_file_cli(output_directory: str | None = None) -> No
 def _nwb2bids_tutorial_ephys_dataset_cli(output_directory: str | None = None) -> None:
     tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset")
 
-    text = f"An example NWB dataset has been created at: {tutorial_directory}"
+    text = f"\nAn example NWB dataset has been created at: {tutorial_directory}\n\n"
     message = rich_click.style(text=text, fg="green")
     rich_click.echo(message=message)
