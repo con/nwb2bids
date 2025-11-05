@@ -58,10 +58,6 @@
 
 ---
 
-# CHANGELOG
-
-# Upcoming
-
 
 # v0.5.1
 
