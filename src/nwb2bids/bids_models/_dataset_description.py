@@ -24,7 +24,7 @@ class GeneratedByNwb2bids(BaseMetadataModel):
         default_factory=lambda: importlib.metadata.version(distribution_name="nwb2bids"),
     )
     Description: str = pydantic.Field(
-        description="Plain-text description of the pipeline or process that generated the outputs."
+        description="Plain-text description of the pipeline or process that generated the outputs.",
         default="Tool to reorganize NWB files into a BIDS directory layout.",
     )
     CodeURL: str = pydantic.Field(
