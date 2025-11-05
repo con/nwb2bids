@@ -8,7 +8,7 @@ import typing_extensions
 from ._base_metadata_model import BaseMetadataModel
 
 
-class GeneratedByNwb2bids(BaseMetadataModel):
+class GeneratedByItem(BaseMetadataModel):
     """
     Schema for a single GeneratedBy entry in BIDS dataset_description.json.
 
@@ -17,20 +17,27 @@ class GeneratedByNwb2bids(BaseMetadataModel):
 
     Name: str = pydantic.Field(
         description="Name of the pipeline or process that generated the outputs.",
-        default="nwb2bids",
     )
     Version: str = pydantic.Field(
         description="Version of the pipeline.",
-        default_factory=lambda: importlib.metadata.version(distribution_name="nwb2bids"),
     )
     Description: str = pydantic.Field(
         description="Plain-text description of the pipeline or process that generated the outputs.",
-        default="Tool to reorganize NWB files into a BIDS directory layout.",
     )
     CodeURL: str = pydantic.Field(
         description="URL where the code used to generate the dataset may be found.",
-        default="https://github.com/con/nwb2bids",
     )
+
+
+class GeneratedByNwb2bids(GeneratedByItem):
+    """
+    nwb2bids-specific GeneratedBy entry with defaults for the nwb2bids pipeline.
+    """
+
+    Name: str = pydantic.Field(default="nwb2bids")
+    Version: str = pydantic.Field(default_factory=lambda: importlib.metadata.version(distribution_name="nwb2bids"))
+    Description: str = pydantic.Field(default="Tool to reorganize NWB files into a BIDS directory layout.")
+    CodeURL: str = pydantic.Field(default="https://github.com/con/nwb2bids")
 
 
 class DatasetDescription(BaseMetadataModel):
@@ -59,7 +66,7 @@ class DatasetDescription(BaseMetadataModel):
         description="License under which the dataset is released.",
         default=None,
     )
-    GeneratedBy: list[GeneratedByNwb2bids] | None = pydantic.Field(
+    GeneratedBy: list[GeneratedByItem] | None = pydantic.Field(
         description="Provenance information - pipelines that generated this dataset.",
         default=None,
     )
