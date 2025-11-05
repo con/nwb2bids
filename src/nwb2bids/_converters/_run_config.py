@@ -1,4 +1,3 @@
-import json
 import pathlib
 import typing
 
@@ -7,57 +6,7 @@ import pydantic
 from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_home_directory
 from .._core._run_id import _generate_run_id
-
-
-def _validate_existing_directory_as_bids(directory: pathlib.Path) -> pathlib.Path:
-
-    dataset_description_file_path = directory / "dataset_description.json"
-    current_directory_contents = {path.stem for path in directory.iterdir() if not path.name.startswith(".")} - {
-        "README",
-        "CHANGES",
-        "derivatives",
-        "dandiset",
-    }
-
-    if len(current_directory_contents) == 0:
-        # The directory is considered empty, not containing any meaningful content.
-        # Populate the directory with `dataset_description.json` to make it
-        # a valid (though minimal) BIDS dataset.
-
-        default_dataset_description = {"BIDSVersion": "1.10"}
-        with dataset_description_file_path.open(mode="w") as file_stream:
-            json.dump(obj=default_dataset_description, fp=file_stream, indent=4)
-    else:
-        # The directory is considered non-empty
-
-        if not dataset_description_file_path.is_file():
-            # The directory is without `dataset_description.json` file
-            # It is an invalid BIDS dataset.
-
-            message = (
-                f"The directory ({directory}) exists and is not empty, but is not a valid BIDS dataset: "
-                "missing 'dataset_description.json' file."
-            )
-            raise ValueError(message)
-
-        with dataset_description_file_path.open(mode="r") as file_stream:
-            try:
-                dataset_description = json.load(fp=file_stream)
-            except json.JSONDecodeError as exc:
-                message = (
-                    f"The directory ({directory}) exists and contains a 'dataset_description.json' file, "
-                    "but it is not a valid JSON file."
-                )
-                raise ValueError(message) from exc
-
-        if dataset_description.get("BIDSVersion", None) is None:
-            message = (
-                f"The directory ({directory}) exists but is not a valid BIDS dataset: "
-                "missing 'BIDSVersion' in 'dataset_description.json'."
-            )
-            raise ValueError(message)
-
-    return directory
+from .._core._validate_existing_bids import _validate_existing_directory_as_bids
 
 
 class RunConfig(pydantic.BaseModel):
@@ -98,13 +47,17 @@ class RunConfig(pydantic.BaseModel):
     ]
     cache_directory: typing.Annotated[pydantic.DirectoryPath, pydantic.Field(default_factory=_get_home_directory)]
     run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
+    _parent_run_directory: pathlib.Path = pydantic.PrivateAttr()
+    _run_directory: pathlib.Path = pydantic.PrivateAttr()
 
     model_config = pydantic.ConfigDict(
-        validate_assignment=True,  # Re-validate model on mutation
+        frozen=True,  # Make the model immutable
         validate_default=True,  # Validate default values as well
     )
 
     def model_post_init(self, context: typing.Any, /) -> None:
+        self._parent_run_directory = self.cache_directory / "runs"
+        self._run_directory = self._parent_run_directory / self.run_id
 
         # Ensure run directory and its parent exist
         self._parent_run_directory.mkdir(exist_ok=True)
@@ -112,16 +65,6 @@ class RunConfig(pydantic.BaseModel):
 
         self.notifications_file_path.touch()
         self.notifications_json_file_path.touch()
-
-    @property
-    def _parent_run_directory(self) -> pathlib.Path:
-        """The parent directory where all run-specific directories are stored."""
-        return self.cache_directory / "runs"
-
-    @property
-    def _run_directory(self) -> pathlib.Path:
-        """The directory specific to this run."""
-        return self._parent_run_directory / self.run_id
 
     @pydantic.computed_field
     @property
