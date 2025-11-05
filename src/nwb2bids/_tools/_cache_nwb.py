@@ -19,6 +19,7 @@ for message in ignored_pynwb_message_patterns:
 @functools.cache
 def cache_read_nwb(file_path: pathlib.Path) -> pynwb.NWBFile:
     """Cache the read operation per NWB file path to speed up repeated calls."""
-    resolved_path = file_path.resolve()  # Always resolve in case of symlinks (i.e., DataLad most likely)
+     # Always resolve in case of symlinks, mostly relevant to Windows (i.e., from DataLad most likely)
+    resolved_path = file_path.resolve()
     nwbfile = pynwb.read_nwb(path=resolved_path)
     return nwbfile
