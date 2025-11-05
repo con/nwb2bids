@@ -63,7 +63,7 @@ class SessionConverter(BaseConverter):
                     path
                     for path in nwb_path.rglob(pattern="*.nwb")
                     # Ignore DataLad files not retrieved from the annex
-                    if not any(part == ".git" for part in path.parts) and _content_is_retrieved(file_path=path)
+                    if ".git" not in path.parts and _content_is_retrieved(file_path=path)
                 ]
 
         nwbfile_paths_to_convert = all_nwbfile_paths
