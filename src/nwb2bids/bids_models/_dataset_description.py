@@ -78,6 +78,14 @@ class DatasetDescription(BaseMetadataModel):
         else:
             self.GeneratedBy.append(generated_by_nwb2bids)
 
+    @pydantic.model_validator(mode="after")
+    def validate_exactly_one_nwb2bids(self) -> typing_extensions.Self:
+        if self.GeneratedBy is not None:
+            nwb2bids_count = sum(1 for item in self.GeneratedBy if item.Name == "nwb2bids")
+            if nwb2bids_count != 1:
+                raise ValueError(f"GeneratedBy must contain exactly one nwb2bids entry, found {nwb2bids_count}")
+        return self
+
     @classmethod
     @pydantic.validate_call
     def from_file_path(cls, file_path: pydantic.FilePath) -> typing_extensions.Self | None:

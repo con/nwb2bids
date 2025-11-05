@@ -4,6 +4,7 @@ import json
 import pathlib
 
 import pandas
+import pytest
 
 import nwb2bids
 
@@ -230,3 +231,46 @@ def test_dataset_converter_write_sessions_metadata(
         sessions_json = json.load(fp=file_stream)
     expected_sessions_json = {"session_id": "A unique session identifier."}
     assert sessions_json == expected_sessions_json
+
+
+def test_dataset_description_validates_exactly_one_nwb2bids():
+    """Test that DatasetDescription enforces exactly one nwb2bids entry in GeneratedBy."""
+    # Should fail if user provides nwb2bids (results in 2 after model_post_init)
+    with pytest.raises(ValueError, match="GeneratedBy must contain exactly one nwb2bids entry, found 2"):
+        nwb2bids.bids_models.DatasetDescription(
+            Name="Test",
+            BIDSVersion="1.10",
+            GeneratedBy=[
+                {
+                    "Name": "nwb2bids",
+                    "Version": "1.0.0",
+                    "Description": "User provided nwb2bids",
+                    "CodeURL": "https://example.com",
+                }
+            ],
+        )
+
+    # Should succeed with no GeneratedBy (auto-adds nwb2bids)
+    dd = nwb2bids.bids_models.DatasetDescription(
+        Name="Test",
+        BIDSVersion="1.10",
+    )
+    assert len(dd.GeneratedBy) == 1
+    assert dd.GeneratedBy[0].Name == "nwb2bids"
+
+    # Should succeed with user pipeline (auto-appends nwb2bids)
+    dd = nwb2bids.bids_models.DatasetDescription(
+        Name="Test",
+        BIDSVersion="1.10",
+        GeneratedBy=[
+            {
+                "Name": "custom-pipeline",
+                "Version": "2.0.0",
+                "Description": "Custom",
+                "CodeURL": "https://example.com",
+            }
+        ],
+    )
+    assert len(dd.GeneratedBy) == 2
+    assert dd.GeneratedBy[0].Name == "custom-pipeline"
+    assert dd.GeneratedBy[1].Name == "nwb2bids"
