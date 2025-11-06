@@ -66,16 +66,16 @@ def _run_convert_nwb_dataset(
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
 
-    messages = convert_nwb_dataset(
+    notifications = convert_nwb_dataset(
         nwb_paths=handled_nwb_paths,
         bids_directory=bids_directory,
         file_mode=file_mode,
         additional_metadata_file_path=additional_metadata_file_path,
     )
 
-    if messages and not silent:
+    if notifications and not silent:
         text = (
-            f'\n{(n := len(messages))} {_pluralize(n=n, word="suggestion")} for improvement '
+            f'\n{(n:=len(notifications))} {_pluralize(n=n, word="suggestion")} for improvement '
             f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
         )
         console_notification = rich_click.style(text=text, fg="yellow")
