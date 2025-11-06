@@ -5,6 +5,7 @@ import rich_click
 
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
+from .._tools._pluralize import _pluralize
 
 
 # nwb2bids
@@ -97,13 +98,12 @@ def _run_convert_nwb_dataset(
 
     converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
-    messages = converter.messages
+    notifications = converter.messages
     console_notification = ""
-    if messages is not None:
+    if notifications is not None:
         notification_text = (
-            f"{len(messages)} suggestion for improvement was found during conversion."
-            if len(messages) == 1
-            else f"{len(messages)} suggestions for improvement were found during conversion."
+            f'\n{(n:=len(notifications))} {_pluralize(n=n, word="suggestion")} for improvement '
+            f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
         )
         console_notification += rich_click.style(text=notification_text, fg="yellow")
 

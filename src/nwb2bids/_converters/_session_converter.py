@@ -5,7 +5,9 @@ import shutil
 import pydantic
 import typing_extensions
 
+
 from ._run_config import RunConfig
+from ._datalad_utils import _content_is_retrieved
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
@@ -36,6 +38,7 @@ class SessionConverter(BaseConverter):
         cls,
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
         run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
+        ignore_hidden: bool = True,
     ) -> list[typing_extensions.Self]:
         """
         Initialize a list of session converters from a list of NWB file paths.
@@ -48,6 +51,8 @@ class SessionConverter(BaseConverter):
             An iterable of NWB file paths and directories containing NWB files.
         run_config : RunConfig, optional
             The configuration for this conversion run.
+        ignore_hidden : bool, default: True
+            Whether to ignore NWB files located under directories (those starting with a period).
 
         Returns
         -------
@@ -58,10 +63,23 @@ class SessionConverter(BaseConverter):
             if nwb_path.is_file():
                 all_nwbfile_paths.append(nwb_path)
             elif nwb_path.is_dir():
-                all_nwbfile_paths += list(nwb_path.rglob(pattern="*.nwb"))
+                all_nwbfile_paths += [
+                    path
+                    for path in nwb_path.rglob(pattern="*.nwb")
+                    # Ignore DataLad files not retrieved from the annex
+                    if ".git" not in path.parts and _content_is_retrieved(file_path=path)
+                ]
+
+        nwbfile_paths_to_convert = all_nwbfile_paths
+        if ignore_hidden:
+            # Ignore contents in hidden folders
+            # Such as .git since contains .git/annex which might include NWB extensions, DS_Store, etc.
+            nwbfile_paths_to_convert = [
+                path for path in all_nwbfile_paths if not any(part.startswith(".") for part in path.parts)
+            ]
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
-        for nwbfile_path in all_nwbfile_paths:
+        for nwbfile_path in nwbfile_paths_to_convert:
             unique_session_id_to_nwbfile_paths[cache_read_nwb(nwbfile_path).session_id].append(nwbfile_path)
 
         session_converters = [
