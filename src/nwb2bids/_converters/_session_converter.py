@@ -5,9 +5,8 @@ import shutil
 import pydantic
 import typing_extensions
 
-
-from ._run_config import RunConfig
 from ._datalad_utils import _content_is_retrieved
+from ._run_config import RunConfig
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
