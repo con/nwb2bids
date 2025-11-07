@@ -32,9 +32,10 @@ toy example through the following methods:
 
         .. code-block:: bash
 
-            import nwb2bids
+            >>> import nwb2bids
+            >>>
+            >>> tutorial_file = nwb2bids.testing.generate_ephys_tutorial(mode="file")
 
-            nwb2bids.testing.generate_ephys_tutorial(mode="file")
 
 This created an NWB file with contents typical of an extracellular electrophysiology experiment in your home
 directory for **nwb2bids**: ``~/.nwb2bids/tutorials/ephys/nwb2bids_tutorial_ephys.nwb``.
@@ -60,12 +61,13 @@ directory for **nwb2bids**: ``~/.nwb2bids/tutorials/ephys/nwb2bids_tutorial_ephy
 
             .. code-block:: python
 
-                import nwb2bids
+            >>> import nwb2bids
+            >>>
+            >>> tutorial_directory = nwb2bids.testing.generate_ephys_tutorial(
+            ...     mode="file",
+            ...     output_directory=path_to_some_directory,
+            ... )
 
-                nwb2bids.testing.generate_ephys_tutorial(
-                    mode="file",
-                    output_directory="path/to/some/directory",
-                )
 
 NWB files like this contain a lot of metadata about the probes and electrode structure, which will be useful later
 when we compare the source file to the sidecar tables found in BIDS. You can explore these file contents through
@@ -106,14 +108,14 @@ Now that we have an NWB file, we can convert it to BIDS using the following comm
 
         .. code-block:: python
 
-            import pathlib
-
-            import nwb2bids
-
-            nwb_paths = [pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb"]
-            bids_directory = pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file/bids_dataset"
-
-            nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=bids_directory)
+            >>> import pathlib
+            >>>
+            >>> import nwb2bids
+            >>>
+            >>> nwb_paths = [pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file/ephys.nwb"]
+            >>> bids_directory = pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file/bids_dataset"
+            >>>
+            >>> notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=bids_directory)
 
 Notice how we explicitly specified the output BIDS directory in the previous step. We will cover the implicit
 (current working directory) approach in  :ref:`tutorial-implicit-bids-directory`.
