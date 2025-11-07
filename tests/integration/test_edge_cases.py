@@ -56,9 +56,10 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset(
 ):
     nwb_paths = [mock_datalad_dataset]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    notifications = nwb2bids.convert_nwb_dataset(
+    converter = nwb2bids.convert_nwb_dataset(
         nwb_paths=nwb_paths, bids_directory=temporary_bids_directory, run_config=run_config
     )
+    notifications = converter.messages
 
     errors = [notification for notification in notifications if notification.severity == nwb2bids.Severity.ERROR]
     assert len(errors) == 0, f"Errors were raised during conversion: {errors}"
@@ -99,7 +100,8 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset_with_broken_symlink(
     broken_symlink.symlink_to(target="non_existent_file.nwb")
     nwb_paths = [mock_datalad_dataset]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    notifications = converter.messages
 
     errors = [notification for notification in notifications if notification.severity == nwb2bids.Severity.ERROR]
     assert len(errors) == 0, f"Errors were raised during conversion: {errors}"
