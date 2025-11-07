@@ -6,6 +6,14 @@ import pynwb
 import pynwb.testing.mock.ecephys
 import pynwb.testing.mock.file
 
+from ..._core._home import _get_home_directory
+
+
+def get_tutorial_directory() -> pathlib.Path:
+    tutorial_dir = _get_home_directory() / "tutorials"
+    tutorial_dir.mkdir(exist_ok=True)
+    return tutorial_dir
+
 
 def _generate_ecephys_file(
     *, nwbfile_path: pathlib.Path, subject_id: str = "subject+1", session_id: str = "session+1"
@@ -40,9 +48,7 @@ def generate_ephys_tutorial(
     *, mode=typing.Literal["file", "dataset"], output_directory: pydantic.DirectoryPath | None = None
 ) -> pathlib.Path:
     if output_directory is None:
-        # TODO: update to common home/config utility
-        tutorial_dir = pathlib.Path.home() / ".nwb2bids" / "tutorials"
-        tutorial_dir.mkdir(parents=True, exist_ok=True)
+        tutorial_dir = get_tutorial_directory()
         output_directory = tutorial_dir / f"ephys_tutorial_{mode}"
         output_directory.mkdir(exist_ok=True)
 

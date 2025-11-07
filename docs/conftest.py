@@ -5,13 +5,16 @@ import typing
 
 import pytest
 
+import nwb2bids
+
 
 # Doctest directories
 @pytest.fixture(autouse=True)
 def add_data_space(doctest_namespace: dict[str, typing.Any], tmp_path: pathlib.Path):
     doctest_namespace["path_to_some_directory"] = pathlib.Path(tmp_path)
 
-    tutorial_directory = pathlib.Path.home() / ".nwb2bids/tutorials/ephys_tutorial_file"
+    tutorial_directory = nwb2bids.testing.get_tutorial_directory() / "ephys_tutorial_file"
+    tutorial_directory.mkdir(exist_ok=True)
     additional_metadata_file_path = tutorial_directory / "metadata.json"
 
     additional_metadata = {
