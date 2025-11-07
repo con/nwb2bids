@@ -87,7 +87,8 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
     dataset.get(path=test_file_path)
 
     nwb_paths = [test_file_path]
-    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
     assert len(notifications) < 2, "Expected fewer than 2 notifications!"
     expected_structure = {
@@ -144,7 +145,10 @@ def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
     dataset.get(path=test_file_path)
 
     nwb_paths = [dataset_dir]
-    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    notifications = nwb2bids.convert_nwb_dataset(
+        nwb_paths=nwb_paths, bids_directory=temporary_bids_directory, run_config=run_config
+    )
 
     assert len(notifications) < 2, "Expected fewer than 2 notifications!"
     expected_structure = {
