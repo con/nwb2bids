@@ -161,10 +161,7 @@ class DatasetConverter(BaseConverter):
                 dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
             session_messages = [
-                message
-                for session_converter in session_converters
-                for message in session_converter.messages
-                if session_converter.messages is not None
+                message for session_converter in session_converters for message in session_converter.messages
             ]
 
             dataset_converter = cls(

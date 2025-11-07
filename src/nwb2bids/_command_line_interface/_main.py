@@ -38,6 +38,17 @@ def _nwb2bids_cli():
     default="auto",
 )
 @rich_click.option(
+    "--cache-directory",
+    "cache_directory",
+    help=(
+        "The directory where run specific files (e.g., notifications, sanitization reports) will be stored. "
+        "Defaults to `~/.nwb2bids`."
+    ),
+    required=False,
+    type=rich_click.Path(exists=True, dir_okay=False, readable=True),
+    default=None,
+)
+@rich_click.option(
     "--additional-metadata-file-path",
     "additional_metadata_file_path",
     help=(
