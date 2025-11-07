@@ -157,7 +157,7 @@ class DatasetConverter(BaseConverter):
 
             dataset_description = None
             additional_metadata_file_path = run_config.additional_metadata_file_path
-            if run_config.additional_metadata_file_path is not None:
+            if additional_metadata_file_path is not None:
                 dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
             session_messages = [
