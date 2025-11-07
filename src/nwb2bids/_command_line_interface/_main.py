@@ -82,7 +82,9 @@ def _run_convert_nwb_dataset(
         console_notification = rich_click.style(text=text, fg="yellow")
         rich_click.echo(message=console_notification)
 
-    not_any_failures = not messages or not any(message.severity == Severity.ERROR for message in messages)
+    not_any_failures = not notifications or not any(
+        notification.severity == Severity.ERROR for notification in notifications
+    )
     if not_any_failures and not silent:
         text = "\nBIDS dataset was successfully created!\n\n"
         console_notification = rich_click.style(text=text, fg="green")
