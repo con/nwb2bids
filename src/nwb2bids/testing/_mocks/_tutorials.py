@@ -37,7 +37,7 @@ def _generate_ecephys_file(
 
 @pydantic.validate_call
 def generate_ephys_tutorial(
-    *, output_directory: pydantic.DirectoryPath | None, mode=typing.Literal["file", "dataset"]
+    *, mode=typing.Literal["file", "dataset"], output_directory: pydantic.DirectoryPath | None = None
 ) -> pathlib.Path:
     if output_directory is None:
         # TODO: update to common home/config utility

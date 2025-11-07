@@ -484,7 +484,11 @@ To include this additional metadata during conversion, we can use the following 
             bids_directory = ephys_tutorial_file_directory / "bids_dataset"
             additional_metadata_file_path = ephys_tutorial_file_directory / "metadata.json"
 
-            nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=bids_directory)
+            nwb2bids.convert_nwb_dataset(
+                nwb_paths=nwb_paths,
+                bids_directory=bids_directory,
+                additional_metadata_file_path=additional_metadata_file_path,
+            )
 
 .. note::
 
