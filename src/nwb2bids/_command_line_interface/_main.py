@@ -4,6 +4,7 @@ import typing
 import rich_click
 
 from .._core._convert_nwb_dataset import convert_nwb_dataset
+from .._tools._pluralize import _pluralize
 
 
 # nwb2bids
@@ -57,25 +58,25 @@ def _run_convert_nwb_dataset(
     """
     Convert NWB files to BIDS format.
 
-    NWB_PATHS : A sequence of paths, each pointing to either an NWB file or a directory containing NWB files.
+    NWB_PATHS : A space-separated sequence of paths, each pointing to either an NWB file
+    or a directory containing NWB files.
     """
     if len(nwb_paths) == 0:
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
 
-    messages = convert_nwb_dataset(
+    notifications = convert_nwb_dataset(
         nwb_paths=handled_nwb_paths,
         bids_directory=bids_directory,
         file_mode=file_mode,
         additional_metadata_file_path=additional_metadata_file_path,
     )
 
-    if messages is not None and not silent:
+    if notifications and not silent:
         text = (
-            f"{len(messages)} suggestion for improvement was found during conversion."
-            if len(messages) == 1
-            else f"{len(messages)} suggestions for improvement were found during conversion."
+            f'\n{(n:=len(notifications))} {_pluralize(n=n, word="suggestion")} for improvement '
+            f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
         )
         console_notification = rich_click.style(text=text, fg="yellow")
         rich_click.echo(message=console_notification)
