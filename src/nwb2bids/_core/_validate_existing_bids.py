@@ -43,6 +43,12 @@ def _validate_existing_directory_as_bids(directory: pathlib.Path) -> pathlib.Pat
                 )
                 raise ValueError(message) from exception
 
+        if not isinstance(dataset_description, dict):
+            message = (
+                f"The directory ({directory}) exists and contains a 'dataset_description.json' file, "
+                "but it does not contain a valid JSON object."
+            )
+            raise ValueError(message)
         if dataset_description.get("BIDSVersion", None) is None:
             message = (
                 f"The directory ({directory}) exists but is not a valid BIDS dataset: "
