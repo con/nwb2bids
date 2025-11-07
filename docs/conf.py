@@ -63,6 +63,9 @@ html_sidebars = {
 toggleprompt_offset_right = 45  # This controls the position of the prompt (>>>) for the conversion gallery
 toggleprompt_default_hidden = "true"
 
+# Copybutton
+copybutton_exclude = '.linenos, .gp'  # This avoids copying prompt (>>>) in the conversion gallery (issue #1465)
+
 
 # --------------------------------------------------
 # Extension configuration
