@@ -13,8 +13,10 @@ import nwb2bids
 def add_data_space(doctest_namespace: dict[str, typing.Any], tmp_path: pathlib.Path):
     doctest_namespace["path_to_some_directory"] = pathlib.Path(tmp_path)
 
+    nwb2bids.testing.generate_ephys_tutorial(mode="file")
+    nwb2bids.testing.generate_ephys_tutorial(mode="dataset")
+
     tutorial_directory = nwb2bids.testing.get_tutorial_directory() / "ephys_tutorial_file"
-    tutorial_directory.mkdir(exist_ok=True)
     additional_metadata_file_path = tutorial_directory / "metadata.json"
 
     additional_metadata = {
