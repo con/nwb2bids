@@ -101,3 +101,27 @@ def test_disallowed_directory_conditions(
         )
         dataset_converter.extract_metadata()
         dataset_converter.write_dataset_description(bids_directory=bids_directory)
+
+
+def test_nested_directory_creation(
+    minimal_nwbfile_path: pathlib.Path,
+    additional_metadata_file_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+):
+    """Test that nested directories are created when specified."""
+    nested_bids_directory = temporary_bids_directory / "parent" / "child"
+
+    nwb_paths = [minimal_nwbfile_path]
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_file_path
+    )
+    dataset_converter.extract_metadata()
+    dataset_converter.write_dataset_description(bids_directory=nested_bids_directory)
+
+    assert nested_bids_directory.exists()
+    assert (nested_bids_directory / "dataset_description.json").exists()
+
+    expected_structure = {nested_bids_directory: {"directories": set(), "files": {"dataset_description.json"}}}
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=nested_bids_directory, expected_structure=expected_structure
+    )

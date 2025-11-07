@@ -30,7 +30,7 @@ class BaseConverter(pydantic.BaseModel, abc.ABC):
         if bids_directory.exists():
             self._validate_existing_directory_as_bids(bids_directory=bids_directory)
         else:
-            bids_directory.mkdir(exist_ok=True)
+            bids_directory.mkdir(parents=True, exist_ok=True)
         self.extract_metadata()
 
         return bids_directory
