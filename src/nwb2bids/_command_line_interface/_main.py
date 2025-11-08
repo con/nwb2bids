@@ -109,6 +109,7 @@ def _run_convert_nwb_dataset(
         "additional_metadata_file_path": additional_metadata_file_path,
         "file_mode": file_mode,
         "cache_directory": cache_directory,
+        "sanitization_level": handled_sanitization_level,
         "run_id": run_id,
     }
 
