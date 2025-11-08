@@ -6,8 +6,7 @@
 
 #### 🐛 Bug Fix
 
-- Remove list of required status checks [#159](https://github.com/con/nwb2bids/pull/159) ([@candleindark](https://github.com/candleindark))
-- Provide list of required status checks to `auto` [#158](https://github.com/con/nwb2bids/pull/158) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Testing auto release (again) [#156](https://github.com/con/nwb2bids/pull/156) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 - Testing auto release [#152](https://github.com/con/nwb2bids/pull/152) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 - Resolved protected branch problem in execution of the "Release with Auto" GH workflow [#151](https://github.com/con/nwb2bids/pull/151) ([@candleindark](https://github.com/candleindark))
 - Add ability to read from raw dandiset metadata when invalid [#107](https://github.com/con/nwb2bids/pull/107) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
@@ -19,6 +18,7 @@
 
 #### 🏠 Internal
 
+- Automatic release [#155](https://github.com/con/nwb2bids/pull/155) ([@github-actions[bot]](https://github.com/github-actions[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 - Use two GitHub tokens in Release with Auto workflow [#154](https://github.com/con/nwb2bids/pull/154) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 - Improved and consolidated release and deploy workflow [#138](https://github.com/con/nwb2bids/pull/138) ([@candleindark](https://github.com/candleindark))
 - Provided fix for Setup Release Labels workflow [#137](https://github.com/con/nwb2bids/pull/137) ([@candleindark](https://github.com/candleindark))
@@ -49,14 +49,13 @@
 - Blacklisted `h5py` version dependency for macOS platform [#136](https://github.com/con/nwb2bids/pull/136) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 - [pre-commit.ci] pre-commit autoupdate [#122](https://github.com/con/nwb2bids/pull/122) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
 
-#### Authors: 4
+#### Authors: 5
 
+- [@github-actions[bot]](https://github.com/github-actions[bot])
 - [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
 - Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
 - Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
 - Isaac To ([@candleindark](https://github.com/candleindark))
-
----
 
 
 # v0.5.1
