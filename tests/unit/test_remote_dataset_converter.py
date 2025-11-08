@@ -10,13 +10,20 @@ import nwb2bids
 
 @pytest.mark.remote
 def test_remote_dataset_converter_initialization(temporary_bids_directory: pathlib.Path):
-    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003", limit=2)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
+        dandiset_id="000003", limit=2, run_config=run_config
+    )
+
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
 
 
 @pytest.mark.remote
 def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: pathlib.Path):
-    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003", limit=2)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
+        dandiset_id="000003", limit=2, run_config=run_config
+    )
     dataset_converter.extract_metadata()
 
     assert len(dataset_converter.session_converters) == 2
@@ -78,7 +85,11 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
 
 @pytest.mark.remote
 def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_bids_directory: pathlib.Path):
-    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000005", limit=2)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
+        dandiset_id="000005", limit=2, run_config=run_config
+    )
+
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
     assert len(dataset_converter.messages) == 1
     assert dataset_converter.messages[0] == nwb2bids.InspectionResult(
