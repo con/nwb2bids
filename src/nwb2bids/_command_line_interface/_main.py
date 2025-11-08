@@ -112,7 +112,7 @@ def _run_convert_nwb_dataset(
 
     notifications = converter.messages
     console_notification = ""
-    if notifications is not None:
+    if notifications:
         notification_text = (
             f'\n{(n:=len(notifications))} {_pluralize(n=n, word="suggestion")} for improvement '
             f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
