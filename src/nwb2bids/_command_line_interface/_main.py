@@ -6,6 +6,7 @@ import rich_click
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
 from ..sanitization import SanitizationLevel
+from .._tools._pluralize import _pluralize
 
 
 # nwb2bids
@@ -36,6 +37,17 @@ def _nwb2bids_cli():
     required=False,
     type=rich_click.Choice(["copy", "move", "symlink", "auto"], case_sensitive=False),
     default="auto",
+)
+@rich_click.option(
+    "--cache-directory",
+    "cache_directory",
+    help=(
+        "The directory where run specific files (e.g., notifications, sanitization reports) will be stored. "
+        "Defaults to `~/.nwb2bids`."
+    ),
+    required=False,
+    type=rich_click.Path(exists=True, dir_okay=False, readable=True),
+    default=None,
 )
 @rich_click.option(
     "--additional-metadata-file-path",
@@ -81,7 +93,8 @@ def _run_convert_nwb_dataset(
     """
     Convert NWB files to BIDS format.
 
-    NWB_PATHS : A sequence of paths, each pointing to either an NWB file or a directory containing NWB files.
+    NWB_PATHS : A space-separated sequence of paths, each pointing to either an NWB file
+    or a directory containing NWB files.
     """
     if len(nwb_paths) == 0:
         message = "Please provide at least one NWB file or directory to convert."
@@ -91,23 +104,30 @@ def _run_convert_nwb_dataset(
         SanitizationLevel(int(sanitization)) if sanitization.isdigit() else getattr(SanitizationLevel, sanitization)
     )
 
-    run_config = RunConfig(
-        bids_directory=bids_directory,
-        sanitization_level=handled_sanitization_level,
-        additional_metadata_file_path=additional_metadata_file_path,
-        file_mode=file_mode,
-        cache_directory=cache_directory,
-        run_id=run_id,
-    )
+    run_config_kwargs = {
+        "bids_directory": bids_directory,
+        "additional_metadata_file_path": additional_metadata_file_path,
+        "file_mode": file_mode,
+        "cache_directory": cache_directory,
+        "run_id": run_id,
+    }
+
+    # Filter out values that indicate absence of direct user input or signal to use default
+    non_missing_run_config_kwargs = {
+        key: value
+        for key, value in run_config_kwargs.items()
+        if (key != "file_mode" and value is not None) or (key == "file_mode" and value != "auto")
+    }
+    run_config = RunConfig(**non_missing_run_config_kwargs)
+
     converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
-    messages = converter.messages
+    notifications = converter.messages
     console_notification = ""
-    if messages is not None:
+    if notifications:
         notification_text = (
-            f"{len(messages)} suggestion for improvement was found during conversion."
-            if len(messages) == 1
-            else f"{len(messages)} suggestions for improvement were found during conversion."
+            f'\n{(n:=len(notifications))} {_pluralize(n=n, word="suggestion")} for improvement '
+            f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
         )
         console_notification += rich_click.style(text=notification_text, fg="yellow")
 
