@@ -7,14 +7,18 @@ import nwb2bids
 
 def test_messages_baseline(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [minimal_nwbfile_path]
-    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
 
     assert len(messages) == 0
 
 
 def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_1]
-    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
 
     expected_messages = [
         nwb2bids.InspectionResult(
@@ -74,7 +78,9 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
 
 def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_2]
-    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
 
     expected_messages = [
         nwb2bids.InspectionResult(
@@ -125,13 +131,34 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
             category=nwb2bids.Category.STYLE_SUGGESTION,
             severity=nwb2bids.Severity.ERROR,
         ),
+        nwb2bids.InspectionResult(
+            title="Invalid session ID",
+            reason=(
+                "The session ID contains invalid characters. "
+                "BIDS allows only dashes to be used as separators in session entity label. "
+                "Underscores, spaces, slashes, and special characters (including #) are expressly forbidden."
+            ),
+            solution="Rename the session without using spaces or underscores.",
+            examples=[
+                "`ses_01` -> `ses-01`",
+                "`session #2` -> `session-2`",
+                "`id 2 from 9/1/25` -> `id-2-9-1-25`",
+            ],
+            field="nwbfile.session_id",
+            source_file_paths=nwb_paths,
+            data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.DANDI],
+            category=nwb2bids.Category.STYLE_SUGGESTION,
+            severity=nwb2bids.Severity.ERROR,
+        ),
     ]
     assert messages == expected_messages
 
 
 def test_messages_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_3]
-    messages = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
 
     expected_messages = [
         nwb2bids.InspectionResult(

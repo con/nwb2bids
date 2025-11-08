@@ -8,9 +8,12 @@ import nwb2bids
 
 @pytest.mark.remote
 def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
-    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003", limit=2)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
+        dandiset_id="000003", limit=2, run_config=run_config
+    )
     dataset_converter.extract_metadata()
-    dataset_converter.convert_to_bids_dataset(bids_directory=temporary_bids_directory)
+    dataset_converter.convert_to_bids_dataset()
 
     expected_structure = {
         temporary_bids_directory: {
@@ -84,7 +87,9 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
     dataset.get(path=test_file_path)
 
     nwb_paths = [test_file_path]
-    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    notifications = converter.messages
 
     assert len(notifications) < 2, "Expected fewer than 2 notifications!"
     expected_structure = {
@@ -141,7 +146,9 @@ def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
     dataset.get(path=test_file_path)
 
     nwb_paths = [dataset_dir]
-    notifications = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    notifications = converter.messages
 
     assert len(notifications) < 2, "Expected fewer than 2 notifications!"
     expected_structure = {
