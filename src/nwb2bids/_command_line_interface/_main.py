@@ -5,8 +5,8 @@ import rich_click
 
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
-from ..sanitization import SanitizationLevel
 from .._tools._pluralize import _pluralize
+from ..sanitization import SanitizationLevel
 
 
 # nwb2bids

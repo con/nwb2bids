@@ -6,8 +6,8 @@ import pydantic
 from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_home_directory
 from .._core._run_id import _generate_run_id
-from ..sanitization import SanitizationLevel
 from .._core._validate_existing_bids import _validate_existing_directory_as_bids
+from ..sanitization import SanitizationLevel
 
 
 class RunConfig(pydantic.BaseModel):
@@ -39,7 +39,6 @@ class RunConfig(pydantic.BaseModel):
         This ID is used in the naming of the files saved to your run directory.
         The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
     """
-
 
     bids_directory: typing.Annotated[
         pydantic.DirectoryPath,
