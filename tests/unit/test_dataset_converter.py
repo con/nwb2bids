@@ -4,6 +4,7 @@ import json
 import pathlib
 
 import pandas
+import pytest
 
 import nwb2bids
 
@@ -101,6 +102,58 @@ def test_dataset_converter_write_dataset_description(
         "DatasetType": "raw",
         "License": "CC-BY-4.0",
         "Authors": ["Cody Baker", "Yaroslav Halchenko"],
+        "GeneratedBy": [
+            {
+                "Name": "nwb2bids",
+                "Version": dataset_description_json["GeneratedBy"][0]["Version"],  # Use actual version from output
+                "Description": "Tool to reorganize NWB files into a BIDS directory layout.",
+                "CodeURL": "https://github.com/con/nwb2bids",
+            }
+        ],
+    }
+    assert dataset_description_json == expected_dataset_description
+
+
+def test_dataset_converter_write_dataset_description_with_user_generated_by(
+    minimal_nwbfile_path: pathlib.Path,
+    additional_metadata_with_generated_by_file_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+):
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(
+        bids_directory=temporary_bids_directory,
+        additional_metadata_file_path=additional_metadata_with_generated_by_file_path,
+    )
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.extract_metadata()
+    dataset_converter.write_dataset_description()
+
+    dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
+    with dataset_description_file_path.open(mode="r") as file_stream:
+        dataset_description_json = json.load(fp=file_stream)
+
+    # User's custom pipeline should be first, nwb2bids appended second
+    expected_dataset_description = {
+        "Name": "test",
+        "Description": "Dataset with user-provided GeneratedBy",
+        "BIDSVersion": "1.10",
+        "DatasetType": "raw",
+        "License": "CC-BY-4.0",
+        "Authors": ["Cody Baker", "Yaroslav Halchenko"],
+        "GeneratedBy": [
+            {
+                "Name": "custom-pipeline",
+                "Version": "1.0.0",
+                "Description": "Custom data processing pipeline",
+                "CodeURL": "https://github.com/example/custom-pipeline",
+            },
+            {
+                "Name": "nwb2bids",
+                "Version": dataset_description_json["GeneratedBy"][1]["Version"],  # Use actual version from output
+                "Description": "Tool to reorganize NWB files into a BIDS directory layout.",
+                "CodeURL": "https://github.com/con/nwb2bids",
+            },
+        ],
     }
     assert dataset_description_json == expected_dataset_description
 
@@ -189,3 +242,46 @@ def test_dataset_converter_write_sessions_metadata(
         sessions_json = json.load(fp=file_stream)
     expected_sessions_json = {"session_id": "A unique session identifier."}
     assert sessions_json == expected_sessions_json
+
+
+def test_dataset_description_validates_exactly_one_nwb2bids():
+    """Test that DatasetDescription enforces exactly one nwb2bids entry in GeneratedBy."""
+    # Should fail if user provides nwb2bids (results in 2 after model_post_init)
+    with pytest.raises(ValueError, match="GeneratedBy must contain exactly one nwb2bids entry, found 2"):
+        nwb2bids.bids_models.DatasetDescription(
+            Name="Test",
+            BIDSVersion="1.10",
+            GeneratedBy=[
+                {
+                    "Name": "nwb2bids",
+                    "Version": "1.0.0",
+                    "Description": "User provided nwb2bids",
+                    "CodeURL": "https://example.com",
+                }
+            ],
+        )
+
+    # Should succeed with no GeneratedBy (auto-adds nwb2bids)
+    dd = nwb2bids.bids_models.DatasetDescription(
+        Name="Test",
+        BIDSVersion="1.10",
+    )
+    assert len(dd.GeneratedBy) == 1
+    assert dd.GeneratedBy[0].Name == "nwb2bids"
+
+    # Should succeed with user pipeline (auto-appends nwb2bids)
+    dd = nwb2bids.bids_models.DatasetDescription(
+        Name="Test",
+        BIDSVersion="1.10",
+        GeneratedBy=[
+            {
+                "Name": "custom-pipeline",
+                "Version": "2.0.0",
+                "Description": "Custom",
+                "CodeURL": "https://example.com",
+            }
+        ],
+    )
+    assert len(dd.GeneratedBy) == 2
+    assert dd.GeneratedBy[0].Name == "custom-pipeline"
+    assert dd.GeneratedBy[1].Name == "nwb2bids"
