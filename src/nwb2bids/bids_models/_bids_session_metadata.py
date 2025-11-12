@@ -1,5 +1,6 @@
 import pathlib
 import re
+import typing
 
 import h5py
 import pydantic
@@ -13,8 +14,10 @@ from ._events import Events
 from ._model_globals import _VALID_ID_REGEX
 from ._participant import Participant
 from ._probes import ProbeTable
+from .._converters._run_config import RunConfig
 from .._inspection._inspection_result import Category, DataStandard, InspectionResult, Severity
 from .._tools import cache_read_nwb
+from ..sanitization import Sanitization
 
 
 class BidsSessionMetadata(BaseMetadataContainerModel):
@@ -30,6 +33,20 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     probe_table: ProbeTable | None = None
     channel_table: ChannelTable | None = None
     electrode_table: ElectrodeTable | None = None
+    run_config: RunConfig = pydantic.Field(default_factory=RunConfig)
+    sanitization: Sanitization | None = None
+
+    def model_post_init(self, context: typing.Any, /) -> None:
+        """Apply sanitization (even if level 0)."""
+        if self.sanitization is not None:
+            return
+
+        self.sanitization = Sanitization(
+            sanitization_level=self.run_config.sanitization_level,
+            sanitization_file_path=self.run_config.sanitization_file_path,
+            original_session_id=self.session_id,
+            original_participant_id=self.participant.participant_id,
+        )
 
     @pydantic.computed_field
     @property
@@ -92,7 +109,9 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     @classmethod
     @pydantic.validate_call
     def from_nwbfile_paths(
-        cls, nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl] = pydantic.Field(min_length=1)
+        cls,
+        nwbfile_paths: list[pydantic.FilePath] | list[pydantic.HttpUrl] = pydantic.Field(min_length=1),
+        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
     ) -> typing_extensions.Self:
         # Differentiate local path from URL
         if isinstance(next(iter(nwbfile_paths)), pathlib.Path):
@@ -115,6 +134,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         dictionary = {
             "session_id": session_id,
             "participant": participant,
+            "run_config": run_config,
         }
         if events is not None:
             dictionary["events"] = events

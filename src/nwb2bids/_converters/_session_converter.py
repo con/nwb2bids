@@ -11,7 +11,6 @@ from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import InspectionResult
 from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
-from ..sanitization import sanitize_participant_id, sanitize_session_id
 
 
 class SessionConverter(BaseConverter):
@@ -94,7 +93,9 @@ class SessionConverter(BaseConverter):
 
     def extract_metadata(self) -> None:
         if self.session_metadata is None:
-            self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwbfile_paths)
+            self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(
+                nwbfile_paths=self.nwbfile_paths, run_config=self.run_config
+            )
             self.messages += self.session_metadata.messages
 
     def convert_to_bids_session(self) -> None:
@@ -111,18 +112,8 @@ class SessionConverter(BaseConverter):
         if self.session_metadata is None:
             self.extract_metadata()
 
-        participant_id = sanitize_participant_id(
-            participant_id=self.session_metadata.participant.participant_id,
-            sanitization_level=self.run_config.sanitization_level,
-            sanitization_file_path=self.run_config.sanitization_file_path,
-            sanitization_report_context="SessionConverter.convert_to_bids_session",
-        )
-        session_id = sanitize_session_id(
-            session_id=self.session_id,
-            sanitization_level=self.run_config.sanitization_level,
-            sanitization_file_path=self.run_config.sanitization_file_path,
-            sanitization_report_context="SessionConverter.convert_to_bids_session",
-        )
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         self.write_ecephys_files()
@@ -162,18 +153,8 @@ class SessionConverter(BaseConverter):
         ):
             return
 
-        participant_id = sanitize_participant_id(
-            participant_id=self.session_metadata.participant.participant_id,
-            sanitization_level=self.run_config.sanitization_level,
-            sanitization_file_path=self.run_config.sanitization_file_path,
-            sanitization_report_context="SessionConverter.write_ecephys_files",
-        )
-        session_id = sanitize_session_id(
-            session_id=self.session_id,
-            sanitization_level=self.run_config.sanitization_level,
-            sanitization_file_path=self.run_config.sanitization_file_path,
-            sanitization_report_context="SessionConverter.write_ecephys_files",
-        )
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         ecephys_directory = self._establish_ecephys_subdirectory()
@@ -207,18 +188,8 @@ class SessionConverter(BaseConverter):
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
 
-        participant_id = sanitize_participant_id(
-            participant_id=self.session_metadata.participant.participant_id,
-            sanitization_level=self.run_config.sanitization_level,
-            sanitization_file_path=self.run_config.sanitization_file_path,
-            sanitization_report_context="SessionConverter.write_events_files",
-        )
-        session_id = sanitize_session_id(
-            session_id=self.session_id,
-            sanitization_level=self.run_config.sanitization_level,
-            sanitization_file_path=self.run_config.sanitization_file_path,
-            sanitization_report_context="SessionConverter.write_events_files",
-        )
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         ecephys_directory = self._establish_ecephys_subdirectory()
@@ -230,18 +201,8 @@ class SessionConverter(BaseConverter):
         self.session_metadata.events.to_json(file_path=session_events_metadata_file_path)
 
     def _establish_ecephys_subdirectory(self) -> pathlib.Path:
-        participant_id = sanitize_participant_id(
-            participant_id=self.session_metadata.participant.participant_id,
-            sanitization_level=self.run_config.sanitization_level,
-            sanitization_file_path=self.run_config.sanitization_file_path,
-            sanitization_report_context="SessionConverter.write_events_files",
-        )
-        session_id = sanitize_session_id(
-            session_id=self.session_id,
-            sanitization_level=self.run_config.sanitization_level,
-            sanitization_file_path=self.run_config.sanitization_file_path,
-            sanitization_report_context="SessionConverter.write_events_files",
-        )
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
 
         subject_directory = self.run_config.bids_directory / f"sub-{participant_id}"
         subject_directory.mkdir(exist_ok=True)
