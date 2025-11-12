@@ -119,11 +119,13 @@ def test_dataset_converter_write_dataset_description_with_user_generated_by(
     temporary_bids_directory: pathlib.Path,
 ):
     nwb_paths = [minimal_nwbfile_path]
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
-        nwb_paths=nwb_paths, additional_metadata_file_path=additional_metadata_with_generated_by_file_path
+    run_config = nwb2bids.RunConfig(
+        bids_directory=temporary_bids_directory,
+        additional_metadata_file_path=additional_metadata_with_generated_by_file_path,
     )
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     dataset_converter.extract_metadata()
-    dataset_converter.write_dataset_description(bids_directory=temporary_bids_directory)
+    dataset_converter.write_dataset_description()
 
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
     with dataset_description_file_path.open(mode="r") as file_stream:
