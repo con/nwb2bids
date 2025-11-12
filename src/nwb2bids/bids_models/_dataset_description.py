@@ -13,6 +13,10 @@ class GeneratedByItem(BaseMetadataModel):
     Schema for a single GeneratedBy entry in BIDS dataset_description.json.
 
     Represents provenance information about a pipeline or process that generated the dataset.
+
+    See Also
+    --------
+    https://bids-specification.readthedocs.io/en/stable/glossary.html#generatedby-metadata
     """
 
     Name: str = pydantic.Field(
