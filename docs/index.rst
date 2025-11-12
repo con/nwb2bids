@@ -16,12 +16,12 @@
 nwb2bids
 ========
 
-**nwb2bids** reorganizes NWB files into a BIDS directory layout.
+**nwb2bids** reorganizes NWB_ files into a BIDS_ directory layout following `BIDS Specification`_.
 
 Features:
 
-* Automatically renames NWB files and their directories to conform to BIDS conventions.
-* Extracts relevant metadata from NWB files to populate BIDS sidecar TSV & JSON files.
+* Automatically renames NWB_ files and their directories to conform to BIDS_ conventions.
+* Extracts relevant metadata from NWB_ files to populate BIDS sidecar TSV & JSON files.
 * Currently supports `BEP32 <https://github.com/bids-standard/bids-specification/pull/1705>`_ (micro-electrode electrophysiology) data types, such as extracellular (``ecephys``) and intracellular (``icephys``) electrophysiology, as well as associated behavioral events.
 
 In the future, we plan to support:
