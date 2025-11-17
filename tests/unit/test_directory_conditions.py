@@ -55,6 +55,14 @@ def test_allowed_directory_conditions(
         "DatasetType": "raw",
         "License": "CC-BY-4.0",
         "Authors": ["Cody Baker", "Yaroslav Halchenko"],
+        "GeneratedBy": [
+            {
+                "Name": "nwb2bids",
+                "Version": dataset_description_json["GeneratedBy"][0]["Version"],  # Use actual version from output
+                "Description": "Tool to reorganize NWB files into a BIDS directory layout.",
+                "CodeURL": "https://github.com/con/nwb2bids",
+            }
+        ],
     }
     assert dataset_description_json == expected_dataset_description
 
