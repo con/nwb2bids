@@ -125,7 +125,7 @@ docs = [
     "sphinx",
     "sphinx-tabs",
     "pydata-sphinx-theme",
-    "sphinx_copybutton",
+    "sphinx-copybutton",
     "sphinx-toggleprompt",
     "pytest",  # For doctest integration
 ]

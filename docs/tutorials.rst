@@ -314,7 +314,7 @@ We can select which files and directories to convert like so:
                         --bids-directory ~/.nwb2bids/tutorials/ephys_tutorial_dataset/bids_dataset
 
         The command line can take any number of inputs (separated by spaces) prior to other flags such as
-        ``--bids-directory``. These inputs can be any mix of files or directories.
+        ``--bids-directory``. Shell globs, such as `*.nwb` could be used. These inputs can be any mix of files or directories.
 
     .. tab:: Python Library
 
@@ -452,7 +452,7 @@ Tutorial 5 - Additional metadata
 ---------------------------------
 
 NWB files don't always include all the little metadata details you might want to include in BIDS. To include manual
-metadata that is unable to be extracted from the source files, you can provide additional metadata through a JSON
+metadata that is absent in the source files, you can provide additional metadata through a JSON
 structure that mirrors the BIDS specification nested under subject and session identifiers (which should match the
 ``subject_id`` and ``session_id`` found within each file).
 
@@ -466,7 +466,7 @@ Then fill the contents of the file to match below:
         "dataset_description": {
             "Name": "My Custom BIDS Dataset",
             "BIDSVersion": "1.8.0",
-            "Authors": ["First Last", "Second Author"]
+            "Authors": ["Last, First", "Second-Last, Second-First"]
         }
     }
 
