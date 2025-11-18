@@ -112,6 +112,9 @@ def _run_convert_nwb_dataset(
 
     converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
+    if silent:
+        return
+
     notifications = converter.messages
     notifications_by_severity: dict[Severity, list[InspectionResult]] = collections.defaultdict(list)
     for notification in notifications:
