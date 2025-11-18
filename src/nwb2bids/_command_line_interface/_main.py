@@ -1,3 +1,4 @@
+import collections
 import pathlib
 import typing
 
@@ -5,7 +6,7 @@ import rich_click
 
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
-from .._inspection._inspection_result import Severity
+from .._inspection._inspection_result import InspectionResult, Severity
 from .._tools._pluralize import _pluralize
 
 
@@ -112,21 +113,52 @@ def _run_convert_nwb_dataset(
     converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
     notifications = converter.messages
+    notifications_by_severity: dict[Severity, list[InspectionResult]] = collections.defaultdict(list)
+    for notification in notifications:
+        notifications_by_severity[notification.severity].append(notification)
+    errors = notifications_by_severity[Severity.ERROR]
+    criticals = notifications_by_severity[Severity.CRITICAL]
+
     console_notification = ""
-    if notifications:
-        notification_text = (
-            f'\n{(n:=len(notifications))} {_pluralize(n=n, word="suggestion")} for improvement '
-            f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
+    if errors:
+        number_of_errors = len(errors)
+
+        top_three = errors[:3]
+        number_to_print = len(top_three)
+
+        error_text = "\n".join(error.reason for error in top_three)
+        text = (
+            "\nBIDS dataset was not successfully created!\n"
+            f'{_pluralize(n=number_to_print, phrase="An error was", plural="Some errors were")} '
+            "encountered during conversion.\n"
         )
-        console_notification += rich_click.style(text=notification_text, fg="yellow")
-
-    if console_notification != "" and not silent:
+        if number_to_print > 1 and number_of_errors > 3:
+            text += (
+                f"The first {number_to_print} of {number_of_errors} are shown below:\n\n"
+                f"{error_text}\n\n"
+                # TODO: "The full log file can be found at {run_config.log_file_path}\n"
+            )
+        console_notification = rich_click.style(text=text, fg="red")
         rich_click.echo(message=console_notification)
+        return
 
-    not_any_failures = not notifications or not any(
-        notification.severity == Severity.ERROR for notification in notifications
-    )
-    if not_any_failures and not silent:
-        text = "BIDS dataset was successfully created!"
-        console_notification = rich_click.style(text=text, fg="green")
+    if criticals:
+        text = (
+            "\nBIDS dataset was successfully created, but may not be valid!\n"
+            # TODO: "Please review the full notifications report at {run_config.log_file_path}\n\n"
+        )
+        console_notification = rich_click.style(text=text, fg="yellow")
+        rich_click.echo(message=console_notification)
+        return
+
+    if notifications:
+        number_of_notifications = len(notifications)
+
+        text = (
+            "\nBIDS dataset was successfully created!\n\n"
+            f'\n{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
+            f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
+            # TODO: " Please review the full notifications report at {run_config.log_file_path}\n"
+        )
+        console_notification += rich_click.style(text=text, fg="green")
         rich_click.echo(message=console_notification)
