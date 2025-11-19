@@ -171,7 +171,9 @@ command line interface (CLI) as follows:
 
             >>> import nwb2bids
             >>>
-            >>> nwb2bids.testing.generate_ephys_tutorial(mode="dataset")
+            >>> tutorial_directory = nwb2bids.testing.generate_ephys_tutorial(
+            ...     mode="dataset"
+            ... )
 
         .. tip::
 
