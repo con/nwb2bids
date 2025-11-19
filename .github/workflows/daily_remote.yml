@@ -32,4 +32,4 @@ jobs:
           subject: "CI Failure: nwb2bids Daily Tests (Remote)"
           to: cody.c.baker.phd@gmail.com  # Add more with comma separation (no spaces)
           from: nwb2bids
-          body: "The daily tests (remote) workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/dailies.yml"
+          body: "The daily tests (remote) workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/daily_remote.yml"
