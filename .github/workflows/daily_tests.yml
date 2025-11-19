@@ -1,4 +1,4 @@
-name: Deploy daily remote tests
+name: Daily tests
 
 on:
   schedule:
@@ -9,19 +9,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  DailyRemoteTests:
+  DailyTests:
     uses: ./.github/workflows/testing.yml
     with:
-      pytest_markexpr: 'remote'
+      pytest_markexpr: 'not remote'
       os_list: '["windows-2022","windows-latest","macos-15-intel","macos-latest","ubuntu-latest"]'
       python_list: '["3.10","3.11","3.12","3.13"]'
     secrets:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  NotifyOnRemoteFailure:
+  NotifyOnFailure:
     runs-on: ubuntu-latest
-    needs: [ DailyRemoteTests ]
-    if: ${{ always() && needs.DailyRemoteTests.result == 'failure' }}
+    needs: [ DailyTests ]
+    if: ${{ always() && needs.DailyTests.result == 'failure' }}
     steps:
       - uses: dawidd6/action-send-mail@v3
         with:
@@ -29,7 +29,7 @@ jobs:
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "CI Failure: nwb2bids Daily Tests (Remote)"
+          subject: "CI Failure: nwb2bids Daily Tests"
           to: cody.c.baker.phd@gmail.com  # Add more with comma separation (no spaces)
           from: nwb2bids
-          body: "The daily tests (remote) workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/daily_remote.yml"
+          body: "The daily test workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/dailies.yml"
