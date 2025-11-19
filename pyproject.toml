@@ -127,6 +127,7 @@ docs = [
     "pydata-sphinx-theme",
     "sphinx-copybutton",
     "sphinx-toggleprompt",
+    "myst-parser",
     "pytest",  # For doctest integration
 ]
 dev-all = [

@@ -16,7 +16,7 @@ def get_tutorial_directory() -> pathlib.Path:
 
 
 def _generate_ecephys_file(
-    *, nwbfile_path: pathlib.Path, subject_id: str = "subject+1", session_id: str = "session+1"
+    *, nwbfile_path: pathlib.Path, subject_id: str = "001", session_id: str = "session+1"
 ) -> None:
     nwbfile = pynwb.testing.mock.file.mock_NWBFile(
         session_id=session_id,
@@ -67,8 +67,8 @@ def generate_ephys_tutorial(
             3: output_directory / "DO_NOT_CONVERT.nwb",
         }
         index_to_subject_id = {
-            0: "subject+1",
-            1: "subject+1",
+            0: "001",
+            1: "001",
             2: "subject+2",
             3: "subject+3",
         }

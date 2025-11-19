@@ -135,18 +135,18 @@ along the lines of:
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
-    └── sub-subject+1/
-        ├── sub-subject+1_sessions.tsv
-        ├── sub-subject+1_sessions.json
+    └── sub-001/
+        ├── sub-001_sessions.tsv
+        ├── sub-001_sessions.json
         └── ses-session+1/
             └── ecephys/
-                ├── sub-subject+1_ses-session+1_ecephys.nwb
-                ├── sub-subject+1_ses-session+1_channels.tsv
-                ├── sub-subject+1_ses-session+1_channels.json
-                ├── sub-subject+1_ses-session+1_electrodes.tsv
-                ├── sub-subject+1_ses-session+1_electrodes.json
-                ├── sub-subject+1_ses-session+1_probes.tsv
-                └── sub-subject+1_ses-session+1_probes.json
+                ├── sub-001_ses-session+1_ecephys.nwb
+                ├── sub-001_ses-session+1_channels.tsv
+                ├── sub-001_ses-session+1_channels.json
+                ├── sub-001_ses-session+1_electrodes.tsv
+                ├── sub-001_ses-session+1_electrodes.json
+                ├── sub-001_ses-session+1_probes.tsv
+                └── sub-001_ses-session+1_probes.json
 
 
 
@@ -254,27 +254,27 @@ And our BIDS dataset should look like:
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
-    └── sub-subject+1/
-        ├── sub-subject+1_sessions.tsv
-        ├── sub-subject+1_sessions.json
+    └── sub-001/
+        ├── sub-001_sessions.tsv
+        ├── sub-001_sessions.json
         ├── ses-session+1/
         │   └── ecephys/
-        │       ├── sub-subject+1_ses-session+1_ecephys.nwb
-        │       ├── sub-subject+1_ses-session+1_channels.tsv
-        │       ├── sub-subject+1_ses-session+1_channels.json
-        │       ├── sub-subject+1_ses-session+1_electrodes.tsv
-        │       ├── sub-subject+1_ses-session+1_electrodes.json
-        │       ├── sub-subject+1_ses-session+1_probes.tsv
-        │       └── sub-subject+1_ses-session+1_probes.json
+        │       ├── sub-001_ses-session+1_ecephys.nwb
+        │       ├── sub-001_ses-session+1_channels.tsv
+        │       ├── sub-001_ses-session+1_channels.json
+        │       ├── sub-001_ses-session+1_electrodes.tsv
+        │       ├── sub-001_ses-session+1_electrodes.json
+        │       ├── sub-001_ses-session+1_probes.tsv
+        │       └── sub-001_ses-session+1_probes.json
         └── ses-session+2/
             └── ecephys/
-                ├── sub-subject+1_ses-session+2_ecephys.nwb
-                ├── sub-subject+1_ses-session+2_channels.tsv
-                ├── sub-subject+1_ses-session+2_channels.json
-                ├── sub-subject+1_ses-session+2_electrodes.tsv
-                ├── sub-subject+1_ses-session+2_electrodes.json
-                ├── sub-subject+1_ses-session+2_probes.tsv
-                └── sub-subject+1_ses-session+2_probes.json
+                ├── sub-001_ses-session+2_ecephys.nwb
+                ├── sub-001_ses-session+2_channels.tsv
+                ├── sub-001_ses-session+2_channels.json
+                ├── sub-001_ses-session+2_electrodes.tsv
+                ├── sub-001_ses-session+2_electrodes.json
+                ├── sub-001_ses-session+2_probes.tsv
+                └── sub-001_ses-session+2_probes.json
 
 
 
@@ -346,27 +346,27 @@ Our resulting BIDS dataset should now contain all three NWB files converted to B
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
-    ├── sub-subject+1/
-    │   ├── sub-subject+1_sessions.tsv
-    │   ├── sub-subject+1_sessions.json
+    ├── sub-001/
+    │   ├── sub-001_sessions.tsv
+    │   ├── sub-001_sessions.json
     │   ├── ses-session+1/
     │   │   └── ecephys/
-    │   │       ├── sub-subject+1_ses-session+1_ecephys.nwb
-    │   │       ├── sub-subject+1_ses-session+1_channels.tsv
-    │   │       ├── sub-subject+1_ses-session+1_channels.json
-    │   │       ├── sub-subject+1_ses-session+1_electrodes.tsv
-    │   │       ├── sub-subject+1_ses-session+1_electrodes.json
-    │   │       ├── sub-subject+1_ses-session+1_probes.tsv
-    │   │       └── sub-subject+1_ses-session+1_probes.json
+    │   │       ├── sub-001_ses-session+1_ecephys.nwb
+    │   │       ├── sub-001_ses-session+1_channels.tsv
+    │   │       ├── sub-001_ses-session+1_channels.json
+    │   │       ├── sub-001_ses-session+1_electrodes.tsv
+    │   │       ├── sub-001_ses-session+1_electrodes.json
+    │   │       ├── sub-001_ses-session+1_probes.tsv
+    │   │       └── sub-001_ses-session+1_probes.json
     │   └── ses-session+2/
     │       └── ecephys/
-    │           ├── sub-subject+1_ses-session+2_ecephys.nwb
-    │           ├── sub-subject+1_ses-session+2_channels.tsv
-    │           ├── sub-subject+1_ses-session+2_channels.json
-    │           ├── sub-subject+1_ses-session+2_electrodes.tsv
-    │           ├── sub-subject+1_ses-session+2_electrodes.json
-    │           ├── sub-subject+1_ses-session+2_probes.tsv
-    │           └── sub-subject+1_ses-session+2_probes.json
+    │           ├── sub-001_ses-session+2_ecephys.nwb
+    │           ├── sub-001_ses-session+2_channels.tsv
+    │           ├── sub-001_ses-session+2_channels.json
+    │           ├── sub-001_ses-session+2_electrodes.tsv
+    │           ├── sub-001_ses-session+2_electrodes.json
+    │           ├── sub-001_ses-session+2_probes.tsv
+    │           └── sub-001_ses-session+2_probes.json
     └── sub-subject+2/
         ├── sub-subject+2_sessions.tsv
         ├── sub-subject+2_sessions.json
@@ -452,9 +452,9 @@ Tutorial 5 - Additional metadata
 ---------------------------------
 
 NWB files don't always include all the little metadata details you might want to include in BIDS. To include manual
-metadata that is absent in the source files, you can provide additional metadata through a JSON
-structure that mirrors the BIDS specification nested under subject and session identifiers (which should match the
-``subject_id`` and ``session_id`` found within each file).
+metadata that is absent in the source files, you can provide additional metadata through a simple JSON
+structure shown below. Currently, only the dataset description is supported, more more detailed subject- and
+session-level metadata is planned to be supported in the future.
 
 To show how such additional metadata can be included through **nwb2bids**, start by creating a file named
 ``metadata.json`` inside the ``ephys_tutorial_dataset`` directory we used in :ref:`tutorial-multiple-files`.

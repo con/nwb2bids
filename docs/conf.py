@@ -20,6 +20,7 @@ extensions = [
     "sphinx_tabs.tabs",
     "sphinx_copybutton",
     "sphinx_toggleprompt",  # Used to control >>> behavior in the doctests
+    "myst_parser",  # For including Markdown files to be rendered as RST
 ]
 
 # HTML configuration
@@ -65,6 +66,24 @@ toggleprompt_default_hidden = "true"
 
 # Copybutton
 copybutton_exclude = '.linenos, .gp'  # This avoids copying prompt (>>>) in the conversion gallery (issue #1465)
+
+# MyST
+myst_enable_extensions = [
+    "colon_fence",      # ::: fences
+    "deflist",          # Definition lists
+    "fieldlist",        # Field lists
+    "html_admonition",  # HTML-style admonitions
+    "html_image",       # HTML images
+    "replacements",     # Text replacements
+    "smartquotes",      # Smart quotes
+    "strikethrough",    # ~~strikethrough~~
+    "substitution",     # Variable substitutions
+    "tasklist",         # Task lists
+]
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
 
 
 # --------------------------------------------------
