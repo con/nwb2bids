@@ -1,4 +1,4 @@
-name: Deploy daily tests
+name: Daily tests
 
 on:
   schedule:
