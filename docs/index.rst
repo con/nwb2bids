@@ -4,6 +4,7 @@
    :hidden:
 
    user_guide
+   tutorials
    developer_guide
    api/index
 
