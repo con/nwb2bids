@@ -5,6 +5,7 @@ import rich_click
 
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
+from .._inspection._inspection_result import Severity
 from .._tools._pluralize import _pluralize
 
 
@@ -120,4 +121,10 @@ def _run_convert_nwb_dataset(
         console_notification += rich_click.style(text=notification_text, fg="yellow")
 
     if console_notification != "" and not silent:
+        rich_click.echo(message=console_notification)
+
+    not_any_failures = not any(notification.severity == Severity.ERROR for notification in notifications)
+    if not_any_failures and not silent:
+        text = "BIDS dataset was successfully created!"
+        console_notification = rich_click.style(text=text, fg="green")
         rich_click.echo(message=console_notification)
