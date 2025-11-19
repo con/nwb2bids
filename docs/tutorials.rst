@@ -53,7 +53,7 @@ directory for **nwb2bids**: ``~/.nwb2bids/tutorials/ephys/nwb2bids_tutorial_ephy
 
             .. code-block:: bash
 
-                nwb2bids tutorial generate ephys --output-directory path/to/some/directory
+                nwb2bids tutorial ephys file --output-directory path/to/some/directory
 
         .. tab:: Python Library
 
@@ -138,15 +138,15 @@ along the lines of:
     └── sub-001/
         ├── sub-001_sessions.tsv
         ├── sub-001_sessions.json
-        └── ses-session+1/
+        └── ses-A/
             └── ecephys/
-                ├── sub-001_ses-session+1_ecephys.nwb
-                ├── sub-001_ses-session+1_channels.tsv
-                ├── sub-001_ses-session+1_channels.json
-                ├── sub-001_ses-session+1_electrodes.tsv
-                ├── sub-001_ses-session+1_electrodes.json
-                ├── sub-001_ses-session+1_probes.tsv
-                └── sub-001_ses-session+1_probes.json
+                ├── sub-001_ses-A_ecephys.nwb
+                ├── sub-001_ses-A_channels.tsv
+                ├── sub-001_ses-A_channels.json
+                ├── sub-001_ses-A_electrodes.tsv
+                ├── sub-001_ses-A_electrodes.json
+                ├── sub-001_ses-A_probes.tsv
+                └── sub-001_ses-A_probes.json
 
 
 
@@ -257,24 +257,24 @@ And our BIDS dataset should look like:
     └── sub-001/
         ├── sub-001_sessions.tsv
         ├── sub-001_sessions.json
-        ├── ses-session+1/
+        ├── ses-A/
         │   └── ecephys/
-        │       ├── sub-001_ses-session+1_ecephys.nwb
-        │       ├── sub-001_ses-session+1_channels.tsv
-        │       ├── sub-001_ses-session+1_channels.json
-        │       ├── sub-001_ses-session+1_electrodes.tsv
-        │       ├── sub-001_ses-session+1_electrodes.json
-        │       ├── sub-001_ses-session+1_probes.tsv
-        │       └── sub-001_ses-session+1_probes.json
-        └── ses-session+2/
+        │       ├── sub-001_ses-A_ecephys.nwb
+        │       ├── sub-001_ses-A_channels.tsv
+        │       ├── sub-001_ses-A_channels.json
+        │       ├── sub-001_ses-A_electrodes.tsv
+        │       ├── sub-001_ses-A_electrodes.json
+        │       ├── sub-001_ses-A_probes.tsv
+        │       └── sub-001_ses-A_probes.json
+        └── ses-B/
             └── ecephys/
-                ├── sub-001_ses-session+2_ecephys.nwb
-                ├── sub-001_ses-session+2_channels.tsv
-                ├── sub-001_ses-session+2_channels.json
-                ├── sub-001_ses-session+2_electrodes.tsv
-                ├── sub-001_ses-session+2_electrodes.json
-                ├── sub-001_ses-session+2_probes.tsv
-                └── sub-001_ses-session+2_probes.json
+                ├── sub-001_ses-B_ecephys.nwb
+                ├── sub-001_ses-B_channels.tsv
+                ├── sub-001_ses-B_channels.json
+                ├── sub-001_ses-B_electrodes.tsv
+                ├── sub-001_ses-B_electrodes.json
+                ├── sub-001_ses-B_probes.tsv
+                └── sub-001_ses-B_probes.json
 
 
 
@@ -349,36 +349,36 @@ Our resulting BIDS dataset should now contain all three NWB files converted to B
     ├── sub-001/
     │   ├── sub-001_sessions.tsv
     │   ├── sub-001_sessions.json
-    │   ├── ses-session+1/
+    │   ├── ses-A/
     │   │   └── ecephys/
-    │   │       ├── sub-001_ses-session+1_ecephys.nwb
-    │   │       ├── sub-001_ses-session+1_channels.tsv
-    │   │       ├── sub-001_ses-session+1_channels.json
-    │   │       ├── sub-001_ses-session+1_electrodes.tsv
-    │   │       ├── sub-001_ses-session+1_electrodes.json
-    │   │       ├── sub-001_ses-session+1_probes.tsv
-    │   │       └── sub-001_ses-session+1_probes.json
-    │   └── ses-session+2/
+    │   │       ├── sub-001_ses-A_ecephys.nwb
+    │   │       ├── sub-001_ses-A_channels.tsv
+    │   │       ├── sub-001_ses-A_channels.json
+    │   │       ├── sub-001_ses-A_electrodes.tsv
+    │   │       ├── sub-001_ses-A_electrodes.json
+    │   │       ├── sub-001_ses-A_probes.tsv
+    │   │       └── sub-001_ses-A_probes.json
+    │   └── ses-B/
     │       └── ecephys/
-    │           ├── sub-001_ses-session+2_ecephys.nwb
-    │           ├── sub-001_ses-session+2_channels.tsv
-    │           ├── sub-001_ses-session+2_channels.json
-    │           ├── sub-001_ses-session+2_electrodes.tsv
-    │           ├── sub-001_ses-session+2_electrodes.json
-    │           ├── sub-001_ses-session+2_probes.tsv
-    │           └── sub-001_ses-session+2_probes.json
-    └── sub-subject+2/
-        ├── sub-subject+2_sessions.tsv
-        ├── sub-subject+2_sessions.json
-        └── ses-session+3/
+    │           ├── sub-001_ses-B_ecephys.nwb
+    │           ├── sub-001_ses-B_channels.tsv
+    │           ├── sub-001_ses-B_channels.json
+    │           ├── sub-001_ses-B_electrodes.tsv
+    │           ├── sub-001_ses-B_electrodes.json
+    │           ├── sub-001_ses-B_probes.tsv
+    │           └── sub-001_ses-B_probes.json
+    └── sub-002/
+        ├── sub-002_sessions.tsv
+        ├── sub-002_sessions.json
+        └── ses-C/
             └── ecephys/
-                ├── sub-subject+2_ses-session+3_ecephys.nwb
-                ├── sub-subject+2_ses-session+3_channels.tsv
-                ├── sub-subject+2_ses-session+3_channels.json
-                ├── sub-subject+2_ses-session+3_electrodes.tsv
-                ├── sub-subject+2_ses-session+3_electrodes.json
-                ├── sub-subject+2_ses-session+3_probes.tsv
-                └── sub-subject+2_ses-session+3_probes.json
+                ├── sub-002_ses-C_ecephys.nwb
+                ├── sub-002_ses-C_channels.tsv
+                ├── sub-002_ses-C_channels.json
+                ├── sub-002_ses-C_electrodes.tsv
+                ├── sub-002_ses-C_electrodes.json
+                ├── sub-002_ses-C_probes.tsv
+                └── sub-002_ses-C_probes.json
 
 
 
@@ -466,7 +466,7 @@ Then fill the contents of the file to match below:
         "dataset_description": {
             "Name": "My Custom BIDS Dataset",
             "BIDSVersion": "1.8.0",
-            "Authors": ["Last, First", "Second-Last, Second-First"]
+            "Authors": ["Last, First"]
         }
     }
 
