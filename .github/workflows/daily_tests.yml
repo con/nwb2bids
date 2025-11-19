@@ -3,6 +3,7 @@ name: Daily tests
 on:
   schedule:
     - cron: '0 12 * * *'  # 7 am EST every day
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,4 +33,4 @@ jobs:
           subject: "CI Failure: nwb2bids Daily Tests"
           to: cody.c.baker.phd@gmail.com  # Add more with comma separation (no spaces)
           from: nwb2bids
-          body: "The daily test workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/dailies.yml"
+          body: "The daily test workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/daily_tests.yml"
