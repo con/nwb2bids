@@ -44,6 +44,9 @@ html_context = {
     "doc_path": "docs",
 }
 
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+
 # Format signatures for better readability
 autodoc_typehints = "signature"
 autodoc_typehints_format = "short"
