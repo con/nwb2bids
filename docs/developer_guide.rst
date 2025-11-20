@@ -105,16 +105,5 @@ TODO
 Documentation
 -------------
 
-The documentation is hosted on ReadTheDocs.org and can be built locally by first installing the ``docs`` group:
-
-.. code-block:: bash
-
-   pip install -e ".[docs]"
-
-Then, from the root of the repository, run:
-
-.. code-block:: bash
-
-    sphinx-build -b html -W --keep-going docs ./docs/_build/
-
-And launch the resulting ``./docs/_build/index.html`` file in your web browser.
+.. include:: README.md
+   :parser: myst_parser.sphinx_
