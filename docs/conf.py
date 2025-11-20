@@ -79,6 +79,14 @@ autodoc_default_options = {
 add_module_names = False
 toc_object_entries_show_parents = "hide"
 
+rst_epilog = """
+
+.. _BIDS: https://bids.neuroimaging.io/
+.. _NWB: https://www.nwb.org/
+.. _BIDS Specification: https://bids-specification.readthedocs.io/
+"""
+
+
 def setup(app):
     app.connect("html-page-context", remove_section_nav)
 
