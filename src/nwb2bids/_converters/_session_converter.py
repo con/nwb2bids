@@ -140,7 +140,7 @@ class SessionConverter(BaseConverter):
 
     def write_ecephys_files(self) -> None:
         """
-        Write the `_probes`, `_channels`, and `_electrodes` metadata files, both `.tsv` and `.json`, for this session .
+        Write the `_probes`, `_channels`, and `_electrodes` metadata files, both `.tsv` and `.json`, for this session.
         """
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."

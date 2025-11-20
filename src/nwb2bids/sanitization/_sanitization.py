@@ -51,6 +51,6 @@ class Sanitization(pydantic.BaseModel):
             f"Session ID: '{self.original_session_id}' -> '{self.sanitized_session_id}'",
             f"Participant ID: '{self.original_participant_id}' -> '{self.sanitized_participant_id}'",
         ]
-        sanitization_text = "\n".join(sanitization_lines)
+        sanitization_text = "\n".join(sanitization_lines) + "\n"
         with self.sanitization_file_path.open(mode="a") as file_stream:
             file_stream.write(sanitization_text)
