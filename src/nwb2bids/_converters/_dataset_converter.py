@@ -12,6 +12,7 @@ from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
+from ..sanitization import sanitize_participant_id, sanitize_session_id
 
 
 class DatasetConverter(BaseConverter):
@@ -262,6 +263,16 @@ class DatasetConverter(BaseConverter):
         # Deduplicate all rows of the frame
         deduplicated_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
 
+        # Apply sanitization
+        deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
+            lambda participant_id: sanitize_participant_id(
+                participant_id=participant_id,
+                sanitization_level=self.run_config.sanitization_level,
+                sanitization_file_path=self.run_config.sanitization_file_path,
+                sanitization_report_context="DatasetConverter.write_participants_metadata",
+            )
+        )
+
         # BIDS requires sub- prefix in table values
         participants_data_frame = deduplicated_data_frame.copy()
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
@@ -313,20 +324,38 @@ class DatasetConverter(BaseConverter):
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
         for participant_id, sessions_metadata in participant_id_to_sessions.items():
-            subject_directory = self.run_config.bids_directory / f"sub-{participant_id}"
+            # Apply sanitization
+            sanitized_participant_id = sanitize_participant_id(
+                participant_id=participant_id,
+                sanitization_level=self.run_config.sanitization_level,
+                sanitization_file_path=self.run_config.sanitization_file_path,
+                sanitization_report_context="DatasetConverter.write_sessions_metadata",
+            )
+            sanitized_session_ids = [
+                sanitize_session_id(
+                    session_id=session_metadata.session_id,
+                    sanitization_level=self.run_config.sanitization_level,
+                    sanitization_file_path=self.run_config.sanitization_file_path,
+                    sanitization_report_context="DatasetConverter.write_sessions_metadata",
+                )
+                for session_metadata in sessions_metadata
+            ]
+
+            subject_directory = self.run_config.bids_directory / f"sub-{sanitized_participant_id}"
             subject_directory.mkdir(exist_ok=True)
 
             # BIDS requires ses- prefix in table values
-            session_ids = [session_converter.session_id for session_converter in sessions_metadata]
-            sessions_data_frame = pandas.DataFrame({"session_id": [f"ses-{session_id}" for session_id in session_ids]})
+            sessions_data_frame = pandas.DataFrame(
+                {"session_id": [f"ses-{session_id}" for session_id in sanitized_session_ids]}
+            )
 
-            session_tsv_file_path = subject_directory / f"sub-{participant_id}_sessions.tsv"
+            session_tsv_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.tsv"
             sessions_data_frame.to_csv(path_or_buf=session_tsv_file_path, mode="w", index=False, sep="\t")
 
-            session_json_file_path = subject_directory / f"sub-{participant_id}_sessions.json"
+            session_json_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.json"
             with session_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=sessions_json, fp=file_stream, indent=4)
 
-            for session_id in session_ids:
+            for session_id in sanitized_session_ids:
                 session_directory = subject_directory / f"ses-{session_id}"
                 session_directory.mkdir(exist_ok=True)
