@@ -6,7 +6,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from .._inspection._inspection_result import InspectionResult
+from .._inspection._inspection_result import Category, DataStandard, InspectionResult, Severity
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 
 
@@ -19,6 +19,23 @@ class Probe(BaseMetadataModel):
 
 class ProbeTable(BaseMetadataContainerModel):
     probes: list[Probe]
+
+    def _check_fields(self, file_paths: list[pathlib.Path] | list[pydantic.HttpUrl]) -> None:
+        # Check if values are specified
+        probes_missing_description = [probe for probe in self.probes if probe.description is None]
+        for probe_missing_description in probes_missing_description:
+            self.messages.append(
+                InspectionResult(
+                    title="Missing description",
+                    reason="A basic description of this field is recommended to improve contextual understanding.",
+                    solution="Add a description to the field.",
+                    field=f"nwbfile.devices.{probe_missing_description.probe_id}",
+                    source_file_paths=file_paths,
+                    data_standards=[DataStandard.BIDS, DataStandard.NWB],
+                    category=Category.STYLE_SUGGESTION,
+                    severity=Severity.INFO,
+                )
+            )
 
     @pydantic.computed_field
     @property
@@ -35,6 +52,8 @@ class ProbeTable(BaseMetadataContainerModel):
     @classmethod
     @pydantic.validate_call
     def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
+        file_paths = [nwbfile.container_source for nwbfile in nwbfiles]
+
         electrical_series = [
             neurodata_object
             for nwbfile in nwbfiles
@@ -60,6 +79,7 @@ class ProbeTable(BaseMetadataContainerModel):
             )
             for device in unique_devices
         ]
+        probes._check_fields(file_paths=file_paths)
         return cls(probes=probes)
 
     @pydantic.validate_call

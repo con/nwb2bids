@@ -154,14 +154,15 @@ def _run_convert_nwb_dataset(
         rich_click.echo(message=console_notification)
         return
 
+    text = "\nBIDS dataset was successfully created!"
     if notifications:
         number_of_notifications = len(notifications)
 
-        text = (
-            "\nBIDS dataset was successfully created!\n\n"
+        text += (
             f'\n{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
             f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
             # TODO: " Please review the full notifications report at {run_config.log_file_path}\n"
         )
-        console_notification += rich_click.style(text=text, fg="green")
-        rich_click.echo(message=console_notification)
+    text += "\n\n"
+    console_notification += rich_click.style(text=text, fg="green")
+    rich_click.echo(message=console_notification)

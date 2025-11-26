@@ -2,6 +2,7 @@ import datetime
 import json
 import pathlib
 import shutil
+import uuid
 
 import py.path
 import pynwb
@@ -301,6 +302,29 @@ def problematic_nwbfile_path_3(testing_files_directory: pathlib.Path) -> pathlib
     problematic_subdirectory = testing_files_directory / "problematic"
     problematic_subdirectory.mkdir(exist_ok=True)
     nwbfile_path = problematic_subdirectory / "problematic3.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def problematic_nwbfile_path_4(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    A fourth NWB file with less problematic metadata corresponding only to low-level 'info' events.
+    """
+    nwbfile = pynwb.NWBFile(
+        identifier=str(uuid.uuid4()),
+        session_id="problematic4",
+        session_description="",
+        session_start_time=datetime.datetime.now().astimezone(),
+    )
+    device = pynwb.device.Device(name="DeviceWithoutDescription")
+    nwbfile.add_device(device)
+
+    problematic_subdirectory = testing_files_directory / "problematic"
+    problematic_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = problematic_subdirectory / "problematic4.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 
