@@ -129,13 +129,13 @@ def _run_convert_nwb_dataset(
         top_three = errors[:3]
         number_to_print = len(top_three)
 
-        error_text = "\n".join(error.reason for error in top_three)
         text = (
             "\nBIDS dataset was not successfully created!\n"
             f'{_pluralize(n=number_to_print, phrase="An error was", plural="Some errors were")} '
             "encountered during conversion.\n"
         )
         if number_to_print > 1 and number_of_errors > 3:
+            error_text = "".join(f"\n\t- {error.reason}" for error in top_three)
             text += (
                 f"The first {number_to_print} of {number_of_errors} are shown below:\n\n"
                 f"{error_text}\n\n"

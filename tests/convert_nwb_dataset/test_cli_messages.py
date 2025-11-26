@@ -18,12 +18,13 @@ def test_problematic_cli_error_messages(
         "Some errors were encountered during conversion.",
         "The first 3 of 4 are shown below:",
         "",
-        "Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
-        "The participant ID contains invalid characters. BIDS allows only the plus "
-        "sign to be used as a separator in the subject entity label. Underscores, "
-        "dashes, spaces, slashes, and other special characters (including #) are "
-        "expressly forbidden.",
-        "Participant sex is not one of the allowed patterns by BIDS.",
+        "",
+        "\t- Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
+        "\t- The participant ID contains invalid characters. BIDS allows only the "
+        "plus sign to be used as a separator in the subject entity label. "
+        "Underscores, dashes, spaces, slashes, and other special characters "
+        "(including #) are expressly forbidden.",
+        "\t- Participant sex is not one of the allowed patterns by BIDS.",
         "",
         "",
     ]
