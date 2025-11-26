@@ -13,13 +13,13 @@ def test_run_config_immutability(temporary_bids_directory: pathlib.Path):
         run_config.run_id = "new_run_id"
 
 
-def test_run_config_creates_nonexistent_bids_directory(temporary_bids_directory: pathlib.Path):
-    """Test that RunConfig creates the bids_directory if it doesn't exist (but parent does)."""
+def test_run_config_accepts_nonexistent_bids_directory(temporary_bids_directory: pathlib.Path):
+    """Test that RunConfig accepts a nonexistent bids_directory if parent exists (but doesn't create it)."""
     nonexistent_child = temporary_bids_directory / "new_bids_dir"
 
     assert not nonexistent_child.exists()
     run_config = nwb2bids.RunConfig(bids_directory=nonexistent_child)
-    assert nonexistent_child.exists()
+    assert not nonexistent_child.exists()  # NOT created at init time
     assert run_config.bids_directory == nonexistent_child
 
 
