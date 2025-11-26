@@ -1,17 +1,22 @@
 # Documentation
 
-To build the documentation locally:
+To build the documentation, ensure you have all the necessary plugins installed:
 
 ```bash
-# Install documentation dependencies
 pip install -e . --group docs
-
-# Clean any previous local runs first
-rm -r ./docs/_build
-
-# Build
-sphinx-build -b html -W --keep-going docs ./docs/_build
-
-# View the built documentation
-# Open ./docs/_build/html/index.html in your favorite web browser
 ```
+
+then run locally using `Make` (with working directory being the `docs/` directory):
+
+```bash
+make html
+```
+
+or without `Make`:
+
+```bash
+rm -rf _build
+sphinx-build -b html -W --keep-going . _build
+```
+
+Then view the built documentation by opening `docs/_build/html/index.html` in your favorite web browser.

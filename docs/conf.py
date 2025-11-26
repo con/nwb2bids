@@ -1,10 +1,10 @@
 """Configuration file for the Sphinx documentation builder."""
 
+import pathlib
 import sys
-from pathlib import Path
 
 # Add source directory to path for autodoc
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "src"))
 
 # Project details
 project = "nwb2bids"
@@ -18,6 +18,9 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_tabs.tabs",
+    "sphinx_copybutton",
+    "sphinx_toggleprompt",  # Used to control >>> behavior in the doctests
+    "myst_parser",  # For including Markdown files to be rendered as RST
 ]
 
 # HTML configuration
@@ -41,6 +44,9 @@ html_context = {
     "doc_path": "docs",
 }
 
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+
 # Format signatures for better readability
 autodoc_typehints = "signature"
 autodoc_typehints_format = "short"
@@ -53,8 +59,35 @@ linkcheck_ignore = []
 # Disable sidebars for specific sections
 html_sidebars = {
     'user_guide': [],
+    'tutorials': [],
     "developer_guide": [],
 }
+
+# Toggleprompt
+toggleprompt_offset_right = 45  # This controls the position of the prompt (>>>) for the conversion gallery
+toggleprompt_default_hidden = "true"
+
+# Copybutton
+copybutton_exclude = '.linenos, .gp'  # This avoids copying prompt (>>>) in the conversion gallery (issue #1465)
+
+# MyST
+myst_enable_extensions = [
+    "colon_fence",      # ::: fences
+    "deflist",          # Definition lists
+    "fieldlist",        # Field lists
+    "html_admonition",  # HTML-style admonitions
+    "html_image",       # HTML images
+    "replacements",     # Text replacements
+    "smartquotes",      # Smart quotes
+    "strikethrough",    # ~~strikethrough~~
+    "substitution",     # Variable substitutions
+    "tasklist",         # Task lists
+]
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
+
 
 # --------------------------------------------------
 # Extension configuration
