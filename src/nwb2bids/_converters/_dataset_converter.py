@@ -211,6 +211,8 @@ class DatasetConverter(BaseConverter):
 
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
+        self.run_config.bids_directory.mkdir(exist_ok=True)
+
         try:
             if self.dataset_description is not None:
                 self.write_dataset_description()

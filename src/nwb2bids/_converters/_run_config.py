@@ -6,7 +6,7 @@ import pydantic
 from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_home_directory
 from .._core._run_id import _generate_run_id
-from .._core._validate_existing_bids import _validate_existing_directory_as_bids
+from .._core._validate_existing_bids import _validate_bids_directory
 
 
 class RunConfig(pydantic.BaseModel):
@@ -37,9 +37,9 @@ class RunConfig(pydantic.BaseModel):
     """
 
     bids_directory: typing.Annotated[
-        pydantic.DirectoryPath,
+        pathlib.Path,
         pydantic.Field(default_factory=pathlib.Path.cwd),
-        pydantic.AfterValidator(_validate_existing_directory_as_bids),
+        pydantic.AfterValidator(_validate_bids_directory),
     ]
     additional_metadata_file_path: pydantic.FilePath | None = None
     file_mode: typing.Annotated[
