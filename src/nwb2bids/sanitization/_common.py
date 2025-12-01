@@ -3,8 +3,11 @@ import re
 from ._levels import SanitizationLevel
 
 
-def _sanitize_label(label: str, sanitization_level: SanitizationLevel = SanitizationLevel.NONE) -> str:
+def _sanitize_label(label: str | None, sanitization_level: SanitizationLevel = SanitizationLevel.NONE) -> str | None:
     """Sanitize a generic entity label by replacing non-alphanumeric characters with plus signs."""
+    if label is None:
+        return None
+
     if sanitization_level == SanitizationLevel.NONE:
         return label
 

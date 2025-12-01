@@ -29,7 +29,7 @@ class Sanitization(pydantic.BaseModel):
     sanitization_level: SanitizationLevel
     sanitization_file_path: pathlib.Path
     original_session_id: str
-    original_participant_id: str
+    original_participant_id: str | None = None
     sanitized_session_id: str | None = None
     sanitized_participant_id: str | None = None
 

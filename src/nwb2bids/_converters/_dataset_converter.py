@@ -274,6 +274,7 @@ class DatasetConverter(BaseConverter):
         with pandas.option_context("mode.chained_assignment", None):
             deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
                 lambda participant_id: sanitized_participant_ids[participant_id]
+            )
 
         # BIDS requires sub- prefix in table values
         participants_data_frame = deduplicated_data_frame.copy(deep=True)
