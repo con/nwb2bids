@@ -267,11 +267,15 @@ class DatasetConverter(BaseConverter):
 
         # Apply sanitization
         deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
-            lambda participant_id: sanitize_participant_id(
-                participant_id=participant_id,
-                sanitization_level=self.run_config.sanitization_level,
-                sanitization_file_path=self.run_config.sanitization_file_path,
-                sanitization_report_context="DatasetConverter.write_participants_metadata",
+            lambda participant_id: (
+                sanitize_participant_id(
+                    participant_id=participant_id,
+                    sanitization_level=self.run_config.sanitization_level,
+                    sanitization_file_path=self.run_config.sanitization_file_path,
+                    sanitization_report_context="DatasetConverter.write_participants_metadata",
+                )
+                if participant_id is not None
+                else None
             )
         )
 
