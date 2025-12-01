@@ -23,4 +23,4 @@ class SanitizationLevel(enum.IntEnum):
     """
 
     NONE = 0
-    CRITICAL_BIDS_LABELS = 100
+    CRITICAL_BIDS_LABELS = 1
