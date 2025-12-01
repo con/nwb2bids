@@ -102,8 +102,4 @@ def test_disallowed_directory_conditions(
         expected_exception = "missing 'BIDSVersion' in 'dataset_description.json'"
 
     with pytest.raises(expected_exception=ValueError, match=expected_exception):
-        nwb_paths = [minimal_nwbfile_path]
-        run_config = nwb2bids.RunConfig(**run_config_kwargs)
-        dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-        dataset_converter.extract_metadata()
-        dataset_converter.write_dataset_description()
+        _run_config = nwb2bids.RunConfig(**run_config_kwargs)

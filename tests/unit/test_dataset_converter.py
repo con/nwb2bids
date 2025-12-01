@@ -244,6 +244,27 @@ def test_dataset_converter_write_sessions_metadata(
     assert sessions_json == expected_sessions_json
 
 
+def test_convert_to_bids_dataset_creates_nonexistent_directory(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    additional_metadata_file_path: pathlib.Path,
+):
+    """Test that convert_to_bids_dataset creates the bids_directory if it doesn't exist."""
+    nonexistent_child = temporary_bids_directory / "new_bids_dir"
+
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(
+        bids_directory=nonexistent_child, additional_metadata_file_path=additional_metadata_file_path
+    )
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.extract_metadata()
+
+    assert not nonexistent_child.exists()
+    dataset_converter.convert_to_bids_dataset()
+    assert nonexistent_child.exists()
+    assert (nonexistent_child / "dataset_description.json").exists()
+
+
 def test_dataset_description_validates_exactly_one_nwb2bids():
     """Test that DatasetDescription enforces exactly one nwb2bids entry in GeneratedBy."""
     # Should fail if user provides nwb2bids (results in 2 after model_post_init)
