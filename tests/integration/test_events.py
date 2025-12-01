@@ -45,12 +45,13 @@ def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_
 
     json_file_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_events.json"
     expected_json_content = {
+        "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
+        "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
+        "trial_condition": {"Description": "Extra information per trial."},
         "nwb_table": {
-            "nwb_table": {
-                "Description": "The name of the NWB table from " "which this event was extracted.",
-                "HED": {"trials": "Experimental-trial"},
-                "Levels": {"trials": "The 'trials' table in the " "NWB file."},
-            }
+            "Description": "The name of the NWB table from which this event was extracted.",
+            "HED": {"trials": "Experimental-trial"},
+            "Levels": {"trials": "The 'trials' table in the NWB file."},
         },
         "trials": {"Description": "A mock trials table."},
     }
@@ -98,14 +99,15 @@ def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_
 
     json_file_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_events.json"
     expected_json_content = {
-        "epochs": {"Description": "A mock epochs table."},
+        "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
+        "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
+        "epoch_condition": {"Description": "Extra information per epoch."},
         "nwb_table": {
-            "nwb_table": {
-                "Description": "The name of the NWB table from " "which this event was extracted.",
-                "HED": {"epochs": "Time-block"},
-                "Levels": {"epochs": "The 'epochs' table in the " "NWB file."},
-            }
+            "Description": "The name of the NWB table from which this event was extracted.",
+            "HED": {"epochs": "Time-block"},
+            "Levels": {"epochs": "The 'epochs' table in the NWB file."},
         },
+        "epochs": {"Description": "A mock epochs table."},
     }
     with json_file_path.open(mode="r") as file_stream:
         actual_json_content = json.load(fp=file_stream)
@@ -151,20 +153,23 @@ def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_b
 
     json_file_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_events.json"
     expected_json_content = {
-        "epochs": {"Description": "A mock epochs table."},
-        "mock_time_intervals": {"Description": "A mock time intervals table."},
+        "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
+        "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
+        "trial_condition": {"Description": "Extra information per trial."},
+        "epoch_condition": {"Description": "Extra information per epoch."},
+        "tag": {"Description": "A tag assigned to each interval."},
         "nwb_table": {
-            "nwb_table": {
-                "Description": "The name of the NWB table from " "which this event was extracted.",
-                "HED": {"epochs": "Time-block", "mock_time_intervals": "Time-interval", "trials": "Experimental-trial"},
-                "Levels": {
-                    "epochs": "The 'epochs' table in the " "NWB file.",
-                    "mock_time_intervals": "The " "'mock_time_intervals' " "table in the " "NWB file.",
-                    "trials": "The 'trials' table in the " "NWB file.",
-                },
-            }
+            "Description": "The name of the NWB table from which this event was extracted.",
+            "HED": {"epochs": "Time-block", "mock_time_intervals": "Time-interval", "trials": "Experimental-trial"},
+            "Levels": {
+                "epochs": "The 'epochs' table in the NWB file.",
+                "mock_time_intervals": "The 'mock_time_intervals' table in the NWB file.",
+                "trials": "The 'trials' table in the NWB file.",
+            },
         },
         "trials": {"Description": "A mock trials table."},
+        "epochs": {"Description": "A mock epochs table."},
+        "mock_time_intervals": {"Description": "A mock time intervals table."},
     }
     with json_file_path.open(mode="r") as file_stream:
         actual_json_content = json.load(fp=file_stream)
