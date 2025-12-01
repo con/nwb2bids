@@ -134,11 +134,17 @@ def _get_events_data_frame(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
         )
         raise ValueError(message)
 
-    all_data_frames = [time_interval.to_dataframe() for time_interval in time_intervals]
+    # Exclude timeseries and indexed columns - note that the sister `_index` columns are excluded by `.to_dataframe()`
+    columns_to_exclude = {"timeseries"}
+    for time_interval in time_intervals:
+        true_column_names = {column.name: True for column in time_interval.columns}  # PyNWB keeps hiding info otherwise
+        for column_name in true_column_names:
+            if true_column_names.get(f"{column_name}_index", False) is True:
+                columns_to_exclude.add(column_name)
+
+    all_data_frames = [time_interval.to_dataframe(exclude=columns_to_exclude) for time_interval in time_intervals]
     for index, time_interval in enumerate(time_intervals):
         all_data_frames[index]["nwb_table"] = time_interval.name
-        if "timeseries" in all_data_frames[index].columns:
-            all_data_frames[index] = all_data_frames[index].drop(columns=["timeseries"])
 
     events_table = pandas.concat(objs=all_data_frames, ignore_index=True)
     return events_table
