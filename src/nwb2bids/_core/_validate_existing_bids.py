@@ -2,6 +2,17 @@ import json
 import pathlib
 
 
+def _validate_bids_directory(directory: pathlib.Path) -> pathlib.Path:
+    """Validate bids_directory: if exists, must be valid BIDS; if not, parent must exist."""
+    if directory.exists():
+        return _validate_existing_directory_as_bids(directory)
+
+    if not directory.parent.exists():
+        raise ValueError(f"parent directory does not exist: {directory.parent}")
+
+    return directory
+
+
 def _validate_existing_directory_as_bids(directory: pathlib.Path) -> pathlib.Path:
 
     dataset_description_file_path = directory / "dataset_description.json"
