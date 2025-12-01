@@ -5,7 +5,7 @@ class SanitizationLevel(enum.IntEnum):
     """
     The different levels of sanitization that can be applied to the `nwb2bids` conversion process.
 
-    Parameters
+    Attributes
     ----------
     NONE : int
         No sanitization is applied.
@@ -23,4 +23,4 @@ class SanitizationLevel(enum.IntEnum):
     """
 
     NONE = 0
-    CRITICAL_BIDS_LABELS = 1
+    CRITICAL_BIDS_LABELS = 100
