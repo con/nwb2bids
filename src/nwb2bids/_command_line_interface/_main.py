@@ -63,7 +63,7 @@ def _nwb2bids_cli():
 )
 @rich_click.option(
     "--sanitization",
-    help=("Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset."),
+    help="Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.",
     required=False,
     type=rich_click.Choice(["NONE", "0", "CRITICAL_BIDS_LABELS", "1"], case_sensitive=False),
     default="NONE",
@@ -102,7 +102,7 @@ def _run_convert_nwb_dataset(
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
     handled_sanitization_level = (
-        SanitizationLevel(int(sanitization)) if sanitization.isdigit() else getattr(SanitizationLevel, sanitization)
+        SanitizationLevel(int(sanitization)) if sanitization.isdigit() else SanitizationLevel[sanitization]
     )
 
     run_config_kwargs = {
@@ -133,7 +133,7 @@ def _run_convert_nwb_dataset(
         )
         console_notification += rich_click.style(text=notification_text, fg="yellow")
 
-    if sanitization != "NONE" or sanitization != "0":
+    if handled_sanitization_level is not SanitizationLevel.NONE:
         sanitization_text = (
             "Note: Sanitization was applied to file and directory names during conversion. "
             "Please review the converted BIDS dataset to ensure all names are appropriate."
