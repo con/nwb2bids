@@ -122,7 +122,7 @@ coverage = ["pytest-cov"]
 dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
 types = ["mypy", {include-group = "type-stubs"}]
 docs = [
-    "sphinx",
+    "sphinx<9.0.0",
     "sphinx-tabs",
     "pydata-sphinx-theme",
 ]
