@@ -61,7 +61,7 @@ To do this, run:
 
       .. code-block:: bash
 
-         docker run --rm -v $(pwd):$(pwd) -w $(pwd) ghcr.io/con/nwb2bids:latest nwb2bids convert ./my_file.nwb --bids-directory bids_output
+         docker run --rm --user $(id -u):$(id -g) -v $(pwd):$(pwd) -v ~/.cache:/.cache -w $(pwd) ghcr.io/con/nwb2bids:latest nwb2bids convert ./my_file.nwb --bids-directory bids_output
 
    .. tab:: Podman
 
