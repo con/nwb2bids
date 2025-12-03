@@ -33,9 +33,6 @@ jobs:
     steps:
       - name: Set up environment
         uses: actions/checkout@v4
-      - name: Enable long path support
-        if: runner.os == 'Windows'
-        run: git config --global core.longpaths true
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
         with:
@@ -54,7 +51,9 @@ jobs:
 
       - if: runner.os == 'Windows'
         name: Enable long path support on Windows
-        run: git config --global core.longpaths true
+        run: |
+          git config --global core.longpaths true
+          git config --global core.symlinks true
 
       - name: Run tests
         run: python -m pytest -m "${{ inputs.pytest_markexpr }}" -vv --cov=nwb2bids --cov-report xml:./codecov.xml
