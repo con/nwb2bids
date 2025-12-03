@@ -6,6 +6,7 @@ Namely, the cases of:
   - A dataset without a session ID.
 """
 
+import os
 import pathlib
 
 import nwb2bids
@@ -131,3 +132,26 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset_with_broken_symlink(
     nwb2bids.testing.assert_subdirectory_structure(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
+
+
+def test_symlink_resolves_correctly_with_relative_path(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """Test that symlinks created from relative paths resolve to the correct target."""
+    # Change to the parent directory and use a relative path to the NWB file
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(minimal_nwbfile_path.parent)
+        relative_nwb_path = pathlib.Path(minimal_nwbfile_path.name)
+
+        nwb_paths = [relative_nwb_path]
+        run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, file_mode="symlink")
+        nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+
+        symlink_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_ecephys.nwb"
+
+        assert symlink_path.is_symlink(), "Expected a symlink to be created"
+        assert symlink_path.resolve() == minimal_nwbfile_path.resolve(), "Symlink does not resolve to original file"
+        assert os.path.exists(symlink_path), "Symlink is broken (target does not exist)"
+    finally:
+        os.chdir(original_cwd)
