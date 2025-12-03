@@ -65,7 +65,6 @@ One key programmatic difference however is the ability to interact with the noti
    for notification in notifications:
        print(notification)
 
-More examples to follow soon...
 
 
 Using Containers
