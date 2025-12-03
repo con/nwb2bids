@@ -6,11 +6,9 @@ import pynwb
 import pynwb.testing.mock.ecephys
 import pynwb.testing.mock.file
 
-from ..._core._home import _get_home_directory
-
 
 def get_tutorial_directory() -> pathlib.Path:
-    tutorial_dir = _get_home_directory() / "nwb2bids_tutorials"
+    tutorial_dir = pathlib.Path.home() / "nwb2bids_tutorials"
     tutorial_dir.mkdir(exist_ok=True)
     return tutorial_dir
 

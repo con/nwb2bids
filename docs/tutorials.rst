@@ -423,8 +423,7 @@ To test this out, we can create a new empty directory and navigate into it befor
             >>> os.chdir(path=bids_directory)
             >>>
             >>> converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
-            assert len(converter.session_converters) == 3
-            assert len(converter.messages) == 0
+
 
 And the results should match what we saw at the end of :ref:`tutorial-multiple-inputs`, except that we operated
 entirely from within ``bids_dataset_4``.
