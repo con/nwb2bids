@@ -81,7 +81,7 @@ def test_disallowed_directory_conditions(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
 
