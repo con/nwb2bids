@@ -53,7 +53,7 @@ jobs:
         name: Enable long path support on Windows
         run: |
           git config --global core.longpaths true
-          git config --global core.symlinks true
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
 
       - name: Run tests
         run: python -m pytest -m "${{ inputs.pytest_markexpr }}" -vv --cov=nwb2bids --cov-report xml:./codecov.xml
