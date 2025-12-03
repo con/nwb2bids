@@ -57,15 +57,29 @@ To do this, run:
 
          conda install -c conda-forge nwb2bids
 
-   .. tab:: Docker/Podman
-
-      You can also run **nwb2bids** without installing it locally using Docker or Podman:
+   .. tab:: Docker
 
       .. code-block:: bash
 
          docker run --rm -v $(pwd):$(pwd) -w $(pwd) ghcr.io/con/nwb2bids:latest nwb2bids convert ./my_file.nwb --bids-directory bids_output
 
-      Replace ``docker`` with ``podman`` if using Podman. The ``-v $(pwd):$(pwd)`` mounts your current directory and ``-w $(pwd)`` sets the working directory inside the container.
+   .. tab:: Podman
+
+      .. code-block:: bash
+
+         podman run --rm --userns=keep-id -v $(pwd):$(pwd):Z -w $(pwd) ghcr.io/con/nwb2bids:latest nwb2bids convert ./my_file.nwb --bids-directory bids_output
+
+   .. tab:: Apptainer
+
+      .. code-block:: bash
+
+         apptainer run docker://ghcr.io/con/nwb2bids:latest nwb2bids convert ./my_file.nwb --bids-directory bids_output
+
+   .. tab:: Singularity
+
+      .. code-block:: bash
+
+         singularity run docker://ghcr.io/con/nwb2bids:latest nwb2bids convert ./my_file.nwb --bids-directory bids_output
 
 Some extra optional dependencies include the ability to run remotely on a dataset hosted on `DANDI
 <https://dandiarchive.org/>`_.
