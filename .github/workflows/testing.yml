@@ -33,6 +33,9 @@ jobs:
     steps:
       - name: Set up environment
         uses: actions/checkout@v4
+      - name: Enable long path support
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
         with:
