@@ -273,6 +273,21 @@ And our BIDS dataset should look like:
                 └── sub-001_ses-B_probes.json
 
 
+.. tip ::
+
+    BIDS recommends certain best practices for deciding on high-quality labels for entities such as subjects and sessions.
+
+    **nwb2bids** simply extracts these values from the NWB contents, so it is a good idea to ensure that these values
+    are appropriate prior to conversion to BIDS.
+
+    Read more about `Common Principles: Filesystem structure <https://bids-specification.readthedocs
+    .io/en/stable/common-principles.html#filesystem-structure>`_.
+
+    In particular, see the section about `richness versus distinctness
+    <https://bids-specification
+    .readthedocs.io/en/stable/common-principles.html#filesystem-structure-filenames-richness-versus-distinctness>`_.
+
+
 
 .. _tutorial-multiple-inputs:
 
