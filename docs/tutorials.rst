@@ -522,6 +522,7 @@ To include this additional metadata during conversion, we can use the following 
             ...     run_config=run_config,
             ... )
 
+Our resulting bids `dataset_description.json` now includes our additional metadata!
 
 
 .. _tutorial-library-customization:
@@ -536,6 +537,7 @@ broken down into the following distinct steps:
 
 .. code-block:: python
 
+    >>> import pathlib
     >>> import nwb2bids
     >>>
     >>> tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
