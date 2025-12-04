@@ -55,8 +55,16 @@ jobs:
           git config --global core.longpaths true
           reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
 
+      - name: Create short temp directory (Windows)
+        if: runner.os == 'Windows'
+        run: New-Item -ItemType Directory -Force -Path "C:\Tmp"
+        shell: pwsh
+
       - name: Run tests
         run: python -m pytest -m "${{ inputs.pytest_markexpr }}" -vv --cov=nwb2bids --cov-report xml:./codecov.xml
+        env:
+          TEMP: ${{ runner.os == 'Windows' && 'C:\Tmp' || runner.temp }}
+          TMP: ${{ runner.os == 'Windows' && 'C:\Tmp' || runner.temp }}
       - name: Upload full coverage to Codecov
         if: ${{ matrix.python == '3.13' && matrix.os == 'ubuntu-latest' }}
         uses: codecov/codecov-action@v4
