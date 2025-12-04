@@ -1,4 +1,5 @@
 import collections
+import os
 import pathlib
 import shutil
 
@@ -145,7 +146,8 @@ class SessionConverter(BaseConverter):
             elif self.run_config.file_mode == "move":
                 shutil.move(src=nwbfile_path, dst=session_file_path)
             elif self.run_config.file_mode == "symlink":
-                session_file_path.symlink_to(target=nwbfile_path)
+                relative_target = os.path.relpath(nwbfile_path.resolve(), session_file_path.parent.resolve())
+                session_file_path.symlink_to(target=relative_target)
 
     def write_ecephys_files(self) -> None:
         """
