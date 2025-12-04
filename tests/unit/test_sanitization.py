@@ -11,15 +11,17 @@ import nwb2bids
 
 
 @pytest.mark.parametrize(
-    "participant_id, expected",
+    "participant_id, sanitization_level, expected",
     [
-        ("Mouse 12", "Mouse+12"),
-        ("Raw/data?sub-01@today", "Raw+data+sub+01+today"),
+        ("Mouse 12", nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS, "Mouse+12"),
+        (
+            "Raw/data?sub-01@today",
+            nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS,
+            "Raw+data+sub+01+today",
+        ),
     ],
 )
-def test_sanitize_participant_id(participant_id, expected):
-    sanitization_level = nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS
-
+def test_sanitize_participant_id(participant_id, sanitization_level, expected):
     assert (
         nwb2bids.sanitization.sanitize_participant_id(
             participant_id=participant_id, sanitization_level=sanitization_level
@@ -29,18 +31,20 @@ def test_sanitize_participant_id(participant_id, expected):
 
 
 @pytest.mark.parametrize(
-    "session_id, expected",
+    "session_id, sanitization_level, expected",
     [
         # TODO: think about if subject info in session IDs deserves special cleaning
-        ("Session 12 subject 5", "Session+12+subject+5"),
+        ("Session 12 subject 5", nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS, "Session+12+subject+5"),
         # TODO: think about if timestamps deserve special cleaning
-        ("2025-02-03T01:08:12.1236", "2025+02+03T01+08+12+1236"),
-        ("12_02_2025", "12+02+2025"),
+        (
+            "2025-02-03T01:08:12.1236",
+            nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS,
+            "2025+02+03T01+08+12+1236",
+        ),
+        ("12_02_2025", nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS, "12+02+2025"),
     ],
 )
-def test_sanitize_session_id(session_id, expected):
-    sanitization_level = nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS
-
+def test_sanitize_session_id(session_id, sanitization_level, expected):
     assert (
         nwb2bids.sanitization.sanitize_session_id(session_id=session_id, sanitization_level=sanitization_level)
         == expected
