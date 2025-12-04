@@ -22,12 +22,7 @@ import nwb2bids
     ],
 )
 def test_sanitize_participant_id(participant_id, sanitization_level, expected):
-    assert (
-        nwb2bids.sanitization.sanitize_participant_id(
-            participant_id=participant_id, sanitization_level=sanitization_level
-        )
-        == expected
-    )
+    assert nwb2bids.sanitization.sanitize_participant_id(participant_id, sanitization_level) == expected
 
 
 @pytest.mark.parametrize(
@@ -45,7 +40,4 @@ def test_sanitize_participant_id(participant_id, sanitization_level, expected):
     ],
 )
 def test_sanitize_session_id(session_id, sanitization_level, expected):
-    assert (
-        nwb2bids.sanitization.sanitize_session_id(session_id=session_id, sanitization_level=sanitization_level)
-        == expected
-    )
+    assert nwb2bids.sanitization.sanitize_session_id(session_id, sanitization_level) == expected
