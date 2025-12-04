@@ -13,6 +13,8 @@ import nwb2bids
 @pytest.mark.parametrize(
     "participant_id, sanitization_level, expected",
     [
+        # Sanitization level NONE should return the original ID
+        ("Mouse 12", nwb2bids.sanitization.SanitizationLevel.NONE, "Mouse 12"),
         ("Mouse 12", nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS, "Mouse+12"),
         (
             "Raw/data?sub-01@today",
@@ -28,6 +30,8 @@ def test_sanitize_participant_id(participant_id, sanitization_level, expected):
 @pytest.mark.parametrize(
     "session_id, sanitization_level, expected",
     [
+        # Sanitization level NONE should return the original ID
+        ("Session 12 subject 5", nwb2bids.sanitization.SanitizationLevel.NONE, "Session 12 subject 5"),
         # TODO: think about if subject info in session IDs deserves special cleaning
         ("Session 12 subject 5", nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS, "Session+12+subject+5"),
         # TODO: think about if timestamps deserve special cleaning
