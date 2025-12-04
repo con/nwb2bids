@@ -19,16 +19,18 @@ def sanitize_session_id(
     ----------
     session_id : str
         The original session ID to be sanitized.
-
-    Returns
-    -------
-    sanitized_session_id : str
-        The sanitized session ID label (without the 'ses-' entity prefix).
+    sanitization_level : SanitizationLevel, optional
+        The level of sanitization to apply. Default is `SanitizationLevel.NONE`.
     sanitization_file_path : file path, optional
         The path to a file where a report of the sanitization actions taken will be written.
         If None, no report is written.
     sanitization_report_context : str, optional
         Additional context to include in the sanitization report (e.g., the name or scope of the calling method).
+
+    Returns
+    -------
+    sanitized_session_id : str
+        The sanitized session ID label (without the 'ses-' entity prefix).
     """
     if sanitization_level > SanitizationLevel.NONE:
         sanitized_session_id = _sanitize_label(label=session_id)
