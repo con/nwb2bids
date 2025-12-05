@@ -7,9 +7,9 @@ import pytest
 
 import nwb2bids
 
-# These tests fail on Windows GitHub CI due to git-annex symlink/adjusted branch issues
+# These tests fail on Windows GitHub CI due to git-annex adjusted branch issues
 _windows_github_ci_xfail = pytest.mark.xfail(
-    sys.platform == "win32" and os.environ.get("GITHUB_ACTIONS") == "true",
+    sys.platform == "win32" and os.environ.get("GITHUB_ACTIONS", "").lower() == "true",
     reason="git-annex adjusted branch fails on Windows GitHub CI runners",
     strict=False,
 )
