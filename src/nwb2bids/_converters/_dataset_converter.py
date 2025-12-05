@@ -262,7 +262,7 @@ class DatasetConverter(BaseConverter):
             return
 
         # Deduplicate all rows of the frame
-        deduplicated_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
+        deduplicated_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True).copy()
 
         # Apply sanitization
         sanitizations = [converter.session_metadata.sanitization for converter in self.session_converters]

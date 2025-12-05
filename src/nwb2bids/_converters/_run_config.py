@@ -4,7 +4,7 @@ import typing
 import pydantic
 
 from .._core._file_mode import _determine_file_mode
-from .._core._home import _get_home_directory
+from .._core._home import _get_nwb2bids_home_directory
 from .._core._run_id import _generate_run_id
 from .._core._validate_existing_bids import _validate_bids_directory
 from ..sanitization import SanitizationLevel
@@ -49,7 +49,9 @@ class RunConfig(pydantic.BaseModel):
     file_mode: typing.Annotated[
         typing.Literal["move", "copy", "symlink"], pydantic.Field(default_factory=_determine_file_mode)
     ]
-    cache_directory: typing.Annotated[pydantic.DirectoryPath, pydantic.Field(default_factory=_get_home_directory)]
+    cache_directory: typing.Annotated[
+        pydantic.DirectoryPath, pydantic.Field(default_factory=_get_nwb2bids_home_directory)
+    ]
     sanitization_level: SanitizationLevel = SanitizationLevel.NONE
     run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
     _parent_run_directory: pathlib.Path = pydantic.PrivateAttr()
