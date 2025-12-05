@@ -3,8 +3,8 @@ import json
 import os
 import pathlib
 import shutil
-import uuid
 import sys
+import uuid
 
 import py.path
 import pynwb
