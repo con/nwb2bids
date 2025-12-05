@@ -125,6 +125,10 @@ docs = [
     "sphinx<9.0.0",
     "sphinx-tabs",
     "pydata-sphinx-theme",
+    "sphinx-copybutton",
+    "sphinx-toggleprompt",
+    "myst-parser",
+    "pytest",  # For doctest integration
 ]
 dev-all = [
     {include-group = "test"},
@@ -195,3 +199,6 @@ known-first-party = ["nwb2bids"]
 markers = [
     "remote: mark a test as requiring remote resources"
 ]
+addopts = "-ra --doctest-glob='*.rst'"
+testpaths = ["docs", "tests"]
+doctest_optionflags = "ELLIPSIS"
