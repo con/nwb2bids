@@ -1,7 +1,7 @@
 import pathlib
 
 
-def _get_home_directory() -> pathlib.Path:
+def _get_nwb2bids_home_directory() -> pathlib.Path:
     """
     Get the home directory used by the `nwb2bids` project.
 
