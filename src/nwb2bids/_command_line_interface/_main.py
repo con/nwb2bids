@@ -11,7 +11,6 @@ from ..sanitization import SanitizationLevel
 from ..testing import generate_ephys_tutorial
 
 
-
 # nwb2bids
 @rich_click.group(name="nwb2bids")
 def _nwb2bids_cli():
