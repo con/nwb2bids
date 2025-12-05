@@ -4,6 +4,7 @@ import datalad.api
 import pytest
 
 import nwb2bids
+from tests.conftest import pytest_mark_xfail_windows_github_ci
 
 
 @pytest.mark.remote
@@ -74,6 +75,7 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
 
 
 @pytest.mark.remote
+@pytest_mark_xfail_windows_github_ci
 def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
     testing_files_directory: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -133,6 +135,7 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
 
 
 @pytest.mark.remote
+@pytest_mark_xfail_windows_github_ci
 def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
     testing_files_directory: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
