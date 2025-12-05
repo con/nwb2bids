@@ -1,7 +1,5 @@
 import re
 
-from ._levels import SanitizationLevel
-
 
 def _sanitize_label(label: str) -> str:
     """Sanitize a generic entity label by replacing non-alphanumeric characters with plus signs."""
