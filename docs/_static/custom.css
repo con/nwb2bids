@@ -1,0 +1,9 @@
+/* The primary sphinx copybutton for code blocks. */
+button.copybtn {
+   opacity: 1;
+}
+
+/* Confusingly, this is the identifier for the toggleprompt button. */
+span.copybutton {
+   opacity: 0;
+}
