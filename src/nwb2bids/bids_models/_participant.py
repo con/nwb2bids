@@ -11,7 +11,7 @@ from ..bids_models._base_metadata_model import BaseMetadataModel
 
 
 class Participant(BaseMetadataModel):
-    participant_id: str = pydantic.Field(
+    participant_id: str | None = pydantic.Field(
         description="A unique identifier for this participant.",
         default=None,
     )
