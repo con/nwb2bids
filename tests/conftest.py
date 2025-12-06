@@ -148,7 +148,7 @@ def ecephys_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
 def trials_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     nwbfile = _make_minimal_nwbfile()
 
-    trials = nwb2bids.testing.mock_trials_table()
+    trials = nwb2bids.testing.mock_trials_table(nwbfile=nwbfile)
     nwbfile.trials = trials
 
     events_subdirectory = testing_files_directory / "trials"

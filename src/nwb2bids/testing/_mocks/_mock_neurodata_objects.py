@@ -1,18 +1,38 @@
 import pynwb
+import pynwb.testing.mock.base
 
 
-def mock_trials_table() -> pynwb.epoch.TimeIntervals:
+def mock_trials_table(nwbfile: pynwb.NWBFile | None = None) -> pynwb.epoch.TimeIntervals:
     """
     Generate a mock trials table.
 
     These are shorter than epochs and fit neatly within them in a qualitative manner.
+    If a NWBFile is provided, a TimeSeriesReference to a mock TimeSeries will be added to each trial.
     """
     trials = pynwb.epoch.TimeIntervals(name="trials", description="A mock trials table.")
     trials.add_column(name="trial_condition", description="Extra information per trial.")
-    trials.add_row(start_time=0.0, stop_time=1.0, trial_condition="A")
-    trials.add_row(start_time=2.0, stop_time=3.0, trial_condition="B")
-    trials.add_row(start_time=5.0, stop_time=5.5, trial_condition="C")
-    trials.add_row(start_time=5.5, stop_time=6.0, trial_condition="D")
+    trials.add_column(
+        name="indexed_column",
+        description="A more complicated type of column that contains structured data.",
+        index=True,
+    )
+
+    kwargs_per_row = [
+        {"start_time": 0.0, "stop_time": 1.0, "trial_condition": "A", "indexed_column": [0, 1]},
+        {"start_time": 2.0, "stop_time": 3.0, "trial_condition": "B", "indexed_column": [2, 3]},
+        {"start_time": 5.0, "stop_time": 5.5, "trial_condition": "C", "indexed_column": [4, 5]},
+        {"start_time": 5.5, "stop_time": 6.0, "trial_condition": "D", "indexed_column": [6, 7]},
+    ]
+    if nwbfile is not None:
+        timeseries = pynwb.testing.mock.base.mock_TimeSeries(nwbfile=nwbfile)
+        timeseries_ref = pynwb.base.TimeSeriesReference(
+            idx_start=0, count=timeseries.data.shape[0], timeseries=timeseries
+        )
+
+        for kwargs in kwargs_per_row:
+            kwargs["timeseries"] = [timeseries_ref]
+    for kwargs in kwargs_per_row:
+        trials.add_row(**kwargs)
 
     return trials
 
