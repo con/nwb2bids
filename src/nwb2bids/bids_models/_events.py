@@ -179,20 +179,32 @@ def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
     }
 
     event_metadata = {
-        time_interval.name: {"Description": time_interval.description}
-        for time_interval in time_intervals
-        if time_interval.description
+        "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
+        "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
     }
+
+    skip_columns = {"start_time", "stop_time"}
+    for time_interval in time_intervals:
+        columns = [column for column in time_interval.columns if column.name not in skip_columns]
+        for column in columns:
+            event_metadata[column.name] = {"Description": column.description}
 
     # Follow-up TODO: assign HED tags based on neurodata type once extended beyond TimeIntervals
     event_metadata["nwb_table"] = {
-        "nwb_table": {
-            "Description": "The name of the NWB table from which this event was extracted.",
-            "Levels": {table_name: f"The '{table_name}' table in the NWB file." for table_name in time_interval_names},
-            "HED": {
-                table_name: common_nwb_table_hed.get(table_name, "Time-interval") for table_name in time_interval_names
-            },
-        }
+        "Description": "The name of the NWB table from which this event was extracted.",
+        "Levels": {table_name: f"The '{table_name}' table in the NWB file." for table_name in time_interval_names},
+        "HED": {
+            table_name: common_nwb_table_hed.get(table_name, "Time-interval") for table_name in time_interval_names
+        },
     }
+
+    # Note: not directly columns on the table, but instead nested descriptions for levels of `nwb_table`
+    event_metadata.update(
+        {
+            time_interval.name: {"Description": time_interval.description}
+            for time_interval in time_intervals
+            if time_interval.description
+        }
+    )
 
     return event_metadata
