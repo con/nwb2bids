@@ -23,9 +23,11 @@ class ProbeTable(BaseMetadataContainerModel):
 
     def _check_fields(self) -> None:
         # Check if values are specified
+        self._internal_messages = []
+
         probes_missing_description = [probe for probe in self.probes if probe.description is None]
         for probe_missing_description in probes_missing_description:
-            self.messages.append(
+            self._internal_messages.append(
                 InspectionResult(
                     title="Missing description",
                     reason="A basic description of this field is recommended to improve contextual understanding.",
@@ -50,19 +52,15 @@ class ProbeTable(BaseMetadataContainerModel):
         These can accumulate over time based on which instance methods have been called.
         """
         messages = [message for probe in self.probes for message in probe.messages]
+        messages += self._internal_messages
         messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
         return messages
 
     @classmethod
     @pydantic.validate_call
     def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
-        electrical_series = [
-            neurodata_object
-            for nwbfile in nwbfiles
-            for neurodata_object in nwbfile.objects.values()
-            if isinstance(neurodata_object, pynwb.ecephys.ElectricalSeries)
-        ]
-        if any(electrical_series) is False:
+        nwb_electrode_tables = [nwbfile.electrodes for nwbfile in nwbfiles]
+        if not any(nwb_electrode_tables):
             return None
 
         unique_devices = {

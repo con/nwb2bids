@@ -39,11 +39,11 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         if self.events is not None:
             messages += self.events.messages.copy()
         if self.probe_table is not None:
-            messages += self.probe_table.messages.copy()
+            messages += self.probe_table.messages
         if self.channel_table is not None:
-            messages += self.channel_table.messages.copy()
+            messages += self.channel_table.messages
         if self.electrode_table is not None:
-            messages += self.electrode_table.messages.copy()
+            messages += self.electrode_table.messages
         messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
         return messages
 

@@ -329,8 +329,16 @@ def problematic_nwbfile_path_4(testing_files_directory: pathlib.Path) -> pathlib
         session_description="",
         session_start_time=datetime.datetime.now().astimezone(),
     )
-    device = pynwb.device.Device(name="DeviceWithoutDescription")
-    nwbfile.add_device(device)
+    subject = pynwb.file.Subject(
+        subject_id="123",
+        species="Mus musculus",
+        sex="M",
+    )
+    nwbfile.subject = subject
+
+    device = pynwb.testing.mock.ecephys.mock_Device(name="DeviceWithoutDescription", description=None, nwbfile=nwbfile)
+    group = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(device=device, nwbfile=nwbfile)
+    nwbfile.add_electrode(group=group, location="unknown")
 
     problematic_subdirectory = testing_files_directory / "problematic"
     problematic_subdirectory.mkdir(exist_ok=True)

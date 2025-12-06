@@ -53,7 +53,13 @@ def test_problematic_cli_info_messages(
     result = subprocess.run(args=command, shell=True, capture_output=True)
     assert result.returncode == 0
 
-    expected_message = ["", "BIDS dataset was successfully created, but may not be valid!", ""]
+    expected_message = [
+        "",
+        "BIDS dataset was successfully created!",
+        "1 suggestion for improvement was found during conversion.",
+        "",
+        "",
+    ]
     assert expected_message == result.stdout.decode(encoding="utf-8").splitlines()
     assert result.stderr == b""
 
