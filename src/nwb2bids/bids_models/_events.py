@@ -183,9 +183,9 @@ def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
         "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
     }
 
-    skip_columns = {"start_time": True, "stop_time": True}
+    skip_columns = {"start_time", "stop_time"}
     for time_interval in time_intervals:
-        columns = [column for column in time_interval.columns if skip_columns.get(column.name, False) is False]
+        columns = [column for column in time_interval.columns if column.name not in skip_columns]
         for column in columns:
             event_metadata[column.name] = {"Description": column.description}
 
