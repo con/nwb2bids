@@ -135,13 +135,19 @@ def _run_convert_nwb_dataset(
             f'{_pluralize(n=number_to_print, phrase="An error was", plural="Some errors were")} '
             "encountered during conversion.\n"
         )
+        error_text = "".join(f"\n\t- {error.reason}" for error in top_three)
         if number_to_print > 1 and number_of_errors > 3:
-            error_text = "".join(f"\n\t- {error.reason}" for error in top_three)
-            text += (
-                f"The first {number_to_print} of {number_of_errors} are shown below:\n\n"
-                f"{error_text}\n\n"
-                # TODO: "The full log file can be found at {run_config.log_file_path}\n"
-            )
+            counting_text = f"The first {number_to_print} of {number_of_errors} are shown below:"
+        elif number_to_print >= 2:
+            counting_text = f"The first {number_to_print} are shown below:"
+        else:
+            counting_text = "The error is shown below:"
+        text += (
+            f"{counting_text}\n\n"
+            f"{error_text}\n\n"
+            # TODO: "The full log file can be found at {run_config.log_file_path}\n"
+        )
+
         console_notification = rich_click.style(text=text, fg="red")
         rich_click.echo(message=console_notification)
         return
