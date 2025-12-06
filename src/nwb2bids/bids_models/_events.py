@@ -137,9 +137,9 @@ def _get_events_data_frame(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
     # Exclude timeseries and indexed columns - note that the sister `_index` columns are excluded by `.to_dataframe()`
     columns_to_exclude = {"timeseries"}
     for time_interval in time_intervals:
-        true_column_names = {column.name: True for column in time_interval.columns}  # PyNWB keeps hiding info otherwise
+        true_column_names = {column.name for column in time_interval.columns}  # PyNWB keeps hiding info otherwise
         for column_name in true_column_names:
-            if true_column_names.get(f"{column_name}_index", False) is True:
+            if f"{column_name}_index" in true_column_names:
                 columns_to_exclude.add(column_name)
 
     all_data_frames = [time_interval.to_dataframe(exclude=columns_to_exclude) for time_interval in time_intervals]
