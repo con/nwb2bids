@@ -173,13 +173,17 @@ def test_session_converter_write_events_metadata(
     with sessions_json_file_path.open(mode="r") as file_stream:
         sessions_json = json.load(fp=file_stream)
     expected_sessions_json = {
-        "trials": {"Description": "A mock trials table."},
+        "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
         "nwb_table": {
-            "nwb_table": {
-                "Description": "The name of the NWB table from which this event was extracted.",
-                "Levels": {"trials": "The 'trials' table in the NWB file."},
-                "HED": {"trials": "Experimental-trial"},
-            }
+            "Description": "The name of the NWB table from which this event " "was extracted.",
+            "HED": {"trials": "Experimental-trial"},
+            "Levels": {"trials": "The 'trials' table in the NWB file."},
         },
+        "onset": {
+            "Description": "Onset of the event, measured from the beginning of " "the acquisition.",
+            "Units": "s",
+        },
+        "trial_condition": {"Description": "Extra information per trial."},
+        "trials": {"Description": "A mock trials table."},
     }
     assert sessions_json == expected_sessions_json

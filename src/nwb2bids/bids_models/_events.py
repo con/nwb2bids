@@ -107,6 +107,50 @@ class Events(BaseMetadataModel):
             json.dump(obj=fields_metadata, fp=file_stream, indent=4)
 
 
+def _get_all_time_intervals(
+    nwbfile: pynwb.NWBFile,
+) -> list[pynwb.epoch.TimeIntervals] | None:
+    """
+    Extracts all time interval events from the NWB file and returns them as a list of TimeIntervals objects.
+    """
+    time_intervals: list[pynwb.epoch.TimeIntervals] = [
+        neurodata_object
+        for neurodata_object in nwbfile.acquisition.values()
+        if isinstance(neurodata_object, pynwb.epoch.TimeIntervals)
+    ]
+    if nwbfile.trials is not None:
+        time_intervals.append(nwbfile.trials)
+    if nwbfile.epochs is not None:
+        time_intervals.append(nwbfile.epochs)
+
+    if len(time_intervals) == 0:
+        return None
+
+    return time_intervals
+
+
+def _get_columns_to_skip(
+    time_intervals: list[pynwb.epoch.TimeIntervals], default_exclusion: set[str] | None = None
+) -> set[str]:
+    """
+    Retrieve a set of column names to exclude.
+
+    Current exclusions primarily include indexed columns.
+    This will automatically include `timeseries` columns since they are indexed.
+    """
+    skip_columns = set() if default_exclusion is None else default_exclusion.copy()
+    true_column_names = {
+        column.name for time_interval in time_intervals for column in time_interval.columns
+    }  # PyNWB keeps hiding info otherwise
+
+    for column_name in true_column_names:
+        if (indexed_column_name := f"{column_name}_index") in true_column_names:
+            skip_columns.add(column_name)
+            skip_columns.add(indexed_column_name)
+
+    return skip_columns
+
+
 def _get_events_data_frame(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
     """
     Extracts all time interval events from the NWB file and returns them as a single data frame.
@@ -134,36 +178,14 @@ def _get_events_data_frame(nwbfile: pynwb.NWBFile) -> pandas.DataFrame | None:
         )
         raise ValueError(message)
 
-    all_data_frames = [time_interval.to_dataframe() for time_interval in time_intervals]
+    # Exclude timeseries and indexed columns - note that the sister `_index` columns are excluded by `.to_dataframe()`
+    skip_columns = _get_columns_to_skip(time_intervals=time_intervals)
+    all_data_frames = [time_interval.to_dataframe(exclude=skip_columns) for time_interval in time_intervals]
     for index, time_interval in enumerate(time_intervals):
         all_data_frames[index]["nwb_table"] = time_interval.name
-        if "timeseries" in all_data_frames[index].columns:
-            all_data_frames[index] = all_data_frames[index].drop(columns=["timeseries"])
 
     events_table = pandas.concat(objs=all_data_frames, ignore_index=True)
     return events_table
-
-
-def _get_all_time_intervals(
-    nwbfile: pynwb.NWBFile,
-) -> list[pynwb.epoch.TimeIntervals] | None:
-    """
-    Extracts all time interval events from the NWB file and returns them as a list of TimeIntervals objects.
-    """
-    time_intervals: list[pynwb.epoch.TimeIntervals] = [
-        neurodata_object
-        for neurodata_object in nwbfile.acquisition.values()
-        if isinstance(neurodata_object, pynwb.epoch.TimeIntervals)
-    ]
-    if nwbfile.trials is not None:
-        time_intervals.append(nwbfile.trials)
-    if nwbfile.epochs is not None:
-        time_intervals.append(nwbfile.epochs)
-
-    if len(time_intervals) == 0:
-        return None
-
-    return time_intervals
 
 
 def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
@@ -179,20 +201,32 @@ def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
     }
 
     event_metadata = {
-        time_interval.name: {"Description": time_interval.description}
-        for time_interval in time_intervals
-        if time_interval.description
+        "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
+        "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
     }
+
+    skip_columns = _get_columns_to_skip(time_intervals=time_intervals, default_exclusion={"start_time", "stop_time"})
+    for time_interval in time_intervals:
+        cols_to_write = [column for column in time_interval.columns if column.name not in skip_columns]
+        for column in cols_to_write:
+            event_metadata[column.name] = {"Description": column.description}
 
     # Follow-up TODO: assign HED tags based on neurodata type once extended beyond TimeIntervals
     event_metadata["nwb_table"] = {
-        "nwb_table": {
-            "Description": "The name of the NWB table from which this event was extracted.",
-            "Levels": {table_name: f"The '{table_name}' table in the NWB file." for table_name in time_interval_names},
-            "HED": {
-                table_name: common_nwb_table_hed.get(table_name, "Time-interval") for table_name in time_interval_names
-            },
-        }
+        "Description": "The name of the NWB table from which this event was extracted.",
+        "Levels": {table_name: f"The '{table_name}' table in the NWB file." for table_name in time_interval_names},
+        "HED": {
+            table_name: common_nwb_table_hed.get(table_name, "Time-interval") for table_name in time_interval_names
+        },
     }
+
+    # Note: not directly columns on the table, but instead nested descriptions for levels of `nwb_table`
+    event_metadata.update(
+        {
+            time_interval.name: {"Description": time_interval.description}
+            for time_interval in time_intervals
+            if time_interval.description
+        }
+    )
 
     return event_metadata
