@@ -1,7 +1,7 @@
-def _pluralize(n: int, word: str, plural: str | None = None) -> str:
+def _pluralize(n: int, phrase: str, plural: str | None = None) -> str:
     if n == 1:
-        return word
+        return phrase
     elif plural is None:
-        return word + "s"
+        return phrase + "s"
     else:
         return plural
