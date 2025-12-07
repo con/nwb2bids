@@ -123,7 +123,6 @@ def _run_convert_nwb_dataset(
     errors = notifications_by_severity[Severity.ERROR]
     criticals = notifications_by_severity[Severity.CRITICAL]
 
-    console_notification = ""
     if errors:
         number_of_errors = len(errors)
 
@@ -170,8 +169,7 @@ def _run_convert_nwb_dataset(
             f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
             # TODO: " Please review the full notifications report at {run_config.log_file_path}\n"
         )
-    text += "\n\n"
-    console_notification += rich_click.style(text=text, fg="green")
+    console_notification = rich_click.style(text=text + "\n\n", fg="green")
     rich_click.echo(message=console_notification)
 
 
