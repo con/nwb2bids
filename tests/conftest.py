@@ -26,13 +26,13 @@ pytest_mark_xfail_windows_github_ci = pytest.mark.xfail(
 # TODO: add DynamicTable's in acquisition with *_time columns
 
 
-def _make_minimal_nwbfile(session_id: str = "456") -> pynwb.NWBFile:
+def _make_minimal_nwbfile(session_id: str = "456", subject_species: str = "Mus musculus") -> pynwb.NWBFile:
     """Creates a minimal NWB file for testing purposes."""
     nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=session_id)
 
     subject = pynwb.file.Subject(
         subject_id="123",
-        species="Mus musculus",
+        species=subject_species,
         sex="M",
     )
     nwbfile.subject = subject
@@ -130,6 +130,24 @@ def minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     minimal_subdirectory = testing_files_directory / "minimal"
     minimal_subdirectory.mkdir(exist_ok=True)
     nwbfile_path = minimal_subdirectory / "minimal.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def minimal_mismatch_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    Prior to PR #???, it was possible to create `participants.tsv` files with duplicated `participant_id` values.
+
+    This was because of the way dataframes were merged during the creation of the participants table.
+    """
+    nwbfile = _make_minimal_nwbfile(session_id="4567", subject_species="mouse")
+
+    minimal_subdirectory = testing_files_directory / "minimal_mismatch"
+    minimal_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = minimal_subdirectory / "minimal_mismatch.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 
