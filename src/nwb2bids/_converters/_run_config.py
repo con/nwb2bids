@@ -1,3 +1,4 @@
+import datetime
 import pathlib
 import typing
 
@@ -5,8 +6,23 @@ import pydantic
 
 from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_nwb2bids_home_directory
-from .._core._run_id import _generate_run_id
 from .._core._validate_existing_bids import _validate_bids_directory
+
+
+def _generate_run_id() -> str:
+    """
+    Generate a unique run ID based on the current date and time.
+
+    Returns
+    -------
+    run_id : str
+        On each unique run of `nwb2bids`, a run ID is generated.
+        Set this option to override this to any identifying string.
+        This ID is used in the naming of the notification and sanitization reports saved to your cache directory.
+        The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
+    """
+    run_id = datetime.datetime.now().strftime("datetime-%Y%m%d%H%M%S")
+    return run_id
 
 
 class RunConfig(pydantic.BaseModel):
@@ -58,7 +74,7 @@ class RunConfig(pydantic.BaseModel):
     )
 
     def model_post_init(self, context: typing.Any, /) -> None:
-        self._parent_run_directory = self.cache_directory / "runs"
+        self._parent_run_directory = self.bids_directory / ".nwb2bids"
         self._run_directory = self._parent_run_directory / self.run_id
 
         # Ensure run directory and its parent exist

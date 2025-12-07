@@ -222,7 +222,6 @@ class DatasetConverter(BaseConverter):
 
             for session_converter in self.session_converters:
                 session_converter.convert_to_bids_session()
-
         except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
@@ -235,6 +234,9 @@ class DatasetConverter(BaseConverter):
                 severity=Severity.ERROR,
             )
             self._internal_messages.append(message)
+        finally:
+            notifications_dump = [notification.model_dump(mode="json") for notification in self.messages]
+            self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
 
     def write_dataset_description(self) -> None:
         """Write the `dataset_description.json` file."""
