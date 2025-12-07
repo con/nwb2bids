@@ -176,3 +176,26 @@ def test_messages_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bids_dir
         )
     ]
     assert messages == expected_messages
+
+
+def test_messages_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
+    nwb_paths = [problematic_nwbfile_path_4]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    messages = converter.messages
+
+    expected_messages = [
+        nwb2bids.InspectionResult(
+            title="Missing description",
+            reason="A basic description of this field is recommended to improve contextual understanding.",
+            solution="Add a description to the field.",
+            examples=None,
+            field="nwbfile.devices.DeviceWithoutDescription",
+            source_file_paths=None,
+            target_file_paths=None,
+            data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.NWB],
+            category=nwb2bids.Category.STYLE_SUGGESTION,
+            severity=nwb2bids.Severity.INFO,
+        )
+    ]
+    assert messages == expected_messages
