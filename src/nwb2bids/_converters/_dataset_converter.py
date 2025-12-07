@@ -262,6 +262,16 @@ class DatasetConverter(BaseConverter):
         if full_participants_data_frame.empty:
             return
 
+        # Aggregate values across entries (such as species mismatches)
+        cols_to_agg = [col for col in full_participants_data_frame.columns if col != "participant_id"]
+        if any(cols_to_agg):
+            aggregated_cols = {col: lambda val: ", ".join(val.dropna().unique()) for col in cols_to_agg}
+            aggregated_data_frame = full_participants_data_frame.groupby(by="participant_id", as_index=False).agg(
+                func=aggregated_cols
+            )
+        else:
+            aggregated_data_frame = full_participants_data_frame.copy()
+
         # Deduplicate all rows of the frame
         deduplicated_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True).copy()
 
