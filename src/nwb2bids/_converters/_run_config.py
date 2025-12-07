@@ -104,5 +104,3 @@ class RunConfig(pydantic.BaseModel):
         """The file path leading to a JSON dump of the notifications."""
         notifications_file_path = self._run_directory / f"{self.run_id}_notifications.json"
         return notifications_file_path
-        notifications_file_path = self._run_directory / f"{self.run_id}_notifications.json"
-        return notifications_file_path
