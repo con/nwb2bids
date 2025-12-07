@@ -235,6 +235,8 @@ class DatasetConverter(BaseConverter):
             )
             self._internal_messages.append(message)
         finally:
+            self.run_config.bids_directory.mkdir(exist_ok=True)  # Just in case it failed to create earlier
+            self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
             notifications_dump = [notification.model_dump(mode="json") for notification in self.messages]
             self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
 
