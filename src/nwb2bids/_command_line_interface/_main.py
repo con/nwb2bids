@@ -170,13 +170,13 @@ def _run_convert_nwb_dataset(
             "\n\nNote: Sanitization was applied to file and directory names during conversion. "
             "Please review the converted BIDS dataset to ensure all names are appropriate.\n\n"
         )
-      
+
     if criticals:
         text = (
             "\nBIDS dataset was successfully created, but may not be valid!\n"
             # TODO: "Please review the full notifications report at {run_config.log_file_path}\n\n"
         )
-        console_notification = rich_click.style(text=text+sanitization_text, fg="yellow")
+        console_notification = rich_click.style(text=text + sanitization_text, fg="yellow")
         rich_click.echo(message=console_notification)
         return
 
