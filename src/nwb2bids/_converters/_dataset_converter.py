@@ -273,7 +273,7 @@ class DatasetConverter(BaseConverter):
             aggregated_data_frame = full_participants_data_frame.copy()
 
         # Deduplicate all rows of the frame
-        deduplicated_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True).copy()
+        deduplicated_data_frame = aggregated_data_frame.drop_duplicates(ignore_index=True).copy()
 
         # Apply sanitization
         deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
