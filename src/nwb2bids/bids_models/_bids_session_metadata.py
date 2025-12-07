@@ -52,9 +52,9 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     @property
     def messages(self) -> list[InspectionResult]:
         messages = self.participant.messages.copy()
-        messages += self._internal_messages
+        messages += self._internal_messages.copy()
         if self.events is not None:
-            messages += self.events.messages
+            messages += self.events.messages.copy()
         if self.probe_table is not None:
             messages += self.probe_table.messages
         if self.channel_table is not None:
