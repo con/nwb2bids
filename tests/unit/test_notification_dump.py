@@ -3,8 +3,6 @@
 import json
 import pathlib
 
-import pytest
-
 import nwb2bids
 
 
@@ -52,9 +50,7 @@ def test_notifications_file_path_format(temporary_bids_directory: pathlib.Path):
     assert notifications_json_path.parent.name == run_config.run_id
 
 
-def test_notifications_json_dump_content(
-    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
-):
+def test_notifications_json_dump_content(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     """Test that notification JSON dump contains valid inspection results."""
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
@@ -129,6 +125,7 @@ def test_multiple_runs_create_separate_directories(temporary_bids_directory: pat
 
     # Create second run config (will have different run_id due to timestamp)
     import time
+
     time.sleep(1.1)  # Ensure different timestamp (run_id uses second precision)
     run_config_2 = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     run_id_2 = run_config_2.run_id

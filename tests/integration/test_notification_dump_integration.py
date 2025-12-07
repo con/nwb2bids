@@ -53,8 +53,9 @@ def test_notification_dump_with_multiple_sessions(
 ):
     """Test notification dump with multiple NWB sessions."""
     # Create multiple test NWB files
-    from tests.conftest import _make_minimal_nwbfile
     import pynwb
+
+    from tests.conftest import _make_minimal_nwbfile
 
     session_paths = []
     for session_index in range(3):
@@ -125,14 +126,14 @@ def test_notification_dump_includes_all_message_fields(
     # If there are notifications, check they have all expected fields
     if len(notifications_data) > 0:
         notification = notifications_data[0]
-        
+
         # Required fields
         assert "title" in notification
         assert "reason" in notification
         assert "solution" in notification
         assert "category" in notification
         assert "severity" in notification
-        
+
         # Optional fields should be present (even if None)
         assert "examples" in notification
         assert "field" in notification
@@ -195,10 +196,10 @@ def test_notification_dump_json_is_valid_json(
     try:
         with notifications_json_path.open(mode="r") as file_stream:
             notifications_data = json.load(fp=file_stream)
-        
+
         # Should be a list
         assert isinstance(notifications_data, list)
-        
+
         # Can be serialized back to JSON without errors
         json.dumps(notifications_data)
     except json.JSONDecodeError as e:
