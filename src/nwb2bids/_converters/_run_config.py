@@ -77,6 +77,13 @@ class RunConfig(pydantic.BaseModel):
         self._parent_run_directory = self.bids_directory / ".nwb2bids"
         self._run_directory = self._parent_run_directory / self.run_id
 
+        # Only create notification directories if bids_directory exists
+        # (it may not exist yet, validation only requires parent to exist)
+        if self.bids_directory.exists():
+            self._ensure_notification_directories()
+
+    def _ensure_notification_directories(self) -> None:
+        """Ensure run directory and its parent exist, creating them if necessary."""
         # Ensure run directory and its parent exist
         self._parent_run_directory.mkdir(exist_ok=True)
         self._run_directory.mkdir(exist_ok=True)
@@ -95,5 +102,7 @@ class RunConfig(pydantic.BaseModel):
     @property
     def notifications_json_file_path(self) -> pathlib.Path:
         """The file path leading to a JSON dump of the notifications."""
+        notifications_file_path = self._run_directory / f"{self.run_id}_notifications.json"
+        return notifications_file_path
         notifications_file_path = self._run_directory / f"{self.run_id}_notifications.json"
         return notifications_file_path

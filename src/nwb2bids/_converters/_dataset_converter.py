@@ -235,6 +235,8 @@ class DatasetConverter(BaseConverter):
             )
             self._internal_messages.append(message)
         finally:
+            # Ensure notification directories exist before writing
+            self.run_config._ensure_notification_directories()
             notifications_dump = [notification.model_dump(mode="json") for notification in self.messages]
             self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
 
