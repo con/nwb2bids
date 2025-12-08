@@ -189,6 +189,12 @@ class DatasetConverter(BaseConverter):
 
     def extract_metadata(self) -> None:
         try:
+            self.run_config.bids_directory.mkdir(exist_ok=True)
+            self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
+            if self.run_config.sanitization_level != SanitizationLevel.NONE:
+                # Downstream works based off of appending, so need to ensure file exists before proceeding
+                self.run_config.sanitization_file_path.touch()
+
             collections.deque(
                 (
                     session_converter.extract_metadata()
@@ -212,21 +218,15 @@ class DatasetConverter(BaseConverter):
 
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
-        self.run_config.bids_directory.mkdir(exist_ok=True)
-        self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
-        if self.run_config.sanitization_level != SanitizationLevel.NONE:
-            # Downstream works based off of appending, so need to ensure file exists before proceeding
-            self.run_config.sanitization_file_path.touch()
-
         try:
-            if self.dataset_description is not None:
-                self.write_dataset_description()
+            for session_converter in self.session_converters:
+                session_converter.convert_to_bids_session()
 
             self.write_participants_metadata()
             self.write_sessions_metadata()
 
-            for session_converter in self.session_converters:
-                session_converter.convert_to_bids_session()
+            if self.dataset_description is not None:
+                self.write_dataset_description()
         except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
