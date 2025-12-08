@@ -12,7 +12,7 @@ from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..sanitization import SanitizationLevel, sanitize_participant_id, sanitize_session_id
+from ..sanitization import SanitizationLevel
 
 
 class DatasetConverter(BaseConverter):
