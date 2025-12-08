@@ -12,7 +12,7 @@ from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseM
 
 
 class Probe(BaseMetadataModel):
-    probe_id: str
+    probe_name: str
     type: str | None = None
     description: str | None = None
     manufacturer: str | None = None
@@ -32,7 +32,7 @@ class ProbeTable(BaseMetadataContainerModel):
                     title="Missing description",
                     reason="A basic description of this field is recommended to improve contextual understanding.",
                     solution="Add a description to the field.",
-                    field=f"nwbfile.devices.{probe_missing_description.probe_id}",
+                    field=f"nwbfile.devices.{probe_missing_description.probe_name}",
                     source_file_paths=[],  # TODO: figure out better way of handling
                     data_standards=[DataStandard.BIDS, DataStandard.NWB],
                     category=Category.STYLE_SUGGESTION,
@@ -72,7 +72,7 @@ class ProbeTable(BaseMetadataContainerModel):
 
         probes = [
             Probe(
-                probe_id=device.name,
+                probe_name=device.name,
                 type=None,  # TODO
                 description=device.description,
                 manufacturer=device.manufacturer,
@@ -97,6 +97,8 @@ class ProbeTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
+        data_frame["type"] = data_frame["type"].fillna(value="N/A")
+        data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call

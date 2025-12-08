@@ -147,16 +147,10 @@ def minimal_mismatch_nwbfile_path(testing_files_directory: pathlib.Path) -> path
 
 @pytest.fixture(scope="session")
 def ecephys_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
-    nwbfile = _make_minimal_nwbfile(session_id="789")
-
-    pynwb.testing.mock.ecephys.mock_ElectricalSeries(name="test_electrical_series", nwbfile=nwbfile)
-
     ecephys_subdirectory = testing_files_directory / "ecephys"
     ecephys_subdirectory.mkdir(exist_ok=True)
-    nwbfile_path = ecephys_subdirectory / "ecephys.nwb"
-    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
-        file_stream.write(nwbfile)
 
+    nwbfile_path = nwb2bids.testing.generate_ephys_tutorial(mode="file", output_directory=ecephys_subdirectory)
     return nwbfile_path
 
 
