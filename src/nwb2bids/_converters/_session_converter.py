@@ -93,11 +93,16 @@ class SessionConverter(BaseConverter):
         return session_converters
 
     def extract_metadata(self) -> None:
-        if self.session_metadata is None:
-            self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(
-                nwbfile_paths=self.nwbfile_paths, run_config=self.run_config
-            )
-            self.messages += self.session_metadata.messages
+        if self.session_metadata is not None:
+            return
+
+        self.run_config.bids_directory.mkdir(exist_ok=True)
+        self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
+
+        self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(
+            nwbfile_paths=self.nwbfile_paths, run_config=self.run_config
+        )
+        self.messages += self.session_metadata.messages
 
     def convert_to_bids_session(self) -> None:
         """

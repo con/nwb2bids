@@ -12,7 +12,6 @@ from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..sanitization import SanitizationLevel
 
 
 class DatasetConverter(BaseConverter):
@@ -189,12 +188,6 @@ class DatasetConverter(BaseConverter):
 
     def extract_metadata(self) -> None:
         try:
-            self.run_config.bids_directory.mkdir(exist_ok=True)
-            self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
-            if self.run_config.sanitization_level != SanitizationLevel.NONE:
-                # Downstream works based off of appending, so need to ensure file exists before proceeding
-                self.run_config.sanitization_file_path.touch()
-
             collections.deque(
                 (
                     session_converter.extract_metadata()
