@@ -1,3 +1,83 @@
+# v0.7.0 (Mon Dec 08 2025)
+
+### Release Notes
+
+#### Added and integrated a configuration model ([#164](https://github.com/con/nwb2bids/pull/164))
+
+This release incudes big changes to how arguments are passed in the `nwb2bids` API: the `RunConfig` object.
+
+This class is a Pydantic model which encapsulates all previous configuration settings, such as the output BIDS directory and the additional metadata file path. This class is also now passed at time of initialization for all `Converter` classes and prior to calling the `convert_nwb_dataset` helper function. This reduces any confusion about which steps of the workflow take which arguments, and allows all internal actions to refer to the common location instead of having to manage passing values back-and-forth. It also has the added benefit of simplifying any future additions to configuration options, such as sanitization parameters.
+
+CLI users are unaffected by these changes, aside from gaining a few new arguments - check them out with
+
+```bash
+nwb2bids convert --help
+```
+
+---
+
+#### 🚀 Enhancement
+
+- Enhance error notifications [#193](https://github.com/con/nwb2bids/pull/193) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) codycbakerphd@gmail.com)
+- Added and integrated a configuration model [#164](https://github.com/con/nwb2bids/pull/164) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@candleindark](https://github.com/candleindark) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### 🐛 Bug Fix
+
+- Added automatic notification dump [#216](https://github.com/con/nwb2bids/pull/216) (codycbakerphd@gmail.com [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Aggregated unique values across participant rows [#206](https://github.com/con/nwb2bids/pull/206) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Skipped indexed columns; simplified skipping of timeseries [#205](https://github.com/con/nwb2bids/pull/205) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Added column metadata to sidecar files [#203](https://github.com/con/nwb2bids/pull/203) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Added tutorials to documentation [#173](https://github.com/con/nwb2bids/pull/173) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) codycbakerphd@gmail.com [@asmacdo](https://github.com/asmacdo))
+- Fixed broken symlinking of source NWB file [#207](https://github.com/con/nwb2bids/pull/207) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Restrict sphinx version to below 9.0.0 [#201](https://github.com/con/nwb2bids/pull/201) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed regression when `bids_directory` does not exist, automatically create it [#183](https://github.com/con/nwb2bids/pull/183) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#200](https://github.com/con/nwb2bids/pull/200) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Fix notification targets and add manual dispatch to daily tests [#196](https://github.com/con/nwb2bids/pull/196) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Corrected the labeling notification to proper BIDS [#176](https://github.com/con/nwb2bids/pull/176) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) codycbakerphd@gmail.com)
+- Added GeneratedBy to `dataset_description.json` [#170](https://github.com/con/nwb2bids/pull/170) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#184](https://github.com/con/nwb2bids/pull/184) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Added support for operating on DataLad datasets [#165](https://github.com/con/nwb2bids/pull/165) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) codycbakerphd@gmail.com [@github-actions[bot]](https://github.com/github-actions[bot]))
+- Revise config model [#175](https://github.com/con/nwb2bids/pull/175) ([@candleindark](https://github.com/candleindark))
+- Automatic release [#157](https://github.com/con/nwb2bids/pull/157) ([@github-actions[bot]](https://github.com/github-actions[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Testing auto release (again) [#156](https://github.com/con/nwb2bids/pull/156) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🏠 Internal
+
+- Completely remove macOS-13 from all workflows and split daily workflows into remote vs. non-remote [#194](https://github.com/con/nwb2bids/pull/194) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Reduced CodeCov spam [#161](https://github.com/con/nwb2bids/pull/161) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Automatic release [#155](https://github.com/con/nwb2bids/pull/155) ([@github-actions[bot]](https://github.com/github-actions[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 📝 Documentation
+
+- Added container usage instructions [#209](https://github.com/con/nwb2bids/pull/209) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Improve README badge names [#195](https://github.com/con/nwb2bids/pull/195) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Add documentation link/badge to README [#186](https://github.com/con/nwb2bids/pull/186) ([@asmacdo](https://github.com/asmacdo))
+- doc: clarify NWB_PATHS are space separated [#182](https://github.com/con/nwb2bids/pull/182) ([@asmacdo](https://github.com/asmacdo))
+- Small CHANGELOG fixes [#166](https://github.com/con/nwb2bids/pull/166) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🧪 Tests
+
+- Skip two DataLad tests in Windows CI [#197](https://github.com/con/nwb2bids/pull/197) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@yarikoptic](https://github.com/yarikoptic))
+
+#### 🔩 Dependency Updates
+
+- [pre-commit.ci] pre-commit autoupdate [#204](https://github.com/con/nwb2bids/pull/204) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- [pre-commit.ci] pre-commit autoupdate [#192](https://github.com/con/nwb2bids/pull/192) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#174](https://github.com/con/nwb2bids/pull/174) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- [pre-commit.ci] pre-commit autoupdate [#169](https://github.com/con/nwb2bids/pull/169) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### Authors: 7
+
+- [@github-actions[bot]](https://github.com/github-actions[bot])
+- [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
+- Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- CodyCBakerPhD (codycbakerphd@gmail.com)
+- Isaac To ([@candleindark](https://github.com/candleindark))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
 # v0.6.0 (Fri Oct 24 2025)
 
 #### 🚀 Enhancement
