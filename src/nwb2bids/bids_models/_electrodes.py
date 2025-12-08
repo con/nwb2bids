@@ -1,6 +1,7 @@
 import json
 import pathlib
 
+import numpy
 import pandas
 import pydantic
 import pynwb
@@ -11,8 +12,14 @@ from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseM
 
 
 class Electrode(BaseMetadataModel):
-    electrode_id: int
-    probe_id: str
+    name: str
+    probe_name: str
+    hemisphere: str = "N/A"
+    x: float = numpy.nan
+    y: float = numpy.nan
+    z: float = numpy.nan
+    impedance: float = numpy.nan  # in kOhms
+    shank_id: str = "N/A"
     location: str | None = None
 
 
@@ -49,10 +56,30 @@ class ElectrodeTable(BaseMetadataContainerModel):
 
         electrodes = [
             Electrode(
-                electrode_id=electrode.index[0],
-                probe_id=electrode.group.iloc[0].device.name,
-                # TODO "impedance": electrode["imp"].iloc[0] if electrode["imp"].iloc[0] > 0 else None,
+                # Leading 'e' and padding are by convention from BEP32 examples
+                name=f"e{str(electrode.index[0]).zfill(3)}",
+                probe_name=electrode.group.iloc[0].device.name,
+                # TODO: hemisphere determination from additional metadata or possible lookup from a location map
+                x=electrode.x.iloc[0] if "x" in electrode else numpy.nan,
+                y=electrode.y.iloc[0] if "y" in electrode else numpy.nan,
+                z=electrode.z.iloc[0] if "z" in electrode else numpy.nan,
+                # Impedance must be in kOhms for BEP32 but NWB specifies Ohms
+                impedance=(
+                    eimp_in_ohms / 1e3
+                    if "imp" in electrode and not pandas.isna(eimp_in_ohms := electrode.imp.iloc[0])
+                    else numpy.nan
+                ),
+                shank_id=electrode.group.iloc[0].name,
+                # TODO: pretty much only through additional metadata
+                # size=
+                # electrode_shape=
+                # material
                 location=str(electrode.location.values[0]),
+                # TODO: some icephys specific ones (would NOT use the ecephys electrode table anyway...)
+                # Probably better off in a designated model
+                # pipette_solution=
+                # internal_pipette_diameter=
+                # external_pipette_diameter=
             )
             for electrode in nwbfile.electrodes
         ]
@@ -74,6 +101,12 @@ class ElectrodeTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
+
+        # Many columns are 'required' by BEP32 but are not always present in the source files or known at all
+        required_columns = ["x", "y", "z", "impedance"]
+        for column in required_columns:
+            data_frame[column] = data_frame[column].fillna(value="N/A")
+        data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(file_path, sep="\t", index=False)
 
     @pydantic.validate_call

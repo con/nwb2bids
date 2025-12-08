@@ -79,7 +79,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.electrode_table is not None
     assert len(session_metadata.channel_table.channels) == 65
     assert session_metadata.electrode_table.electrodes[0] == nwb2bids.bids_models.Electrode(
-        electrode_id=0, probe_id="Implant", location="unknown"
+        name=0, probe_name="Implant", location="unknown"
     )
 
 
