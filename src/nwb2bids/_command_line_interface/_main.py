@@ -133,6 +133,8 @@ def _run_convert_nwb_dataset(
     notifications_by_severity: dict[Severity, list[InspectionResult]] = collections.defaultdict(list)
     for notification in notifications:
         notifications_by_severity[notification.severity].append(notification)
+    notif_text = f"\n\nPlease review the full notifications report at {run_config.notifications_json_file_path}\n"
+
     errors = notifications_by_severity[Severity.ERROR]
     criticals = notifications_by_severity[Severity.CRITICAL]
 
@@ -154,11 +156,7 @@ def _run_convert_nwb_dataset(
             counting_text = f"The first {number_to_print} are shown below:"
         else:
             counting_text = "The error is shown below:"
-        text += (
-            f"{counting_text}\n\n"
-            f"{error_text}\n\n"
-            # TODO: "The full log file can be found at {run_config.log_file_path}\n"
-        )
+        text += f"{counting_text}\n\n{error_text}{notif_text}"
 
         console_notification = rich_click.style(text=text, fg="red")
         rich_click.echo(message=console_notification)
@@ -172,24 +170,21 @@ def _run_convert_nwb_dataset(
         )
 
     if criticals:
-        text = (
-            "\nBIDS dataset was successfully created, but may not be valid!\n"
-            # TODO: "Please review the full notifications report at {run_config.log_file_path}\n\n"
-        )
-        console_notification = rich_click.style(text=text + sanitization_text, fg="yellow")
+        text = f"\nBIDS dataset was successfully created, but may not be valid!{sanitization_text}{notif_text}"
+        console_notification = rich_click.style(text=text, fg="yellow")
         rich_click.echo(message=console_notification)
         return
 
-    text = "\nBIDS dataset was successfully created!"
+    text = "\nBIDS dataset was successfully created!\n"
     if notifications:
         number_of_notifications = len(notifications)
 
         text += (
-            f'\n{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
+            f'{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
             f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
-            # TODO: " Please review the full notifications report at {run_config.log_file_path}\n"
+            f"{sanitization_text}{notif_text}"
         )
-    console_notification = rich_click.style(text=text + sanitization_text + "\n\n", fg="green")
+    console_notification = rich_click.style(text=text, fg="green")
     rich_click.echo(message=console_notification)
 
 

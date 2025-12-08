@@ -10,6 +10,7 @@ def assert_subdirectory_structure(
     *,
     directory: pathlib.Path,
     expected_structure: dict[pathlib.Path, dict[typing.Literal["directories", "files"], set[str]]],
+    include_hidden: bool = False,
 ) -> None:
     """
     Assert that the subdirectory structure matches the expected structure.
@@ -26,6 +27,9 @@ def assert_subdirectory_structure(
     """
     # Future TODO: adjust to pathlib.Path.walk once 3.12 is minimum
     for subdirectory_path, directories, files in os.walk(top=directory):
+        directories[:] = [d for d in directories if not d.startswith(".")]
+        files = [f for f in files if not f.startswith(".")]
+
         subdirectory_path = pathlib.Path(subdirectory_path)
         expected = expected_structure.get(subdirectory_path, None)
 
