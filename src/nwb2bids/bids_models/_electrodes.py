@@ -36,7 +36,7 @@ class Electrode(BaseMetadataModel):
             self_val = self_dump[key]
             other_val = other_dump[key]
 
-            # Handle NaN comparison
+            # Handle NaN comparison (NaN == NaN should be true)
             if isinstance(self_val, float) and isinstance(other_val, float):
                 if numpy.isnan(self_val) and numpy.isnan(other_val):
                     continue
