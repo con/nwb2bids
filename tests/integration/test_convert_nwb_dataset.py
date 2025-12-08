@@ -3,6 +3,8 @@
 import json
 import pathlib
 
+import numpy
+import pandas
 import pytest
 
 import nwb2bids
@@ -131,6 +133,18 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
     nwb2bids.testing.assert_subdirectory_structure(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
+
+    probes_tsv_file_path = temporary_bids_directory / "sub-123" / "ses-789" / "ecephys" / "sub-123_ses-789_probes.tsv"
+    probes_tsv_dataframe = pandas.read_csv(filepath_or_buffer=probes_tsv_file_path, sep="\t")
+    expected_probes_tsv_dataframe = pandas.DataFrame(
+        data={
+            "probe_id": {0: "Device"},
+            "type": {0: numpy.nan},
+            "description": {0: "description"},
+            "manufacturer": {0: numpy.nan},
+        }
+    )
+    pandas.testing.assert_frame_equal(left=probes_tsv_dataframe, right=expected_probes_tsv_dataframe)
 
 
 def test_implicit_bids_directory(
