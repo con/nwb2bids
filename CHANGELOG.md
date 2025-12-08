@@ -4,7 +4,7 @@
 
 #### Added and integrated a configuration model ([#164](https://github.com/con/nwb2bids/pull/164))
 
-This release incudes big changes to how arguments are passed in the `nwb2bids` API: the `RunConfig` object.
+This release includes big changes to how arguments are passed in the `nwb2bids` API: the `RunConfig` object.
 
 This class is a Pydantic model which encapsulates all previous configuration settings, such as the output BIDS directory and the additional metadata file path. This class is also now passed at time of initialization for all `Converter` classes and prior to calling the `convert_nwb_dataset` helper function. This reduces any confusion about which steps of the workflow take which arguments, and allows all internal actions to refer to the common location instead of having to manage passing values back-and-forth. It also has the added benefit of simplifying any future additions to configuration options, such as sanitization parameters.
 
