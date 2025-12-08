@@ -257,9 +257,9 @@ def test_convert_to_bids_dataset_creates_nonexistent_directory(
         bids_directory=nonexistent_child, additional_metadata_file_path=additional_metadata_file_path
     )
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-    dataset_converter.extract_metadata()
-
     assert not nonexistent_child.exists()
+
+    dataset_converter.extract_metadata()
     dataset_converter.convert_to_bids_dataset()
     assert nonexistent_child.exists()
     assert (nonexistent_child / "dataset_description.json").exists()
