@@ -24,7 +24,7 @@ class Electrode(BaseMetadataModel):
 
     def __eq__(self, other: typing_extensions.Self) -> bool:
         if not isinstance(other, Electrode):
-            raise NotImplementedError
+            return False
 
         self_dump = self.model_dump()
         other_dump = other.model_dump()
