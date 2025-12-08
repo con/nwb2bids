@@ -2,6 +2,7 @@
 
 import pathlib
 
+import numpy
 import pydantic
 import pytest
 
@@ -79,7 +80,15 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.electrode_table is not None
     assert len(session_metadata.channel_table.channels) == 65
     assert session_metadata.electrode_table.electrodes[0] == nwb2bids.bids_models.Electrode(
-        name=0, probe_name="Implant", location="unknown"
+        name="e000",
+        probe_name="Implant",
+        hemisphere="N/A",
+        x=numpy.nan,
+        y=numpy.nan,
+        z=numpy.nan,
+        impedance=-0.001,
+        shank_id="shank1",
+        location="unknown",
     )
 
 

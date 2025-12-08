@@ -1,5 +1,6 @@
 import json
 import pathlib
+import typing
 
 import numpy
 import pandas
@@ -21,6 +22,30 @@ class Electrode(BaseMetadataModel):
     impedance: float = numpy.nan  # in kOhms
     shank_id: str = "N/A"
     location: str | None = None
+
+    def __eq__(self, other: typing.Self) -> bool:
+        if not isinstance(other, Electrode):
+            raise NotImplementedError
+
+        self_dump = self.model_dump()
+        other_dump = other.model_dump()
+
+        if self_dump.keys() != other_dump.keys():
+            return False
+
+        for key in self_dump:
+            self_val = self_dump[key]
+            other_val = other_dump[key]
+
+            # Handle NaN comparison
+            if isinstance(self_val, float) and isinstance(other_val, float):
+                if numpy.isnan(self_val) and numpy.isnan(other_val):
+                    continue
+
+            if self_val != other_val:
+                return False
+
+        return True
 
 
 class ElectrodeTable(BaseMetadataContainerModel):
