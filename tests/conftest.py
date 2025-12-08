@@ -142,7 +142,7 @@ def ecephys_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     ecephys_subdirectory = testing_files_directory / "ecephys"
     ecephys_subdirectory.mkdir(exist_ok=True)
 
-    nwbfile_path = nwb2bids.testing.generate_ephys_tutorial(mode="file", output_directory=testing_files_directory)
+    nwbfile_path = nwb2bids.testing.generate_ephys_tutorial(mode="file", output_directory=ecephys_subdirectory)
     return nwbfile_path
 
 

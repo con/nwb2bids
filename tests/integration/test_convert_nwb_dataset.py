@@ -136,7 +136,7 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
     probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
     expected_lines = [
         "probe_name\ttype\tdescription\tmanufacturer",
-        "ExampleProbe\tN/A\tThis is an example probe used for demonstration " "purposes.\t`nwb2bids.testing` module",
+        "ExampleProbe\tN/A\tThis is an example probe used for demonstration purposes.\t`nwb2bids.testing` module",
     ]
     assert probes_tsv_lines == expected_lines
 
