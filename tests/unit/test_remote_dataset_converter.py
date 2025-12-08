@@ -65,7 +65,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.probe_table == nwb2bids.bids_models.ProbeTable(
         probes=[
             nwb2bids.bids_models.Probe(
-                probe_id="Implant", type=None, description="Silicon electrodes on Intan probe.", manufacturer=None
+                probe_name="Implant", type=None, description="Silicon electrodes on Intan probe.", manufacturer=None
             )
         ]
     )

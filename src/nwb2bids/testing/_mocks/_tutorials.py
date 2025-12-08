@@ -26,12 +26,35 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
     )
     nwbfile.subject = subject
 
+    probe = pynwb.testing.mock.ecephys.mock_Device(
+        name="ExampleProbe",
+        description="This is an example probe used for demonstration purposes.",
+        manufacturer="`nwb2bids.testing` module",
+        nwbfile=nwbfile,
+    )
+    shank = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
+        name="ExampleShank",
+        description="This is an example electrode group (shank) used for demonstration purposes.",
+        location="hippocampus",
+        device=probe,
+        nwbfile=nwbfile,
+    )
+
+    number_of_electrodes = 8
+    for index in range(number_of_electrodes):
+        nwbfile.add_electrode(location="hippocampus", group=shank)
+    electrodes = nwbfile.create_electrode_table_region(
+        region=list(range(number_of_electrodes)),
+        description="A `DynamicTableRegion` referring to all electrodes in this file.",
+    )
+
     pynwb.testing.mock.ecephys.mock_ElectricalSeries(
         name="ExampleElectricalSeries",
         description=(
             "An example electrical series that represents data which could have been "
-            "read off of the channels of an ephys probe."
+            "read off of the channels of an ecephys probe."
         ),
+        electrodes=electrodes,
         nwbfile=nwbfile,
     )
 

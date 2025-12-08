@@ -93,33 +93,33 @@ def test_ecephys_cli(ecephys_nwbfile_path: pathlib.Path, temporary_bids_director
 
     expected_structure = {
         temporary_bids_directory: {
-            "directories": {"sub-123"},
+            "directories": {"sub-001"},
             "files": {"dataset_description.json", "participants.json", "participants.tsv"},
         },
         temporary_bids_directory
-        / "sub-123": {
-            "directories": {"ses-789"},
-            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
         },
         temporary_bids_directory
-        / "sub-123"
-        / "ses-789": {
+        / "sub-001"
+        / "ses-A": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
-        / "sub-123"
-        / "ses-789"
+        / "sub-001"
+        / "ses-A"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ses-789_ecephys.nwb",
-                "sub-123_ses-789_channels.tsv",
-                "sub-123_ses-789_channels.json",
-                "sub-123_ses-789_electrodes.tsv",
-                "sub-123_ses-789_electrodes.json",
-                "sub-123_ses-789_probes.tsv",
-                "sub-123_ses-789_probes.json",
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
             },
         },
     }
