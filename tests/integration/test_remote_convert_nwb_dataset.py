@@ -2,7 +2,6 @@ import os
 import pathlib
 import sys
 
-import datalad.api
 import pytest
 
 import nwb2bids
@@ -88,6 +87,8 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
 def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
     testing_files_directory: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
+    import datalad.api
+
     dataset_dir = testing_files_directory / "000568"
     dataset_dir.mkdir(exist_ok=True)
 
@@ -148,6 +149,8 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
 def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
     testing_files_directory: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
+    import datalad.api
+
     dataset_dir = testing_files_directory / "000568"
     dataset_dir.mkdir(exist_ok=True)
 
