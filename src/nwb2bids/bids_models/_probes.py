@@ -97,8 +97,8 @@ class ProbeTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
-        data_frame["type"].fillna(value="N/A", inplace=True)
-        data_frame.dropna(axis=1, how="all", inplace=True)
+        data_frame["type"] = data_frame["type"].fillna(value="N/A")
+        data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call
