@@ -211,6 +211,8 @@ class DatasetConverter(BaseConverter):
 
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
+        self.run_config.bids_directory.mkdir(exist_ok=True)
+
         try:
             if self.dataset_description is not None:
                 self.write_dataset_description()
@@ -220,7 +222,6 @@ class DatasetConverter(BaseConverter):
 
             for session_converter in self.session_converters:
                 session_converter.convert_to_bids_session()
-
         except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
@@ -233,6 +234,11 @@ class DatasetConverter(BaseConverter):
                 severity=Severity.ERROR,
             )
             self._internal_messages.append(message)
+        finally:
+            self.run_config.bids_directory.mkdir(exist_ok=True)  # Just in case it failed to create earlier
+            self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
+            notifications_dump = [notification.model_dump(mode="json") for notification in self.messages]
+            self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
 
     def write_dataset_description(self) -> None:
         """Write the `dataset_description.json` file."""
@@ -259,8 +265,18 @@ class DatasetConverter(BaseConverter):
         if full_participants_data_frame.empty:
             return
 
+        # Aggregate values across entries (such as species mismatches)
+        cols_to_agg = [col for col in full_participants_data_frame.columns if col != "participant_id"]
+        if any(cols_to_agg):
+            aggregated_cols = {col: lambda val: ", ".join(val.dropna().unique()) for col in cols_to_agg}
+            aggregated_data_frame = full_participants_data_frame.groupby(by="participant_id", as_index=False).agg(
+                func=aggregated_cols
+            )
+        else:
+            aggregated_data_frame = full_participants_data_frame.copy()
+
         # Deduplicate all rows of the frame
-        deduplicated_data_frame = full_participants_data_frame.drop_duplicates(ignore_index=True)
+        deduplicated_data_frame = aggregated_data_frame.drop_duplicates(ignore_index=True)
 
         # BIDS requires sub- prefix in table values
         participants_data_frame = deduplicated_data_frame.copy()

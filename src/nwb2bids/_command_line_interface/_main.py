@@ -1,3 +1,4 @@
+import collections
 import pathlib
 import typing
 
@@ -5,8 +6,9 @@ import rich_click
 
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
-from .._inspection._inspection_result import Severity
+from .._inspection._inspection_result import InspectionResult, Severity
 from .._tools._pluralize import _pluralize
+from ..testing import generate_ephys_tutorial
 
 
 # nwb2bids
@@ -111,20 +113,103 @@ def _run_convert_nwb_dataset(
 
     converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
+    if silent:
+        return
+
     notifications = converter.messages
-    console_notification = ""
-    if notifications:
-        notification_text = (
-            f'\n{(n:=len(notifications))} {_pluralize(n=n, word="suggestion")} for improvement '
-            f'{_pluralize(n=n, word="was", plural="were")} found during conversion.'
+    notifications_by_severity: dict[Severity, list[InspectionResult]] = collections.defaultdict(list)
+    for notification in notifications:
+        notifications_by_severity[notification.severity].append(notification)
+    notif_text = f"\n\nPlease review the full notifications report at {run_config.notifications_json_file_path}\n"
+
+    errors = notifications_by_severity[Severity.ERROR]
+    criticals = notifications_by_severity[Severity.CRITICAL]
+
+    if errors:
+        number_of_errors = len(errors)
+
+        top_three = errors[:3]
+        number_to_print = len(top_three)
+
+        text = (
+            "\nBIDS dataset was not successfully created!\n"
+            f'{_pluralize(n=number_to_print, phrase="An error was", plural="Some errors were")} '
+            "encountered during conversion.\n"
         )
-        console_notification += rich_click.style(text=notification_text, fg="yellow")
+        error_text = "".join(f"\n\t- {error.reason}" for error in top_three)
+        if number_to_print > 1 and number_of_errors > 3:
+            counting_text = f"The first {number_to_print} of {number_of_errors} are shown below:"
+        elif number_to_print >= 2:
+            counting_text = f"The first {number_to_print} are shown below:"
+        else:
+            counting_text = "The error is shown below:"
+        text += f"{counting_text}\n\n{error_text}{notif_text}"
 
-    if console_notification != "" and not silent:
+        console_notification = rich_click.style(text=text, fg="red")
         rich_click.echo(message=console_notification)
+        return
 
-    not_any_failures = not any(notification.severity == Severity.ERROR for notification in notifications)
-    if not_any_failures and not silent:
-        text = "BIDS dataset was successfully created!"
-        console_notification = rich_click.style(text=text, fg="green")
+    if criticals:
+        text = f"\nBIDS dataset was successfully created, but may not be valid!{notif_text}"
+        console_notification = rich_click.style(text=text, fg="yellow")
         rich_click.echo(message=console_notification)
+        return
+
+    text = "\nBIDS dataset was successfully created!\n"
+    if notifications:
+        number_of_notifications = len(notifications)
+
+        text += (
+            f'{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
+            f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.{notif_text}'
+        )
+    console_notification = rich_click.style(text=text, fg="green")
+    rich_click.echo(message=console_notification)
+
+
+# nwb2bids tutorial
+@_nwb2bids_cli.group(name="tutorial")
+def _nwb2bids_tutorial_cli():
+    pass
+
+
+# nwb2bids tutorial ephys
+@_nwb2bids_tutorial_cli.group(name="ephys")
+def _nwb2bids_tutorial_ephys_cli():
+    pass
+
+
+# nwb2bids tutorial ephys file
+@_nwb2bids_tutorial_ephys_cli.command(name="file")
+@rich_click.option(
+    "--output-directory",
+    "-o",
+    help="Path to the folder where the tutorial file(s) will be created (default: user home directory).",
+    required=False,
+    type=rich_click.Path(writable=True),
+    default=None,
+)
+def _nwb2bids_tutorial_ephys_file_cli(output_directory: str | None = None) -> None:
+    file_path = generate_ephys_tutorial(output_directory=output_directory, mode="file")
+
+    text = f"\nAn example NWB file has been created at: {file_path}\n\n"
+    message = rich_click.style(text=text, fg="green")
+    rich_click.echo(message=message)
+
+
+# nwb2bids tutorial ephys dataset
+@_nwb2bids_tutorial_ephys_cli.command(name="dataset")
+@rich_click.option(
+    "--output-directory",
+    "-o",
+    help="Path to the folder where the tutorial files will be created (default: user home directory).",
+    required=False,
+    type=rich_click.Path(writable=True),
+    default=None,
+)
+def _nwb2bids_tutorial_ephys_dataset_cli(output_directory: str | None = None) -> None:
+    tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset")
+
+    text = f"\nAn example NWB dataset has been created at: {tutorial_directory}\n\n"
+    message = rich_click.style(text=text, fg="green")
+    rich_click.echo(message=message)

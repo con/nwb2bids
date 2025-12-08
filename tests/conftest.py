@@ -2,6 +2,7 @@ import datetime
 import json
 import pathlib
 import shutil
+import uuid
 
 import py.path
 import pynwb
@@ -16,13 +17,13 @@ import nwb2bids
 # TODO: add DynamicTable's in acquisition with *_time columns
 
 
-def _make_minimal_nwbfile(session_id: str = "456") -> pynwb.NWBFile:
+def _make_minimal_nwbfile(session_id: str = "456", subject_species: str = "Mus musculus") -> pynwb.NWBFile:
     """Creates a minimal NWB file for testing purposes."""
     nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=session_id)
 
     subject = pynwb.file.Subject(
         subject_id="123",
-        species="Mus musculus",
+        species=subject_species,
         sex="M",
     )
     nwbfile.subject = subject
@@ -119,6 +120,24 @@ def minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
 
 
 @pytest.fixture(scope="session")
+def minimal_mismatch_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    Prior to PR #???, it was possible to create `participants.tsv` files with duplicated `participant_id` values.
+
+    This was because of the way dataframes were merged during the creation of the participants table.
+    """
+    nwbfile = _make_minimal_nwbfile(session_id="4567", subject_species="mouse")
+
+    minimal_subdirectory = testing_files_directory / "minimal_mismatch"
+    minimal_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = minimal_subdirectory / "minimal_mismatch.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
 def ecephys_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     nwbfile = _make_minimal_nwbfile(session_id="789")
 
@@ -137,7 +156,7 @@ def ecephys_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
 def trials_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     nwbfile = _make_minimal_nwbfile()
 
-    trials = nwb2bids.testing.mock_trials_table()
+    trials = nwb2bids.testing.mock_trials_table(nwbfile=nwbfile)
     nwbfile.trials = trials
 
     events_subdirectory = testing_files_directory / "trials"
@@ -301,6 +320,37 @@ def problematic_nwbfile_path_3(testing_files_directory: pathlib.Path) -> pathlib
     problematic_subdirectory = testing_files_directory / "problematic"
     problematic_subdirectory.mkdir(exist_ok=True)
     nwbfile_path = problematic_subdirectory / "problematic3.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def problematic_nwbfile_path_4(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    A fourth NWB file with less problematic metadata corresponding only to low-level 'info' events.
+    """
+    nwbfile = pynwb.NWBFile(
+        identifier=str(uuid.uuid4()),
+        session_id="problematic4",
+        session_description="",
+        session_start_time=datetime.datetime.now().astimezone(),
+    )
+    subject = pynwb.file.Subject(
+        subject_id="123",
+        species="Mus musculus",
+        sex="M",
+    )
+    nwbfile.subject = subject
+
+    device = pynwb.testing.mock.ecephys.mock_Device(name="DeviceWithoutDescription", description=None, nwbfile=nwbfile)
+    group = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(device=device, nwbfile=nwbfile)
+    nwbfile.add_electrode(group=group, location="unknown")
+
+    problematic_subdirectory = testing_files_directory / "problematic"
+    problematic_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = problematic_subdirectory / "problematic4.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 
