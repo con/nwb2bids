@@ -38,10 +38,16 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Install dependencies
+      - name: Install minimal dependencies (plus pytest)
         run: |
           python -m pip install --upgrade pip wheel
-          pip install -e ".[all]" --group dev-all
+          pip install -e . pytest
+
+      - name: Run minimal tests
+        run: python -m pytest -m "not remote" -vv
+
+      - name: Install all dependencies
+        run: pip install -e ".[all]" --group dev-all
 
       - if: ${{ inputs.pytest_markexpr == 'remote' }}
         name: Configure git for DataLad
