@@ -182,7 +182,7 @@ def _run_convert_nwb_dataset(
         text += (
             f'{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
             f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
-            f'{sanitization_text}{notif_text}'
+            f"{sanitization_text}{notif_text}"
         )
     console_notification = rich_click.style(text=text, fg="green")
     rich_click.echo(message=console_notification)
