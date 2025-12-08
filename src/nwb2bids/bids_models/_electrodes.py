@@ -1,6 +1,5 @@
 import json
 import pathlib
-import typing
 
 import numpy
 import pandas
@@ -23,7 +22,7 @@ class Electrode(BaseMetadataModel):
     shank_id: str = "N/A"
     location: str | None = None
 
-    def __eq__(self, other: typing.Self) -> bool:
+    def __eq__(self, other: typing_extensions.Self) -> bool:
         if not isinstance(other, Electrode):
             raise NotImplementedError
 
