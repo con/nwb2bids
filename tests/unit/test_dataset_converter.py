@@ -248,7 +248,7 @@ def test_convert_to_bids_dataset_creates_nonexistent_directory(
     temporary_bids_directory: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
 ):
-    """Test that convert_to_bids_dataset creates the bids_directory if it doesn't exist."""
+    """Test that `convert_to_bids_dataset` creates the `bids_directory` if it doesn't exist."""
     nonexistent_child = temporary_bids_directory / "new_bids_dir"
 
     nwb_paths = [minimal_nwbfile_path]
