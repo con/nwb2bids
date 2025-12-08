@@ -1,9 +1,7 @@
 import datetime
 import json
-import os
 import pathlib
 import shutil
-import sys
 import uuid
 
 import py.path
@@ -14,14 +12,6 @@ import pynwb.testing.mock.file
 import pytest
 
 import nwb2bids
-
-# These tests fail on Windows GitHub CI due to git-annex adjusted branch issues
-# See https://github.com/con/nwb2bids/pull/213 for failure output
-pytest_mark_xfail_windows_github_ci = pytest.mark.xfail(
-    sys.platform == "win32" and os.environ.get("GITHUB_ACTIONS", "").lower() == "true",
-    reason="git-annex adjusted branch fails on Windows GitHub CI runners",
-    strict=False,
-)
 
 # TODO: add ndx-events
 # TODO: add DynamicTable's in acquisition with *_time columns
