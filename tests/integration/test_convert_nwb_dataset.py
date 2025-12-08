@@ -1,5 +1,6 @@
 """Integration tests for the primary `convert_nwb_dataset` function."""
 
+import json
 import pathlib
 
 import pytest
@@ -44,6 +45,12 @@ def test_minimal_convert_nwb_dataset_from_directory(
     nwb2bids.testing.assert_subdirectory_structure(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
+
+    assert converter.run_config.notifications_json_file_path.exists()
+    with converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
+        notifications_json = json.load(fp=file_stream)
+    expected_notification_json = []
+    assert notifications_json == expected_notification_json
 
 
 def test_minimal_convert_nwb_dataset_from_file_path(

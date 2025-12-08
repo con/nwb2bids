@@ -26,9 +26,10 @@ def test_problematic_cli_error_messages(
         "(including #) are expressly forbidden.",
         "\t- Participant sex is not one of the allowed patterns by BIDS.",
         "",
-        "",
     ]
-    assert expected_message == result.stdout.decode(encoding="utf-8").splitlines()
+    actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
+    assert expected_message == actual_lines[:-2]
+    assert "Please review the full notifications report at" in actual_lines[-2]
     assert result.stderr == b""
 
 
@@ -41,7 +42,9 @@ def test_problematic_cli_critical_messages(
     assert result.returncode == 0
 
     expected_message = ["", "BIDS dataset was successfully created, but may not be valid!", ""]
-    assert expected_message == result.stdout.decode(encoding="utf-8").splitlines()
+    actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
+    assert expected_message == actual_lines[:-2]
+    assert "Please review the full notifications report at" in actual_lines[-2]
     assert result.stderr == b""
 
 
@@ -58,20 +61,22 @@ def test_problematic_cli_info_messages(
         "BIDS dataset was successfully created!",
         "1 suggestion for improvement was found during conversion.",
         "",
-        "",
     ]
-    assert expected_message == result.stdout.decode(encoding="utf-8").splitlines()
+    actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
+    assert expected_message == actual_lines[:-2]
+    assert "Please review the full notifications report at" in actual_lines[-2]
     assert result.stderr == b""
 
 
-def test_problematic_cli_success(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+def test_cli_success(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     command = f"nwb2bids convert {minimal_nwbfile_path} -o {temporary_bids_directory}"
 
     result = subprocess.run(args=command, shell=True, capture_output=True)
     assert result.returncode == 0
 
-    expected_message = ["", "BIDS dataset was successfully created!", "", ""]
-    assert expected_message == result.stdout.decode(encoding="utf-8").splitlines()
+    expected_message = ["", "BIDS dataset was successfully created!", ""]
+    actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
+    assert expected_message == actual_lines
     assert result.stderr == b""
 
 

@@ -1,3 +1,4 @@
+import datetime
 import pathlib
 import typing
 
@@ -5,8 +6,23 @@ import pydantic
 
 from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_nwb2bids_home_directory
-from .._core._run_id import _generate_run_id
 from .._core._validate_existing_bids import _validate_bids_directory
+
+
+def _generate_run_id() -> str:
+    """
+    Generate a unique run ID based on the current date and time.
+
+    Returns
+    -------
+    run_id : str
+        On each unique run of `nwb2bids`, a run ID is generated.
+        Set this option to override this to any identifying string.
+        This ID is used in the naming of the notification and sanitization reports saved to your cache directory.
+        The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
+    """
+    run_id = datetime.datetime.now().strftime("datetime-%Y%m%d%H%M%S")
+    return run_id
 
 
 class RunConfig(pydantic.BaseModel):
@@ -49,8 +65,7 @@ class RunConfig(pydantic.BaseModel):
         pydantic.DirectoryPath, pydantic.Field(default_factory=_get_nwb2bids_home_directory)
     ]
     run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
-    _parent_run_directory: pathlib.Path = pydantic.PrivateAttr()
-    _run_directory: pathlib.Path = pydantic.PrivateAttr()
+    _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 
     model_config = pydantic.ConfigDict(
         frozen=True,  # Make the model immutable
@@ -58,26 +73,18 @@ class RunConfig(pydantic.BaseModel):
     )
 
     def model_post_init(self, context: typing.Any, /) -> None:
-        self._parent_run_directory = self.cache_directory / "runs"
-        self._run_directory = self._parent_run_directory / self.run_id
-
-        # Ensure run directory and its parent exist
-        self._parent_run_directory.mkdir(exist_ok=True)
-        self._run_directory.mkdir(exist_ok=True)
-
-        self.notifications_file_path.touch()
-        self.notifications_json_file_path.touch()
+        self._nwb2bids_directory = self.bids_directory / ".nwb2bids"
 
     @pydantic.computed_field
     @property
     def notifications_file_path(self) -> pathlib.Path:
         """The file path leading to a human-readable notifications report."""
-        notifications_file_path = self._run_directory / f"{self.run_id}_notifications.txt"
+        notifications_file_path = self._nwb2bids_directory / f"{self.run_id}_notifications.txt"
         return notifications_file_path
 
     @pydantic.computed_field
     @property
     def notifications_json_file_path(self) -> pathlib.Path:
         """The file path leading to a JSON dump of the notifications."""
-        notifications_file_path = self._run_directory / f"{self.run_id}_notifications.json"
+        notifications_file_path = self._nwb2bids_directory / f"{self.run_id}_notifications.json"
         return notifications_file_path
