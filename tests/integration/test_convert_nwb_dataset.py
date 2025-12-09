@@ -94,7 +94,9 @@ def test_minimal_convert_nwb_dataset_from_file_path(
 def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     nwb_paths = [ecephys_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+
+    assert not any(converter.messages)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -134,11 +136,28 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
 
     probes_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.tsv"
     probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
-    expected_lines = [
+    expected_probe_tsv_lines = [
         "probe_name\ttype\tdescription\tmanufacturer",
         "ExampleProbe\tN/A\tThis is an example probe used for demonstration purposes.\t`nwb2bids.testing` module",
     ]
-    assert probes_tsv_lines == expected_lines
+    assert probes_tsv_lines == expected_probe_tsv_lines
+
+    electrode_tsv_file_path = (
+        temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
+    )
+    electrode_tsv_lines = electrode_tsv_file_path.read_text().splitlines()
+    expected_electrode_tsv_lines = [
+        "name\tprobe_name\themisphere\tx\ty\tz\timpedance\tshank_id\tlocation",
+        "e000\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
+        "e001\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
+        "e002\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
+        "e003\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
+        "e004\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
+        "e005\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
+        "e006\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
+        "e007\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
+    ]
+    assert electrode_tsv_lines == expected_electrode_tsv_lines
 
 
 # TODO: in follow-up, add test that checks if manufacturer column is dropped when empty
