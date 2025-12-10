@@ -48,9 +48,10 @@ jobs:
 
       - if: runner.os == 'macOS'
         name: Temporary (12/10/25) - install deno on mac
-        run: pip install deno
+        run: pip install -e ".[all]" --group dev-all deno
 
-      - name: Install all dependencies
+      - if: runner.os != 'macOS'
+        name: Install all dependencies
         run: pip install -e ".[all]" --group dev-all
 
       - if: ${{ inputs.pytest_markexpr == 'remote' }}
