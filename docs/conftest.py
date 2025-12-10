@@ -27,7 +27,7 @@ def sybil_setup(namespace):
 
     NOTE: This runs once per document, not per code block. If multiple examples
     in the same document write to the same output directory, they will conflict.
-    Use distinct output directories (e.g., bids_dataset_cli, bids_dataset_py).
+    Use distinct output directories (e.g., bids_dataset_cli_1, bids_dataset_py_1).
     """
     tutorial_base = pathlib.Path.home() / "nwb2bids_tutorials"
     if tutorial_base.exists():
@@ -57,6 +57,6 @@ pytest_collect_file = Sybil(
         CodeBlockParser(language="bash", evaluator=bash_evaluator),
         PythonCodeBlockParser(),
     ],
-    patterns=["tutorial_1.rst"],  # POC: just tutorial 1
+    patterns=["tutorials.rst"],
     setup=sybil_setup,
 ).pytest()
