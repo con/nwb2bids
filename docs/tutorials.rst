@@ -159,26 +159,92 @@ To convert a single NWB file to BIDS dataset structure, we run the following com
 
             cd ~/nwb2bids_tutorials/ephys_tutorial_file
 
-            nwb2bids convert ephys.nwb --bids-directory bids_dataset_1
+            nwb2bids convert ephys.nwb --bids-directory bids_dataset_cli_1
 
     .. tab:: Python Library
 
         .. code-block:: python
 
-            >>> import pathlib
-            >>>
-            >>> import nwb2bids
-            >>>
-            >>> tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
-            >>> nwb_paths = [tutorial_directory / "ephys.nwb"]
-            >>> bids_directory = tutorial_directory / "bids_dataset_1"
-            >>> bids_directory.mkdir(exist_ok=True)
-            >>>
-            >>> run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
-            >>> converter = nwb2bids.convert_nwb_dataset(
-            ...     nwb_paths=nwb_paths,
-            ...     run_config=run_config,
-            ... )
+            import pathlib
+
+            import nwb2bids
+
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
+            nwb_paths = [tutorial_directory / "ephys.nwb"]
+            bids_directory = tutorial_directory / "bids_dataset_py_1"
+            bids_directory.mkdir(exist_ok=True)
+
+            run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
+            converter = nwb2bids.convert_nwb_dataset(
+                nwb_paths=nwb_paths,
+                run_config=run_config,
+            )
+
+.. invisible-code-block: python
+
+    # Assertions for CLI
+    bids_dir = tutorial_base / "ephys_tutorial_file/bids_dataset_cli_1"
+    expected_structure = {
+        bids_dir: {
+            "directories": {"sub-001"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        bids_dir / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        bids_dir / "sub-001" / "ses-A": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        bids_dir / "sub-001" / "ses-A" / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=bids_dir, expected_structure=expected_structure
+    )
+
+    # Assertions for Python
+    bids_dir = tutorial_base / "ephys_tutorial_file/bids_dataset_py_1"
+    expected_structure = {
+        bids_dir: {
+            "directories": {"sub-001"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        bids_dir / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        bids_dir / "sub-001" / "ses-A": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        bids_dir / "sub-001" / "ses-A" / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=bids_dir, expected_structure=expected_structure
+    )
 
 Notice how we explicitly specified the output BIDS directory in the previous step. We will cover the implicit
 (current working directory) approach in  :ref:`tutorial-implicit-bids-directory`.
@@ -188,7 +254,7 @@ along the lines of:
 
 .. code-block:: text
 
-    ephys_tutorial_file/bids_dataset_1/
+    ephys_tutorial_file/bids_dataset_[cli|py]_1/
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
