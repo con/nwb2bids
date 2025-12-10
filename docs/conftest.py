@@ -29,7 +29,7 @@ def sybil_setup(namespace):
     in the same document write to the same output directory, they will conflict.
     Use distinct output directories (e.g., bids_dataset_cli_1, bids_dataset_py_1).
     """
-    tutorial_base = pathlib.Path.home() / "nwb2bids_tutorials"
+    tutorial_base = nwb2bids.testing.get_tutorial_directory()
     if tutorial_base.exists():
         shutil.rmtree(tutorial_base)
 
@@ -46,10 +46,11 @@ def sybil_setup(namespace):
         }
     }))
 
-    # Make common imports available
+    # Make common imports and paths available
     namespace["Path"] = pathlib.Path
     namespace["pathlib"] = pathlib
     namespace["nwb2bids"] = nwb2bids
+    namespace["tutorial_base"] = tutorial_base
 
 
 pytest_collect_file = Sybil(
