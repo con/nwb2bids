@@ -59,6 +59,8 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
                 "sub-YutaMouse20_ses-YutaMouse20-140321_electrodes.tsv",
                 "sub-YutaMouse20_ses-YutaMouse20-140321_probes.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140321_probes.tsv",
+                "sub-YutaMouse20_ses-YutaMouse20-140321_events.json",
+                "sub-YutaMouse20_ses-YutaMouse20-140321_events.tsv",
             },
         },
         temporary_bids_directory
@@ -74,6 +76,8 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
                 "sub-YutaMouse20_ses-YutaMouse20-140327_electrodes.tsv",
                 "sub-YutaMouse20_ses-YutaMouse20-140327_probes.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140327_probes.tsv",
+                "sub-YutaMouse20_ses-YutaMouse20-140327_events.json",
+                "sub-YutaMouse20_ses-YutaMouse20-140327_events.tsv",
             },
         },
     }

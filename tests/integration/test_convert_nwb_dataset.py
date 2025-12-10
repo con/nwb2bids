@@ -164,15 +164,15 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
-        "channel_name\treference\ttype\tunit\tsampling_frequency\tstream_id\t" "hardware_filters\tgain",
-        "ch0\te0\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t" "3.02734375e-06",
-        "ch1\te1\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t" "3.02734375e-06",
-        "ch2\te2\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t" "3.02734375e-06",
-        "ch3\te3\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t" "3.02734375e-06",
-        "ch4\te4\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t" "3.02734375e-06",
-        "ch5\te5\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t" "3.02734375e-06",
-        "ch6\te6\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t" "3.02734375e-06",
-        "ch7\te7\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t" "3.02734375e-06",
+        "channel_name\treference\ttype\tunit\tsampling_frequency\tstream_id\thardware_filters\tgain",
+        "ch0\te0\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "ch1\te1\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "ch2\te2\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "ch3\te3\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "ch4\te4\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "ch5\te5\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "ch6\te6\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "ch7\te7\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
     ]
     assert channels_tsv_lines == expected_channels_tsv_lines
 
@@ -250,15 +250,15 @@ def test_ecephys_minimal_convert_nwb_dataset(
     channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
-        "channel_name\treference\ttype\tunit\thardware_filters\tsoftware_filters",
-        "ch0\te0\tN/A\tV\tN/A\tN/A",
-        "ch1\te1\tN/A\tV\tN/A\tN/A",
-        "ch2\te2\tN/A\tV\tN/A\tN/A",
-        "ch3\te3\tN/A\tV\tN/A\tN/A",
-        "ch4\te4\tN/A\tV\tN/A\tN/A",
-        "ch5\te5\tN/A\tV\tN/A\tN/A",
-        "ch6\te6\tN/A\tV\tN/A\tN/A",
-        "ch7\te7\tN/A\tV\tN/A\tN/A",
+        "channel_name\treference\ttype\tunit",
+        "ch0\te0\tN/A\tV",
+        "ch1\te1\tN/A\tV",
+        "ch2\te2\tN/A\tV",
+        "ch3\te3\tN/A\tV",
+        "ch4\te4\tN/A\tV",
+        "ch5\te5\tN/A\tV",
+        "ch6\te6\tN/A\tV",
+        "ch7\te7\tN/A\tV",
     ]
     assert channels_tsv_lines == expected_channels_tsv_lines
 

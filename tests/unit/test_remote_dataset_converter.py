@@ -61,7 +61,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
         sex=None,
         strain=None,
     )
-    assert session_metadata.events is None
+    assert session_metadata.events is not None
 
     assert session_metadata.probe_table == nwb2bids.bids_models.ProbeTable(
         probes=[
@@ -78,8 +78,11 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
         reference="e0",
         type="N/A",
         unit="V",
+        sampling_frequency=1250.0,
+        stream_id="LFP",
         hardware_filters="none",
         software_filters="N/A",
+        gain=1.9499999999999999e-07,
     )
 
     assert session_metadata.electrode_table is not None

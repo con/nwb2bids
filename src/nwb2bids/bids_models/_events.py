@@ -118,10 +118,6 @@ def _get_all_time_intervals(
         for neurodata_object in nwbfile.objects.values()
         if isinstance(neurodata_object, pynwb.epoch.TimeIntervals)
     ]
-    if nwbfile.trials is not None:
-        time_intervals.append(nwbfile.trials)
-    if nwbfile.epochs is not None:
-        time_intervals.append(nwbfile.epochs)
 
     if len(time_intervals) == 0:
         return None
