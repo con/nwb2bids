@@ -55,15 +55,8 @@ class ChannelTable(BaseMetadataContainerModel):
             raise NotImplementedError(message)
         nwbfile = nwbfiles[0]
 
-        if nwbfile.electrodes is None:
+        if not nwbfile.electrodes:
             return None
-
-        if len(nwbfile.electrodes) == 0:
-            message = (
-                "The NWB file contains an electrodes table, but it is empty. "
-                "Please raise an issue on https://github.com/con/nwb2bids/issues to discuss."
-            )
-            raise NotImplementedError(message)
 
         # Only scan electrical series listed under acquisition since those under processing can downsample the rate
         sampling_frequency = None

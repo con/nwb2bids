@@ -129,9 +129,8 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.nwb",
-                # TODO: in follow-up, fix the bug preventing electrodes and probes files from being created
-                # "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_electrodes.json",
-                # "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_electrodes.tsv",
+                "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_electrodes.json",
+                "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_electrodes.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_probes.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_probes.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_events.json",
@@ -191,9 +190,8 @@ def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.nwb",
-                # TODO: in follow-up, fix the bug preventing electrodes and probes files from being created
-                # "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_electrodes.json",
-                # "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_electrodes.tsv",
+                "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_electrodes.json",
+                "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_electrodes.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_probes.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_probes.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_events.json",
