@@ -1,3 +1,4 @@
+import itertools
 import pathlib
 import typing
 
@@ -26,28 +27,55 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
     )
     nwbfile.subject = subject
 
-    probe = pynwb.testing.mock.ecephys.mock_Device(
-        name="ExampleProbe",
+    probe1 = pynwb.testing.mock.ecephys.mock_Device(
+        name="probe01",
         description="This is an example probe used for demonstration purposes.",
-        manufacturer="`nwb2bids.testing` module",
+        manufacturer="IMEC",
         nwbfile=nwbfile,
     )
-    shank = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
-        name="ExampleShank",
+    probe2 = pynwb.testing.mock.ecephys.mock_Device(
+        name="probe02",
+        description="This is an example probe used for demonstration purposes.",
+        manufacturer="Neuralynx",
+        nwbfile=nwbfile,
+    )
+    shank1 = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
+        name="ExampleShank1",
         description="This is an example electrode group (shank) used for demonstration purposes.",
-        location="hippocampus",
-        device=probe,
+        location="left MOp",
+        device=probe1,
+        position=(1000, 2000, 3000),
+        nwbfile=nwbfile,
+    )
+    shank2 = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
+        name="ExampleShank2",
+        description="This is an example electrode group (shank) used for demonstration purposes.",
+        location="right CA1",
+        device=probe2,
+        position=(3000, 4000, 5000),
         nwbfile=nwbfile,
     )
 
-    number_of_electrodes = 8
-    for index in range(number_of_electrodes):
-        nwbfile.add_electrode(imp=150_000.0, location="hippocampus", group=shank)
-    electrodes = nwbfile.create_electrode_table_region(
-        region=list(range(number_of_electrodes)),
-        description="A `DynamicTableRegion` referring to all electrodes in this file.",
-    )
+    # Chosen to be as close as possible to BIDS specification examples
+    electrode_properties_probe1 = [
+        {"imp": 1, "location": "left MOp", "group": shank1},
+        {"imp": 2, "location": "left MOp", "group": shank1},
+        {"imp": 3, "location": "left MOp", "group": shank1},
+        {"imp": 4, "location": "left MOp", "group": shank1},
+    ]
+    electrode_properties_probe2 = [
+        {"imp": 1, "location": "right CA1", "group": shank2},
+        {"imp": 2, "location": "right CA1", "group": shank2},
+        {"imp": 3, "location": "right CA1", "group": shank2},
+        {"imp": 4, "location": "right CA1", "group": shank2},
+    ]
+    for electrode_kwargs in itertools.chain(electrode_properties_probe1, electrode_properties_probe2):
+        nwbfile.add_electrode(**electrode_kwargs)
 
+    electrodes = nwbfile.create_electrode_table_region(
+        region=list(range(len(electrode_properties_probe1))),
+        description="A `DynamicTableRegion` referring to the electrodes of probe01.",
+    )
     pynwb.testing.mock.ecephys.mock_ElectricalSeries(
         name="ExampleElectricalSeries",
         description=(
