@@ -91,8 +91,10 @@ def test_minimal_convert_nwb_dataset_from_file_path(
     )
 
 
-def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    nwb_paths = [ecephys_nwbfile_path]
+def test_ecephys_tutorial_convert_nwb_dataset(
+    ecephys_tutorial_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [ecephys_tutorial_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
@@ -162,17 +164,101 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
     channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
-        "channel_name\treference\ttype\tunit\tsampling_frequency\tchannel_label\t"
-        "stream_id\tdescription\thardware_filters\tsoftware_filters\tstatus\t"
-        "status_description\tgain\ttime_offset\ttime_reference_channels\tground",
-        "ch0\t0\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
-        "ch1\t1\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
-        "ch2\t2\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
-        "ch3\t3\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
-        "ch4\t4\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
-        "ch5\t5\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
-        "ch6\t6\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
-        "ch7\t7\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+        "channel_name\treference\ttype\tunit\thardware_filters\tsoftware_filters",
+        "ch0\te0\tN/A\tV\tHighpassFilter\tN/A",
+        "ch1\te1\tN/A\tV\tHighpassFilter\tN/A",
+        "ch2\te2\tN/A\tV\tHighpassFilter\tN/A",
+        "ch3\te3\tN/A\tV\tHighpassFilter\tN/A",
+        "ch4\te4\tN/A\tV\tHighpassFilter\tN/A",
+        "ch5\te5\tN/A\tV\tHighpassFilter\tN/A",
+        "ch6\te6\tN/A\tV\tHighpassFilter\tN/A",
+        "ch7\te7\tN/A\tV\tHighpassFilter\tN/A",
+    ]
+    assert channels_tsv_lines == expected_channels_tsv_lines
+
+
+def test_ecephys_minimal_convert_nwb_dataset(
+    ecephys_minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    nwb_paths = [ecephys_minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+
+    assert not any(converter.messages)
+
+    expected_structure = {
+        temporary_bids_directory: {
+            "directories": {"sub-001"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A"
+        / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
+
+    probes_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.tsv"
+    probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
+    expected_probe_tsv_lines = [
+        "probe_name\ttype\tdescription",
+        "ExampleProbe\tN/A\tThis is an example probe used for demonstration purposes.",
+    ]
+    assert probes_tsv_lines == expected_probe_tsv_lines
+
+    electrodes_tsv_file_path = (
+        temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
+    )
+    electrodes_tsv_lines = electrodes_tsv_file_path.read_text().splitlines()
+    expected_electrodes_tsv_lines = [
+        "name\tprobe_name\themisphere\tx\ty\tz\timpedance\tshank_id\tlocation",
+        "e000\tExampleProbe\tN/A\tN/A\tN/A\tN/A\tN/A\tExampleShank\tunknown",
+        "e001\tExampleProbe\tN/A\tN/A\tN/A\tN/A\tN/A\tExampleShank\tunknown",
+        "e002\tExampleProbe\tN/A\tN/A\tN/A\tN/A\tN/A\tExampleShank\tunknown",
+        "e003\tExampleProbe\tN/A\tN/A\tN/A\tN/A\tN/A\tExampleShank\tunknown",
+        "e004\tExampleProbe\tN/A\tN/A\tN/A\tN/A\tN/A\tExampleShank\tunknown",
+        "e005\tExampleProbe\tN/A\tN/A\tN/A\tN/A\tN/A\tExampleShank\tunknown",
+        "e006\tExampleProbe\tN/A\tN/A\tN/A\tN/A\tN/A\tExampleShank\tunknown",
+        "e007\tExampleProbe\tN/A\tN/A\tN/A\tN/A\tN/A\tExampleShank\tunknown",
+    ]
+    assert electrodes_tsv_lines == expected_electrodes_tsv_lines
+
+    channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
+    channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
+    expected_channels_tsv_lines = [
+        "channel_name\treference\ttype\tunit\thardware_filters\tsoftware_filters",
+        "ch0\te0\tN/A\tV\tN/A\tN/A",
+        "ch1\te1\tN/A\tV\tN/A\tN/A",
+        "ch2\te2\tN/A\tV\tN/A\tN/A",
+        "ch3\te3\tN/A\tV\tN/A\tN/A",
+        "ch4\te4\tN/A\tV\tN/A\tN/A",
+        "ch5\te5\tN/A\tV\tN/A\tN/A",
+        "ch6\te6\tN/A\tV\tN/A\tN/A",
+        "ch7\te7\tN/A\tV\tN/A\tN/A",
     ]
     assert channels_tsv_lines == expected_channels_tsv_lines
 

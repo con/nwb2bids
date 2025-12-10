@@ -103,9 +103,9 @@ class ChannelTable(BaseMetadataContainerModel):
                     else f"ch{electrode.index[0]}"
                 ),
                 reference=(
-                    str(contact_ids.values[0])
+                    f"contact{contact_ids.values[0]}"  # TODO: do a deep dive into edge cases of this reference
                     if (contact_ids := electrode.get("contact_ids", None)) is not None
-                    else str(electrode.index[0])
+                    else f"e{electrode.index[0]}"
                 ),
                 type="N/A",  # TODO: in dedicated follow-up, could classify LFP based on container
                 unit="V",
@@ -145,6 +145,7 @@ class ChannelTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
+        data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call

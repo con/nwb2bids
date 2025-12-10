@@ -16,7 +16,9 @@ def get_tutorial_directory() -> pathlib.Path:
 def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001", session_id: str = "A") -> None:
     nwbfile = pynwb.testing.mock.file.mock_NWBFile(
         session_id=session_id,
-        session_description="An example NWB file containing ephys neurodata types - for use in the nwb2bids tutorials.",
+        session_description=(
+            "An example NWB file containing ecephys neurodata types - for use in the nwb2bids tutorials."
+        ),
     )
 
     subject = pynwb.file.Subject(
