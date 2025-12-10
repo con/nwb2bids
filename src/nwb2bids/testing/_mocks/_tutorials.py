@@ -59,6 +59,7 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
         electrodes=electrodes,
         rate=30_000.0,
         nwbfile=nwbfile,
+        conversion=0.00000302734375,
     )
 
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:

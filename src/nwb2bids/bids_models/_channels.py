@@ -64,7 +64,7 @@ class ChannelTable(BaseMetadataContainerModel):
         gain = None
         raw_electrical_series = [
             neurodata_object
-            for neurodata_object in nwbfile.acquisition
+            for neurodata_object in nwbfile.objects.values()
             if isinstance(neurodata_object, pynwb.ecephys.ElectricalSeries)
         ]
         if len(raw_electrical_series) > 1:
@@ -138,6 +138,10 @@ class ChannelTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
+        columns_to_drop = [  # Special rule for non-required fields that autopopulate with "N/A"
+            column for column in ["hardware_filters", "software_filters"] if (data_frame[column] == "N/A").all()
+        ]
+        data_frame = data_frame.drop(columns=columns_to_drop)
         data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
