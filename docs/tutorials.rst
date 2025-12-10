@@ -35,9 +35,9 @@ an example file by running:
 
         .. code-block:: python
 
-            >>> import nwb2bids
-            >>>
-            >>> tutorial_file = nwb2bids.testing.generate_ephys_tutorial(mode="file")
+            import nwb2bids
+
+            tutorial_file = nwb2bids.testing.generate_ephys_tutorial(mode="file")
 
 
 This created an NWB file with contents typical of an extracellular electrophysiology experiment in your home
@@ -88,11 +88,11 @@ In case you don't have an entire experiment's worth of NWB files, you can genera
 
         .. code-block:: python
 
-            >>> import nwb2bids
-            >>>
-            >>> tutorial_directory = nwb2bids.testing.generate_ephys_tutorial(
-            ...     mode="dataset"
-            ... )
+            import nwb2bids
+
+            tutorial_directory = nwb2bids.testing.generate_ephys_tutorial(
+                mode="dataset"
+            )
 
         .. tip::
 
@@ -136,12 +136,12 @@ Now we should have a directory that looks something like:
 
             .. code-block:: python
 
-                >>> import nwb2bids
-                >>>
-                >>> tutorial_directory = nwb2bids.testing.generate_ephys_tutorial(
-                ...     mode="file",
-                ...     output_directory=path_to_some_directory,
-                ... )
+                import nwb2bids
+
+                tutorial_directory = nwb2bids.testing.generate_ephys_tutorial(
+                    mode="file",
+                    output_directory=path_to_some_directory,
+                )
 
 
 
@@ -293,20 +293,20 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
 
         .. code-block:: python
 
-            >>> import pathlib
-            >>>
-            >>> import nwb2bids
-            >>>
-            >>> tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
-            >>> nwb_paths = [tutorial_directory / "some_sessions"]
-            >>> bids_directory = tutorial_directory / "bids_dataset_2"
-            >>> bids_directory.mkdir(exist_ok=True)
-            >>>
-            >>> run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
-            >>> converter = nwb2bids.convert_nwb_dataset(
-            ...     nwb_paths=nwb_paths,
-            ...     run_config=run_config,
-            ... )
+            import pathlib
+
+            import nwb2bids
+
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
+            nwb_paths = [tutorial_directory / "some_sessions"]
+            bids_directory = tutorial_directory / "bids_dataset_2"
+            bids_directory.mkdir(exist_ok=True)
+
+            run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
+            converter = nwb2bids.convert_nwb_dataset(
+                nwb_paths=nwb_paths,
+                run_config=run_config,
+            )
 
 And our BIDS dataset should look like:
 
@@ -398,23 +398,23 @@ We can select which files and directories to convert like so:
 
         .. code-block:: python
 
-            >>> import pathlib
-            >>>
-            >>> import nwb2bids
-            >>>
-            >>> tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
-            >>> nwb_paths = [
-            ...     tutorial_directory / "ephys_session_3.nwb",
-            ...     tutorial_directory / "some_sessions",
-            ... ]
-            >>> bids_directory = tutorial_directory / "bids_dataset_3"
-            >>> bids_directory.mkdir(exist_ok=True)
-            >>>
-            >>> run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
-            >>> converter = nwb2bids.convert_nwb_dataset(
-            ...     nwb_paths=nwb_paths,
-            ...     run_config=run_config,
-            ... )
+            import pathlib
+
+            import nwb2bids
+
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
+            nwb_paths = [
+                tutorial_directory / "ephys_session_3.nwb",
+                tutorial_directory / "some_sessions",
+            ]
+            bids_directory = tutorial_directory / "bids_dataset_3"
+            bids_directory.mkdir(exist_ok=True)
+
+            run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
+            converter = nwb2bids.convert_nwb_dataset(
+                nwb_paths=nwb_paths,
+                run_config=run_config,
+            )
 
 Our resulting BIDS dataset should now contain all three NWB files converted to BIDS:
 
@@ -489,21 +489,21 @@ To test this out, we can create a new empty directory and navigate into it befor
 
         .. code-block:: python
 
-            >>> import os
-            >>> import pathlib
-            >>>
-            >>> import nwb2bids
-            >>>
-            >>> tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
-            >>> nwb_paths = [
-            ...     tutorial_directory / "ephys_session_3.nwb",
-            ...     tutorial_directory / "some_sessions",
-            ... ]
-            >>> bids_directory = tutorial_directory / "bids_dataset_4"
-            >>> bids_directory.mkdir(exist_ok=True)
-            >>> os.chdir(path=bids_directory)
-            >>>
-            >>> converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+            import os
+            import pathlib
+
+            import nwb2bids
+
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
+            nwb_paths = [
+                tutorial_directory / "ephys_session_3.nwb",
+                tutorial_directory / "some_sessions",
+            ]
+            bids_directory = tutorial_directory / "bids_dataset_4"
+            bids_directory.mkdir(exist_ok=True)
+            os.chdir(path=bids_directory)
+
+            converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
 
 
 And the results should match what we saw at the end of :ref:`tutorial-multiple-inputs`, except that we operated
@@ -569,24 +569,24 @@ To include this additional metadata during conversion, we can use the following 
 
         .. code-block:: python
 
-            >>> import pathlib
-            >>>
-            >>> import nwb2bids
-            >>>
-            >>> tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
-            >>> nwb_paths = [tutorial_directory / "ephys.nwb"]
-            >>> bids_directory = tutorial_directory / "bids_dataset_5"
-            >>> bids_directory.mkdir(exist_ok=True)
-            >>> additional_metadata_file_path = tutorial_directory / "metadata.json"
-            >>>
-            >>> run_config = nwb2bids.RunConfig(
-            ...     bids_directory=bids_directory,
-            ...     additional_metadata_file_path=additional_metadata_file_path,
-            ... )
-            >>> converter = nwb2bids.convert_nwb_dataset(
-            ...     nwb_paths=nwb_paths,
-            ...     run_config=run_config,
-            ... )
+            import pathlib
+
+            import nwb2bids
+
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
+            nwb_paths = [tutorial_directory / "ephys.nwb"]
+            bids_directory = tutorial_directory / "bids_dataset_5"
+            bids_directory.mkdir(exist_ok=True)
+            additional_metadata_file_path = tutorial_directory / "metadata.json"
+
+            run_config = nwb2bids.RunConfig(
+                bids_directory=bids_directory,
+                additional_metadata_file_path=additional_metadata_file_path,
+            )
+            converter = nwb2bids.convert_nwb_dataset(
+                nwb_paths=nwb_paths,
+                run_config=run_config,
+            )
 
 Our resulting bids `dataset_description.json` now includes our additional metadata!
 
@@ -603,30 +603,30 @@ broken down into the following distinct steps:
 
 .. code-block:: python
 
-    >>> import pathlib
-    >>> import nwb2bids
-    >>>
-    >>> tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
-    >>> nwb_paths = [tutorial_directory / "ephys.nwb"]
-    >>> bids_directory = tutorial_directory / "bids_dataset_6"
-    >>> bids_directory.mkdir(exist_ok=True)
-    >>> additional_metadata_file_path = tutorial_directory / "metadata.json"
-    >>>
-    >>> # Step 1: Initialize the DatasetConverter object
-    >>> run_config = nwb2bids.RunConfig(
-    ...     bids_directory=bids_directory,
-    ...     additional_metadata_file_path=additional_metadata_file_path,
-    ... )
-    >>> converter = nwb2bids.DatasetConverter.from_nwb_paths(
-    ...     nwb_paths=nwb_paths,
-    ...     run_config=run_config,
-    ... )
-    >>>
-    >>> # Step 2: Extract metadata from NWB contents
-    >>> converter.extract_metadata()
-    >>>
-    >>> # Step 3: Convert NWB files to BIDS structure
-    >>> converter.convert_to_bids_dataset()
+    import pathlib
+    import nwb2bids
+
+    tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
+    nwb_paths = [tutorial_directory / "ephys.nwb"]
+    bids_directory = tutorial_directory / "bids_dataset_6"
+    bids_directory.mkdir(exist_ok=True)
+    additional_metadata_file_path = tutorial_directory / "metadata.json"
+
+    # Step 1: Initialize the DatasetConverter object
+    run_config = nwb2bids.RunConfig(
+        bids_directory=bids_directory,
+        additional_metadata_file_path=additional_metadata_file_path,
+    )
+    converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=nwb_paths,
+        run_config=run_config,
+    )
+
+    # Step 2: Extract metadata from NWB contents
+    converter.extract_metadata()
+
+    # Step 3: Convert NWB files to BIDS structure
+    converter.convert_to_bids_dataset()
 
 The ``converter`` object (a type of :class:`~nwb2bids.DatasetConverter`) exposes many useful attributes and methods
 that may useful to explore. In particular, it contains all of the :class:`~nwb2bids.SessionConverter` objects that were
