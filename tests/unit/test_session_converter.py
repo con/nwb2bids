@@ -33,9 +33,11 @@ def test_session_converter_file_path_initialization(
 
 
 def test_session_converter_both_file_and_directory_initialization(
-    minimal_nwbfile_path: pathlib.Path, ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+    minimal_nwbfile_path: pathlib.Path,
+    ecephys_tutorial_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
 ):
-    nwb_paths = [minimal_nwbfile_path.parent, ecephys_nwbfile_path]
+    nwb_paths = [minimal_nwbfile_path.parent, ecephys_tutorial_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
 
@@ -75,9 +77,9 @@ def test_session_converter_metadata_extraction(
 
 
 def test_session_converter_write_ecephys_metadata(
-    ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+    ecephys_tutorial_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    nwb_paths = [ecephys_nwbfile_path]
+    nwb_paths = [ecephys_tutorial_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     session_converter = session_converters[0]

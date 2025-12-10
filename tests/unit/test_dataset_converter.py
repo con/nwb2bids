@@ -36,9 +36,11 @@ def test_dataset_converter_file_paths_initialization(
 
 
 def test_dataset_converter_both_file_and_directory_initialization(
-    minimal_nwbfile_path: pathlib.Path, ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+    minimal_nwbfile_path: pathlib.Path,
+    ecephys_tutorial_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
 ):
-    nwb_paths = [minimal_nwbfile_path.parent, ecephys_nwbfile_path]
+    nwb_paths = [minimal_nwbfile_path.parent, ecephys_tutorial_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
 
