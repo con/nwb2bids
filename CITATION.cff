@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "nwb2bids"
+abstract: "Reorganize NWB files into a BIDS directory layout."
+type: software
+license: MIT
+url: "https://nwb2bids.readthedocs.io"
+repository-code: "https://github.com/con/nwb2bids"
+keywords:
+  - BIDS
+  - Brain Imaging Data Structure
+  - NWB
+  - NeurodataWithoutBorders
+  - DANDI Archive
+  - neurodata
+  - neuroscience
+  - data standards
+  - data organization
+authors:
+  - family-names: Baker
+    given-names: Cody
+    email: cody.c.baker.phd@gmail.com
+    orcid: "https://orcid.org/0000-0002-0829-4790"
+    affiliation: "Center for Open Neuroscience, Dartmouth College, Hanover, NH, USA"
+  - family-names: To
+    given-names: Isaac
+    orcid: "https://orcid.org/0000-0002-4740-0824"
+    affiliation: "Center for Open Neuroscience, Dartmouth College, Hanover, NH, USA"
+  - family-names: Macdonald
+    given-names: Austin
+    orcid: "https://orcid.org/0000-0002-8124-807X"
+    affiliation: "Center for Open Neuroscience, Dartmouth College, Hanover, NH, USA"
+  - family-names: Halchenko
+    given-names: Yaroslav
+    orcid: "https://orcid.org/0000-0003-3456-2493"
+    affiliation: "Center for Open Neuroscience, Dartmouth College, Hanover, NH, USA"
