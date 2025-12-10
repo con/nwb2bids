@@ -179,20 +179,7 @@ def ecephys_minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathl
     for index in range(number_of_electrodes):
         nwbfile.add_electrode(location="unknown", group=shank)
 
-    electrodes = nwbfile.create_electrode_table_region(
-        region=list(range(number_of_electrodes)),
-        description="A `DynamicTableRegion` referring to all electrodes in this file.",
-    )
-    pynwb.testing.mock.ecephys.mock_ElectricalSeries(
-        name="ExampleElectricalSeries",
-        description=(
-            "An example electrical series that represents data which could have been "
-            "read off of the channels of an ecephys probe."
-        ),
-        electrodes=electrodes,
-        rate=30_000.0,
-        nwbfile=nwbfile,
-    )
+    # Not even including an ElectricalSeries - just metadata
 
     ecephys_subdirectory = testing_files_directory / "ecephys"
     ecephys_subdirectory.mkdir(exist_ok=True)
