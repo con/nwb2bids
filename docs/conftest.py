@@ -5,7 +5,7 @@ import shutil
 import subprocess
 
 from sybil import Sybil
-from sybil.parsers.rest import CodeBlockParser, PythonCodeBlockParser
+from sybil.parsers.rest import CodeBlockParser, PythonCodeBlockParser, SkipParser
 
 import nwb2bids
 
@@ -55,6 +55,7 @@ def sybil_setup(namespace):
 
 pytest_collect_file = Sybil(
     parsers=[
+        SkipParser(),
         CodeBlockParser(language="bash", evaluator=bash_evaluator),
         PythonCodeBlockParser(),
     ],
