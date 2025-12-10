@@ -1,6 +1,7 @@
 import json
 import pathlib
 import typing
+import warnings
 
 import pandas
 import pydantic
@@ -12,12 +13,23 @@ from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseM
 
 
 class Channel(BaseMetadataModel):
-    channel_id: str
-    electrode_id: str
-    type: typing.Literal["EXT"] = "EXT"  # TODO
-    unit: typing.Literal["V"] = "V"
+    channel_name: str
+    reference: str
+    type: str = "N/A"
+    unit: str = "V"
     sampling_frequency: float | None = None
+    channel_label: str | None = None
+    stream_id: str | None = None
+    description: str | None = None
+    hardware_filters: str = "N/A"
+    software_filters: str = "N/A"
+    status: typing.Literal["good", "bad"] | None = None
+    status_description: str | None = None
     gain: float | None = None
+    time_offset: float | None = None
+    time_reference_channels: str | None = None
+    ground: str | None = None
+    # recording_mode: str | None = None  # TODO: icephys only
 
 
 class ChannelTable(BaseMetadataContainerModel):
@@ -43,59 +55,68 @@ class ChannelTable(BaseMetadataContainerModel):
             raise NotImplementedError(message)
         nwbfile = nwbfiles[0]
 
-        if nwbfile.electrodes is None:
+        if not nwbfile.electrodes:
             return None
 
-        if len(nwbfile.electrodes) == 0:
-            message = (
-                "The NWB file contains an electrodes table, but it is empty. "
-                "Please raise an issue on https://github.com/con/nwb2bids/issues to discuss."
-            )
-            raise NotImplementedError(message)
-
         # Only scan electrical series listed under acquisition since those under processing can downsample the rate
+        sampling_frequency = None
+        stream_id = None
+        gain = None
         raw_electrical_series = [
             neurodata_object
-            for neurodata_object in nwbfile.acquisition
+            for neurodata_object in nwbfile.objects.values()
             if isinstance(neurodata_object, pynwb.ecephys.ElectricalSeries)
         ]
         if len(raw_electrical_series) > 1:
             # TODO: form a map of electrode to rate/gate based on ElectricalSeries linkage
             message = (
-                "Support for automatic extraction of rates/gains from multiple ElectricalSeries is not yet implemented."
+                "Support for automatic extraction of rates/gains from multiple ElectricalSeries is not yet "
+                "implemented. Skipping `sampling_frequency`, `stream_id`, and `gain` extraction."
             )
-            raise NotImplementedError(message)
+            warnings.warn(message=message, stacklevel=2)
 
-        sampling_frequency = None
-        gain = None
         if len(raw_electrical_series) == 1:
             electrical_series = raw_electrical_series[0]
             if electrical_series.rate is None:
                 message = (
-                    "Support for automatic extraction of rate from ElectricalSeries with "
-                    "timestamps is not yet implemented."
+                    "Support for automatic extraction of rate from ElectricalSeries with timestamps "
+                    "is not yet implemented. Skipping `sampling_frequency`, `stream_id`, and `gain` extraction."
                 )
-                raise NotImplementedError(message)
+                warnings.warn(message=message, stacklevel=2)
 
             sampling_frequency = electrical_series.rate
+            stream_id = electrical_series.name
             gain = electrical_series.conversion
 
         channels = [
             Channel(
-                channel_id=(
-                    str(channel_name.values[0])
+                channel_name=(
+                    f"ch{channel_name.values[0]}"
                     if (channel_name := electrode.get("channel_name", None)) is not None
-                    else str(electrode.index[0])
+                    else f"ch{electrode.index[0]}"
                 ),
-                electrode_id=(
-                    str(contact_ids.values[0])
+                reference=(
+                    f"contact{contact_ids.values[0]}"  # TODO: do a deep dive into edge cases of this reference
                     if (contact_ids := electrode.get("contact_ids", None)) is not None
-                    else str(electrode.index[0])
+                    else f"e{electrode.index[0]}"
                 ),
-                type="EXT",
+                type="N/A",  # TODO: in dedicated follow-up, could classify LFP based on container
                 unit="V",
                 sampling_frequency=sampling_frequency,
+                # channel_label: str | None = None # TODO: only support with additional metadata
+                stream_id=stream_id,
+                # description: str | None = None  # TODO: only support with additional metadata
+                hardware_filters=(
+                    filter.values[0] if (filter := electrode.get("filtering", None)) is not None else "N/A"
+                ),
+                # software_filters: str = "N/A" # TODO: only support with additional metadata
+                # status: typing.Literal["good", "bad"] | None = None # TODO: only support with additional metadata
+                # status_description: str | None = None # TODO: only support with additional metadata
                 gain=gain,
+                # Special extraction from SpikeInterface field
+                time_offset=shift[0] if (shift := electrode.get("inter_sample_shift", None)) is not None else None,
+                # time_reference_channels: str | None = None # TODO: only support with additional metadata
+                # ground: str | None = None # TODO: only support with additional metadata
             )
             for electrode in nwbfile.electrodes
         ]
@@ -117,6 +138,11 @@ class ChannelTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
+        columns_to_drop = [  # Special rule for non-required fields that autopopulate with "N/A"
+            column for column in ["hardware_filters", "software_filters"] if (data_frame[column] == "N/A").all()
+        ]
+        data_frame = data_frame.drop(columns=columns_to_drop)
+        data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call

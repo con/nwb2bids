@@ -31,7 +31,7 @@ def _make_minimal_nwbfile(session_id: str = "456", subject_species: str = "Mus m
     return nwbfile
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def temporary_bids_directory(tmpdir: py.path.local) -> pathlib.Path:
     """Creates a temporary BIDS directory for testing purposes."""
     return pathlib.Path(tmpdir)
@@ -138,11 +138,55 @@ def minimal_mismatch_nwbfile_path(testing_files_directory: pathlib.Path) -> path
 
 
 @pytest.fixture(scope="session")
-def ecephys_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+def ecephys_tutorial_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     ecephys_subdirectory = testing_files_directory / "ecephys"
     ecephys_subdirectory.mkdir(exist_ok=True)
 
     nwbfile_path = nwb2bids.testing.generate_ephys_tutorial(mode="file", output_directory=ecephys_subdirectory)
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def ecephys_minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile(
+        session_id="A",
+        session_description=(
+            "An example NWB file containing ecephys neurodata types which has only the "
+            "minimum number of fields specified."
+        ),
+    )
+
+    subject = pynwb.file.Subject(
+        subject_id="001",
+        species="Mus musculus",
+        sex="M",
+    )
+    nwbfile.subject = subject
+
+    probe = pynwb.testing.mock.ecephys.mock_Device(
+        name="ExampleProbe",
+        description="This is an example probe used for demonstration purposes.",
+        nwbfile=nwbfile,
+    )
+    shank = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
+        name="ExampleShank",
+        description="This is an example electrode group (shank) used for demonstration purposes.",
+        device=probe,
+        nwbfile=nwbfile,
+    )
+
+    number_of_electrodes = 8
+    for index in range(number_of_electrodes):
+        nwbfile.add_electrode(location="unknown", group=shank)
+
+    # Not even including an ElectricalSeries - just metadata
+
+    ecephys_subdirectory = testing_files_directory / "ecephys"
+    ecephys_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = ecephys_subdirectory / "ecephys_minimal.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
     return nwbfile_path
 
 
