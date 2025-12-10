@@ -84,8 +84,8 @@ def test_minimal_cli_on_file_path(minimal_nwbfile_path: pathlib.Path, temporary_
     )
 
 
-def test_ecephys_cli(ecephys_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    command = f"nwb2bids convert {ecephys_nwbfile_path.parent} -o {temporary_bids_directory}"
+def test_ecephys_cli(ecephys_tutorial_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+    command = f"nwb2bids convert {ecephys_tutorial_nwbfile_path.parent} -o {temporary_bids_directory}"
     result = subprocess.run(args=command, shell=True, capture_output=True)
     assert (
         result.returncode == 0

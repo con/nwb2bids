@@ -28,8 +28,8 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         description="Timing data and metadata regarding events that occur during this experiment.", default=None
     )
     probe_table: ProbeTable | None = None
-    channel_table: ChannelTable | None = None
     electrode_table: ElectrodeTable | None = None
+    channel_table: ChannelTable | None = None
 
     @pydantic.computed_field
     @property
@@ -40,10 +40,10 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             messages += self.events.messages.copy()
         if self.probe_table is not None:
             messages += self.probe_table.messages
-        if self.channel_table is not None:
-            messages += self.channel_table.messages
         if self.electrode_table is not None:
             messages += self.electrode_table.messages
+        if self.channel_table is not None:
+            messages += self.channel_table.messages
         messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
         return messages
 
@@ -110,8 +110,8 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         participant = Participant.from_nwbfiles(nwbfiles=nwbfiles)
         events = Events.from_nwbfiles(nwbfiles=nwbfiles)
         probe_table = ProbeTable.from_nwbfiles(nwbfiles=nwbfiles)
-        channel_table = ChannelTable.from_nwbfiles(nwbfiles=nwbfiles)
         electrode_table = ElectrodeTable.from_nwbfiles(nwbfiles=nwbfiles)
+        channel_table = ChannelTable.from_nwbfiles(nwbfiles=nwbfiles)
 
         dictionary = {
             "session_id": session_id,
@@ -121,10 +121,10 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             dictionary["events"] = events
         if probe_table is not None:
             dictionary["probe_table"] = probe_table
-        if channel_table is not None:
-            dictionary["channel_table"] = channel_table
         if electrode_table is not None:
             dictionary["electrode_table"] = electrode_table
+        if channel_table is not None:
+            dictionary["channel_table"] = channel_table
 
         session_metadata = cls(**dictionary)
         session_metadata._check_fields(file_paths=nwbfile_paths)
