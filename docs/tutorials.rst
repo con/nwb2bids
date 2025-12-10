@@ -291,7 +291,7 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
 
             cd ~/nwb2bids_tutorials/ephys_tutorial_dataset
 
-            nwb2bids convert some_sessions --bids-directory bids_dataset_2
+            nwb2bids convert some_sessions --bids-directory bids_dataset_cli_2
 
     .. tab:: Python Library
 
@@ -303,7 +303,7 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
 
             tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
             nwb_paths = [tutorial_directory / "some_sessions"]
-            bids_directory = tutorial_directory / "bids_dataset_2"
+            bids_directory = tutorial_directory / "bids_dataset_py_2"
             bids_directory.mkdir(exist_ok=True)
 
             run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
@@ -316,7 +316,7 @@ And our BIDS dataset should look like:
 
 .. code-block:: text
 
-    ephys_tutorial_dataset/bids_dataset_2/
+    ephys_tutorial_dataset/bids_dataset_[cli|py]_2/
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
@@ -383,7 +383,7 @@ We can select which files and directories to convert like so:
                     cd ~/nwb2bids_tutorials/ephys_tutorial_dataset
 
                     nwb2bids convert ephys_session_3.nwb some_sessions \
-                        --bids-directory bids_dataset_3
+                        --bids-directory bids_dataset_cli_3
 
             .. tab:: Windows
 
@@ -394,7 +394,7 @@ We can select which files and directories to convert like so:
                     cd ~/nwb2bids_tutorials/ephys_tutorial_dataset
 
                     nwb2bids convert ephys_session_3.nwb some_sessions ^
-                        --bids-directory bids_dataset_3
+                        --bids-directory bids_dataset_cli_3
 
         The command line can take any number of inputs (separated by spaces) prior to other flags such as
         ``--bids-directory``. Shell globs, such as ``*.nwb``, could be used as shown in
@@ -413,7 +413,7 @@ We can select which files and directories to convert like so:
                 tutorial_directory / "ephys_session_3.nwb",
                 tutorial_directory / "some_sessions",
             ]
-            bids_directory = tutorial_directory / "bids_dataset_3"
+            bids_directory = tutorial_directory / "bids_dataset_py_3"
             bids_directory.mkdir(exist_ok=True)
 
             run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
@@ -426,7 +426,7 @@ Our resulting BIDS dataset should now contain all three NWB files converted to B
 
 .. code-block:: text
 
-    ephys_tutorial_dataset/bids_dataset_3/
+    ephys_tutorial_dataset/bids_dataset_[cli|py]_3/
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
@@ -483,8 +483,8 @@ To test this out, we can create a new empty directory and navigate into it befor
         .. code-block:: bash
 
             cd ~/nwb2bids_tutorials/ephys_tutorial_dataset/
-            mkdir bids_dataset_4
-            cd bids_dataset_4
+            mkdir bids_dataset_cli_4
+            cd bids_dataset_cli_4
 
             nwb2bids convert ../ephys_session_3.nwb ../some_sessions/*.nwb
 
@@ -505,7 +505,7 @@ To test this out, we can create a new empty directory and navigate into it befor
                 tutorial_directory / "ephys_session_3.nwb",
                 tutorial_directory / "some_sessions",
             ]
-            bids_directory = tutorial_directory / "bids_dataset_4"
+            bids_directory = tutorial_directory / "bids_dataset_py_4"
             bids_directory.mkdir(exist_ok=True)
             os.chdir(path=bids_directory)
 
@@ -513,7 +513,7 @@ To test this out, we can create a new empty directory and navigate into it befor
 
 
 And the results should match what we saw at the end of :ref:`tutorial-multiple-inputs`, except that we operated
-entirely from within ``bids_dataset_4``.
+entirely from within ``bids_dataset_[cli|py]_4``.
 
 
 
@@ -558,7 +558,7 @@ To include this additional metadata during conversion, we can use the following 
                     cd ~/nwb2bids_tutorials/ephys_tutorial_file
 
                     nwb2bids convert ephys.nwb \
-                        --bids-directory bids_dataset_5 \
+                        --bids-directory bids_dataset_cli_5 \
                         --additional-metadata-file-path metadata.json
 
             .. tab:: Windows
@@ -570,7 +570,7 @@ To include this additional metadata during conversion, we can use the following 
                     cd ~/nwb2bids_tutorials/ephys_tutorial_file
 
                     nwb2bids convert ephys.nwb ^
-                        --bids-directory bids_dataset_5 ^
+                        --bids-directory bids_dataset_cli_5 ^
                         --additional-metadata-file-path metadata.json
 
     .. tab:: Python Library
@@ -583,7 +583,7 @@ To include this additional metadata during conversion, we can use the following 
 
             tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
             nwb_paths = [tutorial_directory / "ephys.nwb"]
-            bids_directory = tutorial_directory / "bids_dataset_5"
+            bids_directory = tutorial_directory / "bids_dataset_py_5"
             bids_directory.mkdir(exist_ok=True)
             additional_metadata_file_path = tutorial_directory / "metadata.json"
 
@@ -616,7 +616,7 @@ broken down into the following distinct steps:
 
     tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
     nwb_paths = [tutorial_directory / "ephys.nwb"]
-    bids_directory = tutorial_directory / "bids_dataset_6"
+    bids_directory = tutorial_directory / "bids_dataset_py_6"
     bids_directory.mkdir(exist_ok=True)
     additional_metadata_file_path = tutorial_directory / "metadata.json"
 
