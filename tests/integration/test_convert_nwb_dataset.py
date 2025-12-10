@@ -142,11 +142,11 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 
-    electrode_tsv_file_path = (
+    electrodes_tsv_file_path = (
         temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
     )
-    electrode_tsv_lines = electrode_tsv_file_path.read_text().splitlines()
-    expected_electrode_tsv_lines = [
+    electrodes_tsv_lines = electrodes_tsv_file_path.read_text().splitlines()
+    expected_electrodes_tsv_lines = [
         "name\tprobe_name\themisphere\tx\ty\tz\timpedance\tshank_id\tlocation",
         "e000\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
         "e001\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
@@ -157,7 +157,24 @@ def test_ecephys_convert_nwb_dataset(ecephys_nwbfile_path: pathlib.Path, tempora
         "e006\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
         "e007\tExampleProbe\tN/A\tN/A\tN/A\tN/A\t150.0\tExampleShank\thippocampus",
     ]
-    assert electrode_tsv_lines == expected_electrode_tsv_lines
+    assert electrodes_tsv_lines == expected_electrodes_tsv_lines
+
+    channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
+    channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
+    expected_channels_tsv_lines = [
+        "channel_name\treference\ttype\tunit\tsampling_frequency\tchannel_label\t"
+        "stream_id\tdescription\thardware_filters\tsoftware_filters\tstatus\t"
+        "status_description\tgain\ttime_offset\ttime_reference_channels\tground",
+        "ch0\t0\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+        "ch1\t1\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+        "ch2\t2\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+        "ch3\t3\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+        "ch4\t4\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+        "ch5\t5\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+        "ch6\t6\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+        "ch7\t7\tN/A\tV\t\t\t\t\tHighpassFilter\tN/A\t\t\t\t\t\t",
+    ]
+    assert channels_tsv_lines == expected_channels_tsv_lines
 
 
 # TODO: in follow-up, add test that checks if manufacturer column is dropped when empty

@@ -42,7 +42,7 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
 
     number_of_electrodes = 8
     for index in range(number_of_electrodes):
-        nwbfile.add_electrode(imp=150_000.0, location="hippocampus", group=shank)
+        nwbfile.add_electrode(imp=150_000.0, location="hippocampus", group=shank, filtering="HighpassFilter")
     electrodes = nwbfile.create_electrode_table_region(
         region=list(range(number_of_electrodes)),
         description="A `DynamicTableRegion` referring to all electrodes in this file.",
@@ -55,6 +55,7 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
             "read off of the channels of an ecephys probe."
         ),
         electrodes=electrodes,
+        rate=30_000.0,
         nwbfile=nwbfile,
     )
 

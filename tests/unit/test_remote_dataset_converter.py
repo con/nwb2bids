@@ -74,7 +74,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.channel_table is not None
     assert len(session_metadata.channel_table.channels) == 65
     assert session_metadata.channel_table.channels[0] == nwb2bids.bids_models.Channel(
-        channel_id="0", electrode_id="0", type="EXT", unit="V", sampling_frequency=None, gain=None
+        channel_name="0", reference="0", type="EXT", unit="V", sampling_frequency=None, gain=None
     )
 
     assert session_metadata.electrode_table is not None
