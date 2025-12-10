@@ -49,6 +49,10 @@ jobs:
       - name: Install all dependencies
         run: pip install -e ".[all]" --group dev-all
 
+      - if: runner.os == 'macOS'
+        name: Temporary (12/10/25) - install deno on mac
+        run: pip install deno
+
       - if: ${{ inputs.pytest_markexpr == 'remote' }}
         name: Configure git for DataLad
         run: |
