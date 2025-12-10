@@ -46,13 +46,13 @@ def assert_subdirectory_structure(
             f"\n\nUnexpected directories in {subdirectory_path}.\n\n"
             f"Expected: {expected['directories']}\n"
             f"Found: {set(directories)}\n"
-            f"Difference: {set(directories) - set(expected['directories'])}\n"
-            f"Extra: {set(expected['directories']) - set(directories)}\n\n"
+            f"Unexpected: {set(directories) - set(expected['directories'])}\n"
+            f"Missing: {set(expected['directories']) - set(directories)}\n\n"
         )
         assert set(files) == set(expected["files"]), (
             f"\n\nUnexpected files in {subdirectory_path}.\n\n"
             f"Expected: {expected['files']}\n"
             f"Found: {files}\n"
-            f"Difference: {set(files) - set(expected['files'])}\n"
-            f"Extra: {set(expected['files']) - set(files)}\n\n"
+            f"Unexpected: {set(files) - set(expected['files'])}\n"
+            f"Missing: {set(expected['files']) - set(files)}\n\n"
         )
