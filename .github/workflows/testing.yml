@@ -46,10 +46,6 @@ jobs:
       - name: Run minimal tests
         run: python -m pytest -m "not remote" -vv
 
-      - if: runner.os == 'macOS'
-        name: Temporary (12/10/25) - install deno on mac
-        run: conda install -c conda-forge deno
-
       - name: Install all dependencies
         run: pip install -e ".[all]" --group dev-all
 
