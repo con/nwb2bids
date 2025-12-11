@@ -753,6 +753,40 @@ To include this additional metadata during conversion, we can use the following 
                 run_config=run_config,
             )
 
+.. invisible-code-block: python
+
+    for variant in ["cli", "py"]:
+        bids_dir = tutorial_base / f"ephys_tutorial_file/bids_dataset_{variant}_5"
+        expected_structure = {
+            bids_dir: {
+                "directories": {"sub-001"},
+                "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+            },
+            bids_dir / "sub-001": {
+                "directories": {"ses-A"},
+                "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+            },
+            bids_dir / "sub-001" / "ses-A": {
+                "directories": {"ecephys"},
+                "files": set(),
+            },
+            bids_dir / "sub-001" / "ses-A" / "ecephys": {
+                "directories": set(),
+                "files": {
+                    "sub-001_ses-A_ecephys.nwb",
+                    "sub-001_ses-A_channels.tsv",
+                    "sub-001_ses-A_channels.json",
+                    "sub-001_ses-A_electrodes.tsv",
+                    "sub-001_ses-A_electrodes.json",
+                    "sub-001_ses-A_probes.tsv",
+                    "sub-001_ses-A_probes.json",
+                },
+            },
+        }
+        nwb2bids.testing.assert_subdirectory_structure(
+            directory=bids_dir, expected_structure=expected_structure
+        )
+
 Our resulting bids `dataset_description.json` now includes our additional metadata!
 
 
