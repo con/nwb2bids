@@ -203,7 +203,10 @@ class Participant(BaseMetadataModel):
                     severity=Severity.CRITICAL,
                 )
             )
-            participant = cls(messages=messages)
+            participant = cls(
+                messages=messages,
+                participant_id="0",  # Similar to the missing session ID; let placeholder default to "0"
+            )
             return participant
 
         participant = cls(

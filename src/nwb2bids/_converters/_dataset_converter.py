@@ -12,7 +12,6 @@ from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..sanitization import SanitizationLevel, sanitize_participant_id, sanitize_session_id
 
 
 class DatasetConverter(BaseConverter):
@@ -212,21 +211,15 @@ class DatasetConverter(BaseConverter):
 
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
-        self.run_config.bids_directory.mkdir(exist_ok=True)
-        self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
-        if self.run_config.sanitization_level != SanitizationLevel.NONE:
-            # Downstream works based off of appending, so need to ensure file exists before proceeding
-            self.run_config.sanitization_file_path.touch()
-
         try:
-            if self.dataset_description is not None:
-                self.write_dataset_description()
+            for session_converter in self.session_converters:
+                session_converter.convert_to_bids_session()
 
             self.write_participants_metadata()
             self.write_sessions_metadata()
 
-            for session_converter in self.session_converters:
-                session_converter.convert_to_bids_session()
+            if self.dataset_description is not None:
+                self.write_dataset_description()
         except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
@@ -284,21 +277,19 @@ class DatasetConverter(BaseConverter):
         deduplicated_data_frame = aggregated_data_frame.drop_duplicates(ignore_index=True).copy()
 
         # Apply sanitization
-        deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
-            lambda participant_id: (
-                sanitize_participant_id(
-                    participant_id=participant_id,
-                    sanitization_level=self.run_config.sanitization_level,
-                    sanitization_file_path=self.run_config.sanitization_file_path,
-                    sanitization_report_context="DatasetConverter.write_participants_metadata",
-                )
-                if participant_id is not None
-                else None
+        sanitizations = [converter.session_metadata.sanitization for converter in self.session_converters]
+        sanitized_participant_ids = {
+            sanitization.original_participant_id: sanitization.sanitized_participant_id
+            for sanitization in sanitizations
+        }
+
+        with pandas.option_context("mode.chained_assignment", None):
+            deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
+                lambda participant_id: sanitized_participant_ids[participant_id]
             )
-        )
 
         # BIDS requires sub- prefix in table values
-        participants_data_frame = deduplicated_data_frame.copy()
+        participants_data_frame = deduplicated_data_frame.copy(deep=True)
         participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
             lambda participant_id: f"sub-{participant_id}"
         )
@@ -339,8 +330,8 @@ class DatasetConverter(BaseConverter):
         """
         participant_id_to_sessions = collections.defaultdict(list)
         for session_converter in self.session_converters:
-            participant_id_to_sessions[session_converter.session_metadata.participant.participant_id].append(
-                session_converter
+            participant_id_to_sessions[session_converter.session_metadata.sanitization.sanitized_participant_id].append(
+                session_converter.session_metadata
             )
 
         # TODO: expand beyond just session_id field (mainly via additional metadata)
@@ -348,21 +339,9 @@ class DatasetConverter(BaseConverter):
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
         for participant_id, sessions_metadata in participant_id_to_sessions.items():
-            # Apply sanitization
-            sanitized_participant_id = sanitize_participant_id(
-                participant_id=participant_id,
-                sanitization_level=self.run_config.sanitization_level,
-                sanitization_file_path=self.run_config.sanitization_file_path,
-                sanitization_report_context="DatasetConverter.write_sessions_metadata",
-            )
+            sanitized_participant_id = participant_id
             sanitized_session_ids = [
-                sanitize_session_id(
-                    session_id=session_metadata.session_id,
-                    sanitization_level=self.run_config.sanitization_level,
-                    sanitization_file_path=self.run_config.sanitization_file_path,
-                    sanitization_report_context="DatasetConverter.write_sessions_metadata",
-                )
-                for session_metadata in sessions_metadata
+                session_metadata.sanitization.sanitized_session_id for session_metadata in sessions_metadata
             ]
 
             subject_directory = self.run_config.bids_directory / f"sub-{sanitized_participant_id}"
