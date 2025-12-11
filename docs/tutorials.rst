@@ -827,6 +827,39 @@ broken down into the following distinct steps:
     # Step 3: Convert NWB files to BIDS structure
     converter.convert_to_bids_dataset()
 
+.. invisible-code-block: python
+
+    bids_dir = tutorial_base / "ephys_tutorial_file/bids_dataset_py_6"
+    expected_structure = {
+        bids_dir: {
+            "directories": {"sub-001"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        bids_dir / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        bids_dir / "sub-001" / "ses-A": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        bids_dir / "sub-001" / "ses-A" / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=bids_dir, expected_structure=expected_structure
+    )
+
 The ``converter`` object (a type of :class:`~nwb2bids.DatasetConverter`) exposes many useful attributes and methods
 that may useful to explore. In particular, it contains all of the :class:`~nwb2bids.SessionConverter` objects that were
 assembled from the input NWB files. These in turn attach various metadata models,
