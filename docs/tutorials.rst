@@ -599,6 +599,75 @@ To test this out, we can create a new empty directory and navigate into it befor
 
             converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
 
+.. invisible-code-block: python
+
+    for variant in ["cli", "py"]:
+        bids_dir = tutorial_base / f"ephys_tutorial_dataset/bids_dataset_{variant}_4"
+        expected_structure = {
+            bids_dir: {
+                "directories": {"sub-001", "sub-002"},
+                "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+            },
+            bids_dir / "sub-001": {
+                "directories": {"ses-A", "ses-B"},
+                "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+            },
+            bids_dir / "sub-001" / "ses-A": {
+                "directories": {"ecephys"},
+                "files": set(),
+            },
+            bids_dir / "sub-001" / "ses-A" / "ecephys": {
+                "directories": set(),
+                "files": {
+                    "sub-001_ses-A_ecephys.nwb",
+                    "sub-001_ses-A_channels.tsv",
+                    "sub-001_ses-A_channels.json",
+                    "sub-001_ses-A_electrodes.tsv",
+                    "sub-001_ses-A_electrodes.json",
+                    "sub-001_ses-A_probes.tsv",
+                    "sub-001_ses-A_probes.json",
+                },
+            },
+            bids_dir / "sub-001" / "ses-B": {
+                "directories": {"ecephys"},
+                "files": set(),
+            },
+            bids_dir / "sub-001" / "ses-B" / "ecephys": {
+                "directories": set(),
+                "files": {
+                    "sub-001_ses-B_ecephys.nwb",
+                    "sub-001_ses-B_channels.tsv",
+                    "sub-001_ses-B_channels.json",
+                    "sub-001_ses-B_electrodes.tsv",
+                    "sub-001_ses-B_electrodes.json",
+                    "sub-001_ses-B_probes.tsv",
+                    "sub-001_ses-B_probes.json",
+                },
+            },
+            bids_dir / "sub-002": {
+                "directories": {"ses-C"},
+                "files": {"sub-002_sessions.json", "sub-002_sessions.tsv"},
+            },
+            bids_dir / "sub-002" / "ses-C": {
+                "directories": {"ecephys"},
+                "files": set(),
+            },
+            bids_dir / "sub-002" / "ses-C" / "ecephys": {
+                "directories": set(),
+                "files": {
+                    "sub-002_ses-C_ecephys.nwb",
+                    "sub-002_ses-C_channels.tsv",
+                    "sub-002_ses-C_channels.json",
+                    "sub-002_ses-C_electrodes.tsv",
+                    "sub-002_ses-C_electrodes.json",
+                    "sub-002_ses-C_probes.tsv",
+                    "sub-002_ses-C_probes.json",
+                },
+            },
+        }
+        nwb2bids.testing.assert_subdirectory_structure(
+            directory=bids_dir, expected_structure=expected_structure
+        )
 
 And the results should match what we saw at the end of :ref:`tutorial-multiple-inputs`, except that we operated
 entirely from within ``bids_dataset_[cli|py]_4``.
