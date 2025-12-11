@@ -1,13 +1,21 @@
+import pathlib
+import typing
+
 import pydantic
 
 from .._converters._dataset_converter import DatasetConverter
 from .._converters._run_config import RunConfig
 
+ResolvedFilePath = typing.Annotated[pydantic.FilePath, pydantic.BeforeValidator(lambda p: pathlib.Path(p).resolve())]
+ResolvedDirectoryPath = typing.Annotated[
+    pydantic.DirectoryPath, pydantic.BeforeValidator(lambda p: pathlib.Path(p).resolve())
+]
+
 
 @pydantic.validate_call
 def convert_nwb_dataset(
     *,
-    nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
+    nwb_paths: list[ResolvedFilePath | ResolvedDirectoryPath] = pydantic.Field(min_length=1),
     run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
 ) -> DatasetConverter:
     """
