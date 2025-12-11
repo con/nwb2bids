@@ -16,7 +16,7 @@
   <p align="center">
     <a href="https://pypi.org/project/nwb2bids/"><img alt="PyPI latest release version" src="https://badge.fury.io/py/nwb2bids.svg?id=py&kill_cache=1"></a>
     <a href="https://github.com/con/nwb2bids/blob/main/LICENSE.txt"><img alt="License: BSD-3" src="https://img.shields.io/pypi/l/nwb2bids.svg"></a>
-    <a href="https://doi.org/10.5281/zenodo.17148059"><img src="https://zenodo.org/badge/765478037.svg" alt="DOI"></a>
+    <a href="https://zenodo.org/badge/latestdoi/765478037"><img alt="DOI" src="https://img.shields.io/github/v/release/con/nwb2bids?label=DOI&color=blue"></a>
   </p>
   <p align="center">
     <a href="https://github.com/psf/black"><img alt="Python code style: Black" src="https://img.shields.io/badge/python_code_style-black-000000.svg"></a>
