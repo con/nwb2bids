@@ -312,6 +312,104 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
                 run_config=run_config,
             )
 
+.. invisible-code-block: python
+
+    # Assertions for CLI
+    bids_dir = tutorial_base / "ephys_tutorial_dataset/bids_dataset_cli_2"
+    expected_structure = {
+        bids_dir: {
+            "directories": {"sub-001"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        bids_dir / "sub-001": {
+            "directories": {"ses-A", "ses-B"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        bids_dir / "sub-001" / "ses-A": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        bids_dir / "sub-001" / "ses-A" / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
+            },
+        },
+        bids_dir / "sub-001" / "ses-B": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        bids_dir / "sub-001" / "ses-B" / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-B_ecephys.nwb",
+                "sub-001_ses-B_channels.tsv",
+                "sub-001_ses-B_channels.json",
+                "sub-001_ses-B_electrodes.tsv",
+                "sub-001_ses-B_electrodes.json",
+                "sub-001_ses-B_probes.tsv",
+                "sub-001_ses-B_probes.json",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=bids_dir, expected_structure=expected_structure
+    )
+
+    # Assertions for Python
+    bids_dir = tutorial_base / "ephys_tutorial_dataset/bids_dataset_py_2"
+    expected_structure = {
+        bids_dir: {
+            "directories": {"sub-001"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        bids_dir / "sub-001": {
+            "directories": {"ses-A", "ses-B"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        bids_dir / "sub-001" / "ses-A": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        bids_dir / "sub-001" / "ses-A" / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
+            },
+        },
+        bids_dir / "sub-001" / "ses-B": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        bids_dir / "sub-001" / "ses-B" / "ecephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-B_ecephys.nwb",
+                "sub-001_ses-B_channels.tsv",
+                "sub-001_ses-B_channels.json",
+                "sub-001_ses-B_electrodes.tsv",
+                "sub-001_ses-B_electrodes.json",
+                "sub-001_ses-B_probes.tsv",
+                "sub-001_ses-B_probes.json",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=bids_dir, expected_structure=expected_structure
+    )
+
 And our BIDS dataset should look like:
 
 .. code-block:: text
