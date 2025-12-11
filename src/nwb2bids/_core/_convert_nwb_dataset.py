@@ -1,3 +1,4 @@
+import os
 import pathlib
 import typing
 
@@ -6,16 +7,26 @@ import pydantic
 from .._converters._dataset_converter import DatasetConverter
 from .._converters._run_config import RunConfig
 
-ResolvedFilePath = typing.Annotated[pydantic.FilePath, pydantic.BeforeValidator(lambda p: pathlib.Path(p).resolve())]
-ResolvedDirectoryPath = typing.Annotated[
-    pydantic.DirectoryPath, pydantic.BeforeValidator(lambda p: pathlib.Path(p).resolve())
-]
+
+def _make_absolute(p: pathlib.Path) -> pathlib.Path:
+    """Make path absolute and normalized without following symlinks.
+
+    Uses os.path.abspath for normalization because:
+    - pathlib.resolve() follows symlinks (breaks git-annex/datalad paths)
+    - pathlib.absolute() doesn't normalize '..' components
+    - os.path.abspath normalizes without following symlinks
+    """
+    return pathlib.Path(os.path.abspath(p))
+
+
+AbsoluteFilePath = typing.Annotated[pydantic.FilePath, pydantic.BeforeValidator(_make_absolute)]
+AbsoluteDirectoryPath = typing.Annotated[pydantic.DirectoryPath, pydantic.BeforeValidator(_make_absolute)]
 
 
 @pydantic.validate_call
 def convert_nwb_dataset(
     *,
-    nwb_paths: list[ResolvedFilePath | ResolvedDirectoryPath] = pydantic.Field(min_length=1),
+    nwb_paths: list[AbsoluteFilePath | AbsoluteDirectoryPath] = pydantic.Field(min_length=1),
     run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
 ) -> DatasetConverter:
     """
