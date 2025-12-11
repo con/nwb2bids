@@ -70,12 +70,7 @@ class ElectrodeTable(BaseMetadataContainerModel):
             raise NotImplementedError(message)
         nwbfile = nwbfiles[0]
 
-        electrical_series = [
-            neurodata_object
-            for neurodata_object in nwbfile.objects.values()
-            if isinstance(neurodata_object, pynwb.ecephys.ElectricalSeries)
-        ]
-        if any(electrical_series) is False:
+        if not nwbfile.electrodes:
             return None
 
         electrodes = [
