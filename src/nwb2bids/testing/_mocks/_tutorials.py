@@ -1,6 +1,7 @@
 import pathlib
 import typing
 
+import numpy
 import pydantic
 import pynwb
 import pynwb.testing.mock.ecephys
@@ -56,6 +57,7 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
             "An example electrical series that represents data which could have been "
             "read off of the channels of an ecephys probe."
         ),
+        data=numpy.ones(shape=(10, number_of_electrodes)),
         electrodes=electrodes,
         rate=30_000.0,
         nwbfile=nwbfile,
