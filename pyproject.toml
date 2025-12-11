@@ -121,7 +121,7 @@ type-stubs = ["pandas-stubs"]
 test = ["pytest", "datalad", "git-annex"]
 coverage = ["pytest-cov"]
 dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
-types = ["mypy", {include-group = "type-stubs"}]
+types = ["mypy", {include-group = "test"}, {include-group = "type-stubs"}]
 docs = [
     "sphinx<9.0.0",
     "sphinx-tabs",
