@@ -165,6 +165,15 @@ extend-exclude = '''
 [tool.mypy]
 plugins = ["pydantic.mypy"]
 
+[[tool.mypy.overrides]]
+module = [
+  "dandi.*",
+  "h5py",
+  "pynwb.*",
+  "remfile",
+]
+ignore_missing_imports = true
+
 [tool.ruff]
 exclude = [
   "*/__init__.py"
