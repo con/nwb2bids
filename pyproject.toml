@@ -118,7 +118,7 @@ nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
 
 [dependency-groups]
 type-stubs = ["pandas-stubs"]
-test = ["pytest", "datalad", "git-annex"]
+test = ["pytest", "datalad", "git-annex", "sybil"]
 coverage = ["pytest-cov"]
 dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
 types = ["mypy", {include-group = "test"}, {include-group = "type-stubs"}]
@@ -129,7 +129,8 @@ docs = [
     "sphinx-copybutton",
     "sphinx-toggleprompt",
     "myst-parser",
-    "pytest",  # For doctest integration
+    "pytest",  # For running doc tests
+    "sybil",  # For testing code blocks in docs
 ]
 dev-all = [
     {include-group = "test"},
@@ -211,6 +212,6 @@ known-first-party = ["nwb2bids"]
 markers = [
     "remote: mark a test as requiring remote resources"
 ]
-addopts = "-ra --doctest-glob='*.rst'"
-testpaths = ["docs", "tests"]
+addopts = "-ra"
+testpaths = ["tests"]
 doctest_optionflags = "ELLIPSIS"
