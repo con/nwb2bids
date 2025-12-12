@@ -304,3 +304,43 @@ def test_implicit_bids_directory(
     nwb2bids.testing.assert_subdirectory_structure(
         directory=implicit_bids_directory, expected_structure=expected_structure
     )
+
+
+def test_implicit_bids_directory_with_relative_nwb_paths(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+):
+    """Test implicit bids_directory (cwd) with relative nwb_paths."""
+    monkeypatch.chdir(temporary_bids_directory)
+
+    nwb_relative = minimal_nwbfile_path.relative_to(temporary_bids_directory.parent)
+    nwb_paths = [pathlib.Path("..") / nwb_relative]
+
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+
+    expected_structure = {
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
+            "directories": set(),
+            "files": {"sub-123_ses-456_ecephys.nwb"},
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )

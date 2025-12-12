@@ -49,7 +49,7 @@ class DatasetDescription(BaseMetadataModel):
     Schema for the dataset description in BIDS format.
     """
 
-    Name: str = pydantic.Field(description="Name of the dataset.")
+    Name: str | None = pydantic.Field(description="Name of the dataset.", default=None)
     BIDSVersion: str | None = pydantic.Field(
         description="The version of the BIDS standard that was used.",
         pattern=r"^\d+\.\d+(?:\.\d+)?$",
