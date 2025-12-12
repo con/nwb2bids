@@ -11,7 +11,7 @@ from ..bids_models._base_metadata_model import BaseMetadataModel
 
 
 class Participant(BaseMetadataModel):
-    participant_id: str = pydantic.Field(
+    participant_id: str | None = pydantic.Field(
         description="A unique identifier for this participant.",
         default=None,
     )
@@ -203,7 +203,10 @@ class Participant(BaseMetadataModel):
                     severity=Severity.CRITICAL,
                 )
             )
-            participant = cls(messages=messages)
+            participant = cls(
+                messages=messages,
+                participant_id="0",  # Similar to the missing session ID; let placeholder default to "0"
+            )
             return participant
 
         participant = cls(
