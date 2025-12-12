@@ -1,9 +1,10 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color.svg">
-    <img alt="nwb2bids logo" src="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color.svg" width="200">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/dark-banner.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/light-banner.png">
+    <img src="assets/light-banner.png" alt="nwb2bids logo" width="100%">
   </picture>
+
 
   <h1 align="center">nwb2bids</h1>
   <p align="center">
