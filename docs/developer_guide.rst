@@ -67,6 +67,31 @@ Run tests with coverage:
 
 The coverage report will be generated in ``htmlcov/index.html``.
 
+Documentation Tests
+~~~~~~~~~~~~~~~~~~~
+
+Tutorial code blocks are tested using `sybil <https://sybil.readthedocs.io/>`_ to ensure examples stay in sync with the codebase.
+
+Run all doc tests:
+
+.. code-block:: bash
+
+   pytest docs/ -v
+
+For debugging, you must specify each code block you want to run by line number:
+
+.. code-block:: bash
+
+   # List available doc tests with their line numbers
+   pytest docs/tutorials.rst --collect-only
+
+   # Run specific code blocks. Always use column:1.
+   pytest "docs/tutorials.rst::line:30,column:1" \
+          "docs/tutorials.rst::line:158,column:1" \
+          "docs/tutorials.rst::line:183,column:1" -v
+
+Hidden assertions use ``.. invisible-code-block: python`` directives which run during testing but don't render in the documentation.
+
 
 Releasing
 ---------

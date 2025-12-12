@@ -217,9 +217,7 @@ class DatasetConverter(BaseConverter):
 
             self.write_participants_metadata()
             self.write_sessions_metadata()
-
-            if self.dataset_description is not None:
-                self.write_dataset_description()
+            self.write_dataset_description()
         except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
@@ -240,6 +238,9 @@ class DatasetConverter(BaseConverter):
 
     def write_dataset_description(self) -> None:
         """Write the `dataset_description.json` file."""
+        if self.dataset_description is None:
+            self.dataset_description = DatasetDescription(BIDSVersion="1.10.1")
+
         dataset_description_dictionary = self.dataset_description.model_dump()
 
         dataset_description_file_path = self.run_config.bids_directory / "dataset_description.json"
