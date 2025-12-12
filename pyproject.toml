@@ -46,6 +46,7 @@ post-install-commands = ["pip install --group types"]
 [tool.hatch.envs.types.scripts]
 # Define named script for type checking
 check = "mypy --install-types --non-interactive {args:src/nwb2bids tests}"
+check-no-module-cache = "mypy --no-incremental {args:src/nwb2bids tests}"
 
 [tool.hatch.envs.all]
 features = ["all"]
@@ -120,7 +121,7 @@ type-stubs = ["pandas-stubs"]
 test = ["pytest", "datalad", "git-annex"]
 coverage = ["pytest-cov"]
 dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
-types = ["mypy", {include-group = "type-stubs"}]
+types = ["mypy", {include-group = "test"}, {include-group = "type-stubs"}]
 docs = [
     "sphinx<9.0.0",
     "sphinx-tabs",
@@ -163,6 +164,17 @@ extend-exclude = '''
 
 [tool.mypy]
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+  "dandi.*",
+  "datalad.*",
+  "h5py",
+  "py.*",
+  "pynwb.*",
+  "remfile",
+]
+ignore_missing_imports = true
 
 [tool.ruff]
 exclude = [
