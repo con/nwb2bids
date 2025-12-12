@@ -168,7 +168,9 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = [
   "dandi.*",
+  "datalad.*",
   "h5py",
+  "py.*",
   "pynwb.*",
   "remfile",
 ]
