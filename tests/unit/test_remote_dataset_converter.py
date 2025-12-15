@@ -120,6 +120,7 @@ def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_b
     assert dataset_converter.dataset_description == nwb2bids.bids_models.DatasetDescription(
         Name="Electrophysiology data from thalamic and cortical neurons during somatosensation",
         BIDSVersion="1.10",
+        HEDVersion="8.3.0",
         Description=(
             "intracellular and extracellular electrophysiology recordings performed on mouse barrel cortex and "
             "ventral posterolateral nucleus (vpm) in whisker-based object locating task."

@@ -25,7 +25,7 @@ def test_allowed_directory_conditions(
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
 
     if "valid" in test_case:
-        dataset_description_file_path.write_text(data='{"BIDSVersion": "1.10"}')
+        dataset_description_file_path.write_text(data='{"BIDSVersion": "1.10","HEDVersion": "8.3.0"}')
 
     run_config_kwargs = {"additional_metadata_file_path": additional_metadata_file_path}
     if "implicit" in test_case:
@@ -52,6 +52,7 @@ def test_allowed_directory_conditions(
         "Name": "test",
         "Description": "TODO",
         "BIDSVersion": "1.10",
+        "HEDVersion": "8.3.0",
         "DatasetType": "raw",
         "License": "CC-BY-4.0",
         "Authors": ["Cody Baker", "Yaroslav Halchenko"],

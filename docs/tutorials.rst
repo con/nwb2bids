@@ -698,6 +698,7 @@ Then fill the contents of the file to match below:
         "dataset_description": {
             "Name": "My Custom BIDS Dataset",
             "BIDSVersion": "1.8.0",
+            "HEDVersion": "8.3.0",
             "Authors": ["Last, First"]
         }
     }
