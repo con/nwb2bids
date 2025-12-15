@@ -28,7 +28,7 @@ def _validate_existing_directory_as_bids(directory: pathlib.Path) -> pathlib.Pat
         # Populate the directory with `dataset_description.json` to make it
         # a valid (though minimal) BIDS dataset.
 
-        default_dataset_description = {"BIDSVersion": "1.10"}
+        default_dataset_description = {"BIDSVersion": "1.10", "HEDVersion": "8.3.0"}
         with dataset_description_file_path.open(mode="w") as file_stream:
             json.dump(obj=default_dataset_description, fp=file_stream, indent=4)
     else:

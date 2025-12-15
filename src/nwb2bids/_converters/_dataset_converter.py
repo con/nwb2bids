@@ -241,7 +241,7 @@ class DatasetConverter(BaseConverter):
     def write_dataset_description(self) -> None:
         """Write the `dataset_description.json` file."""
         if self.dataset_description is None:
-            self.dataset_description = DatasetDescription(BIDSVersion="1.10.1")
+            self.dataset_description = DatasetDescription(BIDSVersion="1.10.1", HEDVersion="8.3.0")
 
         dataset_description_dictionary = self.dataset_description.model_dump()
 

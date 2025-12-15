@@ -46,6 +46,7 @@ def _get_dataset_description_from_valid_dandiset_metadata(
 
     dataset_description_kwargs["Name"] = metadata.name
     dataset_description_kwargs["BIDSVersion"] = "1.10"
+    dataset_description_kwargs["HEDVersion"] = "8.3.0"
 
     messages = []
     if any(data_standard.identifier == _BIDS_RRID for data_standard in metadata.assetsSummary.dataStandard):
@@ -87,6 +88,7 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
     dandiset_identifier = raw_metadata.get("identifier", "??????")
     dataset_description_kwargs["Name"] = raw_metadata.get("name", f"DANDI Archive Dandiset {dandiset_identifier}")
     dataset_description_kwargs["BIDSVersion"] = "1.10"
+    dataset_description_kwargs["HEDVersion"] = "8.3.0"
 
     assets_summary = raw_metadata.get("assetsSummary", dict())
     data_standards = assets_summary.get("dataStandard", [])

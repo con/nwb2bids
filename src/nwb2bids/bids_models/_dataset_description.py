@@ -54,6 +54,10 @@ class DatasetDescription(BaseMetadataModel):
         description="The version of the BIDS standard that was used.",
         pattern=r"^\d+\.\d+(?:\.\d+)?$",
     )
+    HEDVersion: str | None = pydantic.Field(
+        description="The version of the HED standard that was used.",
+        pattern=r"^\d+\.\d+(?:\.\d+)?$",
+    )
     Description: str | None = pydantic.Field(
         description="Description of the dataset.",
         default=None,

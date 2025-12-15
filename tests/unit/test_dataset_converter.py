@@ -100,6 +100,7 @@ def test_dataset_converter_write_dataset_description(
         "Name": "test",
         "Description": "TODO",
         "BIDSVersion": "1.10",
+        "HEDVersion": "8.3.0",
         "DatasetType": "raw",
         "License": "CC-BY-4.0",
         "Authors": ["Cody Baker", "Yaroslav Halchenko"],
@@ -138,6 +139,7 @@ def test_dataset_converter_write_dataset_description_with_user_generated_by(
         "Name": "test",
         "Description": "Dataset with user-provided GeneratedBy",
         "BIDSVersion": "1.10",
+        "HEDVersion": "8.3.0",
         "DatasetType": "raw",
         "License": "CC-BY-4.0",
         "Authors": ["Cody Baker", "Yaroslav Halchenko"],
@@ -273,6 +275,7 @@ def test_dataset_description_validates_exactly_one_nwb2bids():
         nwb2bids.bids_models.DatasetDescription(
             Name="Test",
             BIDSVersion="1.10",
+            HEDVersion="8.3.0",
             GeneratedBy=[
                 {
                     "Name": "nwb2bids",
@@ -287,6 +290,7 @@ def test_dataset_description_validates_exactly_one_nwb2bids():
     dd = nwb2bids.bids_models.DatasetDescription(
         Name="Test",
         BIDSVersion="1.10",
+        HEDVersion="8.3.0",
     )
     assert len(dd.GeneratedBy) == 1
     assert dd.GeneratedBy[0].Name == "nwb2bids"
@@ -295,6 +299,7 @@ def test_dataset_description_validates_exactly_one_nwb2bids():
     dd = nwb2bids.bids_models.DatasetDescription(
         Name="Test",
         BIDSVersion="1.10",
+        HEDVersion="8.3.0",
         GeneratedBy=[
             {
                 "Name": "custom-pipeline",
