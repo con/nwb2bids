@@ -1,3 +1,42 @@
+# v0.8.0 (Mon Dec 15 2025)
+
+#### 🚀 Enhancement
+
+- Added `HEDVersion` to dataset description [#232](https://github.com/con/nwb2bids/pull/232) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Replaced pytest/doctest with Sybil to add hidden assertions verifying tutorial outputs [#227](https://github.com/con/nwb2bids/pull/227) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Updated writing of channels TSV file [#225](https://github.com/con/nwb2bids/pull/225) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Updated writing of probes TSV file [#220](https://github.com/con/nwb2bids/pull/220) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🐛 Bug Fix
+
+- Fixed confusing labels in `assert_subdirectory_structure` error messages [#228](https://github.com/con/nwb2bids/pull/228) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Updated writing of electrode TSV file [#221](https://github.com/con/nwb2bids/pull/221) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#223](https://github.com/con/nwb2bids/pull/223) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Fixed some test markers and imports based on latest conda-forge tests [#219](https://github.com/con/nwb2bids/pull/219) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### ⚠️ Pushed to `main`
+
+- Fix typo in CHANGELOG.md ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🏠 Internal
+
+- Restored intel runners [#233](https://github.com/con/nwb2bids/pull/233) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Config mypy [#229](https://github.com/con/nwb2bids/pull/229) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 📝 Documentation
+
+- Updated DOI badge link in README [#230](https://github.com/con/nwb2bids/pull/230) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Added CITATION.cff to repository (to be used for all formal citations) [#224](https://github.com/con/nwb2bids/pull/224) ([@asmacdo](https://github.com/asmacdo))
+
+#### Authors: 4
+
+- [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
+- Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Isaac To ([@candleindark](https://github.com/candleindark))
+
+---
+
 # v0.7.0 (Mon Dec 08 2025)
 
 ### Release Notes
