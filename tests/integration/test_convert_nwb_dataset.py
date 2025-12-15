@@ -307,33 +307,35 @@ def test_implicit_bids_directory(
 
 
 def test_implicit_bids_directory_with_relative_nwb_paths(
-    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+    minimal_nwbfile_path: pathlib.Path, temporary_run_directory: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ):
     """Test implicit bids_directory (cwd) with relative nwb_paths."""
-    monkeypatch.chdir(temporary_bids_directory)
+    monkeypatch.chdir(temporary_run_directory)
 
-    nwb_relative = minimal_nwbfile_path.relative_to(temporary_bids_directory.parent)
+    nwb_relative = minimal_nwbfile_path.relative_to(temporary_run_directory.parent)
     nwb_paths = [pathlib.Path("..") / nwb_relative]
 
-    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+
+    assert not any(converter.messages)
 
     expected_structure = {
-        temporary_bids_directory: {
+        temporary_run_directory: {
             "directories": {"sub-123"},
             "files": {"dataset_description.json", "participants.json", "participants.tsv"},
         },
-        temporary_bids_directory
+        temporary_run_directory
         / "sub-123": {
             "directories": {"ses-456"},
             "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
         },
-        temporary_bids_directory
+        temporary_run_directory
         / "sub-123"
         / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
-        temporary_bids_directory
+        temporary_run_directory
         / "sub-123"
         / "ses-456"
         / "ecephys": {
@@ -342,5 +344,5 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
         },
     }
     nwb2bids.testing.assert_subdirectory_structure(
-        directory=temporary_bids_directory, expected_structure=expected_structure
+        directory=temporary_run_directory, expected_structure=expected_structure
     )
