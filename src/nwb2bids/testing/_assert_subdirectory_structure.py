@@ -30,8 +30,7 @@ def assert_subdirectory_structure(
         directories[:] = [d for d in directories if not d.startswith(".")]
         files = [f for f in files if not f.startswith(".")]
 
-        subdirectory_path = pathlib.Path(subdirectory_path)
-        expected = expected_structure.get(subdirectory_path, None)
+        expected = expected_structure.get(pathlib.Path(subdirectory_path), None)
 
         assert expected is not None, (
             f"\n\nUnexpected subdirectory {subdirectory_path}.\n\n"
