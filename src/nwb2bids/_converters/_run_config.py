@@ -7,6 +7,7 @@ import pydantic
 from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_nwb2bids_home_directory
 from .._core._validate_existing_bids import _validate_bids_directory
+from ..sanitization import SanitizationConfig
 
 
 def _generate_run_id() -> str:
@@ -45,6 +46,9 @@ class RunConfig(pydantic.BaseModel):
     cache_directory : directory path
         The directory where run specific files (e.g., notifications, sanitization reports) will be stored.
         Defaults to `~/.nwb2bids`.
+    sanitization_config : nwb2bids.SanitizationConfig
+        Specifies the types of sanitization to apply when creating the BIDS dataset.
+        Read more about the specific options from `nwb2bids.sanitization.SanitizationConfig?`.
     run_id : str
         On each unique run of nwb2bids, a run ID is generated.
         Set this option to override this to any identifying string.
@@ -64,6 +68,10 @@ class RunConfig(pydantic.BaseModel):
     cache_directory: typing.Annotated[
         pydantic.DirectoryPath, pydantic.Field(default_factory=_get_nwb2bids_home_directory)
     ]
+    sanitization_config: typing.Annotated[
+        SanitizationConfig,
+        pydantic.Field(default_factory=lambda _: SanitizationConfig()),
+    ]
     run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 
@@ -74,6 +82,13 @@ class RunConfig(pydantic.BaseModel):
 
     def model_post_init(self, context: typing.Any, /) -> None:
         self._nwb2bids_directory = self.bids_directory / ".nwb2bids"
+
+    @pydantic.computed_field
+    @property
+    def sanitization_file_path(self) -> pathlib.Path:
+        """The file path leading to a record of sanitizations made."""
+        sanitization_file_path = self._nwb2bids_directory / f"{self.run_id}_sanitization.txt"
+        return sanitization_file_path
 
     @pydantic.computed_field
     @property
