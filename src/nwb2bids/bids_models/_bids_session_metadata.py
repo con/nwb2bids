@@ -42,7 +42,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             return
 
         self.sanitization = Sanitization(
-            sanitization_level=self.run_config.sanitization_level,
+            sanitization_config=self.run_config.sanitization_config,
             sanitization_file_path=self.run_config.sanitization_file_path,
             original_session_id=self.session_id,
             original_participant_id=self.participant.participant_id,

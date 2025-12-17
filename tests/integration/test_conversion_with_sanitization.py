@@ -11,7 +11,7 @@ def test_convert_nwb_dataset_level_1_sanitization(
     nwb_paths = [problematic_nwbfile_path_2]
     run_config = nwb2bids.RunConfig(
         bids_directory=temporary_bids_directory,
-        sanitization_level=nwb2bids.sanitization.SanitizationLevel.CRITICAL_BIDS_LABELS,
+        sanitization_config=nwb2bids.sanitization.SanitizationConfig(SUB_LABELS=True, SES_LABELS=True),
     )
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 

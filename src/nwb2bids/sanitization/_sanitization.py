@@ -1,19 +1,19 @@
 import pathlib
+import re
 import typing
 
 import pydantic
 
-from ._common import _sanitize_label
-from ._levels import SanitizationLevel
+from ._configuration import SanitizationConfig
 
 
 class Sanitization(pydantic.BaseModel):
     """
     Sanitize all relevant metadata fields when translating from minimal NWB towards valid BIDS.
 
-    sanitization_level : SanitizationLevel
-        The level of sanitization to apply.
-        See `nwb2bids.sanitization.SanitizationLevel?` for more details.
+    sanitization_config : SanitizationConfig
+        The types of sanitization to apply.
+        See `nwb2bids.sanitization.SanitizationConfig?` for more details.
     sanitization_file_path : pathlib.Path
         The file to save a record of sanitization actions taken.
     original_session_id : str
@@ -26,31 +26,31 @@ class Sanitization(pydantic.BaseModel):
         The sanitized participant ID label.
     """
 
-    sanitization_level: SanitizationLevel
+    sanitization_config: SanitizationConfig
     sanitization_file_path: pathlib.Path
+    original_participant_id: str
     original_session_id: str
-    original_participant_id: str | None = None
-    sanitized_session_id: str | None = None
-    sanitized_participant_id: str | None = None
 
     def model_post_init(self, context: typing.Any, /) -> None:
-        """Save the sanitization actions to the report file (unless level is 0)."""
-        fields_to_sanitize = [self.sanitized_session_id, self.sanitized_participant_id]
-        if any(field_to_sanitize is not None for field_to_sanitize in fields_to_sanitize):
-            message = "Sanitized IDs should not be provided during initialization."
-            raise ValueError(message)
+        with self.sanitization_file_path.open(mode="w") as file_stream:
+            file_stream.write(self.model_dump_json())
 
-        self.sanitized_session_id = _sanitize_label(
-            label=self.original_session_id, sanitization_level=self.sanitization_level
-        )
-        self.sanitized_participant_id = _sanitize_label(
-            label=self.original_participant_id, sanitization_level=self.sanitization_level
-        )
+    @staticmethod
+    def _sanitize_label(label: str) -> str:
+        """Sanitize a generic entity label by replacing non-alphanumeric characters with plus signs."""
+        sanitized_label = re.sub(pattern=r"[^a-zA-Z0-9]", repl="+", string=label).removeprefix("+").removesuffix("+")
+        return sanitized_label
 
-        sanitization_lines = [
-            f"Session ID: '{self.original_session_id}' -> '{self.sanitized_session_id}'",
-            f"Participant ID: '{self.original_participant_id}' -> '{self.sanitized_participant_id}'",
-        ]
-        sanitization_text = "\n".join(sanitization_lines) + "\n"
-        with self.sanitization_file_path.open(mode="a") as file_stream:
-            file_stream.write(sanitization_text)
+    @pydantic.computed_field
+    @property
+    def sanitized_participant_id(self) -> str | None:
+        if self.sanitization_config.SUB_LABELS is False:
+            return self.original_participant_id
+        return self._sanitize_label(label=self.original_participant_id)
+
+    @pydantic.computed_field
+    @property
+    def sanitized_session_id(self) -> str | None:
+        if self.sanitization_config.SES_LABELS is False:
+            return self.original_session_id
+        return self._sanitize_label(label=self.original_session_id)

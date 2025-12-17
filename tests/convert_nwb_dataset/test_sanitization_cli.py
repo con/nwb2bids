@@ -7,7 +7,10 @@ import nwb2bids
 
 
 def test_cli_level_1_sanitization(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path):
-    command = f"nwb2bids convert {problematic_nwbfile_path_2} -o {temporary_bids_directory} --sanitization 1"
+    command = (
+        f"nwb2bids convert {problematic_nwbfile_path_2} -o {temporary_bids_directory} "
+        "--sanitization SUB_LABELS --sanitization SES_LABELS"
+    )
 
     result = subprocess.run(args=command, shell=True, capture_output=True)
     assert (

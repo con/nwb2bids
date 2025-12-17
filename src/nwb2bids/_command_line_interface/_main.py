@@ -8,7 +8,7 @@ from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
 from .._inspection._inspection_result import InspectionResult, Severity
 from .._tools._pluralize import _pluralize
-from ..sanitization import SanitizationLevel
+from ..sanitization import SanitizationConfig
 from ..testing import generate_ephys_tutorial
 
 
@@ -65,10 +65,11 @@ def _nwb2bids_cli():
 )
 @rich_click.option(
     "--sanitization",
-    help="Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.",
+    help="Specifies types of sanitization to apply when creating the BIDS dataset.",
     required=False,
-    type=rich_click.Choice(["NONE", "0", "CRITICAL_BIDS_LABELS", "1"], case_sensitive=False),
-    default="NONE",
+    type=rich_click.Choice(["SES_LABELS", "SUB_LABELS"], case_sensitive=False),
+    multiple=True,
+    default=None,
 )
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 @rich_click.option(
@@ -86,7 +87,7 @@ def _nwb2bids_cli():
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
-    sanitization: typing.Literal["NONE", "0", "CRITICAL_BIDS_LABELS", "1"] = "NONE",
+    sanitization: tuple[typing.Literal["SES_LABELS", "SUB_LABELS"]] = (),
     additional_metadata_file_path: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
@@ -103,16 +104,14 @@ def _run_convert_nwb_dataset(
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
-    handled_sanitization_level = (
-        SanitizationLevel(int(sanitization)) if sanitization.isdigit() else SanitizationLevel[sanitization]
-    )
+    sanitization_config = SanitizationConfig(**{level: True for level in sanitization})
 
     run_config_kwargs = {
         "bids_directory": bids_directory,
         "additional_metadata_file_path": additional_metadata_file_path,
         "file_mode": file_mode,
         "cache_directory": cache_directory,
-        "sanitization_level": handled_sanitization_level,
+        "sanitization_config": sanitization_config,
         "run_id": run_id,
     }
 
@@ -163,7 +162,7 @@ def _run_convert_nwb_dataset(
         return
 
     sanitization_text = ""
-    if handled_sanitization_level is not SanitizationLevel.NONE:
+    if any(sanitization_config.model_dump().values()):
         sanitization_text = (
             "\n\nNote: Sanitization was applied to file and directory names during conversion. "
             "Please review the converted BIDS dataset to ensure all names are appropriate.\n\n"

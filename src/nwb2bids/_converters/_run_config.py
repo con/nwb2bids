@@ -7,7 +7,7 @@ import pydantic
 from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_nwb2bids_home_directory
 from .._core._validate_existing_bids import _validate_bids_directory
-from ..sanitization import SanitizationLevel
+from ..sanitization import SanitizationConfig
 
 
 def _generate_run_id() -> str:
@@ -68,7 +68,10 @@ class RunConfig(pydantic.BaseModel):
     cache_directory: typing.Annotated[
         pydantic.DirectoryPath, pydantic.Field(default_factory=_get_nwb2bids_home_directory)
     ]
-    sanitization_level: SanitizationLevel = SanitizationLevel.NONE
+    sanitization_config: typing.Annotated[
+        SanitizationConfig,
+        pydantic.Field(default_factory=lambda _: SanitizationConfig()),
+    ]
     run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 

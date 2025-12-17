@@ -7,10 +7,10 @@ to conform to BIDS.
 Increasing the level of sanitization increases the validity of the resulting BIDS dataset.
 """
 
-from ._levels import SanitizationLevel
+from ._configuration import SanitizationConfig
 from ._sanitization import Sanitization
 
 __all__ = [
     "Sanitization",
-    "SanitizationLevel",
+    "SanitizationConfig",
 ]
