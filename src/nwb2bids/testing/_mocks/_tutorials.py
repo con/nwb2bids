@@ -82,32 +82,32 @@ def generate_ephys_tutorial(
         _generate_ecephys_file(nwbfile_path=nwbfile_path)
 
         return nwbfile_path
-    elif mode == "dataset":
-        subdir = output_directory / "some_sessions"
-        subdir.mkdir(exist_ok=True)
-        index_to_paths = {
-            0: output_directory / subdir / "ephys_session_1.nwb",
-            1: output_directory / subdir / "ephys_session_2.nwb",
-            2: output_directory / "ephys_session_3.nwb",
-            3: output_directory / "DO_NOT_CONVERT.nwb",
-        }
-        index_to_subject_id = {
-            0: "001",
-            1: "001",
-            2: "002",
-            3: "003",
-        }
-        index_to_session_id = {
-            0: "A",
-            1: "B",
-            2: "C",
-            3: "D",
-        }
 
-        for index in range(4):
-            nwbfile_path = index_to_paths[index]
-            _generate_ecephys_file(
-                nwbfile_path=nwbfile_path, subject_id=index_to_subject_id[index], session_id=index_to_session_id[index]
-            )
+    subdir = output_directory / "some_sessions"
+    subdir.mkdir(exist_ok=True)
+    index_to_paths = {
+        0: subdir / "ephys_session_1.nwb",
+        1: subdir / "ephys_session_2.nwb",
+        2: output_directory / "ephys_session_3.nwb",
+        3: output_directory / "DO_NOT_CONVERT.nwb",
+    }
+    index_to_subject_id = {
+        0: "001",
+        1: "001",
+        2: "002",
+        3: "003",
+    }
+    index_to_session_id = {
+        0: "A",
+        1: "B",
+        2: "C",
+        3: "D",
+    }
 
-        return output_directory
+    for index in range(4):
+        nwbfile_path = index_to_paths[index]
+        _generate_ecephys_file(
+            nwbfile_path=nwbfile_path, subject_id=index_to_subject_id[index], session_id=index_to_session_id[index]
+        )
+
+    return output_directory
