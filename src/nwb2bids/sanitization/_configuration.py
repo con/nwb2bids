@@ -9,10 +9,10 @@ class SanitizationConfig(pydantic.BaseModel):
 
     Attributes
     ----------
-    SES_LABELS : bool, default: False
-        Session labels are sanitized by replacing any non-alphanumeric characters with plus signs.
-    SUB_LABELS : bool, default: False
+    sub_labels : bool, default: False
         Subject labels are sanitized by replacing any non-alphanumeric characters with plus signs.
+    ses_labels : bool, default: False
+        Session labels are sanitized by replacing any non-alphanumeric characters with plus signs.
 
     Examples
     --------
@@ -21,8 +21,8 @@ class SanitizationConfig(pydantic.BaseModel):
     Otherwise, the filenames would have included the string `sub-My Subject_01`.
     """
 
-    SES_LABELS: bool = False
-    SUB_LABELS: bool = False
+    sub_labels: bool = False
+    ses_labels: bool = False
 
     model_config = pydantic.ConfigDict(
         frozen=True,  # Make the model immutable

@@ -67,7 +67,7 @@ def _nwb2bids_cli():
     "--sanitization",
     help="Specifies types of sanitization to apply when creating the BIDS dataset.",
     required=False,
-    type=rich_click.Choice(["SES_LABELS", "SUB_LABELS"], case_sensitive=False),
+    type=rich_click.Choice(["sub-labels", "ses-labels"], case_sensitive=True),
     multiple=True,
     default=None,
 )
@@ -87,7 +87,7 @@ def _nwb2bids_cli():
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
-    sanitization: tuple[typing.Literal["SES_LABELS", "SUB_LABELS"]] = (),
+    sanitization: tuple[typing.Literal["sub-labels", "ses-labels"]] = (),
     additional_metadata_file_path: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
@@ -104,7 +104,7 @@ def _run_convert_nwb_dataset(
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
-    sanitization_config = SanitizationConfig(**{level: True for level in sanitization})
+    sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
 
     run_config_kwargs = {
         "bids_directory": bids_directory,

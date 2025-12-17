@@ -44,13 +44,13 @@ class Sanitization(pydantic.BaseModel):
     @pydantic.computed_field
     @property
     def sanitized_participant_id(self) -> str | None:
-        if self.sanitization_config.SUB_LABELS is False:
+        if self.sanitization_config.sub_labels is False:
             return self.original_participant_id
         return self._sanitize_label(label=self.original_participant_id)
 
     @pydantic.computed_field
     @property
     def sanitized_session_id(self) -> str | None:
-        if self.sanitization_config.SES_LABELS is False:
+        if self.sanitization_config.ses_labels is False:
             return self.original_session_id
         return self._sanitize_label(label=self.original_session_id)

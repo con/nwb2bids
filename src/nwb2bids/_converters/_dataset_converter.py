@@ -285,14 +285,18 @@ class DatasetConverter(BaseConverter):
         }
 
         with pandas.option_context("mode.chained_assignment", None):
-            deduplicated_data_frame["participant_id"] = deduplicated_data_frame["participant_id"].apply(
-                lambda participant_id: sanitized_participant_ids[participant_id]
+            deduplicated_data_frame["participant_id"] = (
+                deduplicated_data_frame["participant_id"]
+                .apply(lambda participant_id: sanitized_participant_ids[participant_id])
+                .astype("string")
             )
 
         # BIDS requires sub- prefix in table values
         participants_data_frame = deduplicated_data_frame.copy(deep=True)
-        participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
-            lambda participant_id: f"sub-{participant_id}"
+        participants_data_frame["participant_id"] = (
+            participants_data_frame["participant_id"]
+            .apply(lambda participant_id: f"sub-{participant_id}")
+            .astype("string")
         )
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
 

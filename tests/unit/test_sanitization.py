@@ -17,10 +17,10 @@ import nwb2bids
     [
         # Sanitization level NONE should return the original ID
         ("Mouse 12", nwb2bids.sanitization.SanitizationConfig(), "Mouse 12"),
-        ("Mouse 12", nwb2bids.sanitization.SanitizationConfig(SUB_LABELS=True), "Mouse+12"),
+        ("Mouse 12", nwb2bids.sanitization.SanitizationConfig(sub_labels=True), "Mouse+12"),
         (
             "Raw/data?sub-01@today",
-            nwb2bids.sanitization.SanitizationConfig(SUB_LABELS=True),
+            nwb2bids.sanitization.SanitizationConfig(sub_labels=True),
             "Raw+data+sub+01+today",
         ),
     ],
@@ -48,18 +48,18 @@ def test_sanitize_participant_id(participant_id, sanitization_level, expected, t
         # TODO: think about if subject info in session IDs deserves special cleaning
         (
             "Session 12 subject 5",
-            nwb2bids.sanitization.SanitizationConfig(SES_LABELS=True),
+            nwb2bids.sanitization.SanitizationConfig(ses_labels=True),
             "Session+12+subject+5",
         ),
         # TODO: think about if timestamps deserve special cleaning
         (
             "2025-02-03T01:08:12.1236",
-            nwb2bids.sanitization.SanitizationConfig(SES_LABELS=True),
+            nwb2bids.sanitization.SanitizationConfig(ses_labels=True),
             "2025+02+03T01+08+12+1236",
         ),
         (
             "12_02_2025",
-            nwb2bids.sanitization.SanitizationConfig(SES_LABELS=True),
+            nwb2bids.sanitization.SanitizationConfig(ses_labels=True),
             "12+02+2025",
         ),
     ],
