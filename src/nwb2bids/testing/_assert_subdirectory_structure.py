@@ -26,11 +26,12 @@ def assert_subdirectory_structure(
         all expected entities at that level.
     """
     # Future TODO: adjust to pathlib.Path.walk once 3.12 is minimum
-    for subdirectory_path, directories, files in os.walk(top=directory):
+    for subdirectory, directories, files in os.walk(top=directory):
         directories[:] = [d for d in directories if not d.startswith(".")]
         files = [f for f in files if not f.startswith(".")]
 
-        expected = expected_structure.get(pathlib.Path(subdirectory_path), None)
+        subdirectory_path = pathlib.Path(subdirectory)
+        expected = expected_structure.get(subdirectory_path, None)
 
         assert expected is not None, (
             f"\n\nUnexpected subdirectory {subdirectory_path}.\n\n"
