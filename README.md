@@ -1,6 +1,6 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color-dark.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/con/nwb2bids/main/docs/assets/nwb2bids-color-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/con/nwb2bids/main/docs/assets/nwb2bids-color.svg">
     <img alt="nwb2bids logo" src="https://raw.githubusercontent.com/con/nwb2bids/main/assets/nwb2bids-color.svg" width="200">
   </picture>
