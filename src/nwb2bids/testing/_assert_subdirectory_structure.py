@@ -26,31 +26,31 @@ def assert_subdirectory_structure(
         all expected entities at that level.
     """
     # Future TODO: adjust to pathlib.Path.walk once 3.12 is minimum
-    for dir_, directories, files in os.walk(top=directory):
+    for current_dir, directories, files in os.walk(top=directory):
         directories[:] = [d for d in directories if not d.startswith(".")]
         files = [f for f in files if not f.startswith(".")]
 
-        dir_path = pathlib.Path(dir_)
-        expected = expected_structure.get(dir_path, None)
+        current_dir_path = pathlib.Path(current_dir)
+        expected = expected_structure.get(current_dir_path, None)
 
         assert expected is not None, (
-            f"\n\nUnexpected subdirectory {dir_path}.\n\n"
+            f"\n\nUnexpected subdirectory {current_dir_path}.\n\n"
             f"Expected subdirectories: {list(expected_structure.keys())}\n"
         )
         assert set(expected.keys()) == {"directories", "files"}, (
-            f"\n\nUnexpected keys in expected structure for {dir_path}.\n\n"
+            f"\n\nUnexpected keys in expected structure for {current_dir_path}.\n\n"
             f"Expected keys: 'directories', 'files'\n"
             f"Found keys: {set(expected.keys())}\n\n"
         )
         assert set(directories) == set(expected["directories"]), (
-            f"\n\nUnexpected directories in {dir_path}.\n\n"
+            f"\n\nUnexpected directories in {current_dir_path}.\n\n"
             f"Expected: {expected['directories']}\n"
             f"Found: {set(directories)}\n"
             f"Unexpected: {set(directories) - set(expected['directories'])}\n"
             f"Missing: {set(expected['directories']) - set(directories)}\n\n"
         )
         assert set(files) == set(expected["files"]), (
-            f"\n\nUnexpected files in {dir_path}.\n\n"
+            f"\n\nUnexpected files in {current_dir_path}.\n\n"
             f"Expected: {expected['files']}\n"
             f"Found: {files}\n"
             f"Unexpected: {set(files) - set(expected['files'])}\n"
