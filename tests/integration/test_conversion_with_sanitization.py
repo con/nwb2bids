@@ -5,7 +5,7 @@ import pathlib
 import nwb2bids
 
 
-def test_convert_nwb_dataset_level_1_sanitization(
+def test_convert_nwb_dataset_basic_sanitization(
     problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [problematic_nwbfile_path_2]

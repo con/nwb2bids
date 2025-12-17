@@ -37,7 +37,6 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     sanitization: Sanitization | None = None
 
     def model_post_init(self, context: typing.Any, /) -> None:
-        """Apply sanitization (even if level 0)."""
         if self.sanitization is not None:
             return
 

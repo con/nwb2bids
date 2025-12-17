@@ -33,9 +33,6 @@ class RunConfig(pydantic.BaseModel):
     bids_directory : directory path
         The path to the directory where the BIDS dataset will be created.
         Defaults to the current working directory and checks if it is either empty or a BIDS dataset.
-    sanitization_level : nwb2bids.SanitizationLevel
-        Specifies the level of sanitization to apply to file and directory names when creating the BIDS dataset.
-        Read more about the specific levels from `nwb2bids.sanitization.SanitizationLevel?`.
     additional_metadata_file_path : file path, optional
         The path to a YAML file containing additional metadata not included within the NWB files
         that you wish to include in the BIDS dataset.
@@ -49,6 +46,9 @@ class RunConfig(pydantic.BaseModel):
     cache_directory : directory path
         The directory where run specific files (e.g., notifications, sanitization reports) will be stored.
         Defaults to `~/.nwb2bids`.
+    sanitization_config : nwb2bids.SanitizationConfig
+        Specifies the types of sanitization to apply when creating the BIDS dataset.
+        Read more about the specific options from `nwb2bids.sanitization.SanitizationConfig?`.
     run_id : str
         On each unique run of nwb2bids, a run ID is generated.
         Set this option to override this to any identifying string.

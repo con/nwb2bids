@@ -13,9 +13,8 @@ import nwb2bids
 
 
 @pytest.mark.parametrize(
-    "participant_id, sanitization_level, expected",
+    "participant_id, sanitization_config, expected",
     [
-        # Sanitization level NONE should return the original ID
         ("Mouse 12", nwb2bids.sanitization.SanitizationConfig(), "Mouse 12"),
         ("Mouse 12", nwb2bids.sanitization.SanitizationConfig(sub_labels=True), "Mouse+12"),
         (
@@ -25,10 +24,10 @@ import nwb2bids
         ),
     ],
 )
-def test_sanitize_participant_id(participant_id, sanitization_level, expected, temporary_run_directory: pathlib.Path):
+def test_sanitize_participant_id(participant_id, sanitization_config, expected, temporary_run_directory: pathlib.Path):
     sanitization_file_path = temporary_run_directory / "test_sanitize_session_id_results.txt"
     sanitization = nwb2bids.sanitization.Sanitization(
-        sanitization_config=sanitization_level,
+        sanitization_config=sanitization_config,
         sanitization_file_path=sanitization_file_path,
         original_participant_id=participant_id,
         original_session_id="12_02_2025",
@@ -37,9 +36,8 @@ def test_sanitize_participant_id(participant_id, sanitization_level, expected, t
 
 
 @pytest.mark.parametrize(
-    "session_id, sanitization_level, expected",
+    "session_id, sanitization_config, expected",
     [
-        # Sanitization level NONE should return the original ID
         (
             "Session 12 subject 5",
             nwb2bids.sanitization.SanitizationConfig(),
@@ -64,10 +62,10 @@ def test_sanitize_participant_id(participant_id, sanitization_level, expected, t
         ),
     ],
 )
-def test_sanitize_session_id(session_id, sanitization_level, expected, temporary_run_directory: pathlib.Path):
+def test_sanitize_session_id(session_id, sanitization_config, expected, temporary_run_directory: pathlib.Path):
     sanitization_file_path = temporary_run_directory / "test_sanitize_session_id_results.txt"
     sanitization = nwb2bids.sanitization.Sanitization(
-        sanitization_config=sanitization_level,
+        sanitization_config=sanitization_config,
         sanitization_file_path=sanitization_file_path,
         original_participant_id="0",
         original_session_id=session_id,
