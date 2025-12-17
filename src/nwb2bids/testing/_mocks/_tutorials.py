@@ -86,8 +86,8 @@ def generate_ephys_tutorial(
     subdir = output_directory / "some_sessions"
     subdir.mkdir(exist_ok=True)
     index_to_paths = {
-        0: output_directory / subdir / "ephys_session_1.nwb",
-        1: output_directory / subdir / "ephys_session_2.nwb",
+        0: subdir / "ephys_session_1.nwb",
+        1: subdir / "ephys_session_2.nwb",
         2: output_directory / "ephys_session_3.nwb",
         3: output_directory / "DO_NOT_CONVERT.nwb",
     }
