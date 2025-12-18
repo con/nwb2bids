@@ -2,6 +2,7 @@ import collections
 import os
 import pathlib
 import shutil
+import typing
 
 import pydantic
 import typing_extensions
@@ -36,8 +37,8 @@ class SessionConverter(BaseConverter):
     @pydantic.validate_call
     def from_nwb_paths(
         cls,
+        run_config: typing.Annotated[RunConfig, pydantic.Field(default_factory=RunConfig)],
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
-        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
         ignore_hidden: bool = True,
     ) -> list[typing_extensions.Self]:
         """
@@ -47,10 +48,10 @@ class SessionConverter(BaseConverter):
 
         Parameters
         ----------
-        nwb_paths : iterable of file and directory paths
-            An iterable of NWB file paths and directories containing NWB files.
         run_config : RunConfig, optional
             The configuration for this conversion run.
+        nwb_paths : iterable of file and directory paths
+            An iterable of NWB file paths and directories containing NWB files.
         ignore_hidden : bool, default: True
             Whether to ignore NWB files located under directories (those starting with a period).
 
