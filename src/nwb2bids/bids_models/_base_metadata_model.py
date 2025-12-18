@@ -49,4 +49,4 @@ class BaseMetadataContainerModel(MutableModel, abc.ABC):
         These can accumulate over time based on which instance methods have been called.
         """
         message = "This field should be defined in child classes."
-        raise NotImplementedError(message=message)
+        raise NotImplementedError(message)
