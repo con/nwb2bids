@@ -1,4 +1,5 @@
 import abc
+import typing
 
 import pydantic
 
@@ -6,9 +7,9 @@ from ._run_config import RunConfig
 
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):
-    run_config: RunConfig = pydantic.Field(
-        description="The configuration for this conversion run.", default_factory=RunConfig
-    )
+    run_config: typing.Annotated[
+        RunConfig, pydantic.Field(description="The configuration for this conversion run.", default_factory=RunConfig)
+    ]
 
     @abc.abstractmethod
     def extract_metadata(self) -> None:
