@@ -1,7 +1,6 @@
 import collections
 import json
 import traceback
-import typing
 
 import pandas
 import pydantic
@@ -42,19 +41,17 @@ class DatasetConverter(BaseConverter):
     @pydantic.validate_call
     def from_remote_dandiset(
         cls,
-        run_config: typing.Annotated[RunConfig, pydantic.Field(default_factory=RunConfig)],
         dandiset_id: str = pydantic.Field(pattern=r"^\d{6}$"),
         api_url: str | None = None,
         token: str | None = None,
         limit: int | None = None,
+        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
     ) -> typing_extensions.Self | None:
         """
         Initialize a converter of a Dandiset to BIDS format.
 
         Parameters
         ----------
-        run_config : RunConfig, optional
-            The configuration for this conversion run.
         dandiset_id : str
             The dandiset ID of the Dandiset to be converted.
         api_url : str, optional
@@ -69,6 +66,8 @@ class DatasetConverter(BaseConverter):
         limit : int, optional
             If specified, limits the number of sessions to convert.
             This is mainly useful for testing purposes.
+        run_config : RunConfig, optional
+            The configuration for this conversion run.
         """
         try:
             import dandi.dandiapi
@@ -136,18 +135,18 @@ class DatasetConverter(BaseConverter):
     @pydantic.validate_call
     def from_nwb_paths(
         cls,
-        run_config: typing.Annotated[RunConfig, pydantic.Field(default_factory=RunConfig)],
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
+        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
     ) -> typing_extensions.Self:
         """
         Initialize a converter of NWB files to BIDS format.
 
         Parameters
         ----------
-        run_config : RunConfig, optional
-            The configuration for this conversion run.
         nwb_paths : iterable of file and directory paths
             An iterable of NWB file paths and directories containing NWB files.
+        run_config : RunConfig, optional
+            The configuration for this conversion run.
 
         Returns
         -------
