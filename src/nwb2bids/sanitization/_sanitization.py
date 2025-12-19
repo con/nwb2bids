@@ -32,6 +32,7 @@ class Sanitization(pydantic.BaseModel):
     original_session_id: str
 
     def model_post_init(self, context: typing.Any, /) -> None:
+        self.sanitization_file_path.parent.mkdir(parents=True, exist_ok=True)
         with self.sanitization_file_path.open(mode="w") as file_stream:
             file_stream.write(self.model_dump_json())
 
