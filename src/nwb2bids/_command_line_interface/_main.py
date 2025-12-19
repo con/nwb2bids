@@ -104,6 +104,7 @@ def _run_convert_nwb_dataset(
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
+     # Convert CLI args to snake_case
     sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
 
     run_config_kwargs = {
