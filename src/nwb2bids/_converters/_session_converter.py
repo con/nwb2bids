@@ -37,7 +37,7 @@ class SessionConverter(BaseConverter):
     def from_nwb_paths(
         cls,
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
-        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
+        run_config: RunConfig = pydantic.Field(default_factory=lambda: RunConfig()),
         ignore_hidden: bool = True,
     ) -> list[typing_extensions.Self]:
         """

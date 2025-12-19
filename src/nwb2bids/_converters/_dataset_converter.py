@@ -45,7 +45,7 @@ class DatasetConverter(BaseConverter):
         api_url: str | None = None,
         token: str | None = None,
         limit: int | None = None,
-        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
+        run_config: RunConfig = pydantic.Field(default_factory=lambda: RunConfig()),
     ) -> typing_extensions.Self | None:
         """
         Initialize a converter of a Dandiset to BIDS format.
@@ -136,7 +136,7 @@ class DatasetConverter(BaseConverter):
     def from_nwb_paths(
         cls,
         nwb_paths: list[pydantic.FilePath | pydantic.DirectoryPath] = pydantic.Field(min_length=1),
-        run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
+        run_config: RunConfig = pydantic.Field(default_factory=lambda: RunConfig()),
     ) -> typing_extensions.Self:
         """
         Initialize a converter of NWB files to BIDS format.

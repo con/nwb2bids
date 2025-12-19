@@ -27,7 +27,7 @@ AbsoluteDirectoryPath = typing.Annotated[pydantic.DirectoryPath, pydantic.Before
 def convert_nwb_dataset(
     *,
     nwb_paths: list[AbsoluteFilePath | AbsoluteDirectoryPath] = pydantic.Field(min_length=1),
-    run_config: RunConfig = pydantic.Field(default_factory=RunConfig),
+    run_config: RunConfig = pydantic.Field(default_factory=lambda: RunConfig()),
 ) -> DatasetConverter:
     """
     Convert a dataset of NWB files to a BIDS dataset.
