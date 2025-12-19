@@ -111,8 +111,7 @@ class ProbeTable(BaseMetadataContainerModel):
         file_path : path
             The path to the output JSON file.
         """
-        if isinstance(file_path, str):
-            file_path = pathlib.Path(file_path)
+        file_path = pathlib.Path(file_path)
 
         with file_path.open(mode="w") as file_stream:
             json.dump(obj=dict(), fp=file_stream, indent=4)
