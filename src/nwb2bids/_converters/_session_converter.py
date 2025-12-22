@@ -93,9 +93,16 @@ class SessionConverter(BaseConverter):
         return session_converters
 
     def extract_metadata(self) -> None:
-        if self.session_metadata is None:
-            self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(nwbfile_paths=self.nwbfile_paths)
-            self.messages += self.session_metadata.messages
+        if self.session_metadata is not None:
+            return
+
+        self.run_config.bids_directory.mkdir(exist_ok=True)
+        self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
+
+        self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(
+            nwbfile_paths=self.nwbfile_paths, run_config=self.run_config
+        )
+        self.messages += self.session_metadata.messages
 
     def convert_to_bids_session(self) -> None:
         """
@@ -111,8 +118,8 @@ class SessionConverter(BaseConverter):
         if self.session_metadata is None:
             self.extract_metadata()
 
-        participant_id = self.session_metadata.participant.participant_id
-        session_id = self.session_id
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         self.write_ecephys_files()
@@ -140,7 +147,7 @@ class SessionConverter(BaseConverter):
 
     def write_ecephys_files(self) -> None:
         """
-        Write the `_probes`, `_channels`, and `_electrodes` metadata files, both `.tsv` and `.json`, for this session .
+        Write the `_probes`, `_channels`, and `_electrodes` metadata files, both `.tsv` and `.json`, for this session.
         """
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
@@ -153,8 +160,8 @@ class SessionConverter(BaseConverter):
         ):
             return
 
-        participant_id = self.session_metadata.participant.participant_id
-        session_id = self.session_id
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         ecephys_directory = self._establish_ecephys_subdirectory()
@@ -188,8 +195,8 @@ class SessionConverter(BaseConverter):
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
 
-        participant_id = self.session_metadata.participant.participant_id
-        session_id = self.session_id
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         ecephys_directory = self._establish_ecephys_subdirectory()
@@ -201,8 +208,8 @@ class SessionConverter(BaseConverter):
         self.session_metadata.events.to_json(file_path=session_events_metadata_file_path)
 
     def _establish_ecephys_subdirectory(self) -> pathlib.Path:
-        participant_id = self.session_metadata.participant.participant_id
-        session_id = self.session_id
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
 
         subject_directory = self.run_config.bids_directory / f"sub-{participant_id}"
         subject_directory.mkdir(exist_ok=True)

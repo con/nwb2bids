@@ -23,6 +23,7 @@ __all__ = [
     "Severity",
     # Public submodules
     "bids_models",
+    "sanitization",
     "testing",
 ]
 
