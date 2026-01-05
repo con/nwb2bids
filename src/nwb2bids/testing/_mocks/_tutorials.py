@@ -6,6 +6,7 @@ import pydantic
 import pynwb
 import pynwb.testing.mock.ecephys
 import pynwb.testing.mock.file
+import pynwb.testing.mock.icephys
 
 
 def get_tutorial_directory() -> pathlib.Path:
@@ -31,7 +32,7 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
 
     probe = pynwb.testing.mock.ecephys.mock_Device(
         name="ExampleProbe",
-        description="This is an example probe used for demonstration purposes.",
+        description="This is an example ecephys probe used for demonstration purposes.",
         manufacturer="`nwb2bids.testing` module",
         nwbfile=nwbfile,
     )
@@ -68,27 +69,130 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
         file_stream.write(nwbfile)
 
 
+def _generate_icephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001", session_id: str = "A") -> None:
+    nwbfile = pynwb.testing.mock.file.mock_NWBFile(
+        session_id=session_id,
+        session_description=(
+            "An example NWB file containing icephys neurodata types - for use in the nwb2bids tutorials."
+        ),
+    )
+
+    subject = pynwb.file.Subject(
+        subject_id=subject_id,
+        species="Mus musculus",
+        sex="M",
+    )
+    nwbfile.subject = subject
+
+    # Icephys 'probes'
+    probe1 = pynwb.testing.mock.icephys.mock_Device(
+        name="pipette01",
+        description="This is an example icephys probe used for demonstration purposes.",
+        manufacturer="Sutter",
+        nwbfile=nwbfile,
+    )
+    probe2 = pynwb.testing.mock.icephys.mock_Device(
+        name="pipette02",
+        description="This is an example icephys probe used for demonstration purposes.",
+        manufacturer="Sutter",
+        nwbfile=nwbfile,
+    )
+    probe3 = pynwb.testing.mock.icephys.mock_Device(
+        name="pipette03",
+        description="This is an example icephys probe used for demonstration purposes.",
+        manufacturer="WPI",
+        nwbfile=nwbfile,
+    )
+
+    # Icephys electrodes
+    electrode1 = nwbfile.create_icephys_electrode(
+        name="patch01",
+        description="This is an example icephys electrode used for demonstration purposes.",
+        device=probe1,
+    )
+    electrode2 = nwbfile.create_icephys_electrode(
+        name="patch02",
+        description="This is an example icephys electrode used for demonstration purposes.",
+        device=probe2,
+    )
+    electrode3 = nwbfile.create_icephys_electrode(
+        name="sharp01",
+        description="This is an example icephys electrode used for demonstration purposes.",
+        device=probe3,
+    )
+
+    # Icephys series
+    pynwb.testing.mock.icephys.mock_CurrentClampSeries(
+        name="ExampleCurrentClampSeries1",
+        data=[-70, -60, -50, -40, -30],
+        conversion=1e-3,
+        resolution=numpy.nan,
+        rate=20e3,
+        electrode=electrode1,
+        gain=0.01,
+        bias_current=1e-12,
+        bridge_balance=70e6,
+        capacitance_compensation=1e-12,
+        nwbfile=nwbfile,
+    )
+    pynwb.testing.mock.icephys.mock_CurrentClampSeries(
+        name="ExampleCurrentClampSeries2",
+        data=[-10, 0, 10, 20, 30],
+        conversion=1e-3,
+        resolution=numpy.nan,
+        rate=20e3,
+        electrode=electrode2,
+        gain=0.01,
+        bias_current=1e-12,
+        bridge_balance=70e6,
+        capacitance_compensation=1e-12,
+        nwbfile=nwbfile,
+    )
+    pynwb.testing.mock.icephys.mock_VoltageClampSeries(
+        name="ExampleVoltageClampSeries1",
+        data=[1.0, 2.0, 3.0, 4.0, 5.0],
+        conversion=1e-12,
+        resolution=numpy.nan,
+        rate=20e3,
+        electrode=electrode3,
+        gain=5e-12,
+        capacitance_slow=100e-12,
+        resistance_comp_correction=70.0,
+        nwbfile=nwbfile,
+    )
+
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+
 @pydantic.validate_call
 def generate_ephys_tutorial(
-    *, mode=typing.Literal["file", "dataset"], output_directory: pydantic.DirectoryPath | None = None
+    *,
+    mode=typing.Literal["file", "dataset"],
+    output_directory: pydantic.DirectoryPath | None = None,
+    modality: typing.Literal["ecephys", "icephys"] = "ecephys",
 ) -> pathlib.Path:
     if output_directory is None:
         tutorial_dir = get_tutorial_directory()
-        output_directory = tutorial_dir / f"ephys_tutorial_{mode}"
+        output_directory = tutorial_dir / f"{modality}_tutorial_{mode}"
         output_directory.mkdir(exist_ok=True)
 
     if mode == "file":
-        nwbfile_path = output_directory / "ephys.nwb"
-        _generate_ecephys_file(nwbfile_path=nwbfile_path)
+        nwbfile_path = output_directory / f"{modality}.nwb"
+
+        if modality == "ecephys":
+            _generate_ecephys_file(nwbfile_path=nwbfile_path)
+        else:
+            _generate_icephys_file(nwbfile_path=nwbfile_path)
 
         return nwbfile_path
 
     subdir = output_directory / "some_sessions"
     subdir.mkdir(exist_ok=True)
     index_to_paths = {
-        0: subdir / "ephys_session_1.nwb",
-        1: subdir / "ephys_session_2.nwb",
-        2: output_directory / "ephys_session_3.nwb",
+        0: subdir / f"{modality}_session_1.nwb",
+        1: subdir / f"{modality}_session_2.nwb",
+        2: output_directory / f"{modality}_session_3.nwb",
         3: output_directory / "DO_NOT_CONVERT.nwb",
     }
     index_to_subject_id = {
@@ -106,8 +210,14 @@ def generate_ephys_tutorial(
 
     for index in range(4):
         nwbfile_path = index_to_paths[index]
-        _generate_ecephys_file(
-            nwbfile_path=nwbfile_path, subject_id=index_to_subject_id[index], session_id=index_to_session_id[index]
-        )
+
+        if modality == "ecephys":
+            _generate_ecephys_file(
+                nwbfile_path=nwbfile_path, subject_id=index_to_subject_id[index], session_id=index_to_session_id[index]
+            )
+        else:
+            _generate_icephys_file(
+                nwbfile_path=nwbfile_path, subject_id=index_to_subject_id[index], session_id=index_to_session_id[index]
+            )
 
     return output_directory
