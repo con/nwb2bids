@@ -115,10 +115,6 @@ def setup(app) -> None:
     app.connect("html-page-context", remove_section_nav)
 
 def remove_section_nav(app, pagename, templatename, context, doctree) -> None:
-    # Skip the tutorials page
-    # if pagename == "tutorials":
-    #     return
-
     if doctree:
         # Count the number of top-level sections
         sections = [node for node in doctree.traverse() if node.tagname == "section"]
