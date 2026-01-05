@@ -71,6 +71,7 @@ def test_session_converter_metadata_extraction(
     expected_session_metadata = nwb2bids.bids_models.BidsSessionMetadata(
         session_id="456",
         participant=nwb2bids.bids_models.Participant(participant_id="123", species="Mus musculus", sex="M"),
+        run_config=run_config,
     )
     assert session_converters[0].session_metadata == expected_session_metadata
 

@@ -32,9 +32,17 @@ def _make_minimal_nwbfile(session_id: str = "456", subject_species: str = "Mus m
 
 
 @pytest.fixture(scope="function")
-def temporary_bids_directory(tmpdir: py.path.local) -> pathlib.Path:
-    """Creates a temporary BIDS directory for testing purposes."""
+def temporary_run_directory(tmpdir: py.path.local) -> pathlib.Path:
+    """Creates a temporary working directory for testing purposes."""
     return pathlib.Path(tmpdir)
+
+
+@pytest.fixture(scope="function")
+def temporary_bids_directory(temporary_run_directory: pathlib.Path) -> pathlib.Path:
+    """Creates a temporary BIDS directory for testing purposes."""
+    bids_directory = temporary_run_directory / "bids"
+    bids_directory.mkdir(exist_ok=True)
+    return bids_directory
 
 
 @pytest.fixture(scope="session")

@@ -8,6 +8,7 @@ from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
 from .._inspection._inspection_result import InspectionResult, Severity
 from .._tools._pluralize import _pluralize
+from ..sanitization import SanitizationConfig
 from ..testing import generate_ephys_tutorial
 
 
@@ -62,6 +63,14 @@ def _nwb2bids_cli():
     type=rich_click.Path(exists=True, dir_okay=False, readable=True),
     default=None,
 )
+@rich_click.option(
+    "--sanitization",
+    help="Specifies types of sanitization to apply when creating the BIDS dataset.",
+    required=False,
+    type=rich_click.Choice(["sub-labels", "ses-labels"], case_sensitive=True),
+    multiple=True,
+    default=None,
+)
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 @rich_click.option(
     "--run-id",
@@ -78,6 +87,7 @@ def _nwb2bids_cli():
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
+    sanitization: tuple[typing.Literal["sub-labels", "ses-labels"]] = (),
     additional_metadata_file_path: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
@@ -94,12 +104,15 @@ def _run_convert_nwb_dataset(
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
+    # Convert CLI args to snake_case
+    sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
 
     run_config_kwargs = {
         "bids_directory": bids_directory,
         "additional_metadata_file_path": additional_metadata_file_path,
         "file_mode": file_mode,
         "cache_directory": cache_directory,
+        "sanitization_config": sanitization_config,
         "run_id": run_id,
     }
 
@@ -149,8 +162,15 @@ def _run_convert_nwb_dataset(
         rich_click.echo(message=console_notification)
         return
 
+    sanitization_text = ""
+    if any(sanitization_config.model_dump().values()):
+        sanitization_text = (
+            "\n\nNote: Sanitization was applied to file and directory names during conversion. "
+            "Please review the converted BIDS dataset to ensure all names are appropriate.\n\n"
+        )
+
     if criticals:
-        text = f"\nBIDS dataset was successfully created, but may not be valid!{notif_text}"
+        text = f"\nBIDS dataset was successfully created, but may not be valid!{sanitization_text}{notif_text}"
         console_notification = rich_click.style(text=text, fg="yellow")
         rich_click.echo(message=console_notification)
         return
@@ -161,7 +181,8 @@ def _run_convert_nwb_dataset(
 
         text += (
             f'{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
-            f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.{notif_text}'
+            f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
+            f"{sanitization_text}{notif_text}"
         )
     console_notification = rich_click.style(text=text, fg="green")
     rich_click.echo(message=console_notification)

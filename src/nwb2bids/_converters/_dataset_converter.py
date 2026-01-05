@@ -211,15 +211,13 @@ class DatasetConverter(BaseConverter):
 
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
-        self.run_config.bids_directory.mkdir(exist_ok=True)
-
         try:
-            self.write_dataset_description()
-            self.write_participants_metadata()
-            self.write_sessions_metadata()
-
             for session_converter in self.session_converters:
                 session_converter.convert_to_bids_session()
+
+            self.write_participants_metadata()
+            self.write_sessions_metadata()
+            self.write_dataset_description()
         except Exception:  # noqa
             message = InspectionResult(
                 title="Failed to convert to BIDS dataset",
@@ -277,12 +275,28 @@ class DatasetConverter(BaseConverter):
             aggregated_data_frame = full_participants_data_frame.copy()
 
         # Deduplicate all rows of the frame
-        deduplicated_data_frame = aggregated_data_frame.drop_duplicates(ignore_index=True)
+        deduplicated_data_frame = aggregated_data_frame.drop_duplicates(ignore_index=True).copy()
+
+        # Apply sanitization
+        sanitizations = [converter.session_metadata.sanitization for converter in self.session_converters]
+        sanitized_participant_ids = {
+            sanitization.original_participant_id: sanitization.sanitized_participant_id
+            for sanitization in sanitizations
+        }
+
+        with pandas.option_context("mode.chained_assignment", None):
+            deduplicated_data_frame["participant_id"] = (
+                deduplicated_data_frame["participant_id"]
+                .apply(lambda participant_id: sanitized_participant_ids[participant_id])
+                .astype("string")
+            )
 
         # BIDS requires sub- prefix in table values
-        participants_data_frame = deduplicated_data_frame.copy()
-        participants_data_frame["participant_id"] = participants_data_frame["participant_id"].apply(
-            lambda participant_id: f"sub-{participant_id}"
+        participants_data_frame = deduplicated_data_frame.copy(deep=True)
+        participants_data_frame["participant_id"] = (
+            participants_data_frame["participant_id"]
+            .apply(lambda participant_id: f"sub-{participant_id}")
+            .astype("string")
         )
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
 
@@ -321,8 +335,8 @@ class DatasetConverter(BaseConverter):
         """
         participant_id_to_sessions = collections.defaultdict(list)
         for session_converter in self.session_converters:
-            participant_id_to_sessions[session_converter.session_metadata.participant.participant_id].append(
-                session_converter
+            participant_id_to_sessions[session_converter.session_metadata.sanitization.sanitized_participant_id].append(
+                session_converter.session_metadata
             )
 
         # TODO: expand beyond just session_id field (mainly via additional metadata)
@@ -330,20 +344,26 @@ class DatasetConverter(BaseConverter):
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
         for participant_id, sessions_metadata in participant_id_to_sessions.items():
-            subject_directory = self.run_config.bids_directory / f"sub-{participant_id}"
+            sanitized_participant_id = participant_id
+            sanitized_session_ids = [
+                session_metadata.sanitization.sanitized_session_id for session_metadata in sessions_metadata
+            ]
+
+            subject_directory = self.run_config.bids_directory / f"sub-{sanitized_participant_id}"
             subject_directory.mkdir(exist_ok=True)
 
             # BIDS requires ses- prefix in table values
-            session_ids = [session_converter.session_id for session_converter in sessions_metadata]
-            sessions_data_frame = pandas.DataFrame({"session_id": [f"ses-{session_id}" for session_id in session_ids]})
+            sessions_data_frame = pandas.DataFrame(
+                {"session_id": [f"ses-{session_id}" for session_id in sanitized_session_ids]}
+            )
 
-            session_tsv_file_path = subject_directory / f"sub-{participant_id}_sessions.tsv"
+            session_tsv_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.tsv"
             sessions_data_frame.to_csv(path_or_buf=session_tsv_file_path, mode="w", index=False, sep="\t")
 
-            session_json_file_path = subject_directory / f"sub-{participant_id}_sessions.json"
+            session_json_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.json"
             with session_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=sessions_json, fp=file_stream, indent=4)
 
-            for session_id in session_ids:
+            for session_id in sanitized_session_ids:
                 session_directory = subject_directory / f"ses-{session_id}"
                 session_directory.mkdir(exist_ok=True)
