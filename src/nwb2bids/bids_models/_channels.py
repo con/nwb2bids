@@ -37,15 +37,17 @@ class ChannelTable(BaseMetadataContainerModel):
 
     @pydantic.computed_field
     @property
-    def messages(self) -> list[InspectionResult]:
+    def notifications(self) -> list[InspectionResult]:
         """
-        All messages from contained session converters.
+        All notifications from contained session converters.
 
         These can accumulate over time based on which instance methods have been called.
         """
-        messages = [message for channel in self.channels for message in channel.messages]
-        messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
-        return messages
+        notifications = [notification for channel in self.channels for notification in channel.notifications]
+        notifications.sort(
+            key=lambda notification: (-notification.category.value, -notification.severity.value, notification.title)
+        )
+        return notifications
 
     @classmethod
     @pydantic.validate_call

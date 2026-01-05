@@ -15,28 +15,28 @@ def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, l
         raw_metadata = dandiset.get_raw_metadata()
         valid_or_raw = "raw"
 
-    messages = []
+    notifications = []
     if valid_or_raw == "valid":
         dataset_description, internal_messages = _get_dataset_description_from_valid_dandiset_metadata(
             metadata=metadata
         )
-        messages.extend(internal_messages)
+        notifications.extend(internal_messages)
     else:
         dataset_description, internal_messages = _get_dataset_description_from_invalid_dandiset_metadata(
             raw_metadata=raw_metadata
         )
-        messages.extend(internal_messages)
+        notifications.extend(internal_messages)
 
-        message = InspectionResult(
+        notification = InspectionResult(
             title="INFO: invalid Dandiset metadata",
             reason="This Dandiset has invalid metadata.",
             solution="Required dataset description fields are inferred from the raw metadata instead.",
             category=Category.INTERNAL_ERROR,
             severity=Severity.INFO,
         )
-        messages.append(message)
+        notifications.append(notification)
 
-    return dataset_description, messages
+    return dataset_description, notifications
 
 
 def _get_dataset_description_from_valid_dandiset_metadata(
@@ -48,21 +48,21 @@ def _get_dataset_description_from_valid_dandiset_metadata(
     dataset_description_kwargs["BIDSVersion"] = "1.10"
     dataset_description_kwargs["HEDVersion"] = "8.3.0"
 
-    messages = []
+    notifications = []
     if any(data_standard.identifier == _BIDS_RRID for data_standard in metadata.assetsSummary.dataStandard):
         reason = (
             "Dandiset is already organized to the BIDS standard. If only a partial conversion is desired, "
             "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
         )
-        message = InspectionResult(
+        notification = InspectionResult(
             title="Dandiset is already BIDS",
             reason=reason,
             solution="Skip the conversion of this Dandiset.",
             category=Category.INTERNAL_ERROR,
             severity=Severity.ERROR,
         )
-        messages.append(message)
-        return None, messages
+        notifications.append(notification)
+        return None, notifications
 
     if metadata.description is not None:
         dataset_description_kwargs["Description"] = metadata.description
@@ -77,7 +77,7 @@ def _get_dataset_description_from_valid_dandiset_metadata(
         dataset_description_kwargs["License"] = metadata.license[0].value.split(":")[1]
 
     dataset_description = DatasetDescription(**dataset_description_kwargs)
-    return dataset_description, messages
+    return dataset_description, notifications
 
 
 def _get_dataset_description_from_invalid_dandiset_metadata(
@@ -93,21 +93,21 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
     assets_summary = raw_metadata.get("assetsSummary", dict())
     data_standards = assets_summary.get("dataStandard", [])
 
-    messages = []
+    notifications = []
     if any(data_standard.get("identifier", "") == _BIDS_RRID for data_standard in data_standards):
         reason = (
             "Dandiset is already organized to the BIDS standard. If only a partial conversion is desired, "
             "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
         )
-        message = InspectionResult(
+        notification = InspectionResult(
             title="Dandiset is already BIDS",
             reason=reason,
             solution="Skip the conversion of this Dandiset.",
             category=Category.INTERNAL_ERROR,
             severity=Severity.ERROR,
         )
-        messages.append(message)
-        return None, messages
+        notifications.append(notification)
+        return None, notifications
 
     dandiset_description = raw_metadata.get("description", None)
     if dandiset_description is not None:
@@ -129,14 +129,14 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
         if len(license) == 1:
             dataset_description_kwargs["License"] = license[0].split(":")[-1]
         else:
-            message = InspectionResult(
+            notification = InspectionResult(
                 title="WARNING: multiple licenses not supported",
                 reason="DANDI metadata supports multiple licenses, but BIDS only supports one license.",
                 solution="Manually specify the license in the dataset_description.json file after conversion.",
                 category=Category.SCHEMA_INVALIDATION,
                 severity=Severity.WARNING,
             )
-            messages.append(message)
+            notifications.append(notification)
 
     dataset_description = DatasetDescription(**dataset_description_kwargs)
-    return dataset_description, messages
+    return dataset_description, notifications
