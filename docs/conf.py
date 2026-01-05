@@ -59,7 +59,6 @@ linkcheck_ignore = []
 # Disable sidebars for specific sections
 html_sidebars = {
     'user_guide': [],
-    'tutorials': [],
     "developer_guide": [],
 }
 
@@ -112,10 +111,14 @@ autodoc_default_options = {
 add_module_names = False
 toc_object_entries_show_parents = "hide"
 
-def setup(app):
+def setup(app) -> None:
     app.connect("html-page-context", remove_section_nav)
 
-def remove_section_nav(app, pagename, templatename, context, doctree):
+def remove_section_nav(app, pagename, templatename, context, doctree) -> None:
+    # Skip the tutorials page
+    # if pagename == "tutorials":
+    #     return
+
     if doctree:
         # Count the number of top-level sections
         sections = [node for node in doctree.traverse() if node.tagname == "section"]
