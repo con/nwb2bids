@@ -4,9 +4,10 @@ import typing
 
 import rich_click
 
+from nwb2bids.notifications._inspection_result import InspectionResult, Severity
+
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
-from .._inspection._inspection_result import InspectionResult, Severity
 from .._tools._pluralize import _pluralize
 from ..sanitization import SanitizationConfig
 from ..testing import generate_ephys_tutorial
