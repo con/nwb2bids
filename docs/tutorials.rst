@@ -37,9 +37,9 @@ To convert a single NWB file to BIDS dataset structure, we run the following com
 
         .. code-block:: bash
 
-            cd ~/nwb2bids_tutorials/ephys_tutorial_file
+            cd ~/nwb2bids_tutorials/ecephys_tutorial_file
 
-            nwb2bids convert ephys.nwb --bids-directory bids_dataset_cli_1
+            nwb2bids convert ecephys.nwb --bids-directory bids_dataset_cli_1
 
     .. tab:: Python Library
 
@@ -49,8 +49,8 @@ To convert a single NWB file to BIDS dataset structure, we run the following com
 
             import nwb2bids
 
-            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
-            nwb_paths = [tutorial_directory / "ephys.nwb"]
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ecephys_tutorial_file"
+            nwb_paths = [tutorial_directory / "ecephys.nwb"]
             bids_directory = tutorial_directory / "bids_dataset_py_1"
             bids_directory.mkdir(exist_ok=True)
 
@@ -63,7 +63,7 @@ To convert a single NWB file to BIDS dataset structure, we run the following com
 .. invisible-code-block: python
 
     for variant in ["cli", "py"]:
-        bids_dir = tutorial_base / f"ephys_tutorial_file/bids_dataset_{variant}_1"
+        bids_dir = tutorial_base / f"ecephys_tutorial_file/bids_dataset_{variant}_1"
         expected_structure = {
             bids_dir: {
                 "directories": {"sub-001"},
@@ -102,7 +102,7 @@ along the lines of:
 
 .. code-block:: text
 
-    ephys_tutorial_file/bids_dataset_[cli|py]_1/
+    ecephys_tutorial_file/bids_dataset_[cli|py]_1/
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
@@ -133,7 +133,7 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
 
         .. code-block:: bash
 
-            cd ~/nwb2bids_tutorials/ephys_tutorial_dataset
+            cd ~/nwb2bids_tutorials/ecephys_tutorial_dataset
 
             nwb2bids convert some_sessions --bids-directory bids_dataset_cli_2
 
@@ -145,7 +145,7 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
 
             import nwb2bids
 
-            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ecephys_tutorial_dataset"
             nwb_paths = [tutorial_directory / "some_sessions"]
             bids_directory = tutorial_directory / "bids_dataset_py_2"
             bids_directory.mkdir(exist_ok=True)
@@ -159,7 +159,7 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
 .. invisible-code-block: python
 
     for variant in ["cli", "py"]:
-        bids_dir = tutorial_base / f"ephys_tutorial_dataset/bids_dataset_{variant}_2"
+        bids_dir = tutorial_base / f"ecephys_tutorial_dataset/bids_dataset_{variant}_2"
         expected_structure = {
             bids_dir: {
                 "directories": {"sub-001"},
@@ -210,7 +210,7 @@ And our BIDS dataset should look like:
 
 .. code-block:: text
 
-    ephys_tutorial_dataset/bids_dataset_[cli|py]_2/
+    ecephys_tutorial_dataset/bids_dataset_[cli|py]_2/
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
@@ -274,9 +274,9 @@ We can select which files and directories to convert like so:
 
                 .. code-block:: bash
 
-                    cd ~/nwb2bids_tutorials/ephys_tutorial_dataset
+                    cd ~/nwb2bids_tutorials/ecephys_tutorial_dataset
 
-                    nwb2bids convert ephys_session_3.nwb some_sessions \
+                    nwb2bids convert ecephys_session_3.nwb some_sessions \
                         --bids-directory bids_dataset_cli_3
 
             .. tab:: Windows
@@ -285,9 +285,9 @@ We can select which files and directories to convert like so:
 
                 .. code-block:: bash
 
-                    cd ~/nwb2bids_tutorials/ephys_tutorial_dataset
+                    cd ~/nwb2bids_tutorials/ecephys_tutorial_dataset
 
-                    nwb2bids convert ephys_session_3.nwb some_sessions ^
+                    nwb2bids convert ecephys_session_3.nwb some_sessions ^
                         --bids-directory bids_dataset_cli_3
 
         The command line can take any number of inputs (separated by spaces) prior to other flags such as
@@ -302,9 +302,9 @@ We can select which files and directories to convert like so:
 
             import nwb2bids
 
-            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ecephys_tutorial_dataset"
             nwb_paths = [
-                tutorial_directory / "ephys_session_3.nwb",
+                tutorial_directory / "ecephys_session_3.nwb",
                 tutorial_directory / "some_sessions",
             ]
             bids_directory = tutorial_directory / "bids_dataset_py_3"
@@ -319,7 +319,7 @@ We can select which files and directories to convert like so:
 .. invisible-code-block: python
 
     for variant in ["cli", "py"]:
-        bids_dir = tutorial_base / f"ephys_tutorial_dataset/bids_dataset_{variant}_3"
+        bids_dir = tutorial_base / f"ecephys_tutorial_dataset/bids_dataset_{variant}_3"
         expected_structure = {
             bids_dir: {
                 "directories": {"sub-001", "sub-002"},
@@ -390,7 +390,7 @@ Our resulting BIDS dataset should now contain all three NWB files converted to B
 
 .. code-block:: text
 
-    ephys_tutorial_dataset/bids_dataset_[cli|py]_3/
+    ecephys_tutorial_dataset/bids_dataset_[cli|py]_3/
     ├── dataset_description.json
     ├── participants.tsv
     ├── participants.json
@@ -446,11 +446,11 @@ To test this out, we can create a new empty directory and navigate into it befor
 
         .. code-block:: bash
 
-            cd ~/nwb2bids_tutorials/ephys_tutorial_dataset/
+            cd ~/nwb2bids_tutorials/ecephys_tutorial_dataset/
             mkdir bids_dataset_cli_4
             cd bids_dataset_cli_4
 
-            nwb2bids convert ../ephys_session_3.nwb ../some_sessions/*.nwb
+            nwb2bids convert ../ecephys_session_3.nwb ../some_sessions/*.nwb
 
         The command line can take any number of inputs (separated by spaces) prior to other flags such as
         ``--bids-directory``. These inputs can be any mix of files or directories.
@@ -464,9 +464,9 @@ To test this out, we can create a new empty directory and navigate into it befor
 
             import nwb2bids
 
-            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_dataset"
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ecephys_tutorial_dataset"
             nwb_paths = [
-                tutorial_directory / "ephys_session_3.nwb",
+                tutorial_directory / "ecephys_session_3.nwb",
                 tutorial_directory / "some_sessions",
             ]
             bids_directory = tutorial_directory / "bids_dataset_py_4"
@@ -478,7 +478,7 @@ To test this out, we can create a new empty directory and navigate into it befor
 .. invisible-code-block: python
 
     for variant in ["cli", "py"]:
-        bids_dir = tutorial_base / f"ephys_tutorial_dataset/bids_dataset_{variant}_4"
+        bids_dir = tutorial_base / f"ecephys_tutorial_dataset/bids_dataset_{variant}_4"
         expected_structure = {
             bids_dir: {
                 "directories": {"sub-001", "sub-002"},
@@ -565,7 +565,7 @@ structure shown below.
     metadata will be supported in the future.
 
 To show how such additional metadata can be included through **nwb2bids**, start by creating a file named
-``metadata.json`` inside the ``ephys_tutorial_dataset`` directory we used in :ref:`tutorial-multiple-files`.
+``metadata.json`` inside the ``ecephys_tutorial_dataset`` directory we used in :ref:`tutorial-multiple-files`.
 Then fill the contents of the file to match below:
 
 .. code-block:: json
@@ -589,9 +589,9 @@ To include this additional metadata during conversion, we can use the following 
 
                 .. code-block:: bash
 
-                    cd ~/nwb2bids_tutorials/ephys_tutorial_file
+                    cd ~/nwb2bids_tutorials/ecephys_tutorial_file
 
-                    nwb2bids convert ephys.nwb \
+                    nwb2bids convert ecephys.nwb \
                         --bids-directory bids_dataset_cli_5 \
                         --additional-metadata-file-path metadata.json
 
@@ -601,9 +601,9 @@ To include this additional metadata during conversion, we can use the following 
 
                 .. code-block:: bash
 
-                    cd ~/nwb2bids_tutorials/ephys_tutorial_file
+                    cd ~/nwb2bids_tutorials/ecephys_tutorial_file
 
-                    nwb2bids convert ephys.nwb ^
+                    nwb2bids convert ecephys.nwb ^
                         --bids-directory bids_dataset_cli_5 ^
                         --additional-metadata-file-path metadata.json
 
@@ -615,8 +615,8 @@ To include this additional metadata during conversion, we can use the following 
 
             import nwb2bids
 
-            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
-            nwb_paths = [tutorial_directory / "ephys.nwb"]
+            tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ecephys_tutorial_file"
+            nwb_paths = [tutorial_directory / "ecephys.nwb"]
             bids_directory = tutorial_directory / "bids_dataset_py_5"
             bids_directory.mkdir(exist_ok=True)
             additional_metadata_file_path = tutorial_directory / "metadata.json"
@@ -633,7 +633,7 @@ To include this additional metadata during conversion, we can use the following 
 .. invisible-code-block: python
 
     for variant in ["cli", "py"]:
-        bids_dir = tutorial_base / f"ephys_tutorial_file/bids_dataset_{variant}_5"
+        bids_dir = tutorial_base / f"ecephys_tutorial_file/bids_dataset_{variant}_5"
         expected_structure = {
             bids_dir: {
                 "directories": {"sub-001"},
@@ -682,8 +682,8 @@ broken down into the following distinct steps:
     import pathlib
     import nwb2bids
 
-    tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ephys_tutorial_file"
-    nwb_paths = [tutorial_directory / "ephys.nwb"]
+    tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ecephys_tutorial_file"
+    nwb_paths = [tutorial_directory / "ecephys.nwb"]
     bids_directory = tutorial_directory / "bids_dataset_py_6"
     bids_directory.mkdir(exist_ok=True)
     additional_metadata_file_path = tutorial_directory / "metadata.json"
@@ -706,7 +706,7 @@ broken down into the following distinct steps:
 
 .. invisible-code-block: python
 
-    bids_dir = tutorial_base / "ephys_tutorial_file/bids_dataset_py_6"
+    bids_dir = tutorial_base / "ecephys_tutorial_file/bids_dataset_py_6"
     expected_structure = {
         bids_dir: {
             "directories": {"sub-001"},
@@ -751,6 +751,6 @@ More tutorials coming soon!
 ---------------------------
 
 We are still compiling some detailed tutorials for more advanced use cases, such as sanitization, run configurations,
-non-ephys data types, and more!
+non-ecephys data types, and more!
 
 Check back soon for updates.
