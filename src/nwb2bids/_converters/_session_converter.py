@@ -28,7 +28,7 @@ class SessionConverter(BaseConverter):
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
         description="BIDS metadata extracted for this session.", default=None
     )
-    messages: list[InspectionResult] = pydantic.Field(
+    notifications: list[InspectionResult] = pydantic.Field(
         description="List of auto-detected suggestions.", ge=0, default_factory=list
     )
 
@@ -102,7 +102,7 @@ class SessionConverter(BaseConverter):
         self.session_metadata = BidsSessionMetadata.from_nwbfile_paths(
             nwbfile_paths=self.nwbfile_paths, run_config=self.run_config
         )
-        self.messages += self.session_metadata.messages
+        self.notifications += self.session_metadata.notifications
 
     def convert_to_bids_session(self) -> None:
         """
