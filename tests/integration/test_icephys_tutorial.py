@@ -14,3 +14,35 @@ def test_icephys_tutorial_file(tmpdir: py.path.local, temporary_bids_directory: 
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(converter.messages)
+
+    expected_structure = {
+        temporary_bids_directory: {
+            "directories": {"sub-001"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A": {
+            "directories": {"icephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A"
+        / "icephys": {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-A_icephys.nwb",
+                "sub-001_ses-A_probes.json",
+                "sub-001_ses-A_probes.tsv",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )

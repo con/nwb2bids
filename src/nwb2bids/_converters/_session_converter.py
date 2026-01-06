@@ -118,18 +118,20 @@ class SessionConverter(BaseConverter):
         if self.session_metadata is None:
             self.extract_metadata()
 
+        modality = self.session_metadata.probe_table.modality
+
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
-        self.write_ecephys_files()
+        self.write_ephys_files()
         if self.session_metadata.events is not None:
             self.write_events_files()
 
         # TODO: determine icephys or ecephys suffix
-        ecephys_directory = self._establish_ecephys_subdirectory()
+        ecephys_directory = self._establish_ephys_subdirectory()
         for nwbfile_path in self.nwbfile_paths:
-            session_file_path = ecephys_directory / f"{file_prefix}_ecephys.nwb"
+            session_file_path = ecephys_directory / f"{file_prefix}_{modality}.nwb"
 
             # If not a local path, then it is a URL, so write simple 'symlink' pointing to the URL
             if not isinstance(nwbfile_path, pathlib.Path):
@@ -145,7 +147,7 @@ class SessionConverter(BaseConverter):
                 relative_target = os.path.relpath(nwbfile_path.resolve(), session_file_path.parent.resolve())
                 session_file_path.symlink_to(target=relative_target)
 
-    def write_ecephys_files(self) -> None:
+    def write_ephys_files(self) -> None:
         """
         Write the `_probes`, `_channels`, and `_electrodes` metadata files, both `.tsv` and `.json`, for this session.
         """
@@ -164,7 +166,7 @@ class SessionConverter(BaseConverter):
         session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
-        ecephys_directory = self._establish_ecephys_subdirectory()
+        ecephys_directory = self._establish_ephys_subdirectory()
         if self.session_metadata.probe_table is not None:
             probes_tsv_file_path = ecephys_directory / f"{file_prefix}_probes.tsv"
             self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)
@@ -199,7 +201,7 @@ class SessionConverter(BaseConverter):
         session_id = self.session_metadata.sanitization.sanitized_session_id
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
-        ecephys_directory = self._establish_ecephys_subdirectory()
+        ecephys_directory = self._establish_ephys_subdirectory()
         session_events_tsv_file_path = ecephys_directory / f"{file_prefix}_events.tsv"
         self.session_metadata.events.to_tsv(file_path=session_events_tsv_file_path)
 
@@ -207,7 +209,9 @@ class SessionConverter(BaseConverter):
         session_events_metadata_file_path = ecephys_directory / f"{file_prefix}_events.json"
         self.session_metadata.events.to_json(file_path=session_events_metadata_file_path)
 
-    def _establish_ecephys_subdirectory(self) -> pathlib.Path:
+    def _establish_ephys_subdirectory(self) -> pathlib.Path:
+        modality = self.session_metadata.probe_table.modality
+
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
 
@@ -215,7 +219,7 @@ class SessionConverter(BaseConverter):
         subject_directory.mkdir(exist_ok=True)
         session_directory = subject_directory / f"ses-{session_id}"
         session_directory.mkdir(exist_ok=True)
-        ecephys_directory = session_directory / "ecephys"
+        ecephys_directory = session_directory / modality
         ecephys_directory.mkdir(exist_ok=True)
 
         return ecephys_directory

@@ -84,7 +84,7 @@ def test_session_converter_write_ecephys_metadata(
     session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     session_converter = session_converters[0]
     session_converter.extract_metadata()
-    session_converter.write_ecephys_files()
+    session_converter.write_ephys_files()
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-001"}, "files": {"dataset_description.json"}},

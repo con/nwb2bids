@@ -1,5 +1,6 @@
 import json
 import pathlib
+import typing
 from typing import Any
 
 import pandas
@@ -20,6 +21,7 @@ class Probe(BaseMetadataModel):
 
 class ProbeTable(BaseMetadataContainerModel):
     probes: list[Probe]
+    modality: typing.Literal["ecephys", "icephys"]
 
     def _check_fields(self) -> None:
         # Check if values are specified
@@ -59,11 +61,12 @@ class ProbeTable(BaseMetadataContainerModel):
     @classmethod
     @pydantic.validate_call
     def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
+        # TODO: figure out way to pass such messages up to the caller
         _internal_messages = []
         if len(nwbfiles) > 1:
             _internal_messages.append(
                 InspectionResult(
-                    title=("NotImplemented: Probes from multiple NWB files."),
+                    title="NotImplemented: Probes from multiple NWB files",
                     reason=(
                         "NotImplemented: Converting probe metadata when there is more than one NWB file has "
                         "not yet been implemented."
@@ -90,7 +93,7 @@ class ProbeTable(BaseMetadataContainerModel):
         if has_ecephys_probes and has_icephys_probes:
             _internal_messages.append(
                 InspectionResult(
-                    title=("NotImplemented: Multi-modal probes."),
+                    title="NotImplemented: Multi-modal probes",
                     reason=(
                         "NotImplemented: Converting probe metadata when there are both ecephys and icephys types has "
                         "not yet been implemented."
@@ -121,11 +124,11 @@ class ProbeTable(BaseMetadataContainerModel):
                 type=None,  # TODO
                 description=device.description,
                 manufacturer=device.manufacturer,
-                _internal_messages=_internal_messages,
             )
             for device in unique_devices
         ]
-        return cls(probes=probes)
+        modality = "ecephys" if has_ecephys_probes else "icephys"
+        return cls(probes=probes, modality=modality)
 
     @pydantic.validate_call
     def to_tsv(self, file_path: str | pathlib.Path) -> None:
@@ -160,4 +163,8 @@ class ProbeTable(BaseMetadataContainerModel):
         file_path = pathlib.Path(file_path)
 
         with file_path.open(mode="w") as file_stream:
-            json.dump(obj=dict(), fp=file_stream, indent=4)
+            json.dump(
+                obj=dict(),  # TODO
+                fp=file_stream,
+                indent=4,
+            )
