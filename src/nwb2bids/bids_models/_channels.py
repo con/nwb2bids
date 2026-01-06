@@ -34,6 +34,7 @@ class Channel(BaseMetadataModel):
 
 class ChannelTable(BaseMetadataContainerModel):
     channels: list[Channel]
+    modality: typing.Literal["ecephys", "icephys"]
 
     @pydantic.computed_field
     @property
@@ -55,72 +56,123 @@ class ChannelTable(BaseMetadataContainerModel):
             raise NotImplementedError(message)
         nwbfile = nwbfiles[0]
 
-        if not nwbfile.electrodes:
+        has_ecephys_electrodes = nwbfile.electrodes is not None
+        has_icephys_electrodes = nwbfile.icephys_electrodes is not None
+        if not has_ecephys_electrodes and not has_icephys_electrodes:
             return None
 
-        # Only scan electrical series listed under acquisition since those under processing can downsample the rate
-        sampling_frequency = None
-        stream_id = None
-        gain = None
-        raw_electrical_series = [
-            neurodata_object
-            for neurodata_object in nwbfile.objects.values()
-            if isinstance(neurodata_object, pynwb.ecephys.ElectricalSeries)
-        ]
-        if len(raw_electrical_series) > 1:
-            # TODO: form a map of electrode to rate/gate based on ElectricalSeries linkage
+        if has_ecephys_electrodes and has_icephys_electrodes:
             message = (
-                "Support for automatic extraction of rates/gains from multiple ElectricalSeries is not yet "
-                "implemented. Skipping `sampling_frequency`, `stream_id`, and `gain` extraction."
+                "Converting electrode metadata when there are both ecephys and icephys types "
+                "has not yet been implemented."
             )
-            warnings.warn(message=message, stacklevel=2)
+            raise NotImplementedError(message)
 
-        if len(raw_electrical_series) == 1:
-            electrical_series = raw_electrical_series[0]
-            if electrical_series.rate is None:
+        modality = "ecephys" if has_ecephys_electrodes else "icephys"
+        if modality == "ecephys":
+            # Only scan electrical series listed under acquisition since those under processing can downsample the rate
+            sampling_frequency = None
+            stream_id = None
+            gain = None
+            raw_electrical_series = [
+                neurodata_object
+                for neurodata_object in nwbfile.objects.values()
+                if isinstance(neurodata_object, pynwb.ecephys.ElectricalSeries)
+            ]
+            if len(raw_electrical_series) > 1:
+                # TODO: form a map of electrode to rate/gate based on ElectricalSeries linkage
                 message = (
-                    "Support for automatic extraction of rate from ElectricalSeries with timestamps "
-                    "is not yet implemented. Skipping `sampling_frequency`, `stream_id`, and `gain` extraction."
+                    "Support for automatic extraction of rates/gains from multiple ElectricalSeries is not yet "
+                    "implemented. Skipping `sampling_frequency`, `stream_id`, and `gain` extraction."
                 )
                 warnings.warn(message=message, stacklevel=2)
 
-            sampling_frequency = electrical_series.rate
-            stream_id = electrical_series.name
-            gain = electrical_series.conversion
+            if len(raw_electrical_series) == 1:
+                electrical_series = raw_electrical_series[0]
+                if electrical_series.rate is None:
+                    message = (
+                        "Support for automatic extraction of rate from ElectricalSeries with timestamps "
+                        "is not yet implemented. Skipping `sampling_frequency`, `stream_id`, and `gain` extraction."
+                    )
+                    warnings.warn(message=message, stacklevel=2)
 
-        channels = [
-            Channel(
-                channel_name=(
-                    f"ch{channel_name.values[0]}"
-                    if (channel_name := electrode.get("channel_name", None)) is not None
-                    else f"ch{electrode.index[0]}"
-                ),
-                reference=(
-                    f"contact{contact_ids.values[0]}"  # TODO: do a deep dive into edge cases of this reference
-                    if (contact_ids := electrode.get("contact_ids", None)) is not None
-                    else f"e{electrode.index[0]}"
-                ),
-                type="N/A",  # TODO: in dedicated follow-up, could classify LFP based on container
-                unit="V",
-                sampling_frequency=sampling_frequency,
-                # channel_label: str | None = None # TODO: only support with additional metadata
-                stream_id=stream_id,
-                # description: str | None = None  # TODO: only support with additional metadata
-                hardware_filters=(
-                    filter.values[0] if (filter := electrode.get("filtering", None)) is not None else "N/A"
-                ),
-                # software_filters: str = "N/A" # TODO: only support with additional metadata
-                # status: typing.Literal["good", "bad"] | None = None # TODO: only support with additional metadata
-                # status_description: str | None = None # TODO: only support with additional metadata
-                gain=gain,
-                # Special extraction from SpikeInterface field
-                time_offset=shift[0] if (shift := electrode.get("inter_sample_shift", None)) is not None else None,
-                # time_reference_channels: str | None = None # TODO: only support with additional metadata
-                # ground: str | None = None # TODO: only support with additional metadata
-            )
-            for electrode in nwbfile.electrodes
-        ]
-        return cls(channels=channels)
+                sampling_frequency = electrical_series.rate
+                stream_id = electrical_series.name
+                gain = electrical_series.conversion
+
+            channels = [
+                Channel(
+                    channel_name=(
+                        f"ch{channel_name.values[0]}"
+                        if (channel_name := electrode.get("channel_name", None)) is not None
+                        else f"ch{electrode.index[0]}"
+                    ),
+                    reference=(
+                        f"contact{contact_ids.values[0]}"  # TODO: do a deep dive into edge cases of this reference
+                        if (contact_ids := electrode.get("contact_ids", None)) is not None
+                        else f"e{electrode.index[0]}"
+                    ),
+                    type="N/A",  # TODO: in dedicated follow-up, could classify LFP based on container
+                    unit="V",
+                    sampling_frequency=sampling_frequency,
+                    # channel_label: str | None = None # TODO: only support with additional metadata
+                    stream_id=stream_id,
+                    # description: str | None = None  # TODO: only support with additional metadata
+                    hardware_filters=(
+                        filter.values[0] if (filter := electrode.get("filtering", None)) is not None else "N/A"
+                    ),
+                    # software_filters: str = "N/A" # TODO: only support with additional metadata
+                    # status: typing.Literal["good", "bad"] | None = None # TODO: only support with additional metadata
+                    # status_description: str | None = None # TODO: only support with additional metadata
+                    gain=gain,
+                    # Special extraction from SpikeInterface field
+                    time_offset=shift[0] if (shift := electrode.get("inter_sample_shift", None)) is not None else None,
+                    # time_reference_channels: str | None = None # TODO: only support with additional metadata
+                    # ground: str | None = None # TODO: only support with additional metadata
+                )
+                for electrode in nwbfile.electrodes
+            ]
+        else:
+            sampling_frequency = None
+            stream_id = None
+            gain = None
+            icephys_series = [
+                neurodata_object
+                for neurodata_object in nwbfile.acquisition.values()
+                if isinstance(neurodata_object, pynwb.icephys.PatchClampSeries)
+            ]
+            print(icephys_series)
+
+            channels = [
+                Channel(
+                    channel_name=electrode.name,
+                    reference=(
+                        f"contact{contact_ids.values[0]}"  # TODO: do a deep dive into edge cases of this reference
+                        if (contact_ids := electrode.get("contact_ids", None)) is not None
+                        else f"e{electrode.index[0]}"
+                    ),
+                    type="N/A",  # TODO: in dedicated follow-up, could classify LFP based on container
+                    unit="V",
+                    sampling_frequency=sampling_frequency,
+                    # channel_label: str | None = None # TODO: only support with additional metadata
+                    stream_id=stream_id,
+                    # description: str | None = None  # TODO: only support with additional metadata
+                    hardware_filters=(
+                        filter.values[0] if (filter := electrode.get("filtering", None)) is not None else "N/A"
+                    ),
+                    # software_filters: str = "N/A" # TODO: only support with additional metadata
+                    # status: typing.Literal["good", "bad"] | None = None # TODO: only support with additional metadata
+                    # status_description: str | None = None # TODO: only support with additional metadata
+                    gain=gain,
+                    # Special extraction from SpikeInterface field
+                    time_offset=shift[0] if (shift := electrode.get("inter_sample_shift", None)) is not None else None,
+                    # time_reference_channels: str | None = None # TODO: only support with additional metadata
+                    # ground: str | None = None # TODO: only support with additional metadata
+                    # TODO: add extra columns
+                )
+                for electrode in nwbfile.icephys_electrodes
+            ]
+        return cls(channels=channels, modality=modality)
 
     @pydantic.validate_call
     def to_tsv(self, file_path: str | pathlib.Path):

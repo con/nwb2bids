@@ -1,5 +1,6 @@
 import json
 import pathlib
+import typing
 
 import numpy
 import pandas
@@ -49,6 +50,7 @@ class Electrode(BaseMetadataModel):
 
 class ElectrodeTable(BaseMetadataContainerModel):
     electrodes: list[Electrode]
+    modality: typing.Literal["ecephys", "icephys"]
 
     @pydantic.computed_field
     @property
@@ -70,39 +72,71 @@ class ElectrodeTable(BaseMetadataContainerModel):
             raise NotImplementedError(message)
         nwbfile = nwbfiles[0]
 
-        if not nwbfile.electrodes:
+        has_ecephys_electrodes = nwbfile.electrodes is not None
+        has_icephys_electrodes = nwbfile.icephys_electrodes is not None
+        if not has_ecephys_electrodes and not has_icephys_electrodes:
             return None
 
-        electrodes = [
-            Electrode(
-                # Leading 'e' and padding are by convention from BEP32 examples
-                name=f"e{str(electrode.index[0]).zfill(3)}",
-                probe_name=electrode.group.iloc[0].device.name,
-                # TODO: hemisphere determination from additional metadata or possible lookup from a location map
-                x=electrode.x.iloc[0] if "x" in electrode else numpy.nan,
-                y=electrode.y.iloc[0] if "y" in electrode else numpy.nan,
-                z=electrode.z.iloc[0] if "z" in electrode else numpy.nan,
-                # Impedance must be in kOhms for BEP32 but NWB specifies Ohms
-                impedance=(
-                    eimp_in_ohms / 1e3
-                    if "imp" in electrode and not pandas.isna(eimp_in_ohms := electrode.imp.iloc[0])
-                    else numpy.nan
-                ),
-                shank_id=electrode.group.iloc[0].name,
-                # TODO: pretty much only through additional metadata
-                # size=
-                # electrode_shape=
-                # material
-                location=str(electrode.location.values[0]),
-                # TODO: some icephys specific ones (would NOT use the ecephys electrode table anyway...)
-                # Probably better off in a designated model
-                # pipette_solution=
-                # internal_pipette_diameter=
-                # external_pipette_diameter=
+        if has_ecephys_electrodes and has_icephys_electrodes:
+            message = (
+                "Converting electrode metadata when there are both ecephys and icephys types "
+                "has not yet been implemented."
             )
-            for electrode in nwbfile.electrodes
-        ]
-        return cls(electrodes=electrodes)
+            raise NotImplementedError(message)
+
+        modality = "ecephys" if has_ecephys_electrodes else "icephys"
+        if modality == "ecephys":
+            electrodes = [
+                Electrode(
+                    # Leading 'e' and padding are by convention from BEP32 examples
+                    name=f"e{str(electrode.index[0]).zfill(3)}",
+                    probe_name=electrode.group.iloc[0].device.name,
+                    # TODO: hemisphere determination from additional metadata or possible lookup from a location map
+                    x=electrode.x.iloc[0] if "x" in electrode else numpy.nan,
+                    y=electrode.y.iloc[0] if "y" in electrode else numpy.nan,
+                    z=electrode.z.iloc[0] if "z" in electrode else numpy.nan,
+                    # Impedance must be in kOhms for BEP32 but NWB specifies Ohms
+                    impedance=(
+                        eimp_in_ohms / 1e3
+                        if "imp" in electrode and not pandas.isna(eimp_in_ohms := electrode.imp.iloc[0])
+                        else numpy.nan
+                    ),
+                    shank_id=electrode.group.iloc[0].name,
+                    # TODO: pretty much only through additional metadata
+                    # size=
+                    # electrode_shape=
+                    # material=
+                    location=str(electrode.location.values[0]),
+                    # TODO: add extra columns
+                )
+                for electrode in nwbfile.electrodes
+            ]
+        else:
+            electrodes = [
+                Electrode(
+                    name=electrode.name,
+                    probe_name=electrode.device.name,
+                    # TODO: hemisphere, location, impedance may all have to be specified through custom columns
+                    x=getattr(electrode, "x", numpy.nan),
+                    y=getattr(electrode, "y", numpy.nan),
+                    z=getattr(electrode, "z", numpy.nan),
+                    # impedance=  # Impedance must be in kOhms for BEP32 but NWB specifies Ohms
+                    # shank_id=
+                    # TODO: pretty much only through additional metadata
+                    # size=
+                    # electrode_shape=
+                    # material=
+                    # location=
+                    # TODO: some icephys specific ones (would NOT use the ecephys electrode table anyway...)
+                    # Probably better off in a designated model
+                    # pipette_solution=
+                    # internal_pipette_diameter=
+                    # external_pipette_diameter=
+                    # TODO: add extra columns
+                )
+                for electrode in nwbfile.icephys_electrodes.values()
+            ]
+        return cls(electrodes=electrodes, modality=modality)
 
     @pydantic.validate_call
     def to_tsv(self, file_path: str | pathlib.Path) -> None:

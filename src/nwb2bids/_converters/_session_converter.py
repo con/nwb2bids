@@ -118,7 +118,17 @@ class SessionConverter(BaseConverter):
         if self.session_metadata is None:
             self.extract_metadata()
 
-        modality = self.session_metadata.probe_table.modality
+        probes_modality = self.session_metadata.probe_table.modality
+        electrodes_modality = self.session_metadata.electrode_table.modality
+        channels_modality = self.session_metadata.channel_table.modality
+        modality_set = {probes_modality, electrodes_modality, channels_modality}
+        if len(modality_set) > 1:
+            message = (
+                "Conflicting modalities found among probe, electrode, and channel tables. "
+                "Conversion when multiple modalities are present has not yet been implemented."
+            )
+            raise NotImplementedError(message)
+        modality = next(iter(modality_set))
 
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id

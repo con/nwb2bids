@@ -61,28 +61,9 @@ class ProbeTable(BaseMetadataContainerModel):
     @classmethod
     @pydantic.validate_call
     def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
-        # TODO: figure out way to pass such messages up to the caller
-        _internal_messages = []
         if len(nwbfiles) > 1:
-            _internal_messages.append(
-                InspectionResult(
-                    title="NotImplemented: Probes from multiple NWB files",
-                    reason=(
-                        "NotImplemented: Converting probe metadata when there is more than one NWB file has "
-                        "not yet been implemented."
-                    ),
-                    solution=(
-                        "Feel free to open an issue to request higher prioritization for this feature: "
-                        "https://github.com/con/nwb2bids/issues/new"
-                    ),
-                    field="nwbfile.devices",
-                    source_file_paths=[],  # TODO: figure out better way of handling
-                    data_standards=[DataStandard.BIDS, DataStandard.NWB],
-                    category=Category.ERROR,
-                    severity=Severity.ERROR,
-                )
-            )
-            return None
+            message = "Conversion of multiple NWB files per session is not yet supported."
+            raise NotImplementedError(message)
         nwbfile = nwbfiles[0]
 
         has_ecephys_probes = nwbfile.electrodes is not None
@@ -91,27 +72,13 @@ class ProbeTable(BaseMetadataContainerModel):
             return None
 
         if has_ecephys_probes and has_icephys_probes:
-            _internal_messages.append(
-                InspectionResult(
-                    title="NotImplemented: Multi-modal probes",
-                    reason=(
-                        "NotImplemented: Converting probe metadata when there are both ecephys and icephys types has "
-                        "not yet been implemented."
-                    ),
-                    solution=(
-                        "Feel free to open an issue to request higher prioritization for this feature: "
-                        "https://github.com/con/nwb2bids/issues/new"
-                    ),
-                    field="nwbfile.devices",
-                    source_file_paths=[],  # TODO: figure out better way of handling
-                    data_standards=[DataStandard.BIDS, DataStandard.NWB],
-                    category=Category.ERROR,
-                    severity=Severity.ERROR,
-                )
+            message = (
+                "Converting probe metadata when there are both ecephys and icephys types has not yet been implemented."
             )
-            return None
+            raise NotImplementedError(message)
 
-        if has_ecephys_probes:
+        modality = "ecephys" if has_ecephys_probes else "icephys"
+        if modality == "ecephys":
             electrode_groups = nwbfile.electrodes["group"][:]
             unique_devices = {electrode_group.device for electrode_group in electrode_groups}
         else:
@@ -127,7 +94,6 @@ class ProbeTable(BaseMetadataContainerModel):
             )
             for device in unique_devices
         ]
-        modality = "ecephys" if has_ecephys_probes else "icephys"
         return cls(probes=probes, modality=modality)
 
     @pydantic.validate_call
