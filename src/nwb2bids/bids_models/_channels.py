@@ -96,7 +96,7 @@ class ChannelTable(BaseMetadataContainerModel):
         nwbfile = nwbfiles[0]
 
         has_ecephys_electrodes = nwbfile.electrodes is not None
-        has_icephys_electrodes = nwbfile.icephys_electrodes is not None
+        has_icephys_electrodes = any(nwbfile.icephys_electrodes)
         if not has_ecephys_electrodes and not has_icephys_electrodes:
             return None
 
@@ -157,10 +157,6 @@ class ChannelTable(BaseMetadataContainerModel):
                     # channel_label: str | None = None # TODO: only support with additional metadata
                     stream_id=stream_id,
                     # description: str | None = None  # TODO: only support with additional metadata
-                    hardware_filters=(
-                        filter.values[0] if (filter := electrode.get("filtering", None)) is not None else "N/A"
-                    ),
-                    # software_filters: str = "N/A" # TODO: only support with additional metadata
                     # status: typing.Literal["good", "bad"] | None = None # TODO: only support with additional metadata
                     # status_description: str | None = None # TODO: only support with additional metadata
                     gain=gain,
@@ -244,10 +240,6 @@ class ChannelTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
-        columns_to_drop = [  # Special rule for non-required fields that autopopulate with "N/A"
-            column for column in ["hardware_filters", "software_filters"] if (data_frame[column] == "N/A").all()
-        ]
-        data_frame = data_frame.drop(columns=columns_to_drop)
         data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 

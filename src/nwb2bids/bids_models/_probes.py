@@ -14,7 +14,7 @@ from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseM
 
 class Probe(BaseMetadataModel):
     probe_name: str
-    type: str | None = None
+    type: str = "n/a"
     manufacturer: str | None = None
 
 
@@ -68,7 +68,7 @@ class ProbeTable(BaseMetadataContainerModel):
         nwbfile = nwbfiles[0]
 
         has_ecephys_probes = nwbfile.electrodes is not None
-        has_icephys_probes = nwbfile.icephys_electrodes is not None
+        has_icephys_probes = any(nwbfile.icephys_electrodes)
         if not has_ecephys_probes and not has_icephys_probes:
             return None
 
@@ -89,10 +89,10 @@ class ProbeTable(BaseMetadataContainerModel):
         probes = [
             Probe(
                 probe_name=device.name,
-                type=None,  # TODO
+                type="n/a",  # TODO
                 manufacturer=device.manufacturer,
-                # TODO: handle extra custom columns like description
-                # description=device.description,
+                description=device.description,
+                # TODO: handle more extra custom columns
             )
             for device in unique_devices
         ]
@@ -114,7 +114,6 @@ class ProbeTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
-        data_frame["type"] = data_frame["type"].fillna(value="N/A")
         data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 

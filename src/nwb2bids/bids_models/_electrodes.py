@@ -75,7 +75,7 @@ class ElectrodeTable(BaseMetadataContainerModel):
         nwbfile = nwbfiles[0]
 
         has_ecephys_electrodes = nwbfile.electrodes is not None
-        has_icephys_electrodes = nwbfile.icephys_electrodes is not None
+        has_icephys_electrodes = any(nwbfile.icephys_electrodes)
         if not has_ecephys_electrodes and not has_icephys_electrodes:
             return None
 
