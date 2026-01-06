@@ -39,16 +39,6 @@ def _infer_scalar_field(
     return electrode_name_to_field
 
 
-def _determine_icephys_type_from_class(series_class_name: str) -> str:
-    """Determine icephys channel type based on PatchClampSeries subclass."""
-    if series_class_name == "VoltageClampSeries":
-        return "VM"
-    elif series_class_name == "CurrentClampSeries":
-        return "IM"
-    else:
-        return "n/a"
-
-
 class Channel(BaseMetadataModel):
     channel_name: str
     reference: str
@@ -185,18 +175,24 @@ class ChannelTable(BaseMetadataContainerModel):
             electrode_name_to_class = _infer_scalar_field(
                 electrode_name_to_series=electrode_name_to_series, field_name="__class__"
             )
+
+            class_name_to_type = {
+                "VoltageClampSeries": "VM",
+                "CurrentClampSeries": "IM",
+            }
             electrode_name_to_type = {
-                electrode_name: _determine_icephys_type_from_class(series_class_name=series_class.__name__)
+                electrode_name: class_name_to_type.get(series_class.__name__, "n/a")
                 for electrode_name, series_class in electrode_name_to_class.items()
             }
-            electrode_name_to_stream_ids = {
-                electrode_name: ",".join([series.name for series in series_list])
-                for electrode_name, series_list in electrode_name_to_series.items()
-            }
-            recording_mode_map = {
+            type_to_recording_mode = {
                 "VM": "voltage-clamp",
                 "IM": "current-clamp",
                 "n/a": "n/a",
+            }
+
+            electrode_name_to_stream_ids = {
+                electrode_name: ",".join([series.name for series in series_list])
+                for electrode_name, series_list in electrode_name_to_series.items()
             }
 
             channels = [
@@ -215,7 +211,7 @@ class ChannelTable(BaseMetadataContainerModel):
                     # time_offset=
                     # time_reference_channels: str | None = None # TODO: only support with additional metadata
                     # ground: str | None = None # TODO: only support with additional metadata
-                    recording_mode=recording_mode_map[electrode_name_to_type.get(electrode.name, "n/a")],
+                    recording_mode=type_to_recording_mode[electrode_name_to_type.get(electrode.name, "n/a")],
                     # TODO: add extra columns
                 )
                 for electrode in nwbfile.icephys_electrodes.values()
