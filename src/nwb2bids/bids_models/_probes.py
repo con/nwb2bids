@@ -15,7 +15,6 @@ from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseM
 class Probe(BaseMetadataModel):
     probe_name: str
     type: str | None = None
-    description: str | None = None
     manufacturer: str | None = None
 
 
@@ -89,8 +88,9 @@ class ProbeTable(BaseMetadataContainerModel):
             Probe(
                 probe_name=device.name,
                 type=None,  # TODO
-                description=device.description,
                 manufacturer=device.manufacturer,
+                # TODO: handle extra custom columns like description
+                # description=device.description,
             )
             for device in unique_devices
         ]

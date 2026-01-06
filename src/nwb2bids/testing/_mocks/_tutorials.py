@@ -122,6 +122,7 @@ def _generate_icephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
     )
 
     # Icephys series
+    # TODO: add first two as intracellular table
     pynwb.testing.mock.icephys.mock_CurrentClampSeries(
         name="ExampleCurrentClampSeries1",
         data=[-70, -60, -50, -40, -30],

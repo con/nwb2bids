@@ -40,6 +40,10 @@ def test_icephys_tutorial_file(tmpdir: py.path.local, temporary_bids_directory: 
                 "sub-001_ses-A_icephys.nwb",
                 "sub-001_ses-A_probes.json",
                 "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_channels.tsv",
             },
         },
     }

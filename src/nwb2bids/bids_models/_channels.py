@@ -1,3 +1,4 @@
+import collections
 import json
 import pathlib
 import typing
@@ -10,6 +11,42 @@ import typing_extensions
 
 from .._inspection._inspection_result import InspectionResult
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
+
+
+def _infer_scalar_field(
+    electrode_name_to_series: dict[str, list[pynwb.icephys.PatchClampSeries]], field_name: str
+) -> dict[str, float | None]:
+    """For icephys specifically, infer some scalar field (e.g., rate, gain) for each electrode name."""
+    electrode_name_to_field_values = collections.defaultdict(set)
+    for electrode_name, series_list in electrode_name_to_series.items():
+        for series in series_list:
+            field_value = getattr(series, field_name, None)
+            if field_value is not None:
+                electrode_name_to_field_values[electrode_name].add(field_value)
+
+    electrode_name_to_field = dict()
+    for electrode_name, field_values in electrode_name_to_field_values.items():
+        if len(ls := list(field_values)) == 1:
+            electrode_name_to_field[electrode_name] = ls[0]
+        else:
+            message = (
+                f"Some PatchClampSeries associated with electrode {electrode_name} have conflicting "
+                f"{field_name}s: {field_values}. Automatic detection of channel {field_name} for this "
+                "case is not yet implemented."
+            )
+            warnings.warn(message=message, stacklevel=2)
+
+    return electrode_name_to_field
+
+
+def _determine_icephys_type_from_class(series_class_name: str) -> str:
+    """Determine icephys channel type based on PatchClampSeries subclass."""
+    if series_class_name == "VoltageClampSeries":
+        return "VM"
+    elif series_class_name == "CurrentClampSeries":
+        return "IM"
+    else:
+        return "n/a"
 
 
 class Channel(BaseMetadataModel):
@@ -133,44 +170,59 @@ class ChannelTable(BaseMetadataContainerModel):
                 for electrode in nwbfile.electrodes
             ]
         else:
-            sampling_frequency = None
-            stream_id = None
-            gain = None
             icephys_series = [
                 neurodata_object
                 for neurodata_object in nwbfile.acquisition.values()
                 if isinstance(neurodata_object, pynwb.icephys.PatchClampSeries)
             ]
-            print(icephys_series)
+            # TODO: handle intracellular_recordings case
+            electrode_name_to_series = collections.defaultdict(list)
+            for series in icephys_series:
+                electrode_name_to_series[series.electrode.name].append(series)
+
+            electrode_name_to_sampling_frequency = _infer_scalar_field(
+                electrode_name_to_series=electrode_name_to_series, field_name="rate"
+            )
+            electrode_name_to_gain = _infer_scalar_field(
+                electrode_name_to_series=electrode_name_to_series, field_name="gain"
+            )
+            electrode_name_to_class = _infer_scalar_field(
+                electrode_name_to_series=electrode_name_to_series, field_name="__class__"
+            )
+            electrode_name_to_type = {
+                electrode_name: _determine_icephys_type_from_class(series_class_name=series_class.__name__)
+                for electrode_name, series_class in electrode_name_to_class.items()
+            }
+            electrode_name_to_stream_ids = {
+                electrode_name: ",".join([series.name for series in series_list])
+                for electrode_name, series_list in electrode_name_to_series.items()
+            }
+            recording_mode_map = {
+                "VM": "voltage-clamp",
+                "IM": "current-clamp",
+                "n/a": "n/a",
+            }
 
             channels = [
                 Channel(
                     channel_name=electrode.name,
-                    reference=(
-                        f"contact{contact_ids.values[0]}"  # TODO: do a deep dive into edge cases of this reference
-                        if (contact_ids := electrode.get("contact_ids", None)) is not None
-                        else f"e{electrode.index[0]}"
-                    ),
-                    type="N/A",  # TODO: in dedicated follow-up, could classify LFP based on container
+                    reference="n/a",  # TODO: think about if/how this could be any other value
+                    type=electrode_name_to_type.get(electrode.name, "n/a"),
                     unit="V",
-                    sampling_frequency=sampling_frequency,
+                    sampling_frequency=electrode_name_to_sampling_frequency.get(electrode.name, None),
                     # channel_label: str | None = None # TODO: only support with additional metadata
-                    stream_id=stream_id,
+                    stream_id=electrode_name_to_stream_ids.get(electrode.name, None),
                     # description: str | None = None  # TODO: only support with additional metadata
-                    hardware_filters=(
-                        filter.values[0] if (filter := electrode.get("filtering", None)) is not None else "N/A"
-                    ),
-                    # software_filters: str = "N/A" # TODO: only support with additional metadata
                     # status: typing.Literal["good", "bad"] | None = None # TODO: only support with additional metadata
                     # status_description: str | None = None # TODO: only support with additional metadata
-                    gain=gain,
-                    # Special extraction from SpikeInterface field
-                    time_offset=shift[0] if (shift := electrode.get("inter_sample_shift", None)) is not None else None,
+                    gain=electrode_name_to_gain.get(electrode.name, None),
+                    # time_offset=
                     # time_reference_channels: str | None = None # TODO: only support with additional metadata
                     # ground: str | None = None # TODO: only support with additional metadata
+                    recording_mode=recording_mode_map[electrode_name_to_type.get(electrode.name, "n/a")],
                     # TODO: add extra columns
                 )
-                for electrode in nwbfile.icephys_electrodes
+                for electrode in nwbfile.icephys_electrodes.values()
             ]
         return cls(channels=channels, modality=modality)
 
@@ -208,4 +260,8 @@ class ChannelTable(BaseMetadataContainerModel):
             The path to the output JSON file.
         """
         with file_path.open(mode="w") as file_stream:
-            json.dump(obj=dict(), fp=file_stream, indent=4)
+            json.dump(
+                obj=dict(),  # TODO
+                fp=file_stream,
+                indent=4,
+            )

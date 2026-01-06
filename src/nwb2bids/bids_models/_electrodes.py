@@ -173,4 +173,8 @@ class ElectrodeTable(BaseMetadataContainerModel):
             The path to the output JSON file.
         """
         with file_path.open(mode="w") as file_stream:
-            json.dump(obj=dict(), fp=file_stream, indent=4)
+            json.dump(
+                obj=dict(),  # TODO
+                fp=file_stream,
+                indent=4,
+            )
