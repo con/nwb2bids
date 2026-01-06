@@ -6,13 +6,12 @@ import pandas
 import pydantic
 import typing_extensions
 
-from nwb2bids.notifications._inspection_result import Category, InspectionResult, Severity
-
 from ._dandi_utils import get_bids_dataset_description
 from ._run_config import RunConfig
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from ..bids_models import BidsSessionMetadata, DatasetDescription
+from ..notifications import Category, InspectionResult, Severity
 
 
 class DatasetConverter(BaseConverter):

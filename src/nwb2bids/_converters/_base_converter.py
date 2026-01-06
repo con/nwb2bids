@@ -3,9 +3,8 @@ import typing
 
 import pydantic
 
-from nwb2bids.notifications._inspection_result import InspectionResult
-
 from ._run_config import RunConfig
+from ..notifications import InspectionResult
 
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):

@@ -8,9 +8,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from nwb2bids.notifications._inspection_result import InspectionResult
-
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
+from ..notifications import InspectionResult
 
 
 class Channel(BaseMetadataModel):

@@ -7,8 +7,6 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from nwb2bids.notifications._inspection_result import Category, DataStandard, InspectionResult, Severity
-
 from ._base_metadata_model import BaseMetadataContainerModel
 from ._channels import ChannelTable
 from ._electrodes import ElectrodeTable
@@ -18,6 +16,7 @@ from ._participant import Participant
 from ._probes import ProbeTable
 from .._converters._run_config import RunConfig
 from .._tools import cache_read_nwb
+from ..notifications import Category, DataStandard, InspectionResult, Severity
 from ..sanitization import Sanitization
 
 

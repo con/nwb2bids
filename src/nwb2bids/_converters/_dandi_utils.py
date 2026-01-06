@@ -2,10 +2,9 @@ import typing
 
 import pydantic
 
-from nwb2bids.notifications._inspection_result import Category, InspectionResult, Severity
-
 from ..bids_models import DatasetDescription
 from ..bids_models._model_globals import _BIDS_RRID
+from ..notifications import Category, InspectionResult, Severity
 
 
 def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, list[InspectionResult]]:

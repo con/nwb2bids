@@ -9,7 +9,7 @@ from ._core._convert_nwb_dataset import convert_nwb_dataset
 from ._converters._dataset_converter import DatasetConverter
 from ._converters._session_converter import SessionConverter
 from ._converters._run_config import RunConfig
-from nwb2bids.notifications._inspection_result import InspectionResult, Severity, Category, DataStandard
+from .notifications import InspectionResult, Severity, Category, DataStandard
 
 __all__ = [
     # Public methods and classes

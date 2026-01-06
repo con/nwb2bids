@@ -2,7 +2,7 @@ import abc
 
 import pydantic
 
-from nwb2bids.notifications._inspection_result import InspectionResult
+from ..notifications import InspectionResult
 
 
 class MutableModel(pydantic.BaseModel):

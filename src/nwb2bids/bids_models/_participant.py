@@ -5,10 +5,9 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from nwb2bids.notifications._inspection_result import Category, DataStandard, InspectionResult, Severity
-
 from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_ID_REGEX, _VALID_SPECIES_REGEX
 from ..bids_models._base_metadata_model import BaseMetadataModel
+from ..notifications import Category, DataStandard, InspectionResult, Severity
 
 
 class Participant(BaseMetadataModel):
