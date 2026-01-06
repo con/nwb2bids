@@ -122,8 +122,7 @@ def _generate_icephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
     )
 
     # Icephys series
-    # TODO: add first two as intracellular table
-    pynwb.testing.mock.icephys.mock_CurrentClampSeries(
+    series1 = pynwb.testing.mock.icephys.mock_CurrentClampSeries(
         name="ExampleCurrentClampSeries1",
         data=[-70, -60, -50, -40, -30],
         conversion=1e-3,
@@ -134,9 +133,8 @@ def _generate_icephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
         bias_current=1e-12,
         bridge_balance=70e6,
         capacitance_compensation=1e-12,
-        nwbfile=nwbfile,
     )
-    pynwb.testing.mock.icephys.mock_CurrentClampSeries(
+    series2 = pynwb.testing.mock.icephys.mock_CurrentClampSeries(
         name="ExampleCurrentClampSeries2",
         data=[-10, 0, 10, 20, 30],
         conversion=1e-3,
@@ -147,8 +145,10 @@ def _generate_icephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
         bias_current=1e-12,
         bridge_balance=70e6,
         capacitance_compensation=1e-12,
-        nwbfile=nwbfile,
     )
+    nwbfile.add_intracellular_recording(electrode=electrode1, response=series1)
+    nwbfile.add_intracellular_recording(electrode=electrode2, response=series2)
+
     pynwb.testing.mock.icephys.mock_VoltageClampSeries(
         name="ExampleVoltageClampSeries1",
         data=[1.0, 2.0, 3.0, 4.0, 5.0],
