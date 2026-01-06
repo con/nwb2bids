@@ -25,17 +25,21 @@ class DatasetConverter(BaseConverter):
 
     @pydantic.computed_field
     @property
-    def messages(self) -> list[InspectionResult]:
+    def notifications(self) -> list[InspectionResult]:
         """
-        All messages from contained session converters.
+        All notifications from contained session converters.
 
         These can accumulate over time based on which instance methods have been called.
         """
-        messages = [
-            message for session_converter in self.session_converters for message in session_converter.messages
-        ] + self._internal_messages
-        messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
-        return messages
+        notifications = [
+            notification
+            for session_converter in self.session_converters
+            for notification in session_converter.notifications
+        ] + self._internal_notifications
+        notifications.sort(
+            key=lambda notification: (-notification.category.value, -notification.severity.value, notification.title)
+        )
+        return notifications
 
     @classmethod
     @pydantic.validate_call
@@ -76,7 +80,7 @@ class DatasetConverter(BaseConverter):
             version_id = "draft"  # Only allow running on draft version
             dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
 
-            dataset_description, _internal_messages = get_bids_dataset_description(dandiset=dandiset)
+            dataset_description, _internal_notifications = get_bids_dataset_description(dandiset=dandiset)
 
             if limit is None:
                 assets = list(dandiset.get_assets())
@@ -110,10 +114,10 @@ class DatasetConverter(BaseConverter):
             dataset_converter = cls(
                 session_converters=session_converters, dataset_description=dataset_description, run_config=run_config
             )
-            dataset_converter._internal_messages = _internal_messages
+            dataset_converter._internal_notifications = _internal_notifications
             return dataset_converter
         except Exception:  # noqa
-            _internal_messages = [
+            _internal_notifications = [
                 InspectionResult(
                     title="Failed to initialize converter on remote Dandiset",
                     reason=(
@@ -128,7 +132,7 @@ class DatasetConverter(BaseConverter):
 
             dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
 
-        dataset_converter._internal_messages = _internal_messages
+        dataset_converter._internal_notifications = _internal_notifications
         return dataset_converter
 
     @classmethod
@@ -161,16 +165,18 @@ class DatasetConverter(BaseConverter):
                 dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
             session_messages = [
-                message for session_converter in session_converters for message in session_converter.messages
+                notification
+                for session_converter in session_converters
+                for notification in session_converter.notifications
             ]
 
             dataset_converter = cls(
                 session_converters=session_converters, dataset_description=dataset_description, run_config=run_config
             )
-            dataset_converter._internal_messages = session_messages
+            dataset_converter._internal_notifications = session_messages
             return dataset_converter
         except Exception:  # noqa
-            _internal_messages = [
+            _internal_notifications = [
                 InspectionResult(
                     title="Failed to initialize converter on local NWB files",
                     reason=(
@@ -183,7 +189,7 @@ class DatasetConverter(BaseConverter):
                 )
             ]
             dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
-            dataset_converter._internal_messages = _internal_messages
+            dataset_converter._internal_notifications = _internal_notifications
             return dataset_converter
 
     def extract_metadata(self) -> None:
@@ -197,7 +203,7 @@ class DatasetConverter(BaseConverter):
                 maxlen=0,
             )
         except Exception:  # noqa
-            message = InspectionResult(
+            notification = InspectionResult(
                 title="Failed to extract metadata for one or more sessions",
                 reason=(
                     "An error occurred while executing `DatasetConverter.extract_metadata`."
@@ -207,7 +213,7 @@ class DatasetConverter(BaseConverter):
                 category=Category.INTERNAL_ERROR,
                 severity=Severity.ERROR,
             )
-            self._internal_messages.append(message)
+            self._internal_notifications.append(notification)
 
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
@@ -219,7 +225,7 @@ class DatasetConverter(BaseConverter):
             self.write_sessions_metadata()
             self.write_dataset_description()
         except Exception:  # noqa
-            message = InspectionResult(
+            notification = InspectionResult(
                 title="Failed to convert to BIDS dataset",
                 reason=(
                     "An error occurred while executing `DatasetConverter.convert_to_bids_dataset`."
@@ -229,11 +235,11 @@ class DatasetConverter(BaseConverter):
                 category=Category.INTERNAL_ERROR,
                 severity=Severity.ERROR,
             )
-            self._internal_messages.append(message)
+            self._internal_notifications.append(notification)
         finally:
             self.run_config.bids_directory.mkdir(exist_ok=True)  # Just in case it failed to create earlier
             self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
-            notifications_dump = [notification.model_dump(mode="json") for notification in self.messages]
+            notifications_dump = [notification.model_dump(mode="json") for notification in self.notifications]
             self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
 
     def write_dataset_description(self) -> None:

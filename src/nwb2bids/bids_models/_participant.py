@@ -42,7 +42,7 @@ class Participant(BaseMetadataModel):
     def _check_fields(self, file_paths: list[pathlib.Path] | list[pydantic.HttpUrl]) -> None:
         # Check if values are specified
         if self.participant_id is None:
-            self.messages.append(
+            self.notifications.append(
                 InspectionResult(
                     title="Missing participant ID",
                     reason="A unique ID is required for all individual participants.",
@@ -55,7 +55,7 @@ class Participant(BaseMetadataModel):
                 )
             )
         if self.species is None:
-            self.messages.append(
+            self.notifications.append(
                 InspectionResult(
                     title="Missing participant species",
                     reason="Archives such as DANDI or EMBER require the subject species to be specified.",
@@ -71,7 +71,7 @@ class Participant(BaseMetadataModel):
                 )
             )
         if self.sex is None:
-            self.messages.append(
+            self.notifications.append(
                 InspectionResult(
                     title="Missing participant sex",
                     reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
@@ -95,7 +95,7 @@ class Participant(BaseMetadataModel):
             self.participant_id is not None
             and re.match(pattern=f"{_VALID_ID_REGEX}$", string=self.participant_id) is None
         ):
-            self.messages.append(
+            self.notifications.append(
                 InspectionResult(
                     title="Invalid participant ID",
                     reason=(
@@ -118,7 +118,7 @@ class Participant(BaseMetadataModel):
                 )
             )
         if self.species is not None and re.match(pattern=_VALID_SPECIES_REGEX, string=self.species) is None:
-            self.messages.append(
+            self.notifications.append(
                 InspectionResult(
                     title="Invalid species",
                     reason="Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
@@ -135,7 +135,7 @@ class Participant(BaseMetadataModel):
                 )
             )
         if self.sex is not None and _VALID_BIDS_SEXES.get(self.sex, None) is None:
-            self.messages.append(
+            self.notifications.append(
                 InspectionResult(
                     title="Invalid participant sex (BIDS)",
                     reason="Participant sex is not one of the allowed patterns by BIDS.",
@@ -150,7 +150,7 @@ class Participant(BaseMetadataModel):
             )
 
         if self.sex is not None and _VALID_ARCHIVES_SEXES.get(self.sex, None) is None:
-            self.messages.append(
+            self.notifications.append(
                 InspectionResult(
                     title="Invalid participant sex (archives)",
                     reason="Participant sex is not one of the allowed patterns by the common archives.",
@@ -172,9 +172,9 @@ class Participant(BaseMetadataModel):
         """
         file_paths = [nwbfile.container_source for nwbfile in nwbfiles]
 
-        messages = []
+        notifications = []
         if len(nwbfiles) > 1:
-            messages.append(
+            notifications.append(
                 InspectionResult(
                     title="NotImplemented: multiple NWB files",
                     reason=(
@@ -191,7 +191,7 @@ class Participant(BaseMetadataModel):
         nwbfile = nwbfiles[0]
 
         if nwbfile.subject is None:
-            messages.append(
+            notifications.append(
                 InspectionResult(
                     title="Missing participant",
                     reason="BIDS requires a subject to be specified for each NWB file.",
@@ -204,7 +204,7 @@ class Participant(BaseMetadataModel):
                 )
             )
             participant = cls(
-                messages=messages,
+                notifications=notifications,
                 participant_id="0",  # Similar to the missing session ID; let placeholder default to "0"
             )
             return participant
@@ -214,7 +214,7 @@ class Participant(BaseMetadataModel):
             species=nwbfile.subject.species,
             sex=nwbfile.subject.sex,
             strain=nwbfile.subject.strain,
-            messages=messages,
+            notifications=notifications,
             # TODO: add more
             # birthday=nwbfile.participant.date_of_birth,
             # age=nwbfile.participant.age
