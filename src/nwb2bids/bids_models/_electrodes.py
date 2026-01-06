@@ -8,7 +8,7 @@ import pynwb
 import typing_extensions
 
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
-from ..notifications import InspectionResult
+from ..notifications import Notification
 
 
 class Electrode(BaseMetadataModel):
@@ -52,7 +52,7 @@ class ElectrodeTable(BaseMetadataContainerModel):
 
     @pydantic.computed_field
     @property
-    def notifications(self) -> list[InspectionResult]:
+    def notifications(self) -> list[Notification]:
         """
         All notifications from contained session converters.
 

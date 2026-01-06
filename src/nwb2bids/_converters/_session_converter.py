@@ -11,7 +11,7 @@ from ._run_config import RunConfig
 from .._converters._base_converter import BaseConverter
 from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
-from ..notifications import InspectionResult
+from ..notifications import Notification
 
 
 class SessionConverter(BaseConverter):
@@ -28,7 +28,7 @@ class SessionConverter(BaseConverter):
     session_metadata: BidsSessionMetadata | None = pydantic.Field(
         description="BIDS metadata extracted for this session.", default=None
     )
-    notifications: list[InspectionResult] = pydantic.Field(
+    notifications: list[Notification] = pydantic.Field(
         description="List of auto-detected suggestions.", ge=0, default_factory=list
     )
 

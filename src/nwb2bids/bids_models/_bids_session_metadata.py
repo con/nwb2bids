@@ -16,7 +16,7 @@ from ._participant import Participant
 from ._probes import ProbeTable
 from .._converters._run_config import RunConfig
 from .._tools import cache_read_nwb
-from ..notifications import Category, DataStandard, InspectionResult, Severity
+from ..notifications import Category, DataStandard, Notification, Severity
 from ..sanitization import Sanitization
 
 
@@ -49,7 +49,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
 
     @pydantic.computed_field
     @property
-    def notifications(self) -> list[InspectionResult]:
+    def notifications(self) -> list[Notification]:
         notifications = self.participant.notifications.copy()
         notifications += self._internal_notifications.copy()
         if self.events is not None:
@@ -70,7 +70,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         internal_messages = []
         if self.session_id is None:
             internal_messages.append(
-                InspectionResult(
+                Notification(
                     title="Missing session ID",
                     reason="A unique ID is required for all individual sessions.",
                     solution="Specify the `session_id` field of the NWB file object.",
@@ -85,7 +85,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         # Check if specified values are valid
         if self.session_id is not None and re.match(pattern=f"{_VALID_ID_REGEX}$", string=self.session_id) is None:
             internal_messages.append(
-                InspectionResult(
+                Notification(
                     title="Invalid session ID",
                     reason=(
                         "The session ID contains invalid characters. "

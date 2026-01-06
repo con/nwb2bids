@@ -1,8 +1,8 @@
-from ._inspection_result import InspectionResult, Category, Severity, DataStandard
+from ._inspection_result import Notification, Category, Severity, DataStandard
 
 __all__ = [
     "Category",
     "DataStandard",
-    "InspectionResult",
+    "Notification",
     "Severity",
 ]

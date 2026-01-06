@@ -11,7 +11,7 @@ from ._run_config import RunConfig
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..notifications import Category, InspectionResult, Severity
+from ..notifications import Category, Notification, Severity
 
 
 class DatasetConverter(BaseConverter):
@@ -25,7 +25,7 @@ class DatasetConverter(BaseConverter):
 
     @pydantic.computed_field
     @property
-    def notifications(self) -> list[InspectionResult]:
+    def notifications(self) -> list[Notification]:
         """
         All notifications from contained session converters.
 
@@ -118,7 +118,7 @@ class DatasetConverter(BaseConverter):
             return dataset_converter
         except Exception:  # noqa
             _internal_notifications = [
-                InspectionResult(
+                Notification(
                     title="Failed to initialize converter on remote Dandiset",
                     reason=(
                         "An error occurred while executing `DatasetConverter.from_remote_dandiset`."
@@ -177,7 +177,7 @@ class DatasetConverter(BaseConverter):
             return dataset_converter
         except Exception:  # noqa
             _internal_notifications = [
-                InspectionResult(
+                Notification(
                     title="Failed to initialize converter on local NWB files",
                     reason=(
                         "An error occurred while executing `DatasetConverter.from_nwb_paths`."
@@ -203,7 +203,7 @@ class DatasetConverter(BaseConverter):
                 maxlen=0,
             )
         except Exception:  # noqa
-            notification = InspectionResult(
+            notification = Notification(
                 title="Failed to extract metadata for one or more sessions",
                 reason=(
                     "An error occurred while executing `DatasetConverter.extract_metadata`."
@@ -225,7 +225,7 @@ class DatasetConverter(BaseConverter):
             self.write_sessions_metadata()
             self.write_dataset_description()
         except Exception:  # noqa
-            notification = InspectionResult(
+            notification = Notification(
                 title="Failed to convert to BIDS dataset",
                 reason=(
                     "An error occurred while executing `DatasetConverter.convert_to_bids_dataset`."

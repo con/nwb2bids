@@ -7,7 +7,7 @@ import rich_click
 from .._converters._run_config import RunConfig
 from .._core._convert_nwb_dataset import convert_nwb_dataset
 from .._tools._pluralize import _pluralize
-from ..notifications import InspectionResult, Severity
+from ..notifications import Notification, Severity
 from ..sanitization import SanitizationConfig
 from ..testing import generate_ephys_tutorial
 
@@ -130,7 +130,7 @@ def _run_convert_nwb_dataset(
         return
 
     notifications = converter.notifications
-    notifications_by_severity: dict[Severity, list[InspectionResult]] = collections.defaultdict(list)
+    notifications_by_severity: dict[Severity, list[Notification]] = collections.defaultdict(list)
     for notification in notifications:
         notifications_by_severity[notification.severity].append(notification)
     notif_text = f"\n\nPlease review the full notifications report at {run_config.notifications_json_file_path}\n"

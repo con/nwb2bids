@@ -9,7 +9,7 @@ from ._core._convert_nwb_dataset import convert_nwb_dataset
 from ._converters._dataset_converter import DatasetConverter
 from ._converters._session_converter import SessionConverter
 from ._converters._run_config import RunConfig
-from .notifications import InspectionResult, Severity, Category, DataStandard
+from .notifications import Notification, Severity, Category, DataStandard
 
 __all__ = [
     # Public methods and classes
@@ -18,7 +18,7 @@ __all__ = [
     "DatasetConverter",
     "SessionConverter",
     "DataStandard",
-    "InspectionResult",
+    "Notification",
     "Category",
     "Severity",
     # Public submodules
