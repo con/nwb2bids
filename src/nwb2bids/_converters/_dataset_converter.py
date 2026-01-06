@@ -203,7 +203,7 @@ class DatasetConverter(BaseConverter):
                 maxlen=0,
             )
         except Exception:  # noqa
-            message = InspectionResult(
+            notification = InspectionResult(
                 title="Failed to extract metadata for one or more sessions",
                 reason=(
                     "An error occurred while executing `DatasetConverter.extract_metadata`."
@@ -213,7 +213,7 @@ class DatasetConverter(BaseConverter):
                 category=Category.INTERNAL_ERROR,
                 severity=Severity.ERROR,
             )
-            self._internal_notifications.append(message)
+            self._internal_notifications.append(notification)
 
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
@@ -225,7 +225,7 @@ class DatasetConverter(BaseConverter):
             self.write_sessions_metadata()
             self.write_dataset_description()
         except Exception:  # noqa
-            message = InspectionResult(
+            notification = InspectionResult(
                 title="Failed to convert to BIDS dataset",
                 reason=(
                     "An error occurred while executing `DatasetConverter.convert_to_bids_dataset`."
@@ -235,7 +235,7 @@ class DatasetConverter(BaseConverter):
                 category=Category.INTERNAL_ERROR,
                 severity=Severity.ERROR,
             )
-            self._internal_notifications.append(message)
+            self._internal_notifications.append(notification)
         finally:
             self.run_config.bids_directory.mkdir(exist_ok=True)  # Just in case it failed to create earlier
             self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
