@@ -34,7 +34,7 @@ class SessionConverter(BaseConverter):
         description="List of auto-detected suggestions.", ge=0, default_factory=list
     )
     modality: typing.Literal["ecephys", "icephys"] | None = pydantic.Field(
-        description="The modality for this session - auto-detected during conversion step.", default=None
+        description="The modality for this session - auto-detected during metadata extraction step.", default=None
     )
 
     @classmethod
@@ -109,19 +109,8 @@ class SessionConverter(BaseConverter):
         )
         self.notifications += self.session_metadata.notifications
 
-    def convert_to_bids_session(self) -> None:
-        """
-        Convert the NWB file to a BIDS session directory.
-        """
-        if len(self.nwbfile_paths) > 1:
-            message = (
-                "Conversion of multiple NWB files per session is not yet supported. "
-                "Please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
-            )
-            raise NotImplementedError(message)
-
-        if self.session_metadata is None:
-            self.extract_metadata()
+        if self.modality is not None:
+            return None
 
         detected_modalities = set()
         for source in ["probe_table", "electrode_table", "channel_table"]:
@@ -142,6 +131,20 @@ class SessionConverter(BaseConverter):
             self.modality = "ecephys"
         else:
             self.modality = next(iter(detected_modalities))
+
+    def convert_to_bids_session(self) -> None:
+        """
+        Convert the NWB file to a BIDS session directory.
+        """
+        if len(self.nwbfile_paths) > 1:
+            message = (
+                "Conversion of multiple NWB files per session is not yet supported. "
+                "Please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
+            )
+            raise NotImplementedError(message)
+
+        if self.session_metadata is None:
+            self.extract_metadata()
 
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id

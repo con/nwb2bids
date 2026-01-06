@@ -70,6 +70,7 @@ def test_dataset_converter_metadata_extraction(
                 ),
                 run_config=run_config,
             ),
+            modality="ecephys",
         ),
     ]
     assert dataset_converter.session_converters == expected_session_converters

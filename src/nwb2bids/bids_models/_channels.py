@@ -58,8 +58,6 @@ class Channel(BaseMetadataModel):
     channel_label: str | None = None
     stream_id: str | None = None
     description: str | None = None
-    hardware_filters: str = "N/A"
-    software_filters: str = "N/A"
     status: typing.Literal["good", "bad"] | None = None
     status_description: str | None = None
     gain: float | None = None

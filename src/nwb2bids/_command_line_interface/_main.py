@@ -1,6 +1,7 @@
 import collections
 import pathlib
 import typing
+import warnings
 
 import rich_click
 
@@ -100,6 +101,9 @@ def _run_convert_nwb_dataset(
     NWB_PATHS : A space-separated sequence of paths, each pointing to either an NWB file
     or a directory containing NWB files.
     """
+    if silent:
+        warnings.filterwarnings(action="ignore")
+
     if len(nwb_paths) == 0:
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
