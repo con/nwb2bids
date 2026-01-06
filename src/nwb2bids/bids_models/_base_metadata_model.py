@@ -27,8 +27,8 @@ class BaseMetadataModel(MutableModel):
     Base Pydantic model for all metadata handled by `nwb2bids`.
     """
 
-    messages: list[InspectionResult] = pydantic.Field(
-        description="List of auto-detected suggestions.",
+    notifications: list[InspectionResult] = pydantic.Field(
+        description="List of auto-detected notifications.",
         default_factory=list,
         exclude=True,
     )
@@ -39,12 +39,14 @@ class BaseMetadataContainerModel(MutableModel, abc.ABC):
     Base Pydantic model for 'containing' some number of other metadata models plus any extra metadata.
     """
 
+    _internal_notifications: list[InspectionResult] = pydantic.PrivateAttr(default_factory=list)
+
     @abc.abstractmethod
     @pydantic.computed_field
     @property
-    def messages(self) -> list[InspectionResult]:
+    def notifications(self) -> list[InspectionResult]:
         """
-        All messages from contained session converters.
+        All notifications from contained session converters.
 
         These can accumulate over time based on which instance methods have been called.
         """

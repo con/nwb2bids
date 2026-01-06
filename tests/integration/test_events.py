@@ -13,7 +13,7 @@ def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
-    assert not any(converter.messages)
+    assert not any(converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {

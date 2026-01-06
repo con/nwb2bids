@@ -6,22 +6,22 @@ import pathlib
 import nwb2bids
 
 
-def test_messages_baseline(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
+def test_notifications_baseline(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    messages = converter.messages
+    notifications = converter.notifications
 
-    assert len(messages) == 0
+    assert len(notifications) == 0
 
 
-def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
+def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_1]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    messages = converter.messages
+    notifications = converter.notifications
 
-    expected_messages = [
+    expected_notifications = [
         nwb2bids.InspectionResult(
             title="Invalid species",
             reason="Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
@@ -74,7 +74,7 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
             severity=nwb2bids.Severity.ERROR,
         ),
     ]
-    assert messages == expected_messages
+    assert notifications == expected_notifications
 
     assert converter.run_config.notifications_json_file_path.exists()
     with converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
@@ -137,13 +137,13 @@ def test_messages_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_dir
     assert notifications_json == expected_notification_json
 
 
-def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
+def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_2]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    messages = converter.messages
+    notifications = converter.notifications
 
-    expected_messages = [
+    expected_notifications = [
         nwb2bids.InspectionResult(
             title="Missing participant sex",
             reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
@@ -213,16 +213,16 @@ def test_messages_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_dir
             severity=nwb2bids.Severity.ERROR,
         ),
     ]
-    assert messages == expected_messages
+    assert notifications == expected_notifications
 
 
-def test_messages_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
+def test_notifications_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_3]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    messages = converter.messages
+    notifications = converter.notifications
 
-    expected_messages = [
+    expected_notifications = [
         nwb2bids.InspectionResult(
             title="Missing participant",
             reason="BIDS requires a subject to be specified for each NWB file.",
@@ -236,16 +236,16 @@ def test_messages_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bids_dir
             severity=nwb2bids.Severity.CRITICAL,
         )
     ]
-    assert messages == expected_messages
+    assert notifications == expected_notifications
 
 
-def test_messages_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
+def test_notifications_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_4]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    messages = converter.messages
+    notifications = converter.notifications
 
-    expected_messages = [
+    expected_notifications = [
         nwb2bids.InspectionResult(
             title="Missing description",
             reason="A basic description of this field is recommended to improve contextual understanding.",
@@ -259,4 +259,4 @@ def test_messages_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bids_dir
             severity=nwb2bids.Severity.INFO,
         )
     ]
-    assert messages == expected_messages
+    assert notifications == expected_notifications

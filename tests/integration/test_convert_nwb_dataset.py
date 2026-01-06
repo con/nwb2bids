@@ -15,7 +15,7 @@ def test_minimal_convert_nwb_dataset_from_directory(
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
-    assert len(converter.messages) < 3
+    assert len(converter.notifications) < 3
     expected_structure = {
         temporary_bids_directory: {
             "directories": {"sub-123"},
@@ -98,7 +98,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
-    assert not any(converter.messages)
+    assert not any(converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -184,7 +184,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
-    assert not any(converter.messages)
+    assert not any(converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -317,7 +317,7 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
 
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
 
-    assert not any(converter.messages)
+    assert not any(converter.notifications)
 
     expected_structure = {
         temporary_run_directory: {

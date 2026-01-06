@@ -129,7 +129,7 @@ def _run_convert_nwb_dataset(
     if silent:
         return
 
-    notifications = converter.messages
+    notifications = converter.notifications
     notifications_by_severity: dict[Severity, list[InspectionResult]] = collections.defaultdict(list)
     for notification in notifications:
         notifications_by_severity[notification.severity].append(notification)

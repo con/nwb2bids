@@ -49,19 +49,21 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
 
     @pydantic.computed_field
     @property
-    def messages(self) -> list[InspectionResult]:
-        messages = self.participant.messages.copy()
-        messages += self._internal_messages.copy()
+    def notifications(self) -> list[InspectionResult]:
+        notifications = self.participant.notifications.copy()
+        notifications += self._internal_notifications.copy()
         if self.events is not None:
-            messages += self.events.messages.copy()
+            notifications += self.events.notifications.copy()
         if self.probe_table is not None:
-            messages += self.probe_table.messages
+            notifications += self.probe_table.notifications
         if self.electrode_table is not None:
-            messages += self.electrode_table.messages
+            notifications += self.electrode_table.notifications
         if self.channel_table is not None:
-            messages += self.channel_table.messages
-        messages.sort(key=lambda message: (-message.category.value, -message.severity.value, message.title))
-        return messages
+            notifications += self.channel_table.notifications
+        notifications.sort(
+            key=lambda notification: (-notification.category.value, -notification.severity.value, notification.title)
+        )
+        return notifications
 
     def _check_fields(self, file_paths: list[pathlib.Path] | list[pydantic.HttpUrl]) -> None:
         # Check if values are specified
@@ -104,7 +106,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
                     severity=Severity.ERROR,
                 )
             )
-        self._internal_messages = internal_messages
+        self._internal_notifications = internal_messages
 
     @classmethod
     @pydantic.validate_call
