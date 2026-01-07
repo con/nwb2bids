@@ -1,5 +1,6 @@
 import json
 import pathlib
+import typing
 
 import pandas
 import pydantic
@@ -58,7 +59,7 @@ class Events(BaseMetadataModel):
             by=["onset", "duration"], ascending=[True, False]
         ).reset_index(drop=True)
 
-        dictionary = {
+        dictionary: dict[str, typing.Any] = {
             "onset": bids_events_data_frame["onset"].tolist(),
             "duration": bids_events_data_frame["duration"].tolist(),
         }
@@ -99,6 +100,8 @@ class Events(BaseMetadataModel):
         file_path : str or pathlib.Path
             The path to the output JSON file.
         """
+        # Ensure file_path is a Path object
+        file_path = pathlib.Path(file_path)
         nwbfile = self.model_extra["_nwbfiles"][0]
 
         fields_metadata = _get_events_metadata(nwbfile=nwbfile)
@@ -196,7 +199,7 @@ def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
         "epochs": "Time-block",
     }
 
-    event_metadata = {
+    event_metadata: dict[str, typing.Any] = {
         "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
         "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
     }

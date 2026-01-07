@@ -92,6 +92,36 @@ For debugging, you must specify each code block you want to run by line number:
 
 Hidden assertions use ``.. invisible-code-block: python`` directives which run during testing but don't render in the documentation.
 
+CI Troubleshooting
+~~~~~~~~~~~~~~~~~~
+
+For debugging CI failures interactively, use the **Custom dispatch tests** workflow which supports `tmate <https://tmate.io/>`_ debugging sessions.
+
+1. Go to `Custom dispatch tests workflow <https://github.com/con/nwb2bids/actions/workflows/custom_dispatch_tests.yml>`_
+
+2. Click **"Run workflow"**
+
+3. Select the desired OS and Python version from the dropdowns
+
+4. Check **"Enable tmate debugging session"**
+
+5. Click **"Run workflow"** to start
+
+6. Monitor the workflow run. When it reaches the "Setup tmate session" step, it will display an SSH command like::
+
+      ssh randomstring@nyc1.tmate.io
+
+7. Use this command to connect to the CI environment
+
+The session runs under `tmux <https://github.com/tmux/tmux/wiki>`_. Quick reference:
+
+- ``Ctrl-b ?`` - show help with all keybindings
+- ``Ctrl-b d`` - detach from session (workflow continues)
+- ``Ctrl-b c`` - create new window
+- ``Ctrl-b n`` / ``Ctrl-b p`` - next/previous window
+
+When you exit tmux (``exit`` or ``Ctrl-d``), the workflow continues to completion.
+
 
 Releasing
 ---------

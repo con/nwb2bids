@@ -15,6 +15,7 @@ def test_remote_dataset_converter_initialization(temporary_bids_directory: pathl
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
         dandiset_id="000003", limit=2, run_config=run_config
     )
+    assert not any(dataset_converter.notifications)
 
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
 
@@ -26,6 +27,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
         dandiset_id="000003", limit=2, run_config=run_config
     )
     dataset_converter.extract_metadata()
+    assert len(dataset_converter.notifications) == 4
 
     assert len(dataset_converter.session_converters) == 2
 
@@ -66,9 +68,10 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.probe_table == nwb2bids.bids_models.ProbeTable(
         probes=[
             nwb2bids.bids_models.Probe(
-                probe_name="Implant", type=None, description="Silicon electrodes on Intan probe.", manufacturer=None
+                probe_name="Implant", type="n/a", manufacturer=None, description="Silicon electrodes on Intan probe."
             )
-        ]
+        ],
+        modality="ecephys",
     )
 
     assert session_metadata.channel_table is not None
@@ -80,8 +83,6 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
         unit="V",
         sampling_frequency=1250.0,
         stream_id="LFP",
-        hardware_filters="none",
-        software_filters="N/A",
         gain=1.9499999999999999e-07,
     )
 
@@ -106,9 +107,9 @@ def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_b
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
         dandiset_id="000005", limit=2, run_config=run_config
     )
+    assert len(dataset_converter.notifications) == 1
 
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
-    assert len(dataset_converter.notifications) == 1
     assert dataset_converter.notifications[0] == nwb2bids.Notification(
         title="INFO: invalid Dandiset metadata",
         reason="This Dandiset has invalid metadata.",

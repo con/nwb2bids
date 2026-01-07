@@ -13,9 +13,9 @@ def test_minimal_convert_nwb_dataset_from_directory(
 ):
     nwb_paths = [minimal_nwbfile_path.parent]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
-    assert len(converter.notifications) < 3
     expected_structure = {
         temporary_bids_directory: {
             "directories": {"sub-123"},
@@ -46,8 +46,8 @@ def test_minimal_convert_nwb_dataset_from_directory(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
-    assert converter.run_config.notifications_json_file_path.exists()
-    with converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
+    assert dataset_converter.run_config.notifications_json_file_path.exists()
+    with dataset_converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
         notifications_json = json.load(fp=file_stream)
     expected_notification_json = []
     assert notifications_json == expected_notification_json
@@ -58,7 +58,8 @@ def test_minimal_convert_nwb_dataset_from_file_path(
 ):
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -96,9 +97,8 @@ def test_ecephys_tutorial_convert_nwb_dataset(
 ):
     nwb_paths = [ecephys_tutorial_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -139,8 +139,11 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     probes_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.tsv"
     probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
     expected_probe_tsv_lines = [
-        "probe_name\ttype\tdescription\tmanufacturer",
-        "ExampleProbe\tN/A\tThis is an example probe used for demonstration purposes.\t`nwb2bids.testing` module",
+        "probe_name\ttype\tmanufacturer\tdescription",
+        (
+            "ExampleProbe\tn/a\t`nwb2bids.testing` module\tThis is an example ecephys probe "
+            "used for demonstration purposes."
+        ),
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 
@@ -164,15 +167,15 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
-        "channel_name\treference\ttype\tunit\tsampling_frequency\tstream_id\thardware_filters\tgain",
-        "ch0\te0\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch1\te1\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch2\te2\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch3\te3\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch4\te4\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch5\te5\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch6\te6\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch7\te7\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "channel_name\treference\ttype\tunit\tsampling_frequency\tstream_id\tgain",
+        "ch0\te0\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch1\te1\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch2\te2\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch3\te3\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch4\te4\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch5\te5\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch6\te6\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch7\te7\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
     ]
     assert channels_tsv_lines == expected_channels_tsv_lines
 
@@ -182,9 +185,8 @@ def test_ecephys_minimal_convert_nwb_dataset(
 ):
     nwb_paths = [ecephys_minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -226,7 +228,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
     probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
     expected_probe_tsv_lines = [
         "probe_name\ttype\tdescription",
-        "ExampleProbe\tN/A\tThis is an example probe used for demonstration purposes.",
+        "ExampleProbe\tn/a\tThis is an example probe used for demonstration purposes.",
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 
@@ -273,7 +275,8 @@ def test_implicit_bids_directory(
     monkeypatch.chdir(temporary_bids_directory)
 
     nwb_paths = [minimal_nwbfile_path]
-    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         implicit_bids_directory: {
@@ -315,9 +318,8 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
     nwb_relative = minimal_nwbfile_path.relative_to(temporary_run_directory.parent)
     nwb_paths = [pathlib.Path("..") / nwb_relative]
 
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
-
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_run_directory: {

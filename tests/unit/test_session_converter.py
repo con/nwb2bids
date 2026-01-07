@@ -17,7 +17,10 @@ def test_session_converter_directory_initialization(
 
     assert isinstance(session_converters, list)
     assert len(session_converters) == 1
-    assert isinstance(session_converters[0], nwb2bids.SessionConverter)
+
+    session_converter = session_converters[0]
+    assert isinstance(session_converter, nwb2bids.SessionConverter)
+    assert not any(session_converter.notifications)
 
 
 def test_session_converter_file_path_initialization(
@@ -29,7 +32,10 @@ def test_session_converter_file_path_initialization(
 
     assert isinstance(session_converters, list)
     assert len(session_converters) == 1
-    assert isinstance(session_converters[0], nwb2bids.SessionConverter)
+
+    session_converter = session_converters[0]
+    assert isinstance(session_converter, nwb2bids.SessionConverter)
+    assert not any(session_converter.notifications)
 
 
 def test_session_converter_both_file_and_directory_initialization(
@@ -44,6 +50,8 @@ def test_session_converter_both_file_and_directory_initialization(
     assert isinstance(session_converters, list)
     assert len(session_converters) == 2
     assert all(isinstance(converter, nwb2bids.SessionConverter) for converter in session_converters)
+    for session_converter in session_converters:
+        assert not any(session_converter.notifications), f"Detected notifications in {session_converter=}!"
 
 
 def test_session_converter_defaults_missing_session_id(
@@ -56,8 +64,11 @@ def test_session_converter_defaults_missing_session_id(
 
     assert isinstance(session_converters, list)
     assert len(session_converters) == 1
-    assert isinstance(session_converters[0], nwb2bids.SessionConverter)
-    assert session_converters[0].session_id == "0"
+
+    session_converter = session_converters[0]
+    assert isinstance(session_converter, nwb2bids.SessionConverter)
+    assert session_converter.session_id == "0"
+    assert not any(session_converter.notifications)
 
 
 def test_session_converter_metadata_extraction(
@@ -66,14 +77,18 @@ def test_session_converter_metadata_extraction(
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-    session_converters[0].extract_metadata()
+    assert len(session_converters) == 1
+
+    session_converter = session_converters[0]
+    session_converter.extract_metadata()
+    assert not any(session_converter.notifications), f"Detected notifications in {session_converter=}!"
 
     expected_session_metadata = nwb2bids.bids_models.BidsSessionMetadata(
         session_id="456",
         participant=nwb2bids.bids_models.Participant(participant_id="123", species="Mus musculus", sex="M"),
         run_config=run_config,
     )
-    assert session_converters[0].session_metadata == expected_session_metadata
+    assert session_converter.session_metadata == expected_session_metadata
 
 
 def test_session_converter_write_ecephys_metadata(
@@ -82,9 +97,12 @@ def test_session_converter_write_ecephys_metadata(
     nwb_paths = [ecephys_tutorial_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    assert len(session_converters) == 1
+
     session_converter = session_converters[0]
     session_converter.extract_metadata()
-    session_converter.write_ecephys_files()
+    session_converter.write_ephys_files()
+    assert not any(session_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-001"}, "files": {"dataset_description.json"}},
@@ -127,9 +145,12 @@ def test_session_converter_write_events_metadata(
     nwb_paths = [trials_events_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     session_converters = nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    assert len(session_converters) == 1
+
     session_converter = session_converters[0]
     session_converter.extract_metadata()
     session_converter.write_events_files()
+    assert not any(session_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
