@@ -111,7 +111,6 @@ def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_b
     assert len(dataset_converter.notifications) == 1
 
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
-    assert len(dataset_converter.notifications) == 1
     assert dataset_converter.notifications[0] == nwb2bids.Notification(
         title="INFO: invalid Dandiset metadata",
         reason="This Dandiset has invalid metadata.",
