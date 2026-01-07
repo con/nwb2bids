@@ -1,4 +1,4 @@
-from ._inspection_result import Notification, Category, Severity, DataStandard
+from ._notification import Notification, Category, Severity, DataStandard
 
 __all__ = [
     "Category",
