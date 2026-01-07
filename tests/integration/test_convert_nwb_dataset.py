@@ -13,9 +13,9 @@ def test_minimal_convert_nwb_dataset_from_directory(
 ):
     nwb_paths = [minimal_nwbfile_path.parent]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
-    assert len(converter.notifications) < 3
     expected_structure = {
         temporary_bids_directory: {
             "directories": {"sub-123"},
@@ -46,8 +46,8 @@ def test_minimal_convert_nwb_dataset_from_directory(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
-    assert converter.run_config.notifications_json_file_path.exists()
-    with converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
+    assert dataset_converter.run_config.notifications_json_file_path.exists()
+    with dataset_converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
         notifications_json = json.load(fp=file_stream)
     expected_notification_json = []
     assert notifications_json == expected_notification_json
@@ -58,7 +58,8 @@ def test_minimal_convert_nwb_dataset_from_file_path(
 ):
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -96,9 +97,8 @@ def test_ecephys_tutorial_convert_nwb_dataset(
 ):
     nwb_paths = [ecephys_tutorial_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -182,9 +182,8 @@ def test_ecephys_minimal_convert_nwb_dataset(
 ):
     nwb_paths = [ecephys_minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -273,7 +272,8 @@ def test_implicit_bids_directory(
     monkeypatch.chdir(temporary_bids_directory)
 
     nwb_paths = [minimal_nwbfile_path]
-    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         implicit_bids_directory: {
@@ -315,9 +315,8 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
     nwb_relative = minimal_nwbfile_path.relative_to(temporary_run_directory.parent)
     nwb_paths = [pathlib.Path("..") / nwb_relative]
 
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
-
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_run_directory: {

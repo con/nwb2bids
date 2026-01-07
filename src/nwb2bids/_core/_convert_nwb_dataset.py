@@ -41,12 +41,12 @@ def convert_nwb_dataset(
 
     Returns
     -------
-    converter : DatasetConverter
+    dataset_converter : DatasetConverter
         The DatasetConverter used to perform the conversion.
         Contains notifications and other contextual information about the conversion process.
     """
-    converter = DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-    converter.extract_metadata()
-    converter.convert_to_bids_dataset()
+    dataset_converter = DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.extract_metadata()
+    dataset_converter.convert_to_bids_dataset()
 
-    return converter
+    return dataset_converter
