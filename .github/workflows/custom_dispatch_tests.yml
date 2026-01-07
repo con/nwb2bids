@@ -13,22 +13,13 @@ on:
         required: true
         default: 'ubuntu-latest'
         type: choice
-        options:
-          - ubuntu-latest
-          - windows-latest
-          - windows-2022
-          - macos-latest
-          - macos-15-intel
+        options: ["ubuntu-latest", "windows-latest", "windows-2022", "macos-latest", "macos-15-intel"]
       python:
         description: 'Python version'
         required: true
         default: '3.13'
         type: choice
-        options:
-          - '3.10'
-          - '3.11'
-          - '3.12'
-          - '3.13'
+        options: ['3.10', '3.11', '3.12', '3.13']
       tmate:
         description: 'Enable tmate debugging session'
         required: false
