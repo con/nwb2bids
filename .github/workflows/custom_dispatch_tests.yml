@@ -1,0 +1,51 @@
+name: Custom dispatch tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      pytest_markexpr:
+        description: 'Expression for pytest -m'
+        required: false
+        default: 'not remote'
+        type: string
+      os:
+        description: 'OS to test on'
+        required: true
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - windows-latest
+          - windows-2022
+          - macos-latest
+          - macos-15-intel
+      python:
+        description: 'Python version'
+        required: true
+        default: '3.13'
+        type: choice
+        options:
+          - '3.10'
+          - '3.11'
+          - '3.12'
+          - '3.13'
+      tmate:
+        description: 'Enable tmate debugging session'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  CustomTests:
+    uses: ./.github/workflows/testing.yml
+    with:
+      pytest_markexpr: ${{ inputs.pytest_markexpr }}
+      os_list: '["${{ inputs.os }}"]'
+      python_list: '["${{ inputs.python }}"]'
+      tmate: ${{ inputs.tmate }}
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
