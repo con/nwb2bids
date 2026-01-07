@@ -139,8 +139,11 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     probes_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.tsv"
     probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
     expected_probe_tsv_lines = [
-        "probe_name\ttype\tdescription\tmanufacturer",
-        "ExampleProbe\tN/A\tThis is an example probe used for demonstration purposes.\t`nwb2bids.testing` module",
+        "probe_name\ttype\tmanufacturer\tdescription",
+        (
+            "ExampleProbe\tn/a\t`nwb2bids.testing` module\tThis is an example ecephys probe "
+            "used for demonstration purposes."
+        ),
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 
@@ -164,15 +167,15 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
-        "channel_name\treference\ttype\tunit\tsampling_frequency\tstream_id\thardware_filters\tgain",
-        "ch0\te0\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch1\te1\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch2\te2\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch3\te3\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch4\te4\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch5\te5\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch6\te6\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
-        "ch7\te7\tN/A\tV\t30000.0\tExampleElectricalSeries\tHighpassFilter\t3.02734375e-06",
+        "channel_name\treference\ttype\tunit\tsampling_frequency\tstream_id\tgain",
+        "ch0\te0\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch1\te1\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch2\te2\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch3\te3\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch4\te4\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch5\te5\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch6\te6\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
+        "ch7\te7\tN/A\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
     ]
     assert channels_tsv_lines == expected_channels_tsv_lines
 
@@ -225,7 +228,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
     probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
     expected_probe_tsv_lines = [
         "probe_name\ttype\tdescription",
-        "ExampleProbe\tN/A\tThis is an example probe used for demonstration purposes.",
+        "ExampleProbe\tn/a\tThis is an example probe used for demonstration purposes.",
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 

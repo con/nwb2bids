@@ -1,5 +1,6 @@
 import json
 import pathlib
+import typing
 from typing import Any
 
 import pandas
@@ -13,13 +14,13 @@ from ..notifications import Category, DataStandard, Notification, Severity
 
 class Probe(BaseMetadataModel):
     probe_name: str
-    type: str | None = None
-    description: str | None = None
+    type: str = "n/a"
     manufacturer: str | None = None
 
 
 class ProbeTable(BaseMetadataContainerModel):
     probes: list[Probe]
+    modality: typing.Literal["ecephys", "icephys"]
 
     def _check_fields(self) -> None:
         # Check if values are specified
@@ -61,27 +62,41 @@ class ProbeTable(BaseMetadataContainerModel):
     @classmethod
     @pydantic.validate_call
     def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
-        nwb_electrode_tables = [nwbfile.electrodes for nwbfile in nwbfiles]
-        if not any(nwb_electrode_tables):
+        if len(nwbfiles) > 1:
+            message = "Conversion of multiple NWB files per session is not yet supported."
+            raise NotImplementedError(message)
+        nwbfile = nwbfiles[0]
+
+        has_ecephys_probes = nwbfile.electrodes is not None
+        has_icephys_probes = any(nwbfile.icephys_electrodes)
+        if not has_ecephys_probes and not has_icephys_probes:
             return None
 
-        unique_devices = {
-            electrode_group.device
-            for nwbfile in nwbfiles
-            for electrode_group in nwbfile.electrodes["group"][:]
-            if nwbfile.electrodes is not None
-        }
+        if has_ecephys_probes and has_icephys_probes:
+            message = (
+                "Converting probe metadata when there are both ecephys and icephys types has not yet been implemented."
+            )
+            raise NotImplementedError(message)
+
+        modality = "ecephys" if has_ecephys_probes else "icephys"
+        if modality == "ecephys":
+            electrode_groups = nwbfile.electrodes["group"][:]
+            unique_devices = {electrode_group.device for electrode_group in electrode_groups}
+        else:
+            icephys_electrodes = nwbfile.icephys_electrodes.values()
+            unique_devices = {electrode.device for electrode in icephys_electrodes}
 
         probes = [
             Probe(
                 probe_name=device.name,
-                type=None,  # TODO
-                description=device.description,
+                type="n/a",  # TODO
                 manufacturer=device.manufacturer,
+                description=device.description,
+                # TODO: handle more extra custom columns
             )
             for device in unique_devices
         ]
-        return cls(probes=probes)
+        return cls(probes=probes, modality=modality)
 
     @pydantic.validate_call
     def to_tsv(self, file_path: str | pathlib.Path) -> None:
@@ -99,7 +114,6 @@ class ProbeTable(BaseMetadataContainerModel):
             data.append(model_dump)
 
         data_frame = pandas.DataFrame(data=data)
-        data_frame["type"] = data_frame["type"].fillna(value="N/A")
         data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
@@ -116,4 +130,8 @@ class ProbeTable(BaseMetadataContainerModel):
         file_path = pathlib.Path(file_path)
 
         with file_path.open(mode="w") as file_stream:
-            json.dump(obj=dict(), fp=file_stream, indent=4)
+            json.dump(
+                obj=dict(),  # TODO
+                fp=file_stream,
+                indent=4,
+            )

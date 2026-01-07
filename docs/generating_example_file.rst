@@ -23,7 +23,7 @@ an example file by running:
 
 
 This created an NWB file with contents typical of an extracellular electrophysiology experiment in your home
-directory for **nwb2bids**: ``~/nwb2bids_tutorials/ephys_tutorial_file/ephys.nwb``.
+directory for **nwb2bids**: ``~/nwb2bids_tutorials/ecephys_tutorial_file/ecephys.nwb``.
 
 NWB files like these contain a lot of metadata about the probes and electrode structure, which will be useful later
 when we compare the source file to the sidecar tables found in BIDS. You can explore these file contents through
@@ -39,3 +39,25 @@ when we compare the source file to the sidecar tables found in BIDS. You can exp
     `PyNWB library <https://pynwb.readthedocs.io/en/stable/tutorials/general/plot_read_basics.html#reading-and-exploring-an-nwb-file>`_.
 
     If you ever upload your own NWB files to DANDI or EMBER, you too can share Neurosift links with your collaborators!
+
+
+
+Other modalities
+----------------
+
+You can also generate example NWB files for other modalities, such as ``icephys``!
+
+.. tabs::
+    .. tab:: CLI
+
+        .. code-block:: bash
+
+            nwb2bids tutorial ephys file --modality icephys
+
+    .. tab:: Python Library
+
+        .. code-block:: python
+
+            import nwb2bids
+
+            tutorial_file = nwb2bids.testing.generate_ephys_tutorial(mode="file", modality="icephys")

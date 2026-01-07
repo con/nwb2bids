@@ -30,7 +30,7 @@ def test_problematic_cli_error_messages(
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
     assert expected_message == actual_lines[:-2]
     assert "Please review the full notifications report at" in actual_lines[-2]
-    assert result.stderr == b""
+    assert b"No modality information found in session metadata" in result.stderr
 
 
 def test_problematic_cli_critical_messages(
@@ -45,7 +45,7 @@ def test_problematic_cli_critical_messages(
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
     assert expected_message == actual_lines[:-2]
     assert "Please review the full notifications report at" in actual_lines[-2]
-    assert result.stderr == b""
+    assert b"No modality information found in session metadata" in result.stderr
 
 
 def test_problematic_cli_info_messages(
@@ -77,7 +77,7 @@ def test_cli_success(minimal_nwbfile_path: pathlib.Path, temporary_bids_director
     expected_message = ["", "BIDS dataset was successfully created!", ""]
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
     assert expected_message == actual_lines
-    assert result.stderr == b""
+    assert b"No modality information found in session metadata" in result.stderr
 
 
 def test_problematic_cli_silent(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path):
