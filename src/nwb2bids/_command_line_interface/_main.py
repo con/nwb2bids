@@ -128,12 +128,12 @@ def _run_convert_nwb_dataset(
     }
     run_config = RunConfig(**non_missing_run_config_kwargs)
 
-    converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
+    dataset_converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
     if silent:
         return
 
-    notifications = converter.notifications
+    notifications = dataset_converter.notifications
     notifications_by_severity: dict[Severity, list[Notification]] = collections.defaultdict(list)
     for notification in notifications:
         notifications_by_severity[notification.severity].append(notification)

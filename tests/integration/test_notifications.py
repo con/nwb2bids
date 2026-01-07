@@ -9,18 +9,16 @@ import nwb2bids
 def test_notifications_baseline(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    notifications = converter.notifications
-
-    assert len(notifications) == 0
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
 
 def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_1]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    notifications = converter.notifications
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
+    notifications = dataset_converter.notifications
     expected_notifications = [
         nwb2bids.Notification(
             title="Invalid species",
@@ -76,8 +74,8 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
     ]
     assert notifications == expected_notifications
 
-    assert converter.run_config.notifications_json_file_path.exists()
-    with converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
+    assert dataset_converter.run_config.notifications_json_file_path.exists()
+    with dataset_converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
         notifications_json = json.load(fp=file_stream)
     str_nwb_paths = [str(path) for path in nwb_paths]
     expected_notification_json = [
@@ -140,9 +138,9 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
 def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_2]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    notifications = converter.notifications
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
+    notifications = dataset_converter.notifications
     expected_notifications = [
         nwb2bids.Notification(
             title="Missing participant sex",
@@ -219,9 +217,9 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
 def test_notifications_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_3]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    notifications = converter.notifications
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
+    notifications = dataset_converter.notifications
     expected_notifications = [
         nwb2bids.Notification(
             title="Missing participant",
@@ -242,9 +240,9 @@ def test_notifications_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bid
 def test_notifications_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
     nwb_paths = [problematic_nwbfile_path_4]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    notifications = converter.notifications
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
+    notifications = dataset_converter.notifications
     expected_notifications = [
         nwb2bids.Notification(
             title="Missing description",
