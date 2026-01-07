@@ -1,3 +1,58 @@
+# v0.9.0 (Wed Jan 07 2026)
+
+### Release Notes
+
+#### Added sanitization feature ([#244](https://github.com/con/nwb2bids/pull/244))
+
+The sanitization feature is now available. 'Sanitization' refers to actively altering various values extracted from the NWB files in an effort to adhere to BIDS validation requirements.
+
+An example would be a NWB file containing the field `nwbfile.session_id = "my session #2"`. While this is perfectly allowed in NWB, attempting to write filenames such as `_ses-my session #2_` would not be valid in BIDS and the resulting files including these labels would not be uploadable to common data archives. Sanitization would instead generate BIDS filenames as `_ses-my+session+2_`.
+
+Currently, only the codes 'sub-labels' or 'ses-labels' are available. These sanitize session or subject ID labels in a way guaranteed to be valid BIDS. We plan to add more capabilities in the future, including some limited in-place modification of NWB contents to allow consistency with the BIDS validation requirements.
+
+---
+
+#### 🚀 Enhancement
+
+- Added icephys support [#254](https://github.com/con/nwb2bids/pull/254) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@asmacdo](https://github.com/asmacdo))
+- Standardized notification assertions [#256](https://github.com/con/nwb2bids/pull/256) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Renamed InspectionResult to Notification [#255](https://github.com/con/nwb2bids/pull/255) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Standardized all reference to notifications [#253](https://github.com/con/nwb2bids/pull/253) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Added sanitization feature [#244](https://github.com/con/nwb2bids/pull/244) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### 🐛 Bug Fix
+
+- [pre-commit.ci] pre-commit autoupdate [#249](https://github.com/con/nwb2bids/pull/249) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Eliminate mypy errors in `src/nwb2bids/bids_models/_probes.py` [#248](https://github.com/con/nwb2bids/pull/248) ([@candleindark](https://github.com/candleindark))
+- Eliminate mypy errors related to the `run_config` param in functions and the `run_config` field in Pydantic models [#247](https://github.com/con/nwb2bids/pull/247) ([@candleindark](https://github.com/candleindark))
+- Eliminate mypy errors in `nwb2bids/bids_models/_base_metadata_model.py` [#246](https://github.com/con/nwb2bids/pull/246) ([@candleindark](https://github.com/candleindark))
+- Disable mypy error code prop-decorator [#245](https://github.com/con/nwb2bids/pull/245) ([@candleindark](https://github.com/candleindark))
+- Remove mypy errors in `src/nwb2bids/testing/_assert_subdirectory_structure.py` [#241](https://github.com/con/nwb2bids/pull/241) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Address mypy errors in `nwb2bids/testing/_mocks/_tutorials.py` and fix incorrect paths in `generate_ephys_tutorial()` [#242](https://github.com/con/nwb2bids/pull/242) ([@candleindark](https://github.com/candleindark))
+- [pre-commit.ci] pre-commit autoupdate [#237](https://github.com/con/nwb2bids/pull/237) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### 🏠 Internal
+
+- Added tmate debugging support and custom dispatch workflow [#258](https://github.com/con/nwb2bids/pull/258) ([@yarikoptic](https://github.com/yarikoptic) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Removed labels workflow [#257](https://github.com/con/nwb2bids/pull/257) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fix placecholder debug workflow [#260](https://github.com/con/nwb2bids/pull/260) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Added dummy workflow file for debug mode testing [#259](https://github.com/con/nwb2bids/pull/259) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 📝 Documentation
+
+- Move data generation page out of main tutorials [#251](https://github.com/con/nwb2bids/pull/251) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fix light logo readme [#243](https://github.com/con/nwb2bids/pull/243) ([@asmacdo](https://github.com/asmacdo))
+
+#### Authors: 5
+
+- [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
+- Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Isaac To ([@candleindark](https://github.com/candleindark))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
 # v0.8.0 (Mon Dec 15 2025)
 
 #### 🚀 Enhancement
