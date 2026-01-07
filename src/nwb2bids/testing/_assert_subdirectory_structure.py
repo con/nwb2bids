@@ -34,23 +34,23 @@ def assert_subdirectory_structure(
         expected = expected_structure.get(current_dir_path, None)
 
         assert expected is not None, (
-            f"\n\nUnexpected subdirectory {current_dir_path}.\n\n"
+            f"\n\nUnexpected subdirectory {current_dir_path}\n\n"
             f"Expected subdirectories: {list(expected_structure.keys())}\n"
         )
         assert set(expected.keys()) == {"directories", "files"}, (
-            f"\n\nUnexpected keys in expected structure for {current_dir_path}.\n\n"
+            f"\n\nUnexpected keys in expected structure for {current_dir_path}\n\n"
             f"Expected keys: 'directories', 'files'\n"
             f"Found keys: {set(expected.keys())}\n\n"
         )
         assert set(directories) == set(expected["directories"]), (
-            f"\n\nUnexpected directories in {current_dir_path}.\n\n"
+            f"\n\nUnexpected directories in {current_dir_path}\n\n"
             f"Expected: {expected['directories']}\n"
             f"Found: {set(directories)}\n"
             f"Unexpected: {set(directories) - set(expected['directories'])}\n"
             f"Missing: {set(expected['directories']) - set(directories)}\n\n"
         )
         assert set(files) == set(expected["files"]), (
-            f"\n\nUnexpected files in {current_dir_path}.\n\n"
+            f"\n\nUnexpected files in {current_dir_path}\n\n"
             f"Expected: {expected['files']}\n"
             f"Found: {files}\n"
             f"Unexpected: {set(files) - set(expected['files'])}\n"
