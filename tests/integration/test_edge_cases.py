@@ -24,8 +24,8 @@ def test_convert_nwb_dataset_with_additional_metadata(
     run_config = nwb2bids.RunConfig(
         bids_directory=temporary_bids_directory, additional_metadata_file_path=additional_metadata_file_path
     )
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -61,8 +61,8 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset(
 ):
     nwb_paths = [mock_datalad_dataset]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -101,8 +101,8 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset_with_broken_symlink(
 
     nwb_paths = [mock_datalad_dataset]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -140,8 +140,8 @@ def test_convert_nwb_dataset_with_subject_mismatch(
 ):
     nwb_paths = [minimal_nwbfile_path, minimal_mismatch_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    assert len(converter.notifications) == 1
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert len(dataset_converter.notifications) == 1
 
     expected_structure = {
         temporary_bids_directory: {
@@ -203,8 +203,8 @@ def test_symlink_resolves_correctly_with_relative_path(
 
     nwb_paths = [relative_nwb_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, file_mode="symlink")
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    assert not any(converter.notifications)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     symlink_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_ecephys.nwb"
 

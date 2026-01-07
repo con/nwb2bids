@@ -18,10 +18,12 @@ pytest_mark_xfail_windows_github_ci = pytest.mark.xfail(
 @pytest.mark.remote
 def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.DatasetConverter.from_remote_dandiset(dandiset_id="000003", limit=2, run_config=run_config)
-    converter.extract_metadata()
-    converter.convert_to_bids_dataset()
-    assert len(converter.notifications) == 4
+    dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
+        dandiset_id="000003", limit=2, run_config=run_config
+    )
+    dataset_converter.extract_metadata()
+    dataset_converter.convert_to_bids_dataset()
+    assert len(dataset_converter.notifications) == 4
 
     expected_structure = {
         temporary_bids_directory: {
@@ -103,8 +105,8 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
 
     nwb_paths = [test_file_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    assert len(converter.notifications) < 2, "Expected fewer than 2 notifications!"
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert len(dataset_converter.notifications) < 2, "Expected fewer than 2 notifications!"
 
     expected_structure = {
         temporary_bids_directory: {
@@ -163,8 +165,8 @@ def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
 
     nwb_paths = [dataset_dir]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-    assert len(converter.notifications) < 2, "Expected fewer than 2 notifications!"
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert len(dataset_converter.notifications) < 2, "Expected fewer than 2 notifications!"
 
     expected_structure = {
         temporary_bids_directory: {
