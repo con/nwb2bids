@@ -7,8 +7,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from .._inspection._inspection_result import Category, DataStandard, InspectionResult, Severity
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
+from ..notifications import Category, DataStandard, Notification, Severity
 
 
 class Probe(BaseMetadataModel):
@@ -28,7 +28,7 @@ class ProbeTable(BaseMetadataContainerModel):
         probes_missing_description = [probe for probe in self.probes if probe.description is None]
         for probe_missing_description in probes_missing_description:
             self._internal_notifications.append(
-                InspectionResult(
+                Notification(
                     title="Missing description",
                     reason="A basic description of this field is recommended to improve contextual understanding.",
                     solution="Add a description to the field.",
@@ -45,7 +45,7 @@ class ProbeTable(BaseMetadataContainerModel):
 
     @pydantic.computed_field
     @property
-    def notifications(self) -> list[InspectionResult]:
+    def notifications(self) -> list[Notification]:
         """
         All notifications from contained session converters.
 

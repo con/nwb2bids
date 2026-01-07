@@ -41,7 +41,7 @@ class Severity(enum.Enum):
     CRITICAL = enum.auto()  # A serious invalidity in data
 
 
-class InspectionResult(pydantic.BaseModel):
+class Notification(pydantic.BaseModel):
     title: str = pydantic.Field(description="Short title of the issue.")
     reason: str = pydantic.Field(description="Detailed description of the issue and suggestions for how to resolve it.")
     solution: str = pydantic.Field(
