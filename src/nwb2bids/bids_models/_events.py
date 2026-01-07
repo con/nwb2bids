@@ -1,6 +1,6 @@
 import json
 import pathlib
-from typing import Any
+import typing
 
 import pandas
 import pydantic
@@ -59,7 +59,7 @@ class Events(BaseMetadataModel):
             by=["onset", "duration"], ascending=[True, False]
         ).reset_index(drop=True)
 
-        dictionary: dict[str, Any] = {
+        dictionary: dict[str, typing.Any] = {
             "onset": bids_events_data_frame["onset"].tolist(),
             "duration": bids_events_data_frame["duration"].tolist(),
         }
@@ -199,7 +199,7 @@ def _get_events_metadata(nwbfile: pynwb.NWBFile) -> dict | None:
         "epochs": "Time-block",
     }
 
-    event_metadata: dict[str, Any] = {
+    event_metadata: dict[str, typing.Any] = {
         "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
         "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
     }
