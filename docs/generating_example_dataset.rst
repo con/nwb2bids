@@ -48,12 +48,12 @@ Now we should have a directory that looks something like:
 
 .. code-block:: text
 
-    ephys_tutorial_dataset/
-    ├── ephys_session_3.nwb
+    ecephys_tutorial_dataset/
+    ├── ecephys_session_3.nwb
     ├── DO_NOT_CONVERT.nwb
     └── some_sessions/
-        ├── ephys_session_1.nwb
-        └── ephys_session_1.nwb
+        ├── ecephys_session_1.nwb
+        └── ecephys_session_1.nwb
 
 .. note::
 
@@ -85,3 +85,25 @@ Now we should have a directory that looks something like:
                     mode="file",
                     output_directory=path_to_some_directory,
                 )
+
+
+
+Other modalities
+----------------
+
+You can also generate example NWB files for other modalities, such as ``icephys``!
+
+.. tabs::
+    .. tab:: CLI
+
+        .. code-block:: bash
+
+            nwb2bids tutorial ephys dataset --modality icephys
+
+    .. tab:: Python Library
+
+        .. code-block:: python
+
+            import nwb2bids
+
+            tutorial_file = nwb2bids.testing.generate_ephys_tutorial(mode="dataset", modality="icephys")

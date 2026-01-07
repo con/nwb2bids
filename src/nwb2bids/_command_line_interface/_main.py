@@ -214,8 +214,18 @@ def _nwb2bids_tutorial_ephys_cli():
     type=rich_click.Path(writable=True),
     default=None,
 )
-def _nwb2bids_tutorial_ephys_file_cli(output_directory: str | None = None) -> None:
-    file_path = generate_ephys_tutorial(output_directory=output_directory, mode="file")
+@rich_click.option(
+    "--modality",
+    help="Type of electrophysiology data to include in the tutorial NWB file.",
+    required=False,
+    type=rich_click.Choice(["ecephys", "icephys"], case_sensitive=True),
+    default="ecephys",
+)
+def _nwb2bids_tutorial_ephys_file_cli(
+    output_directory: str | None = None,
+    modality: typing.Literal["ecephys", "icephys"] = "ecephys",
+) -> None:
+    file_path = generate_ephys_tutorial(output_directory=output_directory, mode="file", modality=modality)
 
     text = f"\nAn example NWB file has been created at: {file_path}\n\n"
     message = rich_click.style(text=text, fg="green")
@@ -231,6 +241,13 @@ def _nwb2bids_tutorial_ephys_file_cli(output_directory: str | None = None) -> No
     required=False,
     type=rich_click.Path(writable=True),
     default=None,
+)
+@rich_click.option(
+    "--modality",
+    help="Type of electrophysiology data to include in the tutorial NWB file.",
+    required=False,
+    type=rich_click.Choice(["ecephys", "icephys"], case_sensitive=True),
+    default="ecephys",
 )
 def _nwb2bids_tutorial_ephys_dataset_cli(output_directory: str | None = None) -> None:
     tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset")
