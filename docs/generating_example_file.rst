@@ -23,7 +23,7 @@ an example file by running:
 
 
 This created an NWB file with contents typical of an extracellular electrophysiology experiment in your home
-directory for **nwb2bids**: ``~/nwb2bids_tutorials/ecephys_tutorial_file/ephys.nwb``.
+directory for **nwb2bids**: ``~/nwb2bids_tutorials/ecephys_tutorial_file/ecephys.nwb``.
 
 NWB files like these contain a lot of metadata about the probes and electrode structure, which will be useful later
 when we compare the source file to the sidecar tables found in BIDS. You can explore these file contents through
