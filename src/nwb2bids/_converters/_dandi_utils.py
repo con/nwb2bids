@@ -2,12 +2,12 @@ import typing
 
 import pydantic
 
-from .._inspection._inspection_result import Category, InspectionResult, Severity
 from ..bids_models import DatasetDescription
 from ..bids_models._model_globals import _BIDS_RRID
+from ..notifications import Category, Notification, Severity
 
 
-def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, list[InspectionResult]]:
+def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, list[Notification]]:
     valid_or_raw: typing.Literal["raw", "valid"] = "valid"
     try:
         metadata = dandiset.get_metadata()
@@ -27,7 +27,7 @@ def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, l
         )
         notifications.extend(internal_messages)
 
-        notification = InspectionResult(
+        notification = Notification(
             title="INFO: invalid Dandiset metadata",
             reason="This Dandiset has invalid metadata.",
             solution="Required dataset description fields are inferred from the raw metadata instead.",
@@ -41,7 +41,7 @@ def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, l
 
 def _get_dataset_description_from_valid_dandiset_metadata(
     metadata: typing.Any,
-) -> tuple[DatasetDescription | None, list[InspectionResult]]:
+) -> tuple[DatasetDescription | None, list[Notification]]:
     dataset_description_kwargs = dict()
 
     dataset_description_kwargs["Name"] = metadata.name
@@ -54,7 +54,7 @@ def _get_dataset_description_from_valid_dandiset_metadata(
             "Dandiset is already organized to the BIDS standard. If only a partial conversion is desired, "
             "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
         )
-        notification = InspectionResult(
+        notification = Notification(
             title="Dandiset is already BIDS",
             reason=reason,
             solution="Skip the conversion of this Dandiset.",
@@ -82,7 +82,7 @@ def _get_dataset_description_from_valid_dandiset_metadata(
 
 def _get_dataset_description_from_invalid_dandiset_metadata(
     raw_metadata: dict[str, typing.Any],
-) -> tuple[DatasetDescription | None, list[InspectionResult]]:
+) -> tuple[DatasetDescription | None, list[Notification]]:
     dataset_description_kwargs = dict()
 
     dandiset_identifier = raw_metadata.get("identifier", "??????")
@@ -99,7 +99,7 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
             "Dandiset is already organized to the BIDS standard. If only a partial conversion is desired, "
             "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
         )
-        notification = InspectionResult(
+        notification = Notification(
             title="Dandiset is already BIDS",
             reason=reason,
             solution="Skip the conversion of this Dandiset.",
@@ -129,7 +129,7 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
         if len(license) == 1:
             dataset_description_kwargs["License"] = license[0].split(":")[-1]
         else:
-            notification = InspectionResult(
+            notification = Notification(
                 title="WARNING: multiple licenses not supported",
                 reason="DANDI metadata supports multiple licenses, but BIDS only supports one license.",
                 solution="Manually specify the license in the dataset_description.json file after conversion.",

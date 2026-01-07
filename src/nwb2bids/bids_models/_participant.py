@@ -6,8 +6,8 @@ import pynwb
 import typing_extensions
 
 from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_ID_REGEX, _VALID_SPECIES_REGEX
-from .._inspection._inspection_result import Category, DataStandard, InspectionResult, Severity
 from ..bids_models._base_metadata_model import BaseMetadataModel
+from ..notifications import Category, DataStandard, Notification, Severity
 
 
 class Participant(BaseMetadataModel):
@@ -43,7 +43,7 @@ class Participant(BaseMetadataModel):
         # Check if values are specified
         if self.participant_id is None:
             self.notifications.append(
-                InspectionResult(
+                Notification(
                     title="Missing participant ID",
                     reason="A unique ID is required for all individual participants.",
                     solution="Specify the `subject_id` field of the Subject object attached to the NWB file.",
@@ -56,7 +56,7 @@ class Participant(BaseMetadataModel):
             )
         if self.species is None:
             self.notifications.append(
-                InspectionResult(
+                Notification(
                     title="Missing participant species",
                     reason="Archives such as DANDI or EMBER require the subject species to be specified.",
                     solution=(
@@ -72,7 +72,7 @@ class Participant(BaseMetadataModel):
             )
         if self.sex is None:
             self.notifications.append(
-                InspectionResult(
+                Notification(
                     title="Missing participant sex",
                     reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
                     solution=(
@@ -96,7 +96,7 @@ class Participant(BaseMetadataModel):
             and re.match(pattern=f"{_VALID_ID_REGEX}$", string=self.participant_id) is None
         ):
             self.notifications.append(
-                InspectionResult(
+                Notification(
                     title="Invalid participant ID",
                     reason=(
                         "The participant ID contains invalid characters. "
@@ -119,7 +119,7 @@ class Participant(BaseMetadataModel):
             )
         if self.species is not None and re.match(pattern=_VALID_SPECIES_REGEX, string=self.species) is None:
             self.notifications.append(
-                InspectionResult(
+                Notification(
                     title="Invalid species",
                     reason="Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
                     solution=(
@@ -136,7 +136,7 @@ class Participant(BaseMetadataModel):
             )
         if self.sex is not None and _VALID_BIDS_SEXES.get(self.sex, None) is None:
             self.notifications.append(
-                InspectionResult(
+                Notification(
                     title="Invalid participant sex (BIDS)",
                     reason="Participant sex is not one of the allowed patterns by BIDS.",
                     solution="Rename the subject sex to be one of the accepted values.",
@@ -151,7 +151,7 @@ class Participant(BaseMetadataModel):
 
         if self.sex is not None and _VALID_ARCHIVES_SEXES.get(self.sex, None) is None:
             self.notifications.append(
-                InspectionResult(
+                Notification(
                     title="Invalid participant sex (archives)",
                     reason="Participant sex is not one of the allowed patterns by the common archives.",
                     solution="Rename the subject sex to be one of the accepted values.",
@@ -175,7 +175,7 @@ class Participant(BaseMetadataModel):
         notifications = []
         if len(nwbfiles) > 1:
             notifications.append(
-                InspectionResult(
+                Notification(
                     title="NotImplemented: multiple NWB files",
                     reason=(
                         "The `Participant` model for `nwb2bids` does not yet support multiple NWB files. "
@@ -192,7 +192,7 @@ class Participant(BaseMetadataModel):
 
         if nwbfile.subject is None:
             notifications.append(
-                InspectionResult(
+                Notification(
                     title="Missing participant",
                     reason="BIDS requires a subject to be specified for each NWB file.",
                     solution="Add a Subject object to each NWB file.",

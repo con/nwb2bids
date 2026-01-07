@@ -9,8 +9,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from .._inspection._inspection_result import InspectionResult
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
+from ..notifications import Notification
 
 
 def _infer_scalar_field(
@@ -63,7 +63,7 @@ class ChannelTable(BaseMetadataContainerModel):
 
     @pydantic.computed_field
     @property
-    def notifications(self) -> list[InspectionResult]:
+    def notifications(self) -> list[Notification]:
         """
         All notifications from contained session converters.
 

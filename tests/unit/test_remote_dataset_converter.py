@@ -38,7 +38,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     session_metadata = session_converter.session_metadata
     assert session_metadata.participant == nwb2bids.bids_models.Participant(
         notifications=[
-            nwb2bids.InspectionResult(
+            nwb2bids.Notification(
                 title="Missing participant sex",
                 reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
                 solution=(
@@ -108,7 +108,7 @@ def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_b
 
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
     assert len(dataset_converter.notifications) == 1
-    assert dataset_converter.notifications[0] == nwb2bids.InspectionResult(
+    assert dataset_converter.notifications[0] == nwb2bids.Notification(
         title="INFO: invalid Dandiset metadata",
         reason="This Dandiset has invalid metadata.",
         solution="Required dataset description fields are inferred from the raw metadata instead.",

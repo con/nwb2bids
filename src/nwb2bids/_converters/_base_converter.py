@@ -4,14 +4,14 @@ import typing
 import pydantic
 
 from ._run_config import RunConfig
-from .._inspection._inspection_result import InspectionResult
+from ..notifications import Notification
 
 
 class BaseConverter(pydantic.BaseModel, abc.ABC):
     run_config: typing.Annotated[
         RunConfig, pydantic.Field(description="The configuration for this conversion run.", default_factory=RunConfig)
     ]
-    _internal_notifications: list[InspectionResult] = pydantic.PrivateAttr(default_factory=list)
+    _internal_notifications: list[Notification] = pydantic.PrivateAttr(default_factory=list)
 
     @abc.abstractmethod
     def extract_metadata(self) -> None:
