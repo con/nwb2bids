@@ -37,7 +37,7 @@ def sybil_setup(namespace):
     nwb2bids.testing.generate_ephys_tutorial(mode="dataset")
 
     # Create metadata.json for tutorials that need it
-    tutorial_dir = tutorial_base / "ephys_tutorial_file"
+    tutorial_dir = tutorial_base / "ecephys_tutorial_file"
     (tutorial_dir / "metadata.json").write_text(json.dumps({
         "dataset_description": {
             "Name": "My Custom BIDS Dataset",

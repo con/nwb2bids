@@ -101,7 +101,7 @@ def test_session_converter_write_ecephys_metadata(
 
     session_converter = session_converters[0]
     session_converter.extract_metadata()
-    session_converter.write_ecephys_files()
+    session_converter.write_ephys_files()
     assert not any(session_converter.notifications)
 
     expected_structure = {
