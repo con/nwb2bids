@@ -39,10 +39,6 @@ jobs:
       - name: Set up environment
         uses: actions/checkout@v4
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ inputs.tmate }}
-
       - name: Set up Python ${{ matrix.python }}
         uses: actions/setup-python@v5
         with:
@@ -71,6 +67,11 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -m "${{ inputs.pytest_markexpr }}" -vv --cov=nwb2bids --cov-report xml:./codecov.xml
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ inputs.tmate }}
+
       - name: Upload full coverage to Codecov
         if: ${{ matrix.python == '3.13' && matrix.os == 'ubuntu-latest' }}
         uses: codecov/codecov-action@v4
