@@ -249,8 +249,11 @@ def _nwb2bids_tutorial_ephys_file_cli(
     type=rich_click.Choice(["ecephys", "icephys"], case_sensitive=True),
     default="ecephys",
 )
-def _nwb2bids_tutorial_ephys_dataset_cli(output_directory: str | None = None) -> None:
-    tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset")
+def _nwb2bids_tutorial_ephys_dataset_cli(
+    output_directory: str | None = None,
+    modality: typing.Literal["ecephys", "icephys"] = "ecephys",
+) -> None:
+    tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset", modality=modality)
 
     text = f"\nAn example NWB dataset has been created at: {tutorial_directory}\n\n"
     message = rich_click.style(text=text, fg="green")
