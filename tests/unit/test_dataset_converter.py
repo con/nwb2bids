@@ -15,6 +15,7 @@ def test_dataset_converter_directory_initialization(
     nwb_paths = [minimal_nwbfile_path.parent]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
     assert isinstance(dataset_converter.session_converters, list)
@@ -28,6 +29,7 @@ def test_dataset_converter_file_paths_initialization(
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
     assert isinstance(dataset_converter.session_converters, list)
@@ -43,6 +45,7 @@ def test_dataset_converter_both_file_and_directory_initialization(
     nwb_paths = [minimal_nwbfile_path.parent, ecephys_tutorial_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
 
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
     assert isinstance(dataset_converter.session_converters, list)
@@ -57,6 +60,7 @@ def test_dataset_converter_metadata_extraction(
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     dataset_converter.extract_metadata()
+    assert not any(dataset_converter.notifications)
 
     expected_session_converters = [
         nwb2bids.SessionConverter(
@@ -87,6 +91,7 @@ def test_dataset_converter_write_dataset_description(
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     dataset_converter.extract_metadata()
     dataset_converter.write_dataset_description()
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {temporary_bids_directory: {"directories": set(), "files": {"dataset_description.json"}}}
     nwb2bids.testing.assert_subdirectory_structure(
@@ -130,6 +135,7 @@ def test_dataset_converter_write_dataset_description_with_user_generated_by(
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     dataset_converter.extract_metadata()
     dataset_converter.write_dataset_description()
+    assert not any(dataset_converter.notifications)
 
     dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
     with dataset_description_file_path.open(mode="r") as file_stream:
@@ -169,8 +175,8 @@ def test_dataset_converter_write_subject_metadata(
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     dataset_converter.extract_metadata()
-
     dataset_converter.write_participants_metadata()
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {
@@ -214,8 +220,8 @@ def test_dataset_converter_write_sessions_metadata(
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     dataset_converter.extract_metadata()
-
     dataset_converter.write_sessions_metadata()
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
@@ -261,6 +267,8 @@ def test_convert_to_bids_dataset_creates_nonexistent_directory(
         bids_directory=nonexistent_child, additional_metadata_file_path=additional_metadata_file_path
     )
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
+
     assert not nonexistent_child.exists()
 
     dataset_converter.extract_metadata()
@@ -288,16 +296,16 @@ def test_dataset_description_validates_exactly_one_nwb2bids():
         )
 
     # Should succeed with no GeneratedBy (auto-adds nwb2bids)
-    dd = nwb2bids.bids_models.DatasetDescription(
+    dataset_description = nwb2bids.bids_models.DatasetDescription(
         Name="Test",
         BIDSVersion="1.10",
         HEDVersion="8.3.0",
     )
-    assert len(dd.GeneratedBy) == 1
-    assert dd.GeneratedBy[0].Name == "nwb2bids"
+    assert len(dataset_description.GeneratedBy) == 1
+    assert dataset_description.GeneratedBy[0].Name == "nwb2bids"
 
     # Should succeed with user pipeline (auto-appends nwb2bids)
-    dd = nwb2bids.bids_models.DatasetDescription(
+    dataset_description = nwb2bids.bids_models.DatasetDescription(
         Name="Test",
         BIDSVersion="1.10",
         HEDVersion="8.3.0",
@@ -310,6 +318,6 @@ def test_dataset_description_validates_exactly_one_nwb2bids():
             }
         ],
     )
-    assert len(dd.GeneratedBy) == 2
-    assert dd.GeneratedBy[0].Name == "custom-pipeline"
-    assert dd.GeneratedBy[1].Name == "nwb2bids"
+    assert len(dataset_description.GeneratedBy) == 2
+    assert dataset_description.GeneratedBy[0].Name == "custom-pipeline"
+    assert dataset_description.GeneratedBy[1].Name == "nwb2bids"

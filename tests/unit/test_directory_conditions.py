@@ -38,6 +38,7 @@ def test_allowed_directory_conditions(
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
     dataset_converter.extract_metadata()
     dataset_converter.write_dataset_description()
+    assert not any(dataset_converter.notifications)
 
     expected_structure = {temporary_bids_directory: {"directories": set(), "files": {"dataset_description.json"}}}
     nwb2bids.testing.assert_subdirectory_structure(
