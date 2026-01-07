@@ -14,8 +14,8 @@ def test_convert_nwb_dataset_basic_sanitization(
         sanitization_config=nwb2bids.sanitization.SanitizationConfig(sub_labels=True, ses_labels=True),
     )
     converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
-
     assert len(converter.notifications) == 4
+
     expected_structure = {
         temporary_bids_directory: {
             "directories": {"sub-bad+subject+id"},
