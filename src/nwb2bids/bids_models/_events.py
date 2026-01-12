@@ -29,8 +29,8 @@ class Events(BaseMetadataModel):
             "short as to be effectively modeled as an impulse."
         ),
     )
-    _bids_events_data_frame: pandas.DataFrame
-    _nwbfiles: list[pynwb.NWBFile]
+    _bids_events_data_frame: pandas.DataFrame = pydantic.PrivateAttr()
+    _nwbfiles: list[pynwb.NWBFile] = pydantic.PrivateAttr()
 
     @classmethod
     @pydantic.validate_call
@@ -65,10 +65,10 @@ class Events(BaseMetadataModel):
         }
         custom_fields = set(bids_events_data_frame.columns) - {"onset", "duration"}
         dictionary.update({custom_field: list(bids_events_data_frame[custom_field]) for custom_field in custom_fields})
-        dictionary["_bids_events_data_frame"] = bids_events_data_frame
-        dictionary["_nwbfiles"] = nwbfiles
 
         bids_events = cls(**dictionary)
+        bids_events._bids_events_data_frame = bids_events_data_frame
+        bids_events._nwbfiles = nwbfiles
         return bids_events
 
     @pydantic.validate_call
@@ -81,14 +81,20 @@ class Events(BaseMetadataModel):
         file_path : str or pathlib.Path
             The path to the output TSV file.
         """
-        bids_events_data_frame = self.model_extra["_bids_events_data_frame"]
+        if getattr(self, "_bids_events_data_frame", None) is None:
+            message = (
+                "Writing to TSV is only supported for Events instances created via `.from_nwbfiles` "
+                "(missing internal data frame). If you would like to request support for direct instantiation, please "
+                "raise an issue at https://github.com/con/nwb2bids/issues/new."
+            )
+            raise NotImplementedError(message)
 
         required_column_order = ["onset", "duration", "nwb_table"]
         column_order = required_column_order + [
-            column for column in bids_events_data_frame.columns if column not in required_column_order
+            column for column in self._bids_events_data_frame.columns if column not in required_column_order
         ]
 
-        bids_events_data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False, columns=column_order)
+        self._bids_events_data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False, columns=column_order)
 
     @pydantic.validate_call
     def to_json(self, file_path: str | pathlib.Path) -> None:
@@ -100,11 +106,16 @@ class Events(BaseMetadataModel):
         file_path : str or pathlib.Path
             The path to the output JSON file.
         """
-        # Ensure file_path is a Path object
+        if getattr(self, "_bids_events_data_frame", None) is None:
+            message = (
+                "Writing to JSON is only supported for Events instances created via `.from_nwbfiles` "
+                "(missing internal file reference). If you would like to request support for direct instantiation, "
+                "please raise an issue at https://github.com/con/nwb2bids/issues/new."
+            )
+            raise NotImplementedError(message)
         file_path = pathlib.Path(file_path)
-        nwbfile = self.model_extra["_nwbfiles"][0]
 
-        fields_metadata = _get_events_metadata(nwbfile=nwbfile)
+        fields_metadata = _get_events_metadata(nwbfile=self._nwbfiles[0])
 
         with file_path.open(mode="w") as file_stream:
             json.dump(obj=fields_metadata, fp=file_stream, indent=4)
