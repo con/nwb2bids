@@ -80,4 +80,3 @@ class Notification:
 d = Notification.from_paths(notification_type=MissingParticipantID, file_paths=["Proposal3.nwb"])
 
 registry: dict[str, Notification] = {notification.notification_type: notification for notification in [d]}
-
