@@ -6,5 +6,5 @@ LABEL org.opencontainers.image.description="A Docker image of the main developer
 RUN apt-get update && apt-get install -y git
 
 ADD ./ nwb2bids
-RUN cd nwb2bids && pip install .[all]
+RUN cd nwb2bids && pip install --no-cache-dir .[all]
 CMD ["python -m"]
