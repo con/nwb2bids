@@ -2,8 +2,10 @@ FROM python:3.13.7-slim
 LABEL org.opencontainers.image.source=https://github.com/con/vandermeerlab-to-bids
 LABEL org.opencontainers.image.description="A Docker image of the main developer branch for the nwb2bids project."
 
-# git required for setuptools-scm to determine version from git tags
-RUN apt-get update && apt-get install -y git
+# git required for setuptools-scm versioning
+RUN apt-get update \
+    && apt-get install -y git \
+    && rm -rf /var/lib/apt/lists/*
 
 ADD ./ nwb2bids
 RUN cd nwb2bids && pip install --no-cache-dir .[all]
