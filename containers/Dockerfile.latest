@@ -2,8 +2,5 @@ FROM python:3.13.7-slim
 LABEL org.opencontainers.image.source=https://github.com/con/nwb2bids
 LABEL org.opencontainers.image.description="A Docker image for an official release of the nwb2bids project."
 
-RUN apt-get update \
-    && apt-get install -y musl-dev python3-dev \
-    && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir "nwb2bids[all]"
 CMD ["python -m"]
