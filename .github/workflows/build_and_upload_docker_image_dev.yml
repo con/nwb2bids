@@ -2,6 +2,9 @@ name: Build and upload Docker image of dev branch to GHCR
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   release-image:
