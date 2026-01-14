@@ -1,0 +1,10 @@
+FROM python:3.13.7-slim AS minimal
+LABEL org.opencontainers.image.source=https://github.com/con/nwb2bids
+LABEL org.opencontainers.image.description="A minimal Docker image for an official release of the nwb2bids project."
+
+RUN pip install --no-cache-dir nwb2bids
+CMD ["python", "-m"]
+
+FROM minimal AS all
+LABEL org.opencontainers.image.description="A Docker image for an official release of the nwb2bids project with all extras."
+RUN pip install --no-cache-dir "nwb2bids[all]"

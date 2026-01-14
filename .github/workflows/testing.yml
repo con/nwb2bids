@@ -74,7 +74,7 @@ jobs:
 
       - name: Upload full coverage to Codecov
         if: ${{ matrix.python == '3.13' && matrix.os == 'ubuntu-latest' }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./codecov.xml

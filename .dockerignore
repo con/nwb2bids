@@ -1,0 +1,15 @@
+venv/
+.venv/
+# .git/ needed for setuptools-scm versioning in dev builds
+__pycache__/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.tox/
+dist/
+build/
+.coverage
+htmlcov/
+*.pyc
+# Dockerfile changes trigger rebuilds anyway; no need to invalidate ADD layer cache
+containers/
