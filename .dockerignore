@@ -1,0 +1,15 @@
+venv/
+.venv/
+.git/
+__pycache__/
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.tox/
+dist/
+build/
+.coverage
+htmlcov/
+*.pyc
+# Dockerfile changes trigger rebuilds anyway; no need to invalidate ADD layer cache
+containers/
