@@ -38,5 +38,5 @@ jobs:
           push: true  # Push is a shorthand for --output=type=registry
           tags: ghcr.io/con/nwb2bids:latest,ghcr.io/con/nwb2bids:${{ steps.parsed_version.outputs.version_tag }}
           context: .
-          file: dockerfiles/latest
+          file: containers/Dockerfile.latest
           provenance: false
