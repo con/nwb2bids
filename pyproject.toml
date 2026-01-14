@@ -117,7 +117,7 @@ Changelog = "https://github.com/con/nwb2bids/blob/main/CHANGELOG.md"
 nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
 
 [dependency-groups]
-type-stubs = ["pandas-stubs", ""]
+type-stubs = ["pandas-stubs"]
 test = ["pytest", "datalad", "git-annex", "sybil"]
 coverage = ["pytest-cov"]
 dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
