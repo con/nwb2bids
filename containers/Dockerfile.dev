@@ -1,5 +1,5 @@
 FROM python:3.13.7-slim
-LABEL org.opencontainers.image.source=https://github.com/con/vandermeerlab-to-bids
+LABEL org.opencontainers.image.source=https://github.com/con/nwb2bids
 LABEL org.opencontainers.image.description="A Docker image of the main developer branch for the nwb2bids project."
 
 # git required for setuptools-scm versioning
