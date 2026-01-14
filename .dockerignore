@@ -1,6 +1,6 @@
 venv/
 .venv/
-.git/
+# .git/ needed for setuptools-scm versioning in dev builds
 __pycache__/
 *.egg-info/
 .mypy_cache/
