@@ -75,7 +75,7 @@ _internal_hardcoded_values: dict[str, dict[str, str]] = {
 class Notification:
     @classmethod
     def from_paths(cls, notification_type: str, file_paths: list):
-        return cls(**NOTIFICATIONS[notification_type], notification_type=notification_type, source_file_paths=file_paths)
+        return cls(**_internal_hardcoded_values[notification_type], notification_type=notification_type, source_file_paths=file_paths)
 
 d = Notification.from_paths(notification_type=MissingParticipantID, file_paths=["Proposal3.nwb"])
 
