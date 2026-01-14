@@ -2,6 +2,9 @@ name: Build and upload Docker image of dev branch to GHCR
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   release-image:
@@ -28,5 +31,5 @@ jobs:
           push: true  # Push is a shorthand for --output=type=registry
           tags: ghcr.io/con/nwb2bids:dev
           context: .
-          file: dockerfiles/dev
+          file: containers/Dockerfile.dev
           provenance: false

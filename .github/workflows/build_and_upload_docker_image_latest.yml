@@ -32,11 +32,23 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push
+
+      - name: Build and push latest-minimal
+        uses: docker/build-push-action@v5
+        with:
+          push: true  # Push is a shorthand for --output=type=registry
+          tags: ghcr.io/con/nwb2bids:latest-minimal,ghcr.io/con/nwb2bids:${{ steps.parsed_version.outputs.version_tag }}-minimal
+          context: .
+          file: containers/Dockerfile.latest
+          target: minimal
+          provenance: false
+
+      - name: Build and push latest
         uses: docker/build-push-action@v5
         with:
           push: true  # Push is a shorthand for --output=type=registry
           tags: ghcr.io/con/nwb2bids:latest,ghcr.io/con/nwb2bids:${{ steps.parsed_version.outputs.version_tag }}
           context: .
-          file: dockerfiles/latest
+          file: containers/Dockerfile.latest
+          target: all
           provenance: false
