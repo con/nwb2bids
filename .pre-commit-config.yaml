@@ -48,4 +48,5 @@ repos:
         files: src  # TODO: expand to ^(src/|tests/)
         additional_dependencies:
          - "types-PyYAML"
+         - "pandas-stubs"
          - "pydantic"
