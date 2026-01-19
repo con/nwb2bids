@@ -33,19 +33,8 @@ repos:
     rev: v1.19.1
     hooks:
     -   id: mypy
-        args:
-         - "--install-types"
-         - "--non-interactive"
-         - "--disable-error-code=union-attr"
-         - "--disable-error-code=arg-type"
-         - "--disable-error-code=call-arg"
-         - "--disable-error-code=assignment"
-         - "--disable-error-code=attr-defined"
-         - "--disable-error-code=import-not-found"
-         - "--disable-error-code=func-returns-value"
-         - "--disable-error-code=override"
 
-        files: src  # TODO: expand to ^(src/|tests/)
+        files: ^(src/|tests/)
         additional_dependencies:
          - "types-PyYAML"
          - "pandas-stubs"
