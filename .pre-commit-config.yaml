@@ -43,7 +43,7 @@ repos:
          - "--disable-error-code=func-returns-value"
          - "--disable-error-code=override"
 
-        files: src  # TODO: expand to ^(src/|tests/)
+        files: ^(src/|tests/)
         additional_dependencies:
          - "types-PyYAML"
          - "pandas-stubs"
