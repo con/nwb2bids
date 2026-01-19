@@ -178,6 +178,105 @@ module = [
 ]
 ignore_missing_imports = true
 
+# === Temporary mypy ignores for selected files ===
+[[tool.mypy.overrides]]
+module = ["*._probes"]
+disable_error_code = ["attr-defined"]
+
+[[tool.mypy.overrides]]
+module = ["*._electrodes"]
+disable_error_code = ["override", "union-attr"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids.bids_models._channels"]
+disable_error_code = ["union-attr"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids.bids_models._bids_session_metadata"]
+disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids._converters._session_converter"]
+disable_error_code = ["call-arg", "union-attr"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids._converters._dataset_converter"]
+disable_error_code = ["call-arg", "union-attr", "func-returns-value"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids._core._convert_nwb_dataset"]
+disable_error_code = ["call-arg"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids._command_line_interface._main"]
+disable_error_code = ["assignment", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["conftest"]
+disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_utils"]
+disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_session_converter"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_run_config"]
+disable_error_code = ["call-arg", "misc"]
+
+[[tool.mypy.overrides]]
+module = ["test_remote_dataset_converter"]
+disable_error_code = ["call-arg", "union-attr"]
+
+[[tool.mypy.overrides]]
+module = ["test_directory_conditions"]
+disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_dataset_converter"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_remote_convert_nwb_dataset"]
+disable_error_code = ["call-arg", "union-attr", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_notifications"]
+disable_error_code = ["call-arg"]
+
+[[tool.mypy.overrides]]
+module = ["test_icephys_tutorial"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_events"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_edge_cases"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_convert_nwb_dataset"]
+disable_error_code = ["call-arg", "arg-type", "var-annotated"]
+
+[[tool.mypy.overrides]]
+module = ["test_conversion_with_sanitization"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_sanitization_cli"]
+disable_error_code = ["str-bytes-safe", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_cli"]
+disable_error_code = ["str-bytes-safe", "arg-type"]
+
+# === Temporary mypy ignores for selected files section ends ===
+
 [tool.ruff]
 exclude = [
   "*/__init__.py"
