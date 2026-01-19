@@ -34,8 +34,6 @@ repos:
     hooks:
     -   id: mypy
         args:
-         - "--install-types"
-         - "--non-interactive"
          - "--disable-error-code=union-attr"
          - "--disable-error-code=arg-type"
          - "--disable-error-code=call-arg"
