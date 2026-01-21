@@ -129,13 +129,13 @@ docs = [
     "sybil",  # For testing code blocks in docs
 ]
 dev-all = [
+    {include-group = "type-stubs"},
     {include-group = "test"},
     {include-group = "coverage"},
     {include-group = "dev"},
     {include-group = "types"},
     {include-group = "docs"},
 ]
-
 
 
 [tool.black]
