@@ -50,17 +50,7 @@ def _get_dataset_description_from_valid_dandiset_metadata(
 
     notifications = []
     if any(data_standard.identifier == _BIDS_RRID for data_standard in metadata.assetsSummary.dataStandard):
-        reason = (
-            "Dandiset is already organized to the BIDS standard. If only a partial conversion is desired, "
-            "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
-        )
-        notification = Notification(
-            title="Dandiset is already BIDS",
-            reason=reason,
-            solution="Skip the conversion of this Dandiset.",
-            category=Category.INTERNAL_ERROR,
-            severity=Severity.ERROR,
-        )
+        notification = Notification.from_definition(notification_id="DandisetAlreadyBIDS")
         notifications.append(notification)
         return None, notifications
 
@@ -95,17 +85,7 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
 
     notifications = []
     if any(data_standard.get("identifier", "") == _BIDS_RRID for data_standard in data_standards):
-        reason = (
-            "Dandiset is already organized to the BIDS standard. If only a partial conversion is desired, "
-            "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
-        )
-        notification = Notification(
-            title="Dandiset is already BIDS",
-            reason=reason,
-            solution="Skip the conversion of this Dandiset.",
-            category=Category.INTERNAL_ERROR,
-            severity=Severity.ERROR,
-        )
+        notification = Notification.from_definition(notification_id="DandisetAlreadyBIDS")
         notifications.append(notification)
         return None, notifications
 

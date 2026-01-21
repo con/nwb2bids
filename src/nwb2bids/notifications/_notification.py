@@ -3,52 +3,27 @@ import json
 import pathlib
 
 import pydantic
+import typing_extensions
 
-
-@enum.unique
-class DataStandard(enum.Enum):
-    """Related standards used by the `nwb2bids` inspections."""
-
-    DANDI = enum.auto()
-    HED = enum.auto()
-    NWB = enum.auto()
-    BIDS = enum.auto()
-
-
-@enum.unique
-class Category(enum.Enum):
-    """Types of inspection categories."""
-
-    STYLE_SUGGESTION = enum.auto()
-    SCHEMA_INVALIDATION = enum.auto()
-    INTERNAL_ERROR = enum.auto()
-
-
-@enum.unique
-class Severity(enum.Enum):
-    """
-    Quantifier of relative severity (how important it is to resolve) for inspection results.
-
-    The larger the value, the more critical it is.
-
-    If an issue can be categorized in multiple ways, the most severe category should be chosen.
-    """
-
-    INFO = enum.auto()  # Not an indication of problem but information of status or confirmation
-    HINT = enum.auto()  # Data is valid but could be improved
-    WARNING = enum.auto()  # Data is not recognized as valid. Changes are needed to ensure validity
-    ERROR = enum.auto()  # Data is recognized as invalid
-    CRITICAL = enum.auto()  # A serious invalidity in data
+from ._definitions import notification_definitions
+from ._types import Category, DataStandard, Severity
 
 
 class Notification(pydantic.BaseModel):
-    title: str = pydantic.Field(description="Short title of the issue.")
-    reason: str = pydantic.Field(description="Detailed description of the issue and suggestions for how to resolve it.")
+    notification_id: str | None = pydantic.Field(  # TODO: when all are updated, make this required
+        description="Unique identifier for the issue.", frozen=True, default=None
+    )
+    title: str = pydantic.Field(description="Short title of the issue.", frozen=True)
+    reason: str = pydantic.Field(
+        description="Detailed description of the issue and suggestions for how to resolve it.", frozen=True
+    )
     solution: str = pydantic.Field(
-        description="Detailed description of the issue and suggestions for how to resolve it."
+        description="Detailed description of the issue and suggestions for how to resolve it.", frozen=True
     )
     examples: list[str] | None = pydantic.Field(
-        description="Detailed description of the issue and suggestions for how to resolve it.", default=None
+        description="Detailed description of the issue and suggestions for how to resolve it.",
+        default=None,
+        frozen=True,
     )
     field: str | None = pydantic.Field(
         description=(
@@ -56,6 +31,10 @@ class Notification(pydantic.BaseModel):
             "(such as field name, group, etc.)."
         ),
         default=None,
+        frozen=True,
+    )
+    data_standards: list[DataStandard] | None = pydantic.Field(
+        description="Data standard(s) related to the issue.", default=None, frozen=True
     )
     source_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = pydantic.Field(
         description="If known, the paths of all source NWB file(s) where the issue was detected.",
@@ -67,13 +46,33 @@ class Notification(pydantic.BaseModel):
         ),
         default=None,
     )
-    data_standards: list[DataStandard] | None = pydantic.Field(
-        description="Data standard(s) related to the issue.", default=None
-    )
     category: Category = pydantic.Field(description="Type of inspection category.")
     severity: Severity = pydantic.Field(
         description="Quantifier of relative severity. The larger the value, the more important it is.",
     )
+
+    model_config = pydantic.ConfigDict(validate_assignment=True)
+
+    @classmethod
+    def from_definition(
+        cls,
+        notification_id: str,
+        source_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
+        target_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
+    ) -> typing_extensions.Self:
+        if source_file_paths is None and target_file_paths is None:
+            message = (
+                "At least one of `source_file_paths` or `target_file_paths` must be provided when "
+                "calling `Notification.from_paths()`."
+            )
+            raise ValueError(message)
+
+        return cls(
+            notification_id=notification_id,
+            source_file_paths=source_file_paths,
+            target_file_paths=target_file_paths,
+            **notification_definitions[notification_id],
+        )
 
     # TODO: remove this when/if PyNWB fixes source container for remfile objects
     @pydantic.field_validator("source_file_paths", mode="after")

@@ -20,7 +20,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.Notification(
+        nwb2bids.notifications(
             title="Invalid species",
             reason="Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
             solution=(
@@ -30,46 +30,32 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
             examples=[],
             field="nwbfile.subject.species",
             source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.DataStandard.DANDI],
-            category=nwb2bids.Category.SCHEMA_INVALIDATION,
-            severity=nwb2bids.Severity.ERROR,
+            data_standards=[nwb2bids.notifications.DataStandard.DANDI],
+            category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
+            severity=nwb2bids.notifications.Severity.ERROR,
         ),
-        nwb2bids.Notification(
-            title="Invalid participant ID",
-            reason=(
-                "The participant ID contains invalid characters. BIDS allows only the plus sign to be used as a "
-                "separator in the subject entity label. Underscores, dashes, spaces, slashes, and other special "
-                "characters (including #) are expressly forbidden."
-            ),
-            solution="Rename the subject without using any special characters except for `+`.",
-            examples=["`ab_01` -> `ab+01`", "`subject #2` -> `subject+2`", "`id 2 from 9/1/25` -> `id+2+9+1+25`"],
-            field="nwbfile.subject.subject_id",
-            source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.DANDI],
-            category=nwb2bids.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.Severity.ERROR,
-        ),
-        nwb2bids.Notification(
+        nwb2bids.notifications.from_definition(notification_id="InvalidParticipantID", source_file_paths=nwb_paths),
+        nwb2bids.notifications(
             title="Invalid participant sex (BIDS)",
             reason="Participant sex is not one of the allowed patterns by BIDS.",
             solution="Rename the subject sex to be one of the accepted values.",
             examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
             field="nwbfile.subject.sex",
             source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.DataStandard.BIDS],
-            category=nwb2bids.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.Severity.ERROR,
+            data_standards=[nwb2bids.notifications.DataStandard.BIDS],
+            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
+            severity=nwb2bids.notifications.Severity.ERROR,
         ),
-        nwb2bids.Notification(
+        nwb2bids.notifications(
             title="Invalid participant sex (archives)",
             reason="Participant sex is not one of the allowed patterns by the common archives.",
             solution="Rename the subject sex to be one of the accepted values.",
             examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
             field="nwbfile.subject.sex",
             source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.DataStandard.DANDI],
-            category=nwb2bids.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.Severity.ERROR,
+            data_standards=[nwb2bids.notifications.DataStandard.DANDI],
+            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
+            severity=nwb2bids.notifications.Severity.ERROR,
         ),
     ]
     assert notifications == expected_notifications
@@ -142,7 +128,7 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.Notification(
+        nwb2bids.notifications(
             title="Missing participant sex",
             reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
             solution=(
@@ -155,11 +141,11 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
             field="nwbfile.subject.sex",
             source_file_paths=nwb_paths,
             target_file_paths=None,
-            data_standards=[nwb2bids.DataStandard.DANDI],
-            category=nwb2bids.Category.SCHEMA_INVALIDATION,
-            severity=nwb2bids.Severity.CRITICAL,
+            data_standards=[nwb2bids.notifications.DataStandard.DANDI],
+            category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
+            severity=nwb2bids.notifications.Severity.CRITICAL,
         ),
-        nwb2bids.Notification(
+        nwb2bids.notifications(
             title="Missing participant species",
             reason="Archives such as DANDI or EMBER require the subject species to be specified.",
             solution=(
@@ -170,27 +156,12 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
             field="nwbfile.subject.species",
             source_file_paths=nwb_paths,
             target_file_paths=None,
-            data_standards=[nwb2bids.DataStandard.DANDI],
-            category=nwb2bids.Category.SCHEMA_INVALIDATION,
-            severity=nwb2bids.Severity.CRITICAL,
+            data_standards=[nwb2bids.notifications.DataStandard.DANDI],
+            category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
+            severity=nwb2bids.notifications.Severity.CRITICAL,
         ),
-        nwb2bids.Notification(
-            title="Invalid participant ID",
-            reason=(
-                "The participant ID contains invalid characters. BIDS allows only the plus sign to be used as a "
-                "separator in the subject entity label. Underscores, dashes, spaces, slashes, and other special "
-                "characters (including #) are expressly forbidden."
-            ),
-            solution="Rename the subject without using any special characters except for `+`.",
-            examples=["`ab_01` -> `ab+01`", "`subject #2` -> `subject+2`", "`id 2 from 9/1/25` -> `id+2+9+1+25`"],
-            field="nwbfile.subject.subject_id",
-            source_file_paths=nwb_paths,
-            target_file_paths=None,
-            data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.DANDI],
-            category=nwb2bids.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.Severity.ERROR,
-        ),
-        nwb2bids.Notification(
+        nwb2bids.notifications.from_definition(notification_id="InvalidParticipantID", source_file_paths=nwb_paths),
+        nwb2bids.notifications(
             title="Invalid session ID",
             reason=(
                 "The session ID contains invalid characters. "
@@ -206,9 +177,9 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
             ],
             field="nwbfile.session_id",
             source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.DANDI],
-            category=nwb2bids.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.Severity.ERROR,
+            data_standards=[nwb2bids.notifications.DataStandard.BIDS, nwb2bids.notifications.DataStandard.DANDI],
+            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
+            severity=nwb2bids.notifications.Severity.ERROR,
         ),
     ]
     assert notifications == expected_notifications
@@ -221,7 +192,7 @@ def test_notifications_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.Notification(
+        nwb2bids.notifications(
             title="Missing participant",
             reason="BIDS requires a subject to be specified for each NWB file.",
             solution="Add a Subject object to each NWB file.",
@@ -229,9 +200,9 @@ def test_notifications_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bid
             field="nwbfile.subject",
             source_file_paths=nwb_paths,
             target_file_paths=None,
-            data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.DANDI],
-            category=nwb2bids.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.Severity.CRITICAL,
+            data_standards=[nwb2bids.notifications.DataStandard.BIDS, nwb2bids.notifications.DataStandard.DANDI],
+            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
+            severity=nwb2bids.notifications.Severity.CRITICAL,
         )
     ]
     assert notifications == expected_notifications
@@ -244,7 +215,7 @@ def test_notifications_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.Notification(
+        nwb2bids.notifications(
             title="Missing description",
             reason="A basic description of this field is recommended to improve contextual understanding.",
             solution="Add a description to the field.",
@@ -252,9 +223,9 @@ def test_notifications_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bid
             field="nwbfile.devices.DeviceWithoutDescription",
             source_file_paths=None,
             target_file_paths=None,
-            data_standards=[nwb2bids.DataStandard.BIDS, nwb2bids.DataStandard.NWB],
-            category=nwb2bids.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.Severity.INFO,
+            data_standards=[nwb2bids.notifications.DataStandard.BIDS, nwb2bids.notifications.DataStandard.NWB],
+            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
+            severity=nwb2bids.notifications.Severity.INFO,
         )
     ]
     assert notifications == expected_notifications
