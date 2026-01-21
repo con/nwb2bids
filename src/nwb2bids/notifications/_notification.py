@@ -15,13 +15,13 @@ class Notification(pydantic.BaseModel):
     )
     title: str = pydantic.Field(description="Short title of the issue.", frozen=True)
     reason: str = pydantic.Field(
-        description="Detailed description of the issue and suggestions for how to resolve it.", frozen=True
+        description="Detailed description of the issue.", frozen=True
     )
     solution: str = pydantic.Field(
-        description="Detailed description of the issue and suggestions for how to resolve it.", frozen=True
+        description="Suggestions for how to resolve the issue.", frozen=True
     )
     examples: list[str] | None = pydantic.Field(
-        description="Detailed description of the issue and suggestions for how to resolve it.",
+        description="Example solutions to the issue.",
         default=None,
         frozen=True,
     )

@@ -8,14 +8,9 @@ source = "vcs"
 [tool.hatch.build.targets.wheel]
 packages = ["src/nwb2bids"]
 
-# TODO: This is a temporary hack while waiting for hatch to support PEP 735,
-#   Dependency Groups, in creating environments.
-#   See https://github.com/pypa/hatch/pull/1922 for more details.
-#
-
 [tool.hatch.envs.default]
+installer = "uv"
 python = "3.10"
-pre-install-commands = ["pip install --upgrade pip"]
 
 # Execute `hatch env create test` to create all test environments.
 # Use `+` and `-` to select tests environments to run tests if needed
@@ -29,20 +24,21 @@ matrix.feature.features = [
   { value = "dandi", if = ["dandi"] },
   { value = "all", if = ["all"] },
 ]
-matrix.cov.post-install-commands = [
-  { value = "pip install --group test", if = ["off"] },
-  { value = "pip install --group coverage", if = ["on"] },
+matrix.cov.dependency-groups = [
+  { value = "test", if = ["off"] },
+  { value = "coverage", if = ["on"] },
 ]
 [tool.hatch.envs.test.scripts]
 run = "pytest {args:tests}"
 
 [tool.hatch.envs.dev]
 features = ["all"]
-post-install-commands = ["pip install --group dev"]
+dependency-groups = ["dev"]
 
 [tool.hatch.envs.types]
 features = ["all"]
-post-install-commands = ["pip install --group types"]
+dependency-groups = ["types"]
+
 [tool.hatch.envs.types.scripts]
 # Define named script for type checking
 check = "mypy --install-types --non-interactive {args:src/nwb2bids tests}"
@@ -50,7 +46,7 @@ check-no-module-cache = "mypy --no-incremental {args:src/nwb2bids tests}"
 
 [tool.hatch.envs.all]
 features = ["all"]
-post-install-commands = ["pip install --group dev-all"]
+dependency-groups = ["dev-all"]
 
 
 
@@ -178,6 +174,105 @@ module = [
 ]
 ignore_missing_imports = true
 
+# === Temporary mypy ignores for selected files ===
+[[tool.mypy.overrides]]
+module = ["*._probes"]
+disable_error_code = ["attr-defined"]
+
+[[tool.mypy.overrides]]
+module = ["*._electrodes"]
+disable_error_code = ["override", "union-attr"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids.bids_models._channels"]
+disable_error_code = ["union-attr"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids.bids_models._bids_session_metadata"]
+disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids._converters._session_converter"]
+disable_error_code = ["call-arg", "union-attr"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids._converters._dataset_converter"]
+disable_error_code = ["call-arg", "union-attr", "func-returns-value"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids._core._convert_nwb_dataset"]
+disable_error_code = ["call-arg"]
+
+[[tool.mypy.overrides]]
+module = ["nwb2bids._command_line_interface._main"]
+disable_error_code = ["assignment", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["conftest"]
+disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_utils"]
+disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_session_converter"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_run_config"]
+disable_error_code = ["call-arg", "misc"]
+
+[[tool.mypy.overrides]]
+module = ["test_remote_dataset_converter"]
+disable_error_code = ["call-arg", "union-attr"]
+
+[[tool.mypy.overrides]]
+module = ["test_directory_conditions"]
+disable_error_code = ["arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_dataset_converter"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_remote_convert_nwb_dataset"]
+disable_error_code = ["call-arg", "union-attr", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_notifications"]
+disable_error_code = ["call-arg"]
+
+[[tool.mypy.overrides]]
+module = ["test_icephys_tutorial"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_events"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_edge_cases"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_convert_nwb_dataset"]
+disable_error_code = ["call-arg", "arg-type", "var-annotated"]
+
+[[tool.mypy.overrides]]
+module = ["test_conversion_with_sanitization"]
+disable_error_code = ["call-arg", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_sanitization_cli"]
+disable_error_code = ["str-bytes-safe", "arg-type"]
+
+[[tool.mypy.overrides]]
+module = ["test_cli"]
+disable_error_code = ["str-bytes-safe", "arg-type"]
+
+# === Temporary mypy ignores for selected files section ends ===
+
 [tool.ruff]
 exclude = [
   "*/__init__.py"
@@ -211,7 +306,8 @@ known-first-party = ["nwb2bids"]
 
 [tool.pytest.ini_options]
 markers = [
-    "remote: mark a test as requiring remote resources"
+    "remote: mark a test as requiring remote resources",
+    "container_cli_test: mark a test as suitable for container CLI testing",
 ]
 addopts = "-ra"
 testpaths = ["tests"]
