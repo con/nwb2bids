@@ -8,14 +8,9 @@ source = "vcs"
 [tool.hatch.build.targets.wheel]
 packages = ["src/nwb2bids"]
 
-# TODO: This is a temporary hack while waiting for hatch to support PEP 735,
-#   Dependency Groups, in creating environments.
-#   See https://github.com/pypa/hatch/pull/1922 for more details.
-#
-
 [tool.hatch.envs.default]
+installer = "uv"
 python = "3.10"
-pre-install-commands = ["pip install --upgrade pip"]
 
 # Execute `hatch env create test` to create all test environments.
 # Use `+` and `-` to select tests environments to run tests if needed
@@ -29,20 +24,21 @@ matrix.feature.features = [
   { value = "dandi", if = ["dandi"] },
   { value = "all", if = ["all"] },
 ]
-matrix.cov.post-install-commands = [
-  { value = "pip install --group test", if = ["off"] },
-  { value = "pip install --group coverage", if = ["on"] },
+matrix.cov.dependency-groups = [
+  { value = "test", if = ["off"] },
+  { value = "coverage", if = ["on"] },
 ]
 [tool.hatch.envs.test.scripts]
 run = "pytest {args:tests}"
 
 [tool.hatch.envs.dev]
 features = ["all"]
-post-install-commands = ["pip install --group dev"]
+dependency-groups = ["dev"]
 
 [tool.hatch.envs.types]
 features = ["all"]
-post-install-commands = ["pip install --group types"]
+dependency-groups = ["types"]
+
 [tool.hatch.envs.types.scripts]
 # Define named script for type checking
 check = "mypy --install-types --non-interactive {args:src/nwb2bids tests}"
@@ -50,7 +46,7 @@ check-no-module-cache = "mypy --no-incremental {args:src/nwb2bids tests}"
 
 [tool.hatch.envs.all]
 features = ["all"]
-post-install-commands = ["pip install --group dev-all"]
+dependency-groups = ["dev-all"]
 
 
 

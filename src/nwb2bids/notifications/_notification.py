@@ -43,13 +43,9 @@ class Severity(enum.Enum):
 
 class Notification(pydantic.BaseModel):
     title: str = pydantic.Field(description="Short title of the issue.")
-    reason: str = pydantic.Field(description="Detailed description of the issue and suggestions for how to resolve it.")
-    solution: str = pydantic.Field(
-        description="Detailed description of the issue and suggestions for how to resolve it."
-    )
-    examples: list[str] | None = pydantic.Field(
-        description="Detailed description of the issue and suggestions for how to resolve it.", default=None
-    )
+    reason: str = pydantic.Field(description="Detailed description of the issue.")
+    solution: str = pydantic.Field(description="Suggestions for how to resolve the issue.")
+    examples: list[str] | None = pydantic.Field(description="Example solutions to the issue.", default=None)
     field: str | None = pydantic.Field(
         description=(
             "Best description of the location within the file where the issue was detected "
