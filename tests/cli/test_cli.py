@@ -2,14 +2,22 @@
 
 import pathlib
 import subprocess
+from collections.abc import Callable
+
+import pytest
 
 import nwb2bids
 
 
-def test_minimal_cli_on_directory(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+@pytest.mark.container_cli_test
+def test_minimal_cli_on_directory(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
+):
     command = f"nwb2bids convert {minimal_nwbfile_path.parent} -o {temporary_bids_directory}"
 
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert (
         result.returncode == 0
     ), f"\n\nCLI command failed with:\nStandard Output: {result.stdout}\nStandard Error: {result.stderr}\n\n"
@@ -45,10 +53,15 @@ def test_minimal_cli_on_directory(minimal_nwbfile_path: pathlib.Path, temporary_
     )
 
 
-def test_minimal_cli_on_file_path(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+@pytest.mark.container_cli_test
+def test_minimal_cli_on_file_path(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
+):
     command = f"nwb2bids convert --bids-directory {temporary_bids_directory} {minimal_nwbfile_path}"
 
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert (
         result.returncode == 0
     ), f"\n\nCLI command failed with:\nStandard Output: {result.stdout}\nStandard Error: {result.stderr}\n\n"
@@ -84,9 +97,14 @@ def test_minimal_cli_on_file_path(minimal_nwbfile_path: pathlib.Path, temporary_
     )
 
 
-def test_ecephys_cli(ecephys_tutorial_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+@pytest.mark.container_cli_test
+def test_ecephys_cli(
+    ecephys_tutorial_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
+):
     command = f"nwb2bids convert {ecephys_tutorial_nwbfile_path.parent} -o {temporary_bids_directory}"
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert (
         result.returncode == 0
     ), f"\n\nCLI command failed with:\nStandard Output: {result.stdout}\nStandard Error: {result.stderr}\n\n"
@@ -128,11 +146,14 @@ def test_ecephys_cli(ecephys_tutorial_nwbfile_path: pathlib.Path, temporary_bids
     )
 
 
+@pytest.mark.container_cli_test
 def test_minimal_cli_on_file_paths(
-    directory_with_multiple_nwbfiles: pathlib.Path, temporary_bids_directory: pathlib.Path
+    directory_with_multiple_nwbfiles: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
     command = f"nwb2bids convert -o {temporary_bids_directory} {directory_with_multiple_nwbfiles}/*.nwb"
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert (
         result.returncode == 0
     ), f"\n\nCLI command failed with:\nStandard Output: {result.stdout}\nStandard Error: {result.stderr}\n\n"

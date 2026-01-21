@@ -310,7 +310,8 @@ known-first-party = ["nwb2bids"]
 
 [tool.pytest.ini_options]
 markers = [
-    "remote: mark a test as requiring remote resources"
+    "remote: mark a test as requiring remote resources",
+    "container_cli_test: mark a test as suitable for container CLI testing",
 ]
 addopts = "-ra"
 testpaths = ["tests"]

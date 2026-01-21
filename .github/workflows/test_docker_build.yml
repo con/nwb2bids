@@ -18,6 +18,7 @@ jobs:
           - file: containers/Dockerfile.latest
             target: all
           - file: containers/Dockerfile.dev
+            test: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,6 +30,22 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: false
+          load: ${{ matrix.test || false }}
+          tags: nwb2bids:test
           context: .
           file: ${{ matrix.file }}
           target: ${{ matrix.target }}
+
+      - name: Set up Python
+        if: matrix.test
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install test dependencies
+        if: matrix.test
+        run: pip install -e . pytest
+
+      - name: Run container CLI tests
+        if: matrix.test
+        run: pytest -m container_cli_test -v --container-image=nwb2bids:test
