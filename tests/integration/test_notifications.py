@@ -20,7 +20,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.notifications(
+        nwb2bids.Notification(
             title="Invalid species",
             reason="Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
             solution=(
@@ -35,7 +35,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
             severity=nwb2bids.notifications.Severity.ERROR,
         ),
         nwb2bids.notifications.from_definition(notification_id="InvalidParticipantID", source_file_paths=nwb_paths),
-        nwb2bids.notifications(
+        nwb2bids.Notification(
             title="Invalid participant sex (BIDS)",
             reason="Participant sex is not one of the allowed patterns by BIDS.",
             solution="Rename the subject sex to be one of the accepted values.",
@@ -46,7 +46,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
             category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
             severity=nwb2bids.notifications.Severity.ERROR,
         ),
-        nwb2bids.notifications(
+        nwb2bids.Notification(
             title="Invalid participant sex (archives)",
             reason="Participant sex is not one of the allowed patterns by the common archives.",
             solution="Rename the subject sex to be one of the accepted values.",
@@ -128,7 +128,7 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.notifications(
+        nwb2bids.Notification(
             title="Missing participant sex",
             reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
             solution=(
@@ -145,7 +145,7 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
             category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
             severity=nwb2bids.notifications.Severity.CRITICAL,
         ),
-        nwb2bids.notifications(
+        nwb2bids.Notification(
             title="Missing participant species",
             reason="Archives such as DANDI or EMBER require the subject species to be specified.",
             solution=(
@@ -161,7 +161,7 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
             severity=nwb2bids.notifications.Severity.CRITICAL,
         ),
         nwb2bids.notifications.from_definition(notification_id="InvalidParticipantID", source_file_paths=nwb_paths),
-        nwb2bids.notifications(
+        nwb2bids.Notification(
             title="Invalid session ID",
             reason=(
                 "The session ID contains invalid characters. "
@@ -192,7 +192,7 @@ def test_notifications_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.notifications(
+        nwb2bids.Notification(
             title="Missing participant",
             reason="BIDS requires a subject to be specified for each NWB file.",
             solution="Add a Subject object to each NWB file.",
@@ -215,7 +215,7 @@ def test_notifications_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.notifications(
+        nwb2bids.Notification(
             title="Missing description",
             reason="A basic description of this field is recommended to improve contextual understanding.",
             solution="Add a description to the field.",
