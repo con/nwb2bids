@@ -115,9 +115,9 @@ nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
 [dependency-groups]
 type-stubs = ["pandas-stubs"]
 test = ["pytest", "datalad", "git-annex", "sybil"]
-coverage = ["pytest-cov"]
-dev = ["ipython", "pre-commit", {include-group = "type-stubs"}]
-types = ["mypy", {include-group = "test"}, {include-group = "type-stubs"}]
+coverage = [{include-group = "test"}, "pytest-cov"]
+dev = [{include-group = "type-stubs"}, {include-group = "test"}, "ipython", "pre-commit"]
+types = [{include-group = "type-stubs"}, {include-group = "test"}, "mypy"]
 docs = [
     "sphinx<9.0.0",
     "sphinx-tabs",
@@ -129,13 +129,13 @@ docs = [
     "sybil",  # For testing code blocks in docs
 ]
 dev-all = [
+    {include-group = "type-stubs"},
     {include-group = "test"},
     {include-group = "coverage"},
     {include-group = "dev"},
     {include-group = "types"},
     {include-group = "docs"},
 ]
-
 
 
 [tool.black]
