@@ -152,6 +152,26 @@ The workflow is as follows:
 
    If labels ever get out of sync, re-run the ``Setup Release Labels`` workflow to re-seed the full set.
 
+Container CLI Testing
+~~~~~~~~~~~~~~~~~~~~~
+
+CLI tests can be run against a Docker container to verify the packaged application works correctly.
+
+First, build the dev container:
+
+.. code-block:: bash
+
+   docker build -f containers/Dockerfile.dev -t nwb2bids:dev .
+
+Run CLI tests against the container:
+
+.. code-block:: bash
+
+   pytest -m container_cli_test -v --container-image=nwb2bids:dev
+
+This runs all tests marked with ``@pytest.mark.container_cli_test`` inside the specified container.
+The test fixture automatically handles volume mounts and environment setup.
+
 Docker
 ------
 
