@@ -2,14 +2,20 @@
 
 import pathlib
 import subprocess
+from collections.abc import Callable
+
+import pytest
 
 
+@pytest.mark.container_cli_test
 def test_problematic_cli_error_messages(
-    problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path
+    problematic_nwbfile_path_1: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
     command = f"nwb2bids convert {problematic_nwbfile_path_1} -o {temporary_bids_directory}"
 
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert result.returncode == 0
 
     expected_message = [
@@ -33,12 +39,15 @@ def test_problematic_cli_error_messages(
     assert b"No modality information found in session metadata" in result.stderr
 
 
+@pytest.mark.container_cli_test
 def test_problematic_cli_critical_messages(
-    problematic_nwbfile_path_3: pathlib.Path, temporary_bids_directory: pathlib.Path
+    problematic_nwbfile_path_3: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
     command = f"nwb2bids convert {problematic_nwbfile_path_3} -o {temporary_bids_directory}"
 
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert result.returncode == 0
 
     expected_message = ["", "BIDS dataset was successfully created, but may not be valid!", ""]
@@ -48,12 +57,15 @@ def test_problematic_cli_critical_messages(
     assert b"No modality information found in session metadata" in result.stderr
 
 
+@pytest.mark.container_cli_test
 def test_problematic_cli_info_messages(
-    problematic_nwbfile_path_4: pathlib.Path, temporary_bids_directory: pathlib.Path
+    problematic_nwbfile_path_4: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
     command = f"nwb2bids convert {problematic_nwbfile_path_4} -o {temporary_bids_directory}"
 
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert result.returncode == 0
 
     expected_message = [
@@ -68,10 +80,15 @@ def test_problematic_cli_info_messages(
     assert result.stderr == b""
 
 
-def test_cli_success(minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
+@pytest.mark.container_cli_test
+def test_cli_success(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
+):
     command = f"nwb2bids convert {minimal_nwbfile_path} -o {temporary_bids_directory}"
 
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert result.returncode == 0
 
     expected_message = ["", "BIDS dataset was successfully created!", ""]
@@ -80,10 +97,15 @@ def test_cli_success(minimal_nwbfile_path: pathlib.Path, temporary_bids_director
     assert b"No modality information found in session metadata" in result.stderr
 
 
-def test_problematic_cli_silent(problematic_nwbfile_path_1: pathlib.Path, temporary_bids_directory: pathlib.Path):
+@pytest.mark.container_cli_test
+def test_problematic_cli_silent(
+    problematic_nwbfile_path_1: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    cli_runner: Callable[[str], subprocess.CompletedProcess],
+):
     command = f"nwb2bids convert {problematic_nwbfile_path_1} -o {temporary_bids_directory} --silent"
 
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    result = cli_runner(command)
     assert result.returncode == 0
     assert result.stdout == b""
     assert result.stderr == b""
