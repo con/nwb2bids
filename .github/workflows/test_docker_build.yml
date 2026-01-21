@@ -41,7 +41,7 @@ jobs:
 
       - name: Install test dependencies
         if: matrix.test
-        run: pip install -e . pytest
+        run: pip install -e . --group test
 
       - name: Run container CLI tests
         if: matrix.test

@@ -35,7 +35,7 @@ jobs:
           python-version: '3.13'
 
       - name: Install test dependencies
-        run: pip install -e . pytest
+        run: pip install -e . --group test
 
       - name: Run container CLI tests
         run: pytest -m container_cli_test -v --container-image=ghcr.io/con/nwb2bids:dev
