@@ -9,8 +9,8 @@ source = "vcs"
 packages = ["src/nwb2bids"]
 
 [tool.hatch.envs.default]
+installer = "uv"
 python = "3.10"
-pre-install-commands = ["pip install --upgrade pip"]
 
 # Execute `hatch env create test` to create all test environments.
 # Use `+` and `-` to select tests environments to run tests if needed
