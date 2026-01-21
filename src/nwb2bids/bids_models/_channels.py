@@ -40,21 +40,26 @@ def _infer_scalar_field(
 
 
 class Channel(BaseMetadataModel):
-    channel_name: str
-    reference: str
+    name: str
+    electrode_name: str
     type: str = "N/A"
-    unit: str = "V"
+    units: str = "V"
     sampling_frequency: float | None = None
+    low_cutoff: float | None = None
+    high_cutoff: float | None = None
+    reference: str | None = None
+    notch: str | None = None
     channel_label: str | None = None
     stream_id: str | None = None
     description: str | None = None
+    software_filter_types: str | None = None
     status: typing.Literal["good", "bad"] | None = None
     status_description: str | None = None
     gain: float | None = None
     time_offset: float | None = None
     time_reference_channels: str | None = None
     ground: str | None = None
-    # recording_mode: str | None = None  # TODO: icephys only
+    recording_mode: str | None = None
 
 
 class ChannelTable(BaseMetadataContainerModel):
@@ -129,18 +134,14 @@ class ChannelTable(BaseMetadataContainerModel):
 
             channels = [
                 Channel(
-                    channel_name=(
-                        f"ch{channel_name.values[0]}"
+                    name=(
+                        f"ch{channel_name.values[0].zfill(3)}"
                         if (channel_name := electrode.get("channel_name", None)) is not None
-                        else f"ch{electrode.index[0]}"
+                        else f"ch{str(electrode.index[0]).zfill(3)}"
                     ),
-                    reference=(
-                        f"contact{contact_ids.values[0]}"  # TODO: do a deep dive into edge cases of this reference
-                        if (contact_ids := electrode.get("contact_ids", None)) is not None
-                        else f"e{electrode.index[0]}"
-                    ),
+                    electrode_name=f"e{str(electrode.index[0]).zfill(3)}",
                     type="N/A",  # TODO: in dedicated follow-up, could classify LFP based on container
-                    unit="V",
+                    units="V",
                     sampling_frequency=sampling_frequency,
                     # channel_label: str | None = None # TODO: only support with additional metadata
                     stream_id=stream_id,
@@ -161,7 +162,6 @@ class ChannelTable(BaseMetadataContainerModel):
                 for neurodata_object in nwbfile.acquisition.values()
                 if isinstance(neurodata_object, pynwb.icephys.PatchClampSeries)
             ]
-            # TODO: handle intracellular_recordings case
             electrode_name_to_series = collections.defaultdict(list)
             for series in icephys_series:
                 electrode_name_to_series[series.electrode.name].append(series)
@@ -197,10 +197,10 @@ class ChannelTable(BaseMetadataContainerModel):
 
             channels = [
                 Channel(
-                    channel_name=electrode.name,
-                    reference="n/a",  # TODO: think about if/how this could be any other value
+                    name=electrode.name,
+                    electrode_name=electrode.name,
                     type=electrode_name_to_type.get(electrode.name, "n/a"),
-                    unit="V",
+                    units="V",
                     sampling_frequency=electrode_name_to_sampling_frequency.get(electrode.name, None),
                     # channel_label: str | None = None # TODO: only support with additional metadata
                     stream_id=electrode_name_to_stream_ids.get(electrode.name, None),
@@ -208,7 +208,6 @@ class ChannelTable(BaseMetadataContainerModel):
                     # status: typing.Literal["good", "bad"] | None = None # TODO: only support with additional metadata
                     # status_description: str | None = None # TODO: only support with additional metadata
                     gain=electrode_name_to_gain.get(electrode.name, None),
-                    # time_offset=
                     # time_reference_channels: str | None = None # TODO: only support with additional metadata
                     # ground: str | None = None # TODO: only support with additional metadata
                     recording_mode=type_to_recording_mode[electrode_name_to_type.get(electrode.name, "n/a")],

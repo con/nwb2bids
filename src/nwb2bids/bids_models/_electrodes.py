@@ -15,13 +15,19 @@ from ..notifications import Notification
 class Electrode(BaseMetadataModel):
     name: str
     probe_name: str
-    hemisphere: str = "N/A"
     x: float = numpy.nan
     y: float = numpy.nan
     z: float = numpy.nan
+    hemisphere: str = "N/A"
     impedance: float = numpy.nan  # in kOhms
     shank_id: str = "N/A"
+    size: float | None = None  # in square micrometers
+    electrode_shape: str | None = None
+    material: str | None = None
     location: str | None = None
+    pipette_solution: str | None = None
+    internal_pipette_diameter: float | None = None  # in micrometers
+    external_pipette_diameter: float | None = None  # in micrometers
 
     def __eq__(self, other: typing_extensions.Self) -> bool:
         if not isinstance(other, Electrode):
@@ -122,15 +128,13 @@ class ElectrodeTable(BaseMetadataContainerModel):
                     x=getattr(electrode, "x", numpy.nan),
                     y=getattr(electrode, "y", numpy.nan),
                     z=getattr(electrode, "z", numpy.nan),
-                    # impedance=  # Impedance must be in kOhms for BEP32 but NWB specifies Ohms
-                    # shank_id=
                     # TODO: pretty much only through additional metadata
+                    # impedance=
                     # size=
                     # electrode_shape=
                     # material=
-                    # location=
+                    location=getattr(electrode, "location", None),
                     # TODO: some icephys specific ones (would NOT use the ecephys electrode table anyway...)
-                    # Probably better off in a designated model
                     # pipette_solution=
                     # internal_pipette_diameter=
                     # external_pipette_diameter=
