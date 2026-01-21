@@ -70,6 +70,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
             "data_standards": ["DANDI"],
             "examples": [],
             "field": "nwbfile.subject.species",
+            "notification_id": None,
             "reason": "Participant species is not a proper Latin binomial or NCBI " "Taxonomy id.",
             "severity": "ERROR",
             "solution": "Rename the subject species to a Latin binomial, obolibrary "
@@ -83,6 +84,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
             "data_standards": ["BIDS", "DANDI"],
             "examples": ["`ab_01` -> `ab+01`", "`subject #2` -> `subject+2`", "`id 2 from 9/1/25` -> `id+2+9+1+25`"],
             "field": "nwbfile.subject.subject_id",
+            "notification_id": "InvalidParticipantID",
             "reason": "The participant ID contains invalid characters. BIDS allows only "
             "the plus sign to be used as a separator in the subject entity "
             "label. Underscores, dashes, spaces, slashes, and other special "
@@ -98,6 +100,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
             "data_standards": ["BIDS"],
             "examples": ["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
             "field": "nwbfile.subject.sex",
+            "notification_id": None,
             "reason": "Participant sex is not one of the allowed patterns by BIDS.",
             "severity": "ERROR",
             "solution": "Rename the subject sex to be one of the accepted values.",
@@ -110,6 +113,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
             "data_standards": ["DANDI"],
             "examples": ["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
             "field": "nwbfile.subject.sex",
+            "notification_id": None,
             "reason": "Participant sex is not one of the allowed patterns by the common " "archives.",
             "severity": "ERROR",
             "solution": "Rename the subject sex to be one of the accepted values.",
