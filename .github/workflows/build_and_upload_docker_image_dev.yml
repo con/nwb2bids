@@ -20,12 +20,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build image for testing
+      - name: Build image
         uses: docker/build-push-action@v5
         with:
           push: false
           load: true
-          tags: nwb2bids:dev
+          tags: ghcr.io/con/nwb2bids:dev
           context: .
           file: containers/Dockerfile.dev
 
@@ -38,7 +38,7 @@ jobs:
         run: pip install -e . pytest
 
       - name: Run container CLI tests
-        run: pytest -m container_cli_test -v --container-image=nwb2bids:dev
+        run: pytest -m container_cli_test -v --container-image=ghcr.io/con/nwb2bids:dev
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -48,10 +48,4 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push to GHCR
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: ghcr.io/con/nwb2bids:dev
-          context: .
-          file: containers/Dockerfile.dev
-          provenance: false
+        run: docker push ghcr.io/con/nwb2bids:dev
