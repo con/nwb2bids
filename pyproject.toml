@@ -116,8 +116,8 @@ nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
 type-stubs = ["pandas-stubs"]
 test = ["pytest", "datalad", "git-annex", "sybil"]
 coverage = [{include-group = "test"}, "pytest-cov"]
-dev = [{include-group = "test"}, "ipython", "pre-commit", {include-group = "type-stubs"}]
-types = ["mypy", {include-group = "test"}, {include-group = "type-stubs"}]
+dev = [{include-group = "type-stubs"}, {include-group = "test"}, "ipython", "pre-commit"]
+types = [{include-group = "type-stubs"}, {include-group = "test"}, "mypy"]
 docs = [
     "sphinx<9.0.0",
     "sphinx-tabs",
