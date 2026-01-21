@@ -17,7 +17,6 @@ jobs:
             target: minimal
           - file: containers/Dockerfile.latest
             target: all
-          - file: containers/Dockerfile.dev
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +24,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build ${{ matrix.target || matrix.file }}
+      - name: Build ${{ matrix.target }}
         uses: docker/build-push-action@v5
         with:
           push: false
