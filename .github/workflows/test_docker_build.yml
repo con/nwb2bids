@@ -2,9 +2,6 @@ name: Test Docker Build
 
 on:
   pull_request:
-    paths:
-      - 'containers/**'
-      - '.dockerignore'
 
 jobs:
   test-build:
