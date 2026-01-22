@@ -135,7 +135,7 @@ class ChannelTable(BaseMetadataContainerModel):
             channels = [
                 Channel(
                     name=(
-                        f"ch{channel_name.values[0].zfill(3)}"
+                        f"{channel_name.values[0]}"
                         if (channel_name := electrode.get("channel_name", None)) is not None
                         else f"ch{str(electrode.index[0]).zfill(3)}"
                     ),
@@ -151,7 +151,7 @@ class ChannelTable(BaseMetadataContainerModel):
                     gain=gain,
                     # Special extraction from SpikeInterface field
                     time_offset=shift[0] if (shift := electrode.get("inter_sample_shift", None)) is not None else None,
-                    # time_reference_channels: str | None = None # TODO: only support with additional metadata
+                    # time_reference_channel: str | None = None # TODO: only support with additional metadata
                     # ground: str | None = None # TODO: only support with additional metadata
                 )
                 for electrode in nwbfile.electrodes
@@ -208,7 +208,7 @@ class ChannelTable(BaseMetadataContainerModel):
                     # status: typing.Literal["good", "bad"] | None = None # TODO: only support with additional metadata
                     # status_description: str | None = None # TODO: only support with additional metadata
                     gain=electrode_name_to_gain.get(electrode.name, None),
-                    # time_reference_channels: str | None = None # TODO: only support with additional metadata
+                    # time_reference_channel: str | None = None # TODO: only support with additional metadata
                     # ground: str | None = None # TODO: only support with additional metadata
                     recording_mode=type_to_recording_mode[electrode_name_to_type.get(electrode.name, "n/a")],
                     # TODO: add extra columns
