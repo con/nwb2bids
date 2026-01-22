@@ -59,7 +59,7 @@ class Notification(pydantic.BaseModel):
         if source_file_paths is None and target_file_paths is None:
             message = (
                 "At least one of `source_file_paths` or `target_file_paths` must be provided when "
-                "calling `Notification.from_paths()`."
+                "calling `Notification.from_definition()`."
             )
             raise ValueError(message)
 
