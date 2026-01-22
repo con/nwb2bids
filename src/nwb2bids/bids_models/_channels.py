@@ -57,7 +57,7 @@ class Channel(BaseMetadataModel):
     status_description: str | None = None
     gain: float | None = None
     time_offset: float | None = None
-    time_reference_channels: str | None = None
+    time_reference_channel: str | None = None
     ground: str | None = None
     recording_mode: str | None = None
 
