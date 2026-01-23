@@ -1,7 +1,7 @@
 import pathlib
 
 
-def _file_startswith(file_path: pathlib.Path, s: str) -> bool:
+def _file_startswith(file_path: pathlib.Path, string: str) -> bool:
     """
     Check if a file starts with a specific string; necessary for Windows 'symlinks'.
 
@@ -9,7 +9,7 @@ def _file_startswith(file_path: pathlib.Path, s: str) -> bool:
     ----------
     file_path : pathlib.Path
         Path to the file to check.
-    s : str
+    string : str
         String to check if the file starts with.
 
     Returns
@@ -18,8 +18,8 @@ def _file_startswith(file_path: pathlib.Path, s: str) -> bool:
         True if the file starts with the given string, False otherwise.
     """
     with file_path.open(mode="rb") as file_stream:
-        first_bytes = file_stream.read(len(s))
-        return first_bytes == s.encode("ascii")
+        first_bytes = file_stream.read(len(string))
+        return first_bytes == string.encode("ascii")
 
 
 def _content_is_retrieved(file_path: pathlib.Path) -> bool:
@@ -44,4 +44,4 @@ def _content_is_retrieved(file_path: pathlib.Path) -> bool:
     if file_path.is_symlink() and (".git" in file_path.readlink().parts):
         return True
 
-    return not _file_startswith(file_path=file_path, s="/annex")
+    return not _file_startswith(file_path=file_path, string="/annex")
