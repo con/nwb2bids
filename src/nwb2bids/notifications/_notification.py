@@ -10,7 +10,7 @@ from ._types import Category, DataStandard, Severity
 
 
 class Notification(pydantic.BaseModel):
-    notification_id: str | None = pydantic.Field(  # TODO: when all are updated, make this required
+    identifier: str | None = pydantic.Field(  # TODO: when all are updated, make this required
         description="Unique identifier for the issue.", frozen=True, default=None
     )
     title: str = pydantic.Field(description="Short title of the issue.", frozen=True)
@@ -52,15 +52,15 @@ class Notification(pydantic.BaseModel):
     @classmethod
     def from_definition(
         cls,
-        notification_id: str,
+        identifier: str,
         source_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
         target_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
     ) -> typing_extensions.Self:
         return cls(
-            notification_id=notification_id,
+            identifier=identifier,
             source_file_paths=source_file_paths,
             target_file_paths=target_file_paths,
-            **notification_definitions[notification_id],
+            **notification_definitions[identifier],
         )
 
     # TODO: remove this when/if PyNWB fixes source container for remfile objects

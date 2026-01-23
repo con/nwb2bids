@@ -42,9 +42,7 @@ class Participant(BaseMetadataModel):
     def _check_fields(self, file_paths: list[pathlib.Path] | list[pydantic.HttpUrl]) -> None:
         # Check if values are specified
         if self.participant_id is None:
-            notification = Notification.from_definition(
-                notification_id="MissingParticipantID", source_file_paths=file_paths
-            )
+            notification = Notification.from_definition(identifier="MissingParticipantID", source_file_paths=file_paths)
             self.notifications.append(notification)
         if self.species is None:
             self.notifications.append(
@@ -87,9 +85,7 @@ class Participant(BaseMetadataModel):
             self.participant_id is not None
             and re.match(pattern=f"{_VALID_ID_REGEX}$", string=self.participant_id) is None
         ):
-            notification = Notification.from_definition(
-                notification_id="InvalidParticipantID", source_file_paths=file_paths
-            )
+            notification = Notification.from_definition(identifier="InvalidParticipantID", source_file_paths=file_paths)
             self.notifications.append(notification)
         if self.species is not None and re.match(pattern=_VALID_SPECIES_REGEX, string=self.species) is None:
             self.notifications.append(
