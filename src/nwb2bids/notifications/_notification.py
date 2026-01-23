@@ -56,13 +56,6 @@ class Notification(pydantic.BaseModel):
         source_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
         target_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
     ) -> typing_extensions.Self:
-        if source_file_paths is None and target_file_paths is None:
-            message = (
-                "At least one of `source_file_paths` or `target_file_paths` must be provided when "
-                "calling `Notification.from_definition()`."
-            )
-            raise ValueError(message)
-
         return cls(
             notification_id=notification_id,
             source_file_paths=source_file_paths,
