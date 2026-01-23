@@ -60,6 +60,6 @@ pytest_collect_file = Sybil(
         CodeBlockParser(language="bash", evaluator=bash_evaluator),
         PythonCodeBlockParser(),
     ],
-    patterns=["tutorials.rst"],
+    patterns=["tutorials.rst", "conversion_gallery.rst"],
     setup=sybil_setup,
 ).pytest()

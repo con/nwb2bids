@@ -5,6 +5,7 @@
 
    user_guide
    tutorials
+   conversion_gallery
    developer_guide
    api/index
 
