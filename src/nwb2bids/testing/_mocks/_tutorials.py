@@ -109,16 +109,19 @@ def _generate_icephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
         name="patch01",
         description="This is an example icephys electrode used for demonstration purposes.",
         device=probe1,
+        location="VISp2/3",
     )
     electrode2 = nwbfile.create_icephys_electrode(
         name="patch02",
         description="This is an example icephys electrode used for demonstration purposes.",
         device=probe2,
+        location="VISp2/3",
     )
     electrode3 = nwbfile.create_icephys_electrode(
         name="sharp01",
         description="This is an example icephys electrode used for demonstration purposes.",
         device=probe3,
+        location="PL5",
     )
 
     # Icephys series

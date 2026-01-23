@@ -15,7 +15,27 @@ from ..notifications import Category, DataStandard, Notification, Severity
 class Probe(BaseMetadataModel):
     probe_name: str
     type: str = "n/a"
+    AP: float | None = None
+    ML: float | None = None
+    DV: float | None = None
+    AP_angle: float | None = None
+    ML_angle: float | None = None
     manufacturer: str | None = None
+    model: str | None = None
+    device_serial_number: str | None = None
+    electrode_count: int | None = None
+    width: float | None = None  # in millimeters
+    height: float | None = None  # in millimeters
+    depth: float | None = None
+    rotation_angle: float | None = None
+    coordinate_reference_point: str | None = None
+    anatomical_reference_point: str | None = None
+    hemisphere: typing.Literal["L", "R"] | None = None
+    associated_brain_region: str | None = None
+    associated_brain_region_id: str | None = None
+    associated_brain_region_quality_type: str | None = None
+    reference_atlas: str | None = None
+    material: str | None = None
 
 
 class ProbeTable(BaseMetadataContainerModel):
@@ -89,7 +109,7 @@ class ProbeTable(BaseMetadataContainerModel):
         probes = [
             Probe(
                 probe_name=device.name,
-                type="n/a",  # TODO
+                type="n/a",  # TODO via additional metadata
                 manufacturer=device.manufacturer,
                 description=device.description,
                 # TODO: handle more extra custom columns
