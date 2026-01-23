@@ -19,7 +19,7 @@ def _file_startswith(file_path: pathlib.Path, s: str) -> bool:
     """
     with file_path.open(mode="rb") as file_stream:
         first_bytes = file_stream.read(len(s))
-        return first_bytes == s.encode("utf-8")
+        return first_bytes == s.encode("ascii")
 
 
 def _content_is_retrieved(file_path: pathlib.Path) -> bool:
