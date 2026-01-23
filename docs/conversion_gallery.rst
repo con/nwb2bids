@@ -120,7 +120,7 @@ And the corresponding ``probes.json`` file provides detailed descriptions of eac
     )
     with open(probes_json_path, "r") as f:
         probes_metadata = json.load(f)
-    
+
     print("\nBIDS probes.json:")
     print(f"  Metadata keys: {list(probes_metadata.keys())}")
     # Note: The JSON file may be empty ({}) if no additional column descriptions are needed
@@ -196,7 +196,7 @@ The ``electrodes.json`` file provides metadata about the columns:
     )
     with open(electrodes_json_path, "r") as f:
         electrodes_metadata = json.load(f)
-    
+
     print("\nBIDS electrodes.json:")
     print(f"  Metadata keys: {list(electrodes_metadata.keys())}")
     # Note: The JSON file may be empty ({}) if no additional column descriptions are needed
@@ -290,7 +290,7 @@ The ``channels.json`` file describes the channel metadata:
     )
     with open(channels_json_path, "r") as f:
         channels_metadata = json.load(f)
-    
+
     print("\nBIDS channels.json:")
     print(f"  Metadata keys: {list(channels_metadata.keys())}")
     # Note: The JSON file may be empty ({}) if no additional column descriptions are needed
@@ -408,7 +408,7 @@ about the entire dataset.
     dataset_desc_path = bids_directory / "dataset_description.json"
     with open(dataset_desc_path, "r") as f:
         dataset_description = json.load(f)
-    
+
     print("\nBIDS dataset_description.json:")
     for key, value in dataset_description.items():
         print(f"  {key}: {value}")

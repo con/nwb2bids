@@ -52,7 +52,7 @@ def sybil_setup(namespace):
     nwb_path = tutorial_dir / "ecephys.nwb"
     bids_directory = tutorial_dir / "bids_dataset_py_1"
     bids_directory.mkdir(exist_ok=True)
-    
+
     run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
     nwb2bids.convert_nwb_dataset(
         nwb_paths=[nwb_path],
