@@ -1,13 +1,25 @@
 import pathlib
 
 
-def _read_first_bytes(file_path: pathlib.Path, n: int = 6) -> bytes:
+def _file_startswith(file_path: pathlib.Path, s: str) -> bool:
     """
-    Read the first n (by default 6) bytes of a file; necessary for Windows 'symlinks'.
+    Check if a file starts with a specific string; necessary for Windows 'symlinks'.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        Path to the file to check.
+    s : str
+        String to check if the file starts with.
+
+    Returns
+    -------
+    bool
+        True if the file starts with the given string, False otherwise.
     """
     with file_path.open(mode="rb") as file_stream:
-        first_bytes = file_stream.read(n)
-        return first_bytes
+        first_bytes = file_stream.read(len(s))
+        return first_bytes == s.encode("utf-8")
 
 
 def _content_is_retrieved(file_path: pathlib.Path) -> bool:
@@ -32,4 +44,4 @@ def _content_is_retrieved(file_path: pathlib.Path) -> bool:
     if file_path.is_symlink() and (".git" in file_path.readlink().parts):
         return True
 
-    return _read_first_bytes(file_path=file_path, n=6) != b"/annex"
+    return not _file_startswith(file_path=file_path, s="/annex")
