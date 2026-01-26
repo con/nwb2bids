@@ -7,7 +7,7 @@ import typing_extensions
 
 from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_ID_REGEX, _VALID_SPECIES_REGEX
 from ..bids_models._base_metadata_model import BaseMetadataModel
-from ..notifications import Category, DataStandard, Notification, Severity
+from ..notifications import Category, Notification, Severity
 
 
 class Participant(BaseMetadataModel):
@@ -45,40 +45,13 @@ class Participant(BaseMetadataModel):
             notification = Notification.from_definition(identifier="MissingParticipantID", source_file_paths=file_paths)
             self.notifications.append(notification)
         if self.species is None:
-            self.notifications.append(
-                Notification(
-                    title="Missing participant species",
-                    reason="Archives such as DANDI or EMBER require the subject species to be specified.",
-                    solution=(
-                        "Specify the `species` field of the Subject object attached to the NWB file as a "
-                        "Latin binomial, obolibrary taxonomy link, or NCBI taxonomy reference."
-                    ),
-                    field="nwbfile.subject.species",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.DANDI],
-                    category=Category.SCHEMA_INVALIDATION,
-                    severity=Severity.CRITICAL,
-                )
-            )
+            notification = Notification.from_definition(identifier="MissingSpecies", source_file_paths=file_paths)
+            self.notifications.append(notification)
         if self.sex is None:
-            self.notifications.append(
-                Notification(
-                    title="Missing participant sex",
-                    reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
-                    solution=(
-                        "Specify the `sex` field of the Subject object attached to the NWB file as one of four "
-                        'options: "M" (for male), "F" (for female), "U" (for unknown), or "O" (for other).\n'
-                        "NOTE: for certain animal species with more specific genetic determinants, such as C elegans, "
-                        'use "O" (for other) then further specify the subtypes using other custom fields. For example, '
-                        '`c_elegans_sex="XO"`'
-                    ),
-                    field="nwbfile.subject.sex",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.DANDI],
-                    category=Category.SCHEMA_INVALIDATION,
-                    severity=Severity.CRITICAL,
-                )
+            notification = Notification.from_definition(
+                identifier="MissingParticipantSex", source_file_paths=file_paths
             )
+            self.notifications.append(notification)
 
         # Check if specified values are valid
         if (
@@ -88,51 +61,19 @@ class Participant(BaseMetadataModel):
             notification = Notification.from_definition(identifier="InvalidParticipantID", source_file_paths=file_paths)
             self.notifications.append(notification)
         if self.species is not None and re.match(pattern=_VALID_SPECIES_REGEX, string=self.species) is None:
-            self.notifications.append(
-                Notification(
-                    title="Invalid species",
-                    reason="Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
-                    solution=(
-                        "Rename the subject species to a Latin binomial, obolibrary taxonomy link, or "
-                        "NCBI taxonomy reference."
-                    ),
-                    examples=[],
-                    field="nwbfile.subject.species",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.DANDI],
-                    category=Category.SCHEMA_INVALIDATION,
-                    severity=Severity.ERROR,
-                )
-            )
+            notification = Notification.from_definition(identifier="InvalidSpecies", source_file_paths=file_paths)
+            self.notifications.append(notification)
         if self.sex is not None and _VALID_BIDS_SEXES.get(self.sex, None) is None:
-            self.notifications.append(
-                Notification(
-                    title="Invalid participant sex (BIDS)",
-                    reason="Participant sex is not one of the allowed patterns by BIDS.",
-                    solution="Rename the subject sex to be one of the accepted values.",
-                    examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
-                    field="nwbfile.subject.sex",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.BIDS],
-                    category=Category.STYLE_SUGGESTION,
-                    severity=Severity.ERROR,
-                )
+            notification = Notification.from_definition(
+                identifier="InvalidParticipantSexBIDS", source_file_paths=file_paths
             )
+            self.notifications.append(notification)
 
         if self.sex is not None and _VALID_ARCHIVES_SEXES.get(self.sex, None) is None:
-            self.notifications.append(
-                Notification(
-                    title="Invalid participant sex (archives)",
-                    reason="Participant sex is not one of the allowed patterns by the common archives.",
-                    solution="Rename the subject sex to be one of the accepted values.",
-                    examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
-                    field="nwbfile.subject.sex",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.DANDI],
-                    category=Category.STYLE_SUGGESTION,
-                    severity=Severity.ERROR,
-                )
+            notification = Notification.from_definition(
+                identifier="InvalidParticipantSexArchives", source_file_paths=file_paths
             )
+            self.notifications.append(notification)
 
     @classmethod
     @pydantic.validate_call
@@ -161,18 +102,8 @@ class Participant(BaseMetadataModel):
         nwbfile = nwbfiles[0]
 
         if nwbfile.subject is None:
-            notifications.append(
-                Notification(
-                    title="Missing participant",
-                    reason="BIDS requires a subject to be specified for each NWB file.",
-                    solution="Add a Subject object to each NWB file.",
-                    field="nwbfile.subject",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
-                    category=Category.STYLE_SUGGESTION,
-                    severity=Severity.CRITICAL,
-                )
-            )
+            notification = Notification.from_definition(identifier="MissingParticipant", source_file_paths=file_paths)
+            notifications.append(notification)
             participant = cls(
                 notifications=notifications,
                 participant_id="0",  # Similar to the missing session ID; let placeholder default to "0"

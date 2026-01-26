@@ -9,7 +9,7 @@ import pynwb
 import typing_extensions
 
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
-from ..notifications import Category, DataStandard, Notification, Severity
+from ..notifications import Notification
 
 
 class Probe(BaseMetadataModel):
@@ -46,19 +46,13 @@ class ProbeTable(BaseMetadataContainerModel):
         self._internal_notifications = []
 
         probes_missing_description = [probe for probe in self.probes if probe.description is None]
-        for probe_missing_description in probes_missing_description:
-            self._internal_notifications.append(
-                Notification(
-                    title="Missing description",
-                    reason="A basic description of this field is recommended to improve contextual understanding.",
-                    solution="Add a description to the field.",
-                    field=f"nwbfile.devices.{probe_missing_description.probe_name}",
-                    source_file_paths=[],  # TODO: figure out better way of handling
-                    data_standards=[DataStandard.BIDS, DataStandard.NWB],
-                    category=Category.STYLE_SUGGESTION,
-                    severity=Severity.INFO,
-                )
+        for _ in probes_missing_description:
+            notification = Notification.from_definition(
+                identifier="MissingDescription",
+                source_file_paths=[],  # TODO: figure out better way of handling here
+                # field=f"nwbfile.devices.{probe_missing_description.probe_name}",  # TODO: improve field handling
             )
+            self._internal_notifications.append(notification)
 
     def model_post_init(self, context: Any, /) -> None:
         self._check_fields()
