@@ -31,9 +31,7 @@ Philosophy
 
 - **Performance**: While prioritizing usability and extensibility, the code should also be efficient and performant, especially when handling large datasets.
 
-- **Collect and report all notifications**: During conversion, all encountered issues (including internal runtime
-errors) should be collected and reported to the user at the end, rather than stopping at the first error. This
-provides a comprehensive overview of any problems that need to be addressed.
+- **Collect and report all notifications**: During conversion, all encountered issues (including internal runtime errors) should be collected and reported to the user at the end, rather than stopping at the first error. This provides a comprehensive overview of any problems that need to be addressed.
 
 
 
