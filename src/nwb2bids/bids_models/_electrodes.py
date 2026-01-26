@@ -11,7 +11,7 @@ import typing_extensions
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
-_NULL_LOCATION_PLACEHOLDERS = {"unknown", "no location", "N/A"}
+_NULL_LOCATION_PLACEHOLDERS = {"", "unknown", "no location", "N/A"}
 
 
 class Electrode(BaseMetadataModel):
@@ -117,7 +117,7 @@ class ElectrodeTable(BaseMetadataContainerModel):
                     # electrode_shape=
                     # material=
                     location=(
-                        val if (val := str(electrode.location.values[0]) not in _NULL_LOCATION_PLACEHOLDERS) else "n/a"
+                        val if (val := str(electrode.location.values[0])) not in _NULL_LOCATION_PLACEHOLDERS else "n/a"
                     ),
                     # TODO: add extra columns
                 )
