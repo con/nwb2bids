@@ -16,7 +16,7 @@ python = "3.10"
 # Use `+` and `-` to select tests environments to run tests if needed
 # as documented in https://hatch.pypa.io/latest/cli/reference/#hatch-run.
 [[tool.hatch.envs.test.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13"]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 feature = ["none", "dandi", "all"]
 cov = ["off", "on"]
 [tool.hatch.envs.test.overrides]
@@ -85,6 +85,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Operating System :: Unix",
@@ -193,7 +194,11 @@ disable_error_code = ["arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["nwb2bids._converters._session_converter"]
-disable_error_code = ["call-arg", "union-attr"]
+disable_error_code = [
+    "call-arg",
+    "union-attr",
+    "attr-defined",  # MyPy is wrong about this one (pathlib.Path.copy on 3.14)
+]
 
 [[tool.mypy.overrides]]
 module = ["nwb2bids._converters._dataset_converter"]
@@ -272,6 +277,8 @@ module = ["test_cli"]
 disable_error_code = ["str-bytes-safe", "arg-type"]
 
 # === Temporary mypy ignores for selected files section ends ===
+
+
 
 [tool.ruff]
 exclude = [
