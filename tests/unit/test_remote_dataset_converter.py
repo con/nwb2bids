@@ -79,7 +79,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.channel_table.channels[0] == nwb2bids.bids_models.Channel(
         name="ch000",
         electrode_name="e000",
-        type="N/A",
+        type="n/a",
         units="V",
         sampling_frequency=1250.0,
         stream_id="LFP",
@@ -91,7 +91,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.electrode_table.electrodes[0] == nwb2bids.bids_models.Electrode(
         name="e000",
         probe_name="Implant",
-        hemisphere="N/A",
+        hemisphere="n/a",
         x=numpy.nan,
         y=numpy.nan,
         z=numpy.nan,
