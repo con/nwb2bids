@@ -40,23 +40,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     session_metadata = session_converter.session_metadata
     assert session_metadata.participant == nwb2bids.bids_models.Participant(
         notifications=[
-            nwb2bids.Notification(
-                title="Missing participant sex",
-                reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
-                solution=(
-                    "Specify the `sex` field of the Subject object attached to the NWB file as one of four options: "
-                    '"M" (for male), "F" (for female), "U" (for unknown), or "O" (for other).\nNOTE: for certain '
-                    'animal species with more specific genetic determinants, such as C elegans, use "O" (for other) '
-                    'then further specify the subtypes using other custom fields. For example, `c_elegans_sex="XO"`'
-                ),
-                examples=None,
-                field="nwbfile.subject.sex",
-                source_file_paths=None,
-                target_file_paths=None,
-                data_standards=[nwb2bids.notifications.DataStandard.DANDI],
-                category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
-                severity=nwb2bids.notifications.Severity.CRITICAL,
-            ),
+            nwb2bids.Notification.from_definition(identifier="MissingParticipantSex"),
         ],
         participant_id="YutaMouse20",
         species="Mus musculus",
