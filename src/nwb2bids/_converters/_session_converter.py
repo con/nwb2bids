@@ -165,7 +165,7 @@ class SessionConverter(BaseConverter):
                     file_stream.write(str(nwbfile_path))
                 continue
 
-            if self.run_config.file_mode == "copy" and sys.version_info.major >= 3 and sys.version_info.minor >= 14:
+            if self.run_config.file_mode == "copy" and sys.version_info >= (3, 14):
                 nwbfile_path.copy(target=session_file_path, follow_symlinks=True)  # Uses copy-on-write when available
             elif self.run_config.file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
