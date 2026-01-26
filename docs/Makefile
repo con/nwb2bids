@@ -14,7 +14,7 @@ help:
 
 # Clean build directory
 clean:
-	rm -rf $(BUILDDIR)
+	python -c "import shutil; shutil.rmtree('$(BUILDDIR)', ignore_errors=True)"
 
 # Build HTML with automatic clean
 html: clean

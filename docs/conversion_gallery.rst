@@ -1,22 +1,20 @@
-
 .. _conversion_gallery:
 
 Conversion Gallery
 ==================
 
 This section provides an in-depth look at how **nwb2bids** extracts metadata from NWB files and organizes it
-into BIDS-compliant sidecar files. We'll use the same example data from the :ref:`tutorials` section to
-demonstrate the fine-grain file contents in line with BEP32 (BIDS Extension Proposal 32 for micro-electrode
-electrophysiology).
+into BIDS-compliant sidecar files.
 
 For each type of metadata, we'll show:
 
-1. How to read the data directly from the NWB file using PyNWB
-2. What the corresponding BIDS sidecar file contains
-3. The mapping between NWB fields and BIDS fields
+1. How to read the data directly from the NWB file using PyNWB.
+2. What the corresponding BIDS sidecar file contains.
+3. The mapping between NWB fields and BIDS fields.
 
-This gallery assumes you've already run the tutorial from :ref:`tutorial-single-file` to generate both
-the example NWB file and the BIDS dataset.
+.. note::
+
+    We'll use the same example data from the :ref:`tutorials` section to demonstrate the fine-grain file contents, so be sure to have those files generated before proceeding.
 
 
 Setup
@@ -43,6 +41,7 @@ First, let's set up our environment and ensure we have the necessary files:
     assert bids_directory.exists(), f"BIDS directory not found at {bids_directory}"
 
 
+
 Reading the NWB File
 --------------------
 
@@ -66,6 +65,7 @@ Let's open the NWB file and explore its contents:
     # Verify the file was opened correctly
     assert nwbfile.session_id == "A"
     assert nwbfile.subject.subject_id == "001"
+
 
 
 Probes (Devices)
@@ -144,6 +144,7 @@ And the corresponding ``probes.json`` file provides detailed descriptions of eac
      - ``description`` (in JSON)
    * - ``Device.manufacturer``
      - ``manufacturer``
+
 
 
 Electrodes
@@ -232,6 +233,7 @@ The ``electrodes.json`` file provides metadata about the columns:
      - ``shank_id``
 
 
+
 Channels
 --------
 
@@ -318,6 +320,7 @@ The ``channels.json`` file describes the channel metadata:
      - ``low_cutoff`` / ``high_cutoff``
 
 
+
 Subject and Session Information
 --------------------------------
 
@@ -396,6 +399,7 @@ goes into the ``sessions.tsv`` file.
      - ``acq_time``
 
 
+
 Dataset Description
 -------------------
 
@@ -422,44 +426,3 @@ about the entire dataset.
 
 This file can be augmented with additional metadata using the ``--additional-metadata-file-path`` option
 as shown in :ref:`tutorial-additional-metadata`.
-
-
-Cleanup
--------
-
-Don't forget to close the NWB file when you're done:
-
-.. code-block:: python
-
-    # Close the NWB file
-    io.close()
-
-.. invisible-code-block: python
-
-    # The file is now closed and should not be used further
-    pass
-
-
-Summary
--------
-
-This conversion gallery demonstrated how **nwb2bids** extracts rich metadata from NWB files and
-organizes it according to the BIDS BEP32 specification for electrophysiology data. The key benefits
-of this approach include:
-
-* **Standardization**: BIDS provides a consistent structure that makes data easier to share and analyze
-* **Discoverability**: Sidecar TSV and JSON files make metadata human-readable and machine-accessible
-* **Interoperability**: BIDS-formatted datasets can be used with a wide range of analysis tools
-
-For more complex examples including multiple sessions, different modalities (icephys), and customization
-options, see the :ref:`tutorials` section.
-
-
-Additional Resources
---------------------
-
-* `BEP32 Specification <https://github.com/bids-standard/bids-specification/pull/1705>`_: The BIDS Extension
-  Proposal for micro-electrode electrophysiology
-* `NWB Electrophysiology Tutorial <https://pynwb.readthedocs.io/en/stable/tutorials/domain/ecephys.html>`_:
-  PyNWB tutorial on working with electrophysiology data
-* `BIDS Specification <https://bids-specification.readthedocs.io/>`_: The complete BIDS specification

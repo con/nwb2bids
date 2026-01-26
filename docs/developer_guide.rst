@@ -42,9 +42,9 @@ This project uses ``pytest`` for testing with comprehensive coverage across mult
 
 Tests are organized into three categories:
 
-- **Unit tests** (``tests/unit/``): Test individual components in isolation
-- **Integration tests** (``tests/integration/``): Test interactions between components
-- **CLI tests** (``tests/convert_nwb_dataset/``): Test command-line interface behavior
+- **Unit tests** (``tests/unit/``): Test individual components in isolation.
+- **Integration tests** (``tests/integration/``): Test interactions between components.
+- **CLI tests** (``tests/convert_nwb_dataset/``): Test command-line interface behavior.
 
 Some tests are marked as ``remote`` when they require downloading data from remote sources (e.g., DANDI Archive).
 
@@ -124,21 +124,21 @@ CI Troubleshooting
 
 For debugging CI failures interactively, use the **Custom dispatch tests** workflow which supports `tmate <https://tmate.io/>`_ debugging sessions.
 
-1. Go to `Custom dispatch tests workflow <https://github.com/con/nwb2bids/actions/workflows/custom_dispatch_tests.yml>`_
+1. Go to `Custom dispatch tests workflow <https://github.com/con/nwb2bids/actions/workflows/custom_dispatch_tests.yml>`_.
 
-2. Click **"Run workflow"**
+2. Click **"Run workflow"**.
 
-3. Select the desired OS and Python version from the dropdowns
+3. Select the desired OS and Python version from the dropdowns.
 
-4. Check **"Enable tmate debugging session"**
+4. Check **"Enable tmate debugging session"**.
 
-5. Click **"Run workflow"** to start
+5. Click **"Run workflow"** to start.
 
 6. Monitor the workflow run. When it reaches the "Setup tmate session" step, it will display an SSH command like::
 
       ssh randomstring@nyc1.tmate.io
 
-7. Use this command to connect to the CI environment
+7. Use this command to connect to the CI environment.
 
 The session runs under `tmux <https://github.com/tmux/tmux/wiki>`_. Quick reference:
 
@@ -226,7 +226,17 @@ about...") since these titles become changelog entries.
 
 The label interactions leading to changelog sections are roughly as follows:
 
-- ``minor`` / ``enhancement`` -> 'Feature'
-- ``patch`` / ``bug`` -> 'Bug Fix'
-- ``documentation`` -> 'Documentation'
-- ``internal`` -> 'Internal' (ONLY if no other above labels are present; e.g., `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under 'Bug Fix' instead of 'Internal')
+.. list-table::
+   :header-rows: 1
+   :widths: 20 60
+
+   * - PR Labels
+     - Changelog Section
+   * - ``minor`` / ``enhancement``
+     - Feature
+   * - ``patch`` / ``bug``
+     - Bug Fix
+   * - ``documentation``
+     - Documentation
+   * - ``internal``
+     - Internal (Only if no other labels above are present (*e.g.*, `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under "Bug Fix")
