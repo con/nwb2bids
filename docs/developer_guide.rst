@@ -1,19 +1,39 @@
-:html_theme.sidebar_secondary.remove:
 
 .. _developer_guide:
 
 Developer Guide
 ===============
 
-Philosophy
-----------
-
-TODO
-
 Design
 ------
 
-TODO
+For **basic users**, ``nwb2bids`` is intended to be a simple-to-use tool for converting NWB datasets to BIDS format
+with minimal user configuration.
+
+For **advanced users**, ``nwb2bids`` is designed to be easily extensible to support new NWB data types, BIDS extensions,
+and custom configurable behavior.
+
+Whenever working on a new feature, keep in mind how to make it easy to understand and use for the **basic users**,
+while still being flexible enough for the **advanced users**.
+
+
+
+Philosophy
+----------
+
+``nwb2bids`` is also designed with the following principles in mind:
+
+- **Modularity**: The codebase is organized into clear, modular components that encapsulate specific functionality. This makes it easier to maintain, test, and extend the code.
+
+- **Extensibility**: The architecture allows for easy addition of new features, data types, and configurations without requiring major changes to the existing codebase.
+
+- **Readability**: Code should be clean, well-documented, and follow consistent style guidelines to ensure that it is easy to understand and collaborate on.
+
+- **Performance**: While prioritizing usability and extensibility, the code should also be efficient and performant, especially when handling large datasets.
+
+- **Collect and report all notifications**: During conversion, all encountered issues (including internal runtime errors) should be collected and reported to the user at the end, rather than stopping at the first error. This provides a comprehensive overview of any problems that need to be addressed.
+
+
 
 Testing
 -------
@@ -66,6 +86,13 @@ Run tests with coverage:
    pytest -m "not remote" -vv --cov=nwb2bids --cov-report html
 
 The coverage report will be generated in ``htmlcov/index.html``.
+
+Building Docs Locally
+~~~~~~~~~~~~~~~~~~~~~
+
+.. include:: README.md
+   :parser: myst_parser.sphinx_
+   :start-line: 2
 
 Documentation Tests
 ~~~~~~~~~~~~~~~~~~~
@@ -122,6 +149,28 @@ The session runs under `tmux <https://github.com/tmux/tmux/wiki>`_. Quick refere
 
 When you exit tmux (``exit`` or ``Ctrl-d``), the workflow continues to completion.
 
+Container CLI Testing
+~~~~~~~~~~~~~~~~~~~~~
+
+CLI tests can be run against a Docker container to verify the packaged application works correctly.
+
+First, build the dev container:
+
+.. code-block:: bash
+
+   docker build -f containers/Dockerfile.dev -t nwb2bids:dev .
+
+Run CLI tests against the container:
+
+.. code-block:: bash
+
+   pytest -m container_cli_test -v --container-image=nwb2bids:dev
+
+This runs all tests marked with ``@pytest.mark.container_cli_test`` inside the specified container.
+The test fixture automatically handles volume mounts and environment setup.
+
+
+
 
 Releasing
 ---------
@@ -150,35 +199,34 @@ The workflow is as follows:
 
    You can trigger a release manually via the ``Release with Auto`` workflow dispatch if needed.
 
-   If labels ever get out of sync, re-run the ``Setup Release Labels`` workflow to re-seed the full set.
+   If labels ever get out of sync, restore and rerun the ``Setup Release Labels`` workflow to re-seed the full set.
 
-Container CLI Testing
-~~~~~~~~~~~~~~~~~~~~~
+Changelog
+~~~~~~~~~
 
-CLI tests can be run against a Docker container to verify the packaged application works correctly.
+The `CHANGELOG.md <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ file is auto-generated from merged PRs via
+the same Auto release process described above.
 
-First, build the dev container:
+Each entry is created from the PR title and categorized by the labels applied to the PR.
 
-.. code-block:: bash
+Custom entries can be created by using the PR description with the following body:
 
-   docker build -f containers/Dockerfile.dev -t nwb2bids:dev .
+.. code-block:: markdown
 
-Run CLI tests against the container:
+   # What Changed
 
-.. code-block:: bash
+   ### Release Notes
 
-   pytest -m container_cli_test -v --container-image=nwb2bids:dev
+    [ Enter your custom changelog entry here. ]
 
-This runs all tests marked with ``@pytest.mark.container_cli_test`` inside the specified container.
-The test fixture automatically handles volume mounts and environment setup.
+Refer to `PR #244 <https://github.com/con/nwb2bids/pull/244>`_ and corresponding `v0.9.0 Release Notes <https://github.com/con/nwb2bids/releases/tag/v0.9.0>`_ for an example of this behavior.
 
-Docker
-------
+**For stylistic consistency**, please name all PR titles using the past tense (e.g., "Fix bug about..." -> "Fixed bug
+about...") since these titles become changelog entries.
 
-TODO
+The label interactions leading to changelog sections are roughly as follows:
 
-Documentation
--------------
-
-.. include:: README.md
-   :parser: myst_parser.sphinx_
+- ``minor`` / ``enhancement`` -> 'Feature'
+- ``patch`` / ``bug`` -> 'Bug Fix'
+- ``documentation`` -> 'Documentation'
+- ``internal`` -> 'Internal' (ONLY if no other above labels are present; e.g., `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under 'Bug Fix' instead of 'Internal')

@@ -56,9 +56,9 @@ python_maximum_signature_line_length = 88
 linkcheck_anchors = False
 linkcheck_ignore = []
 
-# Disable sidebars for specific sections
+# Disable left (Section Navigation) sidebars for specific sections
 html_sidebars = {
-    'user_guide': [],
+    "user_guide": [],
     "developer_guide": [],
 }
 
