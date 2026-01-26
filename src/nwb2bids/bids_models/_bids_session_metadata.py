@@ -16,7 +16,7 @@ from ._participant import Participant
 from ._probes import ProbeTable
 from .._converters._run_config import RunConfig
 from .._tools import cache_read_nwb
-from ..notifications import Category, DataStandard, Notification, Severity
+from ..notifications import Notification
 from ..sanitization import Sanitization
 
 
@@ -69,43 +69,13 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         # Check if values are specified
         internal_messages = []
         if self.session_id is None:
-            internal_messages.append(
-                Notification(
-                    title="Missing session ID",
-                    reason="A unique ID is required for all individual sessions.",
-                    solution="Specify the `session_id` field of the NWB file object.",
-                    field="nwbfile.session_id",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
-                    category=Category.SCHEMA_INVALIDATION,
-                    severity=Severity.CRITICAL,
-                )
-            )
+            notification = Notification.from_definition(identifier="MissingSessionID", source_file_paths=file_paths)
+            internal_messages.append(notification)
 
         # Check if specified values are valid
         if self.session_id is not None and re.match(pattern=f"{_VALID_ID_REGEX}$", string=self.session_id) is None:
-            internal_messages.append(
-                Notification(
-                    title="Invalid session ID",
-                    reason=(
-                        "The session ID contains invalid characters. "
-                        "BIDS allows only the plus sign to be used as a separator in the subject entity label. "
-                        "Underscores, dashes, spaces, slashes, and other special characters (including #) are "
-                        "expressly forbidden."
-                    ),
-                    solution="Rename the session without using any special characters except for `+`.",
-                    examples=[
-                        "`ses_01` -> `ses+01`",
-                        "`session #2` -> `session+2`",
-                        "`id 2 from 9/1/25` -> `id+2+9+1+25`",
-                    ],
-                    field="nwbfile.session_id",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
-                    category=Category.STYLE_SUGGESTION,
-                    severity=Severity.ERROR,
-                )
-            )
+            notification = Notification.from_definition(identifier="InvalidSessionID", source_file_paths=file_paths)
+            internal_messages.append(notification)
         self._internal_notifications = internal_messages
 
     @classmethod

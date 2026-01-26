@@ -20,43 +20,10 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.Notification(
-            title="Invalid species",
-            reason="Participant species is not a proper Latin binomial or NCBI Taxonomy id.",
-            solution=(
-                "Rename the subject species to a Latin binomial, obolibrary taxonomy link, or NCBI taxonomy "
-                "reference."
-            ),
-            examples=[],
-            field="nwbfile.subject.species",
-            source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.notifications.DataStandard.DANDI],
-            category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
-            severity=nwb2bids.notifications.Severity.ERROR,
-        ),
+        nwb2bids.Notification.from_definition(identifier="InvalidSpecies", source_file_paths=nwb_paths),
         nwb2bids.Notification.from_definition(identifier="InvalidParticipantID", source_file_paths=nwb_paths),
-        nwb2bids.Notification(
-            title="Invalid participant sex (BIDS)",
-            reason="Participant sex is not one of the allowed patterns by BIDS.",
-            solution="Rename the subject sex to be one of the accepted values.",
-            examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
-            field="nwbfile.subject.sex",
-            source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.notifications.DataStandard.BIDS],
-            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.notifications.Severity.ERROR,
-        ),
-        nwb2bids.Notification(
-            title="Invalid participant sex (archives)",
-            reason="Participant sex is not one of the allowed patterns by the common archives.",
-            solution="Rename the subject sex to be one of the accepted values.",
-            examples=["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
-            field="nwbfile.subject.sex",
-            source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.notifications.DataStandard.DANDI],
-            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.notifications.Severity.ERROR,
-        ),
+        nwb2bids.Notification.from_definition(identifier="InvalidParticipantSexBIDS", source_file_paths=nwb_paths),
+        nwb2bids.Notification.from_definition(identifier="InvalidParticipantSexArchives", source_file_paths=nwb_paths),
     ]
     assert notifications == expected_notifications
 
@@ -132,59 +99,10 @@ def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.Notification(
-            title="Missing participant sex",
-            reason="Archives such as DANDI or EMBER require the subject sex to be specified.",
-            solution=(
-                "Specify the `sex` field of the Subject object attached to the NWB file as one of four options: "
-                '"M" (for male), "F" (for female), "U" (for unknown), or "O" (for other).\nNOTE: for certain animal '
-                'species with more specific genetic determinants, such as C elegans, use "O" (for other) then further '
-                'specify the subtypes using other custom fields. For example, `c_elegans_sex="XO"`'
-            ),
-            examples=None,
-            field="nwbfile.subject.sex",
-            source_file_paths=nwb_paths,
-            target_file_paths=None,
-            data_standards=[nwb2bids.notifications.DataStandard.DANDI],
-            category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
-            severity=nwb2bids.notifications.Severity.CRITICAL,
-        ),
-        nwb2bids.Notification(
-            title="Missing participant species",
-            reason="Archives such as DANDI or EMBER require the subject species to be specified.",
-            solution=(
-                "Specify the `species` field of the Subject object attached to the NWB file as a Latin binomial, "
-                "obolibrary taxonomy link, or NCBI taxonomy reference."
-            ),
-            examples=None,
-            field="nwbfile.subject.species",
-            source_file_paths=nwb_paths,
-            target_file_paths=None,
-            data_standards=[nwb2bids.notifications.DataStandard.DANDI],
-            category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
-            severity=nwb2bids.notifications.Severity.CRITICAL,
-        ),
+        nwb2bids.Notification.from_definition(identifier="MissingParticipantSex", source_file_paths=nwb_paths),
+        nwb2bids.Notification.from_definition(identifier="MissingSpecies", source_file_paths=nwb_paths),
         nwb2bids.Notification.from_definition(identifier="InvalidParticipantID", source_file_paths=nwb_paths),
-        nwb2bids.Notification(
-            title="Invalid session ID",
-            reason=(
-                "The session ID contains invalid characters. "
-                "BIDS allows only the plus sign to be used as a separator in the subject entity label. "
-                "Underscores, dashes, spaces, slashes, and other special characters "
-                "(including #) are expressly forbidden."
-            ),
-            solution="Rename the session without using any special characters except for `+`.",
-            examples=[
-                "`ses_01` -> `ses+01`",
-                "`session #2` -> `session+2`",
-                "`id 2 from 9/1/25` -> `id+2+9+1+25`",
-            ],
-            field="nwbfile.session_id",
-            source_file_paths=nwb_paths,
-            data_standards=[nwb2bids.notifications.DataStandard.BIDS, nwb2bids.notifications.DataStandard.DANDI],
-            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.notifications.Severity.ERROR,
-        ),
+        nwb2bids.Notification.from_definition(identifier="InvalidSessionID", source_file_paths=nwb_paths),
     ]
     assert notifications == expected_notifications
 
@@ -196,18 +114,7 @@ def test_notifications_3(problematic_nwbfile_path_3: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.Notification(
-            title="Missing participant",
-            reason="BIDS requires a subject to be specified for each NWB file.",
-            solution="Add a Subject object to each NWB file.",
-            examples=None,
-            field="nwbfile.subject",
-            source_file_paths=nwb_paths,
-            target_file_paths=None,
-            data_standards=[nwb2bids.notifications.DataStandard.BIDS, nwb2bids.notifications.DataStandard.DANDI],
-            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.notifications.Severity.CRITICAL,
-        )
+        nwb2bids.Notification.from_definition(identifier="MissingParticipant", source_file_paths=nwb_paths),
     ]
     assert notifications == expected_notifications
 
@@ -219,17 +126,9 @@ def test_notifications_4(problematic_nwbfile_path_4: pathlib.Path, temporary_bid
 
     notifications = dataset_converter.notifications
     expected_notifications = [
-        nwb2bids.Notification(
-            title="Missing description",
-            reason="A basic description of this field is recommended to improve contextual understanding.",
-            solution="Add a description to the field.",
-            examples=None,
-            field="nwbfile.devices.DeviceWithoutDescription",
-            source_file_paths=None,
-            target_file_paths=None,
-            data_standards=[nwb2bids.notifications.DataStandard.BIDS, nwb2bids.notifications.DataStandard.NWB],
-            category=nwb2bids.notifications.Category.STYLE_SUGGESTION,
-            severity=nwb2bids.notifications.Severity.INFO,
-        )
+        nwb2bids.Notification.from_definition(
+            identifier="MissingDescription",
+            # source_file_paths=nwb_paths  # TODO: figure out better way of handling here
+        ),
     ]
     assert notifications == expected_notifications
