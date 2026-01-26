@@ -117,7 +117,7 @@ class ElectrodeTable(BaseMetadataContainerModel):
                     # electrode_shape=
                     # material=
                     location=(
-                        val if (val := str(electrode.location.values[0])) not in _NULL_LOCATION_PLACEHOLDERS else "n/a"
+                        "n/a" if (val := str(electrode.location.values[0])) in _NULL_LOCATION_PLACEHOLDERS else val
                     ),
                     # TODO: add extra columns
                 )
