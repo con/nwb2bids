@@ -1,4 +1,4 @@
-# Documentation
+# Building Documentation Locally
 
 To build the documentation, ensure you have all the necessary plugins installed:
 
