@@ -8,64 +8,14 @@ into BIDS-compliant sidecar files.
 
 For each type of metadata, we'll show:
 
-1. How to read the data directly from the NWB file using PyNWB.
-2. What the corresponding BIDS sidecar file contains.
-3. The mapping between NWB fields and BIDS fields.
+1. How to express the intended data fields of the NWB neurodata type using PyNWB.
+2. What the corresponding extracted BIDS sidecar file contains.
+
+This should help clarify the mapping between NWB and BIDS fields which ``nwb2bids`` handles.
 
 .. note::
 
     We'll use the same example data from the :ref:`tutorials` section to demonstrate the fine-grain file contents, so be sure to have those files generated before proceeding.
-
-
-Setup
------
-
-First, let's set up our environment and ensure we have the necessary files:
-
-.. code-block:: python
-
-    import pathlib
-    import json
-    import pandas as pd
-    import pynwb
-
-    # Paths to the tutorial data
-    tutorial_directory = pathlib.Path.home() / "nwb2bids_tutorials/ecephys_tutorial_file"
-    nwb_path = tutorial_directory / "ecephys.nwb"
-    bids_directory = tutorial_directory / "bids_dataset_py_1"
-
-.. invisible-code-block: python
-
-    # Ensure the files exist (for doc testing)
-    assert nwb_path.exists(), f"NWB file not found at {nwb_path}"
-    assert bids_directory.exists(), f"BIDS directory not found at {bids_directory}"
-
-
-
-Reading the NWB File
---------------------
-
-Let's open the NWB file and explore its contents:
-
-.. code-block:: python
-
-    # Open the NWB file for reading
-    io = pynwb.NWBHDF5IO(str(nwb_path), mode="r")
-    nwbfile = io.read()
-
-    # Display basic file information
-    print(f"Session ID: {nwbfile.session_id}")
-    print(f"Session description: {nwbfile.session_description}")
-    print(f"Subject ID: {nwbfile.subject.subject_id}")
-    print(f"Species: {nwbfile.subject.species}")
-    print(f"Sex: {nwbfile.subject.sex}")
-
-.. invisible-code-block: python
-
-    # Verify the file was opened correctly
-    assert nwbfile.session_id == "A"
-    assert nwbfile.subject.subject_id == "001"
-
 
 
 Probes (Devices)
@@ -74,61 +24,44 @@ Probes (Devices)
 In NWB, recording hardware is represented as ``Device`` objects. In the BIDS ``ecephys`` specification,
 these become entries in the ``probes.tsv`` and ``probes.json`` sidecar files.
 
-**Reading from NWB:**
+**NWB Device:**
 
 .. code-block:: python
 
-    # Access the devices in the NWB file
-    for device_name, device in nwbfile.devices.items():
-        print(f"Device name: {device_name}")
-        print(f"  Description: {device.description}")
-        print(f"  Manufacturer: {device.manufacturer}")
+    probe = pynwb.file.Device(
+        name="ExampleProbe",
+        description="A sample probe for demonstration purposes.",
+        manufacturer="nwb2bids",
+    )
 
 .. invisible-code-block: python
 
-    # Verify device data
-    assert "ExampleProbe" in nwbfile.devices
-    assert nwbfile.devices["ExampleProbe"].manufacturer == "`nwb2bids.testing` module"
+    assert probe.name == "ExampleProbe"
+    assert probe.description == "A sample probe for demonstration purposes."
+    assert probe.manufacturer == "An example manufacturer"
 
-**Corresponding BIDS sidecar:**
+**BIDS Probe:**
 
 The BIDS ``probes.tsv`` file contains a row for each probe:
 
-.. code-block:: python
+.. code-block:: tsv
 
-    # Read the BIDS probes.tsv file
-    probes_tsv_path = (
-        bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.tsv"
-    )
-    probes_df = pd.read_csv(probes_tsv_path, sep="\t")
-    print("\nBIDS probes.tsv:")
-    print(probes_df.to_string(index=False))
+    probe_name	type	manufacturer	description
+    ExampleProbe	n/a	`nwb2bids.testing` module	This is an example ecephys probe used for demonstration purposes.
 
 .. invisible-code-block: python
 
-    # Verify probe data was extracted correctly
-    assert len(probes_df) == 1
-    assert probes_df.iloc[0]["probe_name"] == "ExampleProbe"
+    # TODO: figure out how to read ground truth from above
+    electrodes_tsv_path = (
+        bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
+    )
+    bids_electrodes_df = pd.read_csv(electrodes_tsv_path, sep="\t")
 
 And the corresponding ``probes.json`` file provides detailed descriptions of each column:
 
-.. code-block:: python
+.. code-block:: json
 
-    # Read the BIDS probes.json file
-    probes_json_path = (
-        bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.json"
-    )
-    with open(probes_json_path, "r") as f:
-        probes_metadata = json.load(f)
-
-    print("\nBIDS probes.json:")
-    print(f"  Metadata keys: {list(probes_metadata.keys())}")
-    # Note: The JSON file may be empty ({}) if no additional column descriptions are needed
-
-.. invisible-code-block: python
-
-    # Verify metadata structure
-    assert isinstance(probes_metadata, dict)
+    {} # TODO: fix this
 
 **Mapping:**
 
