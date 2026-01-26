@@ -120,7 +120,6 @@ notification_definitions.update(
                 "Specify the `species` field of the Subject object attached to the NWB file as a Latin binomial, "
                 "obolibrary taxonomy link, or NCBI taxonomy reference."
             ),
-            "examples": ["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
             "field": "nwbfile.subject.species",
             "data_standards": [DataStandard.DANDI],
             "category": Category.SCHEMA_INVALIDATION,
