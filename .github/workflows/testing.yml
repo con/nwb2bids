@@ -29,6 +29,8 @@ on:
 jobs:
   run:
     runs-on: ${{ matrix.os }}
+    # macOS silican with Python 3.14 not supported due to numcodecs
+    if: ${{ !(matrix.os == 'macos-latest' && matrix.python == '3.14') }}
     strategy:
       fail-fast: false
       matrix:
