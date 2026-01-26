@@ -53,9 +53,9 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
                 field="nwbfile.subject.sex",
                 source_file_paths=None,
                 target_file_paths=None,
-                data_standards=[nwb2bids.DataStandard.DANDI],
-                category=nwb2bids.Category.SCHEMA_INVALIDATION,
-                severity=nwb2bids.Severity.CRITICAL,
+                data_standards=[nwb2bids.notifications.DataStandard.DANDI],
+                category=nwb2bids.notifications.Category.SCHEMA_INVALIDATION,
+                severity=nwb2bids.notifications.Severity.CRITICAL,
             ),
         ],
         participant_id="YutaMouse20",
@@ -79,7 +79,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.channel_table.channels[0] == nwb2bids.bids_models.Channel(
         name="ch000",
         electrode_name="e000",
-        type="N/A",
+        type="n/a",
         units="V",
         sampling_frequency=1250.0,
         stream_id="LFP",
@@ -91,7 +91,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     assert session_metadata.electrode_table.electrodes[0] == nwb2bids.bids_models.Electrode(
         name="e000",
         probe_name="Implant",
-        hemisphere="N/A",
+        hemisphere="n/a",
         x=numpy.nan,
         y=numpy.nan,
         z=numpy.nan,
@@ -114,8 +114,8 @@ def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_b
         title="INFO: invalid Dandiset metadata",
         reason="This Dandiset has invalid metadata.",
         solution="Required dataset description fields are inferred from the raw metadata instead.",
-        category=nwb2bids.Category.INTERNAL_ERROR,
-        severity=nwb2bids.Severity.INFO,
+        category=nwb2bids.notifications.Category.INTERNAL_ERROR,
+        severity=nwb2bids.notifications.Severity.INFO,
     )
 
     assert dataset_converter.dataset_description == nwb2bids.bids_models.DatasetDescription(

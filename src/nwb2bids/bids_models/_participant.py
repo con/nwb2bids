@@ -42,18 +42,8 @@ class Participant(BaseMetadataModel):
     def _check_fields(self, file_paths: list[pathlib.Path] | list[pydantic.HttpUrl]) -> None:
         # Check if values are specified
         if self.participant_id is None:
-            self.notifications.append(
-                Notification(
-                    title="Missing participant ID",
-                    reason="A unique ID is required for all individual participants.",
-                    solution="Specify the `subject_id` field of the Subject object attached to the NWB file.",
-                    field="nwbfile.subject.subject_id",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
-                    category=Category.SCHEMA_INVALIDATION,
-                    severity=Severity.CRITICAL,
-                )
-            )
+            notification = Notification.from_definition(identifier="MissingParticipantID", source_file_paths=file_paths)
+            self.notifications.append(notification)
         if self.species is None:
             self.notifications.append(
                 Notification(
@@ -95,28 +85,8 @@ class Participant(BaseMetadataModel):
             self.participant_id is not None
             and re.match(pattern=f"{_VALID_ID_REGEX}$", string=self.participant_id) is None
         ):
-            self.notifications.append(
-                Notification(
-                    title="Invalid participant ID",
-                    reason=(
-                        "The participant ID contains invalid characters. "
-                        "BIDS allows only the plus sign to be used as a separator in the subject entity label. "
-                        "Underscores, dashes, spaces, slashes, and other special characters (including #) are "
-                        "expressly forbidden."
-                    ),
-                    solution="Rename the subject without using any special characters except for `+`.",
-                    examples=[
-                        "`ab_01` -> `ab+01`",
-                        "`subject #2` -> `subject+2`",
-                        "`id 2 from 9/1/25` -> `id+2+9+1+25`",
-                    ],
-                    field="nwbfile.subject.subject_id",
-                    source_file_paths=file_paths,
-                    data_standards=[DataStandard.BIDS, DataStandard.DANDI],
-                    category=Category.STYLE_SUGGESTION,
-                    severity=Severity.ERROR,
-                )
-            )
+            notification = Notification.from_definition(identifier="InvalidParticipantID", source_file_paths=file_paths)
+            self.notifications.append(notification)
         if self.species is not None and re.match(pattern=_VALID_SPECIES_REGEX, string=self.species) is None:
             self.notifications.append(
                 Notification(
