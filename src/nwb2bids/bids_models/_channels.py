@@ -42,7 +42,7 @@ def _infer_scalar_field(
 class Channel(BaseMetadataModel):
     name: str
     electrode_name: str
-    type: str = "N/A"
+    type: str = "n/a"
     units: str = "V"
     sampling_frequency: float | None = None
     low_cutoff: float | None = None
@@ -140,7 +140,7 @@ class ChannelTable(BaseMetadataContainerModel):
                         else f"ch{str(electrode.index[0]).zfill(3)}"
                     ),
                     electrode_name=f"e{str(electrode.index[0]).zfill(3)}",
-                    type="N/A",  # TODO: in dedicated follow-up, could classify LFP based on container
+                    type="n/a",  # TODO: in dedicated follow-up, could classify LFP based on container
                     units="V",
                     sampling_frequency=sampling_frequency,
                     # channel_label: str | None = None # TODO: only support with additional metadata
