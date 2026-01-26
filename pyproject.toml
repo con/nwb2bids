@@ -214,7 +214,10 @@ disable_error_code = ["assignment", "arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["conftest"]
-disable_error_code = ["arg-type"]
+disable_error_code = [
+    "arg-type",
+    "attr-defined",  # Wrong; nested in Linux-only case
+]
 
 [[tool.mypy.overrides]]
 module = ["test_utils"]

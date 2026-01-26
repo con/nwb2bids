@@ -244,7 +244,7 @@ def ecephys_minimal_nwbfile_path(testing_files_directory: pathlib.Path) -> pathl
 
     number_of_electrodes = 8
     for index in range(number_of_electrodes):
-        nwbfile.add_electrode(location="unknown", group=shank)
+        nwbfile.add_electrode(location="n/a", group=shank)
 
     # Not even including an ElectricalSeries - just metadata
 
@@ -451,7 +451,7 @@ def problematic_nwbfile_path_4(testing_files_directory: pathlib.Path) -> pathlib
 
     device = pynwb.testing.mock.ecephys.mock_Device(name="DeviceWithoutDescription", description=None, nwbfile=nwbfile)
     group = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(device=device, nwbfile=nwbfile)
-    nwbfile.add_electrode(group=group, location="unknown")
+    nwbfile.add_electrode(group=group, location="n/a")
 
     problematic_subdirectory = testing_files_directory / "problematic"
     problematic_subdirectory.mkdir(exist_ok=True)
