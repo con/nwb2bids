@@ -38,6 +38,8 @@ jobs:
         exclude:
           - os: macos-latest
             python: '3.14'
+          - os: macos-15-intel
+            python: '3.14'
 
     steps:
       - name: Set up environment
