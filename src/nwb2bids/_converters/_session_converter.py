@@ -2,6 +2,7 @@ import collections
 import os
 import pathlib
 import shutil
+import sys
 import typing
 import warnings
 
@@ -164,7 +165,9 @@ class SessionConverter(BaseConverter):
                     file_stream.write(str(nwbfile_path))
                 continue
 
-            if self.run_config.file_mode == "copy":
+            if self.run_config.file_mode == "copy" and sys.version_info.major >= 3 and sys.version_info.minor >= 14:
+                nwbfile_path.copy(target=session_file_path, follow_symlinks=True)  # Uses copy-on-write when available
+            elif self.run_config.file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
             elif self.run_config.file_mode == "move":
                 shutil.move(src=nwbfile_path, dst=session_file_path)
