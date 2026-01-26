@@ -61,7 +61,7 @@ class Participant(BaseMetadataModel):
             notification = Notification.from_definition(identifier="InvalidParticipantID", source_file_paths=file_paths)
             self.notifications.append(notification)
         if self.species is not None and re.match(pattern=_VALID_SPECIES_REGEX, string=self.species) is None:
-            notification = Notification.from_definition(identifier="InvalidSpeciesID", source_file_paths=file_paths)
+            notification = Notification.from_definition(identifier="InvalidSpecies", source_file_paths=file_paths)
             self.notifications.append(notification)
         if self.sex is not None and _VALID_BIDS_SEXES.get(self.sex, None) is None:
             notification = Notification.from_definition(
