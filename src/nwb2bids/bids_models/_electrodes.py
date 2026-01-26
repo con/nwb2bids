@@ -18,9 +18,9 @@ class Electrode(BaseMetadataModel):
     x: float = numpy.nan
     y: float = numpy.nan
     z: float = numpy.nan
-    hemisphere: str = "N/A"
+    hemisphere: str = "n/a"
     impedance: float = numpy.nan  # in kOhms
-    shank_id: str = "N/A"
+    shank_id: str = "n/a"
     size: float | None = None  # in square micrometers
     electrode_shape: str | None = None
     material: str | None = None
@@ -164,7 +164,7 @@ class ElectrodeTable(BaseMetadataContainerModel):
         # Many columns are 'required' by BEP32 but are not always present in the source files or known at all
         required_columns = ["x", "y", "z", "impedance"]
         for column in required_columns:
-            data_frame[column] = data_frame[column].fillna(value="N/A")
+            data_frame[column] = data_frame[column].fillna(value="n/a")
         data_frame = data_frame.dropna(axis=1, how="all")
         data_frame.to_csv(file_path, sep="\t", index=False)
 

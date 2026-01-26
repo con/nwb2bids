@@ -43,7 +43,6 @@ class ProbeTable(BaseMetadataContainerModel):
     modality: typing.Literal["ecephys", "icephys"]
 
     def _check_fields(self) -> None:
-        # Check if values are specified
         self._internal_notifications = []
 
         probes_missing_description = [probe for probe in self.probes if probe.description is None]
@@ -149,9 +148,13 @@ class ProbeTable(BaseMetadataContainerModel):
         """
         file_path = pathlib.Path(file_path)
 
+        default_descriptions = {
+            "description": "Probe description from NWB file.",
+        }
+
         with file_path.open(mode="w") as file_stream:
             json.dump(
-                obj=dict(),  # TODO
+                obj={field: desc for field, desc in default_descriptions.items() if hasattr(self, field)},
                 fp=file_stream,
                 indent=4,
             )
