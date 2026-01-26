@@ -30,24 +30,24 @@ these become entries in the ``probes.tsv`` and ``probes.json`` sidecar files.
 
     probe = pynwb.file.Device(
         name="ExampleProbe",
-        description="A sample probe for demonstration purposes.",
-        manufacturer="nwb2bids",
+        description="This is an example ecephys probe used for demonstration purposes.",
+        manufacturer="`nwb2bids` test suite",
     )
 
 .. invisible-code-block: python
 
     assert probe.name == "ExampleProbe"
     assert probe.description == "A sample probe for demonstration purposes."
-    assert probe.manufacturer == "An example manufacturer"
+    assert probe.manufacturer == "`nwb2bids` test suite"
 
 **BIDS Probe:**
 
 The BIDS ``probes.tsv`` file contains a row for each probe:
 
-.. code-block:: tsv
+.. code-block:: text
 
     probe_name	type	manufacturer	description
-    ExampleProbe	n/a	`nwb2bids.testing` module	This is an example ecephys probe used for demonstration purposes.
+    ExampleProbe	n/a	`nwb2bids` test suite	This is an example ecephys probe used for demonstration purposes.
 
 .. invisible-code-block: python
 
@@ -59,9 +59,11 @@ The BIDS ``probes.tsv`` file contains a row for each probe:
 
 And the corresponding ``probes.json`` file provides detailed descriptions of each column:
 
+# TODO: fix this
+
 .. code-block:: json
 
-    {} # TODO: fix this
+    {}
 
 **Mapping:**
 
