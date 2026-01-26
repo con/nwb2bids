@@ -97,7 +97,7 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
         z=numpy.nan,
         impedance=-0.001,
         shank_id="shank1",
-        location="unknown",
+        location="n/a",
     )
 
 
