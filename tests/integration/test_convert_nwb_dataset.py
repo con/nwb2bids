@@ -238,14 +238,14 @@ def test_ecephys_minimal_convert_nwb_dataset(
     electrodes_tsv_lines = electrodes_tsv_file_path.read_text().splitlines()
     expected_electrodes_tsv_lines = [
         "name\tprobe_name\tx\ty\tz\themisphere\timpedance\tshank_id\tlocation",
-        "e000\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tunknown",
-        "e001\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tunknown",
-        "e002\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tunknown",
-        "e003\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tunknown",
-        "e004\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tunknown",
-        "e005\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tunknown",
-        "e006\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tunknown",
-        "e007\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tunknown",
+        "e000\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tn/a",
+        "e001\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tn/a",
+        "e002\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tn/a",
+        "e003\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tn/a",
+        "e004\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tn/a",
+        "e005\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tn/a",
+        "e006\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tn/a",
+        "e007\tExampleProbe\tn/a\tn/a\tn/a\tn/a\tn/a\tExampleShank\tn/a",
     ]
     assert electrodes_tsv_lines == expected_electrodes_tsv_lines
 

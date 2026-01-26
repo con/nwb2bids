@@ -11,6 +11,8 @@ import typing_extensions
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
+_NULL_LOCATION_PLACEHOLDERS = {"", "unknown", "no location", "N/A"}
+
 
 class Electrode(BaseMetadataModel):
     name: str
@@ -114,7 +116,9 @@ class ElectrodeTable(BaseMetadataContainerModel):
                     # size=
                     # electrode_shape=
                     # material=
-                    location=str(electrode.location.values[0]),
+                    location=(
+                        "n/a" if (val := str(electrode.location.values[0])) in _NULL_LOCATION_PLACEHOLDERS else val
+                    ),
                     # TODO: add extra columns
                 )
                 for electrode in nwbfile.electrodes
