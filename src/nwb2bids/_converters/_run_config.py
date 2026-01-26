@@ -40,6 +40,7 @@ class RunConfig(pydantic.BaseModel):
         Specifies how to handle the NWB files when converting to BIDS format.
             - "move": Move the files to the BIDS directory.
             - "copy": Copy the files to the BIDS directory.
+              Copy-on-write is supported and used on systems that allow it, but requires Python 3.14 to use.
             - "symlink": Create symbolic links to the files in the BIDS directory.
             - if not specified, decide between all the above based on the system,
               with preference for linking when possible.

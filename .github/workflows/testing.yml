@@ -34,6 +34,12 @@ jobs:
       matrix:
         os: ${{ fromJson(inputs.os_list) }}
         python: ${{ fromJson(inputs.python_list) }}
+        # macOS silican with Python 3.14 not supported due to numcodecs
+        exclude:
+          - os: macos-latest
+            python: '3.14'
+          - os: macos-15-intel
+            python: '3.14'
 
     steps:
       - name: Set up environment
