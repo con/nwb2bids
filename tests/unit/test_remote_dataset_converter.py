@@ -91,16 +91,10 @@ def test_remote_dataset_converter_initialization_on_invalid_metadata(temporary_b
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
         dandiset_id="000005", limit=2, run_config=run_config
     )
-    assert len(dataset_converter.notifications) == 1
-
     assert isinstance(dataset_converter, nwb2bids.DatasetConverter)
-    assert dataset_converter.notifications[0] == nwb2bids.Notification(
-        title="INFO: invalid Dandiset metadata",
-        reason="This Dandiset has invalid metadata.",
-        solution="Required dataset description fields are inferred from the raw metadata instead.",
-        category=nwb2bids.notifications.Category.INTERNAL_ERROR,
-        severity=nwb2bids.notifications.Severity.INFO,
-    )
+
+    expected_notifications = [nwb2bids.Notification.from_definition(identifier="InvalidDandisetMetadata")]
+    assert dataset_converter.notifications == expected_notifications
 
     assert dataset_converter.dataset_description == nwb2bids.bids_models.DatasetDescription(
         Name="Electrophysiology data from thalamic and cortical neurons during somatosensation",
