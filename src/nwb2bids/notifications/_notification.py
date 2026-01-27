@@ -1,3 +1,4 @@
+import copy
 import enum
 import json
 import pathlib
@@ -57,7 +58,7 @@ class Notification(pydantic.BaseModel):
         target_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
         traceback: str | None = None,
     ) -> typing_extensions.Self:
-        definition = notification_definitions[identifier]
+        definition = copy.deepcopy(notification_definitions[identifier])
 
         if traceback is not None:
             definition["reason"] += f"\n\n{traceback}"
