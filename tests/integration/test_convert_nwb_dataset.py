@@ -147,6 +147,18 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 
+    probes_json_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.json"
+    probes_json = json.loads(probes_json_file_path.read_text())
+    expected_probes_json = {
+        "description": {"Description": "Probe description from NWB file.", "LongName": "Description"},
+        "probe_name": {
+            "Description": "A unique identifier of the probe, can be " "identical with the device_serial_number.",
+            "LongName": "Probe name",
+        },
+        "type": {"Description": "The type of the probe.", "LongName": "Type"},
+    }
+    assert probes_json == expected_probes_json
+
     electrodes_tsv_file_path = (
         temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
     )
@@ -164,6 +176,13 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     ]
     assert electrodes_tsv_lines == expected_electrodes_tsv_lines
 
+    electrodes_json_file_path = (
+        temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.json"
+    )
+    electrodes_json = json.loads(electrodes_json_file_path.read_text())
+    expected_electrodes_json = {}
+    assert electrodes_json == expected_electrodes_json
+
     channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
@@ -178,6 +197,11 @@ def test_ecephys_tutorial_convert_nwb_dataset(
         "ch007\te007\tn/a\tV\t30000.0\tExampleElectricalSeries\t3.02734375e-06",
     ]
     assert channels_tsv_lines == expected_channels_tsv_lines
+
+    channels_json_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.json"
+    channels_json = json.loads(channels_json_file_path.read_text())
+    expected_channels_json = {}
+    assert channels_json == expected_channels_json
 
 
 def test_ecephys_minimal_convert_nwb_dataset(
