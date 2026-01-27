@@ -11,7 +11,7 @@ from ._run_config import RunConfig
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..notifications import Category, Notification, Severity
+from ..notifications import Notification
 
 
 class DatasetConverter(BaseConverter):
@@ -117,18 +117,10 @@ class DatasetConverter(BaseConverter):
             dataset_converter._internal_notifications = _internal_notifications
             return dataset_converter
         except Exception:  # noqa
-            _internal_notifications = [
-                Notification(
-                    title="Failed to initialize converter on remote Dandiset",
-                    reason=(
-                        "An error occurred while executing `DatasetConverter.from_remote_dandiset`."
-                        f"\n\n{traceback.format_exc()}"
-                    ),
-                    solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
-                    category=Category.INTERNAL_ERROR,
-                    severity=Severity.ERROR,
-                )
-            ]
+            notification = Notification.from_definition(
+                identifier="RemoteInitializationFailure", traceback=traceback.format_exc()
+            )
+            _internal_notifications = [notification]
 
             dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
 
@@ -176,18 +168,11 @@ class DatasetConverter(BaseConverter):
             dataset_converter._internal_notifications = session_messages
             return dataset_converter
         except Exception:  # noqa
-            _internal_notifications = [
-                Notification(
-                    title="Failed to initialize converter on local NWB files",
-                    reason=(
-                        "An error occurred while executing `DatasetConverter.from_nwb_paths`."
-                        f"\n\n{traceback.format_exc()}"
-                    ),
-                    solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
-                    category=Category.INTERNAL_ERROR,
-                    severity=Severity.ERROR,
-                )
-            ]
+            notification = Notification.from_definition(
+                identifier="LocalInitializationFailure", traceback=traceback.format_exc()
+            )
+            _internal_notifications = [notification]
+
             dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
             dataset_converter._internal_notifications = _internal_notifications
             return dataset_converter
@@ -203,15 +188,8 @@ class DatasetConverter(BaseConverter):
                 maxlen=0,
             )
         except Exception:  # noqa
-            notification = Notification(
-                title="Failed to extract metadata for one or more sessions",
-                reason=(
-                    "An error occurred while executing `DatasetConverter.extract_metadata`."
-                    f"\n\n{traceback.format_exc()}"
-                ),
-                solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
-                category=Category.INTERNAL_ERROR,
-                severity=Severity.ERROR,
+            notification = Notification.from_definition(
+                identifier="MetadataExtractionFailure", traceback=traceback.format_exc()
             )
             self._internal_notifications.append(notification)
 
@@ -225,15 +203,8 @@ class DatasetConverter(BaseConverter):
             self.write_sessions_metadata()
             self.write_dataset_description()
         except Exception:  # noqa
-            notification = Notification(
-                title="Failed to convert to BIDS dataset",
-                reason=(
-                    "An error occurred while executing `DatasetConverter.convert_to_bids_dataset`."
-                    f"\n\n{traceback.format_exc()}"
-                ),
-                solution="Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
-                category=Category.INTERNAL_ERROR,
-                severity=Severity.ERROR,
+            notification = Notification.from_definition(
+                identifier="LocalInitializationFailure", traceback=traceback.format_exc()
             )
             self._internal_notifications.append(notification)
         finally:

@@ -4,7 +4,7 @@ import pydantic
 
 from ..bids_models import DatasetDescription
 from ..bids_models._model_globals import _BIDS_RRID
-from ..notifications import Category, Notification, Severity
+from ..notifications import Notification
 
 
 def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, list[Notification]]:
@@ -27,13 +27,7 @@ def get_bids_dataset_description(dandiset) -> tuple[DatasetDescription | None, l
         )
         notifications.extend(internal_messages)
 
-        notification = Notification(
-            title="INFO: invalid Dandiset metadata",
-            reason="This Dandiset has invalid metadata.",
-            solution="Required dataset description fields are inferred from the raw metadata instead.",
-            category=Category.INTERNAL_ERROR,
-            severity=Severity.INFO,
-        )
+        notification = Notification.from_definition(identifier="InvalidDandisetMetadata")
         notifications.append(notification)
 
     return dataset_description, notifications
@@ -109,13 +103,7 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
         if len(license) == 1:
             dataset_description_kwargs["License"] = license[0].split(":")[-1]
         else:
-            notification = Notification(
-                title="WARNING: multiple licenses not supported",
-                reason="DANDI metadata supports multiple licenses, but BIDS only supports one license.",
-                solution="Manually specify the license in the dataset_description.json file after conversion.",
-                category=Category.SCHEMA_INVALIDATION,
-                severity=Severity.WARNING,
-            )
+            notification = Notification.from_definition(identifier="MultipleLicenses")
             notifications.append(notification)
 
     dataset_description = DatasetDescription(**dataset_description_kwargs)

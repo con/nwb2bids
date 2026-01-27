@@ -4,6 +4,20 @@ from ._types import Category, DataStandard, Severity
 
 notification_definitions: dict[str, dict[str, typing.Any]] = {}
 
+# BIDS Dataset description
+notification_definitions.update(
+    {
+        "MultipleLicenses": {
+            "title": "WARNING: multiple licenses not supported",
+            "reason": "DANDI metadata supports multiple licenses, but BIDS only supports one license.",
+            "solution": "Manually specify the license in the dataset_description.json file after conversion.",
+            "data_standards": [DataStandard.BIDS],
+            "category": Category.SCHEMA_INVALIDATION,
+            "severity": Severity.WARNING,
+        },
+    }
+)
+
 # Session ID
 notification_definitions.update(
     {
@@ -137,6 +151,17 @@ notification_definitions.update(
             "category": Category.SCHEMA_INVALIDATION,
             "severity": Severity.ERROR,
         },
+        "MultipleNWB:Participant": {
+            "title": "NotImplemented: multiple NWB files",
+            "reason": (
+                "The `Participant` model for `nwb2bids` does not yet support multiple NWB files. "
+                "Only the first will be used."
+            ),
+            "solution": "`nwb2bids` plans to add support for multiple NWB files in the future.",
+            "data_standards": [DataStandard.DANDI],
+            "category": Category.INTERNAL_ERROR,
+            "severity": Severity.ERROR,
+        },
     }
 )
 
@@ -165,6 +190,40 @@ notification_definitions.update(
                 "please raise an issue on https://github.com/con/nwb2bids/issues/new to discuss the use case."
             ),
             "solution": "Skip the conversion of this Dandiset.",
+            "category": Category.INTERNAL_ERROR,
+            "severity": Severity.ERROR,
+        },
+        "InvalidDandisetMetadata": {
+            "title": "INFO: invalid Dandiset metadata",
+            "reason": "This Dandiset has invalid metadata.",
+            "solution": "Required dataset description fields are inferred from the raw metadata instead.",
+            "category": Category.INTERNAL_ERROR,
+            "severity": Severity.INFO,
+        },
+        "MetadataExtractionFailure": {
+            "title": "Failed to extract metadata for one or more sessions",
+            "reason": "Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
+            "solution": "Required dataset description fields are inferred from the raw metadata instead.",
+            "category": Category.INTERNAL_ERROR,
+            "severity": Severity.ERROR,
+        },
+    }
+)
+
+# Internal
+notification_definitions.update(
+    {
+        "RemoteInitializationFailure": {
+            "title": "Failed to initialize converter on remote Dandiset",
+            "reason": "An error occurred while executing `DatasetConverter.from_remote_dandiset`.",
+            "solution": "Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
+            "category": Category.INTERNAL_ERROR,
+            "severity": Severity.ERROR,
+        },
+        "LocalInitializationFailure": {
+            "title": "Failed to initialize converter on local NWB files.",
+            "reason": "An error occurred while executing `DatasetConverter.from_nwb_paths`.",
+            "solution": "Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
             "category": Category.INTERNAL_ERROR,
             "severity": Severity.ERROR,
         },
