@@ -311,8 +311,6 @@ And the corresponding ``electrodes.json`` file provides detailed descriptions of
         - ``y``
       * - ``electrode.z``
         - ``z``
-      * - ``electrode.z``
-        - ``z``
       * - | ~Not Yet Implemented~
           | Please directly edit the file(s)
           | or `Request This Feature <request-feature_>`_
