@@ -92,6 +92,15 @@ The ``sessions.tsv`` file contains a row for each session of a subject:
 .. literalinclude:: ./expected_files/sub-001_sessions.tsv
    :language: text
 
+.. invisible-code-block: python
+
+   test_sessions_tsv_path = bids_directory / "sub-001" / "sub-001_sessions.tsv"
+   expected_sessions_tsv_path = expected_files / "sub-001_sessions.tsv"
+
+   test_bytes = test_sessions_tsv_path.read_bytes()
+   expected_bytes = expected_sessions_tsv_path.read_bytes()
+   assert test_bytes == expected_bytes
+
 **BIDS Participants:**
 
 The ``participants.tsv`` file contains a row for each subject:
