@@ -7,7 +7,7 @@ import typing_extensions
 
 from ._model_globals import _VALID_ARCHIVES_SEXES, _VALID_BIDS_SEXES, _VALID_ID_REGEX, _VALID_SPECIES_REGEX
 from ..bids_models._base_metadata_model import BaseMetadataModel
-from ..notifications import Category, Notification, Severity
+from ..notifications import Notification
 
 
 class Participant(BaseMetadataModel):
@@ -85,19 +85,10 @@ class Participant(BaseMetadataModel):
 
         notifications = []
         if len(nwbfiles) > 1:
-            notifications.append(
-                Notification(
-                    title="NotImplemented: multiple NWB files",
-                    reason=(
-                        "The `Participant` model for `nwb2bids` does not yet support multiple NWB files. "
-                        "Only the first will be used."
-                    ),
-                    solution="`nwb2bids` plans to add support for multiple NWB files in the future.",
-                    source_file_paths=file_paths,
-                    category=Category.INTERNAL_ERROR,
-                    severity=Severity.ERROR,
-                )
+            notification = Notification.from_definition(
+                identifier="MultipleNWB:Participant", source_file_paths=file_paths
             )
+            notifications.append(notification)
 
         nwbfile = nwbfiles[0]
 

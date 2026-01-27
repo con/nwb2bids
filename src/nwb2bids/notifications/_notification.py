@@ -1,3 +1,4 @@
+import copy
 import enum
 import json
 import pathlib
@@ -55,12 +56,18 @@ class Notification(pydantic.BaseModel):
         identifier: str,
         source_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
         target_file_paths: list[pathlib.Path] | list[pydantic.HttpUrl] | None = None,
+        traceback: str | None = None,
     ) -> typing_extensions.Self:
+        definition = copy.deepcopy(notification_definitions[identifier])
+
+        if traceback is not None:
+            definition["reason"] += f"\n\n{traceback}"
+
         return cls(
             identifier=identifier,
             source_file_paths=source_file_paths,
             target_file_paths=target_file_paths,
-            **notification_definitions[identifier],
+            **definition,
         )
 
     # TODO: remove this when/if PyNWB fixes source container for remfile objects
