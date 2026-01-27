@@ -434,7 +434,9 @@ And the corresponding ``channels.json`` file provides detailed descriptions of e
           | Please directly edit the file(s)
           | or `Request This Feature <request-feature_>`_
         - ``description``
-      * - ``electrode.location``
+     * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
         - ``software_filter_types``
       * - | ~Not Yet Implemented~
           | Please directly edit the file(s)
