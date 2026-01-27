@@ -84,7 +84,6 @@ def sybil_setup(namespace):
     tutorial_nwbfile = pynwb.read_nwb(path=tutorial_nwbfile_path)
     namespace["tutorial_nwbfile"] = tutorial_nwbfile
 
-    # namespace["nwbfile"] = pynwb.testing.mock.file.mock_NWBFile()
     namespace["expected_files"] = expected_files
 
 
