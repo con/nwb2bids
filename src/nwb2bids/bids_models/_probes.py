@@ -2,7 +2,6 @@ import collections
 import json
 import pathlib
 import typing
-from typing import Any
 
 import pandas
 import pydantic
@@ -179,15 +178,8 @@ class ProbeTable(BaseMetadataContainerModel):
             )
             self._internal_notifications.append(notification)
 
-    def model_post_init(self, context: Any, /) -> None:
+    def model_post_init(self, context: typing.Any, /) -> None:
         self._check_fields()
-
-        self._non_defaulted_probe_fields = {
-            field
-            for probe in self.probes
-            for field, value in probe.model_dump().items()
-            if value is not None and field != getattr(probe.model_fields.get(field, []), "default", None) is not None
-        }
 
     @pydantic.computed_field
     @property
@@ -274,17 +266,23 @@ class ProbeTable(BaseMetadataContainerModel):
         """
         file_path = pathlib.Path(file_path)
 
-        probe_fields = Probe.model_fields
+        non_defaulted_fields = {
+            field
+            for probe in self.probes
+            for field, value in probe.model_dump().items()
+            if value is not None and field != getattr(Probe.model_fields.get(field, []), "default", None) is not None
+        }
+
+        json_content: dict[str, dict[str, typing.Any]] = collections.defaultdict(dict)
+        for field in non_defaulted_fields:
+            if title := getattr(Probe.model_fields[field], "title"):
+                json_content[field]["LongName"] = title
+            if description := getattr(Probe.model_fields[field], "description"):
+                json_content[field]["Description"] = description
+
         default_descriptions = {
             "description": {"Description": "Probe description from NWB file.", "LongName": "Description"}
         }
-
-        json_content: dict[str, dict[str, Any]] = collections.defaultdict(dict)
-        for field in self._non_defaulted_probe_fields:
-            if title := getattr(probe_fields[field], "title"):
-                json_content[field]["LongName"] = title
-            if description := getattr(probe_fields[field], "description"):
-                json_content[field]["Description"] = description
         json_content.update(default_descriptions)
 
         if "hemisphere" in json_content:
