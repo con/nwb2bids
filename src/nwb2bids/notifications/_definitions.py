@@ -202,8 +202,8 @@ notification_definitions.update(
         },
         "MetadataExtractionFailure": {
             "title": "Failed to extract metadata for one or more sessions",
-            "reason": "Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
-            "solution": "Required dataset description fields are inferred from the raw metadata instead.",
+            "reason": "Required dataset description fields are inferred from the raw metadata instead.",
+             "solution": "Please raise an issue on `nwb2bids`: https://github.com/con/nwb2bids/issues.",
             "category": Category.INTERNAL_ERROR,
             "severity": Severity.ERROR,
         },
