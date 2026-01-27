@@ -1,0 +1,2 @@
+probe_name	type	manufacturer	description
+ExampleProbe	n/a	`nwb2bids` test suite	This is an example ecephys probe used for demonstration purposes.

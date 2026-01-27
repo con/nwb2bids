@@ -1,0 +1,9 @@
+name	probe_name	x	y	z	hemisphere	impedance	shank_id	location
+e000	ExampleProbe	n/a	n/a	n/a	n/a	150.0	ExampleShank	hippocampus
+e001	ExampleProbe	n/a	n/a	n/a	n/a	150.0	ExampleShank	hippocampus
+e002	ExampleProbe	n/a	n/a	n/a	n/a	150.0	ExampleShank	hippocampus
+e003	ExampleProbe	n/a	n/a	n/a	n/a	150.0	ExampleShank	hippocampus
+e004	ExampleProbe	n/a	n/a	n/a	n/a	150.0	ExampleShank	hippocampus
+e005	ExampleProbe	n/a	n/a	n/a	n/a	150.0	ExampleShank	hippocampus
+e006	ExampleProbe	n/a	n/a	n/a	n/a	150.0	ExampleShank	hippocampus
+e007	ExampleProbe	n/a	n/a	n/a	n/a	150.0	ExampleShank	hippocampus

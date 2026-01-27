@@ -7,21 +7,25 @@ Developer Guide
 Design
 ------
 
-For **basic users**, ``nwb2bids`` is intended to be a simple-to-use tool for converting NWB datasets to BIDS format
+For **basic users**, **nwb2bids** is intended to be a simple-to-use tool for converting NWB datasets to near-BIDS format
 with minimal user configuration.
 
-For **advanced users**, ``nwb2bids`` is designed to be easily extensible to support new NWB data types, BIDS extensions,
+For **advanced users**, **nwb2bids** is designed to be easily extensible to support new NWB data types, BIDS extensions,
 and custom configurable behavior.
 
 Whenever working on a new feature, keep in mind how to make it easy to understand and use for the **basic users**,
 while still being flexible enough for the **advanced users**.
+
+**nwb2bids** makes every effort to collect and return all errors, warnings, and informational messages encountered during conversion
+to the user at the end of the process, rather than stopping at the first error. This provides a comprehensive
+overview of all issues that need to be addressed.
 
 
 
 Philosophy
 ----------
 
-``nwb2bids`` is also designed with the following principles in mind:
+**nwb2bids** is also designed with the following principles in mind:
 
 - **Modularity**: The codebase is organized into clear, modular components that encapsulate specific functionality. This makes it easier to maintain, test, and extend the code.
 
@@ -49,7 +53,7 @@ Tests are organized into three categories:
 Some tests are marked as ``remote`` when they require downloading data from remote sources (e.g., DANDI Archive).
 
 Running Tests Locally
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
 
@@ -226,17 +230,20 @@ about...") since these titles become changelog entries.
 
 The label interactions leading to changelog sections are roughly as follows:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 20 60
+.. container:: table-wrapper
 
-   * - PR Labels
-     - Changelog Section
-   * - ``minor`` / ``enhancement``
-     - Feature
-   * - ``patch`` / ``bug``
-     - Bug Fix
-   * - ``documentation``
-     - Documentation
-   * - ``internal``
-     - Internal (Only if no other labels above are present (*e.g.*, `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under "Bug Fix")
+    .. list-table::
+       :header-rows: 1
+
+       * - PR Labels
+         - Changelog Section
+       * - ``minor`` or ``enhancement``
+         - Feature
+       * - ``patch`` or ``bug``
+         - Bug Fix
+       * - ``documentation``
+         - Documentation
+       * - ``internal``
+         - Internal [#internal-note]_
+
+.. [#internal-note] Only if no other labels above are present (*e.g.*, `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under "Bug Fix")

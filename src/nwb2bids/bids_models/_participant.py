@@ -38,6 +38,7 @@ class Participant(BaseMetadataModel):
         ),
         default=None,
     )
+    # TODO: age (current BIDS is numeric in years, not required)
 
     def _check_fields(self, file_paths: list[pathlib.Path] | list[pydantic.HttpUrl]) -> None:
         # Check if values are specified

@@ -1,3 +1,7 @@
+.. _request-feature: https://github.com/con/nwb2bids/issues/new?title=Support%20more%20additional%20metadata&body=Please%20add%20more%20options%20for%20including%20additional%20metadata%20per%20session.&labels=enhancement
+
+
+
 .. _conversion_gallery:
 
 Conversion Gallery
@@ -11,308 +15,108 @@ For each type of metadata, we'll show:
 1. How to express the intended data fields of the NWB neurodata type using PyNWB.
 2. What the corresponding extracted BIDS sidecar file contains.
 
-This should help clarify the mapping between NWB and BIDS fields which ``nwb2bids`` handles.
+This should help clarify the mapping between NWB and BIDS fields which **nwb2bids** handles.
 
 .. note::
 
-    We'll use the same example data from the :ref:`tutorials` section to demonstrate the fine-grain file contents, so be sure to have those files generated before proceeding.
-
-
-Probes (Devices)
-----------------
-
-In NWB, recording hardware is represented as ``Device`` objects. In the BIDS ``ecephys`` specification,
-these become entries in the ``probes.tsv`` and ``probes.json`` sidecar files.
-
-**NWB Device:**
-
-.. code-block:: python
-
-    probe = pynwb.file.Device(
-        name="ExampleProbe",
-        description="This is an example ecephys probe used for demonstration purposes.",
-        manufacturer="`nwb2bids` test suite",
-    )
-
-.. invisible-code-block: python
-
-    assert probe.name == "ExampleProbe"
-    assert probe.description == "A sample probe for demonstration purposes."
-    assert probe.manufacturer == "`nwb2bids` test suite"
-
-**BIDS Probe:**
-
-The BIDS ``probes.tsv`` file contains a row for each probe:
-
-.. code-block:: text
-
-    probe_name	type	manufacturer	description
-    ExampleProbe	n/a	`nwb2bids` test suite	This is an example ecephys probe used for demonstration purposes.
-
-.. invisible-code-block: python
-
-    # TODO: figure out how to read ground truth from above
-    electrodes_tsv_path = (
-        bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
-    )
-    bids_electrodes_df = pd.read_csv(electrodes_tsv_path, sep="\t")
-
-And the corresponding ``probes.json`` file provides detailed descriptions of each column:
-
-# TODO: fix this
-
-.. code-block:: json
-
-    {}
-
-**Mapping:**
-
-.. list-table::
-   :header-rows: 1
-   :widths: 40 60
-
-   * - NWB Field
-     - BIDS Field
-   * - ``Device.name``
-     - ``probe_name``
-   * - ``Device.description``
-     - ``description`` (in JSON)
-   * - ``Device.manufacturer``
-     - ``manufacturer``
+   We'll use the same example data from the :ref:`tutorials` section to demonstrate the fine-grain file contents, so
+   be sure to have those files generated before proceeding.
 
 
 
-Electrodes
-----------
+Dataset Description
+-------------------
 
-Electrodes represent the individual recording sites on a probe. In NWB, these are stored in the
-``electrodes`` table. In BIDS, they appear in the ``electrodes.tsv`` and ``electrodes.json`` files.
+The ``dataset_description.json`` file at the root of the BIDS dataset contains high-level metadata
+about the entire dataset. Unless you are converting a dataset that has already been uploaded to DANDI (and thus
+may contain several high-level metadata fields not found in any individual files), this information
+must be provided via the additional metadata feature (see :ref:`tutorial-additional-metadata`).
 
-**Reading from NWB:**
+A typical ``dataset_description.json`` file might look like:
+
+.. literalinclude:: ./expected_files/dataset_description.json
+   :language: json
+
+.. hint::
+
+   If you are using the :meth:`nwb2bids.DatasetConverter.from_remote_dandiset` method, this file should be autopopulated for you with as much metadata as could be inferred from the DANDI API.
+
+
+
+Subjects & Sessions
+-------------------
+
+In a single NWB file (which can typically represent a single 'session'), subject-level metadata is attached as a
+singular ``Subject`` object. In BIDS, information about all subjects in the dataset is collected in the top-level
+``participants.tsv`` and ``participants.json`` files, while session-level metadata goes into per-subject
+``sessions.tsv`` and ``sessions.json`` sidecar files.
+
+**NWB Session:**
 
 .. code-block:: python
 
-    # Access the electrodes table
-    electrodes_table = nwbfile.electrodes.to_dataframe()
-    print(f"\nNWB electrodes table ({len(electrodes_table)} electrodes):")
-    print(electrodes_table[["location", "group_name", "imp", "filtering"]].head())
+   nwbfile = pynwb.file.NWBFile(
+      session_id="A",
+      session_start_time=datetime.datetime(1970, 1, 1, tzinfo=dateutil.tz.tzutc()),
+      session_description="An example NWB file containing ecephys neurodata types - for use in the nwb2bids tutorials.",
+      identifier=uuid.uuid4().hex,
+   )
 
 .. invisible-code-block: python
 
-    # Verify electrode data
-    assert len(electrodes_table) == 8
-    assert electrodes_table["location"].iloc[0] == "hippocampus"
+   assert nwbfile.session_id == tutorial_nwbfile.session_id
+   assert nwbfile.session_start_time == tutorial_nwbfile.session_start_time, f"{nwbfile.session_start_time} != {tutorial_nwbfile.session_start_time}"
+   assert nwbfile.session_description == tutorial_nwbfile.session_description
 
-**Corresponding BIDS sidecar:**
+**NWB Subject:**
 
 .. code-block:: python
 
-    # Read the BIDS electrodes.tsv file
-    electrodes_tsv_path = (
-        bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
-    )
-    bids_electrodes_df = pd.read_csv(electrodes_tsv_path, sep="\t")
-    print("\nBIDS electrodes.tsv (first 5 rows):")
-    print(bids_electrodes_df.head().to_string(index=False))
+   subject = pynwb.file.Subject(
+      subject_id="001",
+      sex="M",
+      species="Mus musculus",
+   )
+   nwbfile.subject = subject
 
 .. invisible-code-block: python
 
-    # Verify electrode extraction
-    assert len(bids_electrodes_df) == 8
-    assert "name" in bids_electrodes_df.columns
-    assert "probe_name" in bids_electrodes_df.columns
+   assert nwbfile.subject.subject_id == tutorial_nwbfile.subject.subject_id
+   assert nwbfile.subject.sex == tutorial_nwbfile.subject.sex
+   assert nwbfile.subject.species == tutorial_nwbfile.subject.species
 
-The ``electrodes.json`` file provides metadata about the columns:
+**BIDS Sessions:**
 
-.. code-block:: python
+The ``sessions.tsv`` file contains a row for each session of a subject:
 
-    # Read the BIDS electrodes.json file
-    electrodes_json_path = (
-        bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.json"
-    )
-    with open(electrodes_json_path, "r") as f:
-        electrodes_metadata = json.load(f)
+.. literalinclude:: ./expected_files/sub-001_sessions.tsv
+   :language: text
 
-    print("\nBIDS electrodes.json:")
-    print(f"  Metadata keys: {list(electrodes_metadata.keys())}")
-    # Note: The JSON file may be empty ({}) if no additional column descriptions are needed
+**BIDS Participants:**
 
-.. invisible-code-block: python
+The ``participants.tsv`` file contains a row for each subject:
 
-    # Verify metadata structure
-    assert isinstance(electrodes_metadata, dict)
+.. literalinclude:: ./expected_files/participants.tsv
+   :language: text
 
-**Mapping:**
+.. note::
 
-.. list-table::
-   :header-rows: 1
-   :widths: 40 60
-
-   * - NWB Field
-     - BIDS Field
-   * - ``electrodes.id``
-     - ``name`` (electrode identifier)
-   * - ``electrodes.group.device.name``
-     - ``probe_name``
-   * - ``electrodes.location``
-     - ``location``
-   * - ``electrodes.imp``
-     - ``impedance`` (in kOhms)
-   * - ``electrodes.x``
-     - ``x`` (in micrometers)
-   * - ``electrodes.y``
-     - ``y`` (in micrometers)
-   * - ``electrodes.z``
-     - ``z`` (in micrometers)
-   * - ``electrodes.group.name``
-     - ``shank_id``
-
-
-
-Channels
---------
-
-Channels represent the data streams recorded from electrodes. In NWB, this information is often distributed
-across ``ElectricalSeries`` and the electrodes table. In BIDS, channels are described in ``channels.tsv``
-and ``channels.json``.
-
-**Reading from NWB:**
-
-.. code-block:: python
-
-    # Access electrical series (which links to electrodes/channels)
-    for name, series in nwbfile.acquisition.items():
-        if isinstance(series, pynwb.ecephys.ElectricalSeries):
-            print(f"\nElectricalSeries: {name}")
-            print(f"  Description: {series.description}")
-            print(f"  Sampling rate: {series.rate} Hz")
-            print(f"  Number of channels: {series.data.shape[1]}")
-            print(f"  Conversion factor: {series.conversion}")
-            print(f"  Data shape: {series.data.shape}")
+	The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
+	effort to produce valid files based on input data.
 
 .. invisible-code-block: python
 
-    # Verify electrical series data
-    assert "ExampleElectricalSeries" in nwbfile.acquisition
-    series = nwbfile.acquisition["ExampleElectricalSeries"]
-    assert series.rate == 30000.0
-    assert series.data.shape[1] == 8
+   test_participants_tsv_path = bids_directory / "participants.tsv"
+   expected_participants_tsv_path = expected_files / "participants.tsv"
 
-**Corresponding BIDS sidecar:**
+   test_bytes = test_participants_tsv_path.read_bytes()
+   expected_bytes = expected_participants_tsv_path.read_bytes()
+   assert test_bytes == expected_bytes
 
-.. code-block:: python
+And the corresponding ``participants.json`` file provides detailed descriptions of each column:
 
-    # Read the BIDS channels.tsv file
-    channels_tsv_path = (
-        bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
-    )
-    channels_df = pd.read_csv(channels_tsv_path, sep="\t")
-    print("\nBIDS channels.tsv (first 5 rows):")
-    print(channels_df.head().to_string(index=False))
-
-.. invisible-code-block: python
-
-    # Verify channel extraction
-    assert len(channels_df) == 8
-    assert "name" in channels_df.columns
-    assert "sampling_frequency" in channels_df.columns
-
-The ``channels.json`` file describes the channel metadata:
-
-.. code-block:: python
-
-    # Read the BIDS channels.json file
-    channels_json_path = (
-        bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.json"
-    )
-    with open(channels_json_path, "r") as f:
-        channels_metadata = json.load(f)
-
-    print("\nBIDS channels.json:")
-    print(f"  Metadata keys: {list(channels_metadata.keys())}")
-    # Note: The JSON file may be empty ({}) if no additional column descriptions are needed
-
-.. invisible-code-block: python
-
-    # Verify metadata structure
-    assert isinstance(channels_metadata, dict)
-
-**Mapping:**
-
-.. list-table::
-   :header-rows: 1
-   :widths: 40 60
-
-   * - NWB Field
-     - BIDS Field
-   * - ``ElectricalSeries.electrodes``
-     - ``electrode_name``
-   * - ``ElectricalSeries.rate``
-     - ``sampling_frequency``
-   * - ``ElectricalSeries.conversion``
-     - Used to determine ``units``
-   * - ``electrodes.filtering``
-     - ``low_cutoff`` / ``high_cutoff``
-
-
-
-Subject and Session Information
---------------------------------
-
-Subject-level metadata is stored in the ``participants.tsv`` file, while session-level metadata
-goes into the ``sessions.tsv`` file.
-
-**Reading from NWB:**
-
-.. code-block:: python
-
-    # Subject information
-    print("\nNWB Subject information:")
-    print(f"  Subject ID: {nwbfile.subject.subject_id}")
-    print(f"  Species: {nwbfile.subject.species}")
-    print(f"  Sex: {nwbfile.subject.sex}")
-
-    # Session information
-    print("\nNWB Session information:")
-    print(f"  Session ID: {nwbfile.session_id}")
-    print(f"  Session description: {nwbfile.session_description}")
-    print(f"  Session start time: {nwbfile.session_start_time}")
-
-.. invisible-code-block: python
-
-    # Verify subject and session data
-    assert nwbfile.subject.subject_id == "001"
-    assert nwbfile.session_id == "A"
-
-**Corresponding BIDS sidecar:**
-
-.. code-block:: python
-
-    # Read the BIDS participants.tsv file
-    participants_tsv_path = bids_directory / "participants.tsv"
-    participants_df = pd.read_csv(participants_tsv_path, sep="\t")
-    print("\nBIDS participants.tsv:")
-    print(participants_df.to_string(index=False))
-
-.. invisible-code-block: python
-
-    # Verify participants data
-    assert len(participants_df) == 1
-    assert participants_df.iloc[0]["participant_id"] == "sub-001"
-
-.. code-block:: python
-
-    # Read the BIDS sessions.tsv file
-    sessions_tsv_path = bids_directory / "sub-001" / "sub-001_sessions.tsv"
-    sessions_df = pd.read_csv(sessions_tsv_path, sep="\t")
-    print("\nBIDS sessions.tsv:")
-    print(sessions_df.to_string(index=False))
-
-.. invisible-code-block: python
-
-    # Verify sessions data
-    assert len(sessions_df) == 1
-    assert sessions_df.iloc[0]["session_id"] == "ses-A"
+.. literalinclude:: ./expected_files/participants.json
+   :language: json
 
 **Mapping:**
 
@@ -335,29 +139,317 @@ goes into the ``sessions.tsv`` file.
 
 
 
-Dataset Description
--------------------
+Ecephys Probes
+--------------
 
-The ``dataset_description.json`` file at the root of the BIDS dataset contains high-level metadata
-about the entire dataset.
+In NWB, recording hardware is represented as ``Device`` objects. In the BIDS ``ecephys`` specification,
+these become entries in the ``probes.tsv`` and ``probes.json`` sidecar files.
+
+**NWB Device:**
 
 .. code-block:: python
 
-    # Read the BIDS dataset_description.json file
-    dataset_desc_path = bids_directory / "dataset_description.json"
-    with open(dataset_desc_path, "r") as f:
-        dataset_description = json.load(f)
-
-    print("\nBIDS dataset_description.json:")
-    for key, value in dataset_description.items():
-        print(f"  {key}: {value}")
+   probe = pynwb.file.Device(
+      name="ExampleProbe",
+      description="This is an example ecephys probe used for demonstration purposes.",
+      manufacturer="`nwb2bids` test suite",
+   )
 
 .. invisible-code-block: python
 
-    # Verify dataset description
-    assert "Name" in dataset_description
-    assert "BIDSVersion" in dataset_description
-    # BIDSVersion is set by the tool to the current supported BIDS version
+   tutorial_probe = tutorial_nwbfile.devices["ExampleProbe"]
 
-This file can be augmented with additional metadata using the ``--additional-metadata-file-path`` option
-as shown in :ref:`tutorial-additional-metadata`.
+   assert probe.name == tutorial_probe.name
+   assert probe.manufacturer == tutorial_probe.manufacturer
+   assert probe.description == tutorial_probe.description
+
+**BIDS Probes:**
+
+The ``probes.tsv`` file contains a row for each probe:
+
+.. literalinclude:: ./expected_files/sub-001_ses-A_probes.tsv
+   :language: text
+
+.. note::
+
+	The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
+	effort to produce valid files based on input data.
+
+.. invisible-code-block: python
+
+   test_probes_tsv_path = (
+      bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.tsv"
+   )
+   expected_probes_tsv_path = expected_files / "sub-001_ses-A_probes.tsv"
+
+   test_frame = pandas.read_csv(filepath_or_buffer=test_probes_tsv_path, sep="\t")
+   expected_frame = pandas.read_csv(filepath_or_buffer=expected_probes_tsv_path, sep="\t")
+   pandas.testing.assert_frame_equal(left=test_frame, right=expected_frame)
+
+And the corresponding ``probes.json`` file provides detailed descriptions of each column:
+
+# TODO: fix this
+
+.. code-block:: json
+
+   {}
+
+**Mapping:**
+
+.. container:: table-wrapper
+
+   .. list-table::
+      :header-rows: 1
+
+      * - NWB Field
+        - BIDS Field
+      * - ``Device.name``
+        - ``probe_name``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``type``
+      * - ``Device.manufacturer``
+        - ``manufacturer``
+      * - ``Device.description``
+        - ``description``
+
+
+Ecephys Electrodes
+------------------
+
+Electrodes represent the physical recording sites on a probe. In classic NWB, these may be stored in the
+``electrodes`` table, which requires each electrode to also link to an ``ElectrodeGroup``, commonly interpreted as a
+traditional 'shank' in ecephys. In BIDS, they appear in the ``electrodes.tsv`` and ``electrodes.json`` sidecar files.
+
+.. note::
+
+    Certain special probes, such as Neuropixels, may overload the ``electrodes`` table to actually store information about each recording channel. In this case, a special column ``electrode.contact_id`` is used to distinguish physical contacts from recording channels.
+
+**NWB Electrode Table:**
+
+.. code-block:: python
+
+   shank = pynwb.ecephys.ElectrodeGroup(
+      name="ExampleShank",
+      description="This is an example electrode group (shank) used for demonstration purposes.",
+      location="hippocampus",
+      device=probe,
+   )
+   nwbfile.add_electrode_group(shank)
+
+   for _ in range(8):
+      nwbfile.add_electrode(
+         imp=150_000.0,
+         location="hippocampus",
+         group=shank,
+         filtering="HighpassFilter"
+      )
+
+.. invisible-code-block: python
+
+   for index in range(len(tutorial_nwbfile.electrodes)):
+      assert nwbfile.electrodes[index]["imp"].values[0] == tutorial_nwbfile.electrodes[index]["imp"].values[0]
+      assert nwbfile.electrodes[index]["location"].values[0] == tutorial_nwbfile.electrodes[index]["location"].values[0]
+      assert nwbfile.electrodes[index]["group"].values[0].name == tutorial_nwbfile.electrodes[index]["group"].values[0].name
+
+**BIDS Electrodes:**
+
+The ``electrodes.tsv`` file contains a row for each electrode:
+
+.. literalinclude:: ./expected_files/sub-001_ses-A_electrodes.tsv
+   :language: text
+
+You may notice many differences between the classic NWB electrode fields and the ``electrodes.tsv`` file. BIDS
+requires several fields that NWB does not, but their values may be set to ``n/a`` if they are not known. Additionally,
+NWB stores impedance values in units of Ohms, while BIDS expects kOhms - **nwb2bids** handles this conversion automatically.
+
+.. invisible-code-block: python
+
+   test_electrodes_tsv_path = (
+      bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
+   )
+   expected_electrodes_tsv_path = expected_files / "sub-001_ses-A_electrodes.tsv"
+
+   test_frame = pandas.read_csv(filepath_or_buffer=test_electrodes_tsv_path, sep="\t")
+   expected_frame = pandas.read_csv(filepath_or_buffer=expected_electrodes_tsv_path, sep="\t")
+   pandas.testing.assert_frame_equal(left=test_frame, right=expected_frame)
+
+And the corresponding ``electrodes.json`` file provides detailed descriptions of each column:
+
+# TODO: fix this
+
+.. code-block:: json
+
+   {}
+
+**Mapping:**
+
+.. container:: table-wrapper
+
+   .. list-table::
+      :header-rows: 1
+
+      * - NWB Field (Ecephys)
+        - BIDS Field
+      * - "e{``electrode.index``}"
+        - ``name``
+      * - ``electrode.group.device.name``
+        - ``probe_name``
+      * - ``electrode.x``
+        - ``x``
+      * - ``electrode.y``
+        - ``y``
+      * - ``electrode.z``
+        - ``z``
+      * - ``electrode.z``
+        - ``z``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``hemisphere``
+      * - ``electrode.imp`` (in Ohms)
+        - ``impedance`` (in kOhms)
+      * - ``electrode.group.name``
+        - ``shank_id``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``size``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``electrode_shape``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``material``
+      * - ``electrode.location``
+        - ``location``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``pipette_solution``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``internal_pipette_diameter``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``external_pipette_diameter``
+
+
+
+Ecephys Channels
+----------------
+
+Channels represent separate data streams recorded from the physical electrodes. In NWB, this information is often
+combined with the previously shown ``electrodes`` table and additional columns may be used to disambiguate physical
+contacts from recording channels. In BIDS, channels are described separately from electrodes via the ``channels.tsv``
+and ``channels.json`` sidecar files.
+
+**BIDS Channels:**
+
+The ``channels.tsv`` file contains a row for each channel:
+
+.. literalinclude:: ./expected_files/sub-001_ses-A_channels.tsv
+   :language: text
+
+You may notice many differences between the classic NWB electrode fields and the ``channels.tsv`` file. In particular,
+a number of these values are not specifies in the NWB ``electrodes`` table, but are instead set on any data-containing
+``ElectricalSeries`` objects that link to those electrodes. In these cases, **nwb2bids** will attempt to find
+and extract the relevant values.
+
+.. invisible-code-block: python
+
+   test_channels_tsv_path = (
+      bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
+   )
+   expected_channels_tsv_path = expected_files / "sub-001_ses-A_channels.tsv"
+
+   test_frame = pandas.read_csv(filepath_or_buffer=test_channels_tsv_path, sep="\t")
+   expected_frame = pandas.read_csv(filepath_or_buffer=expected_channels_tsv_path, sep="\t")
+   pandas.testing.assert_frame_equal(left=test_frame, right=expected_frame)
+
+And the corresponding ``channels.json`` file provides detailed descriptions of each column:
+
+# TODO: fix this
+
+.. code-block:: json
+
+   {}
+
+**Mapping:**
+
+.. container:: table-wrapper
+
+   .. list-table::
+      :header-rows: 1
+
+      * - NWB Field (Ecephys)
+        - BIDS Field
+      * - ch{``electrode.index``}
+        - ``name``
+      * - e{``electrode.index``}
+        - ``electrode_name``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``type``
+      * - ``electrical_series.units`` (if available; fixed to V)
+        - ``units``
+      * - ``electrical_series.rate`` (if available)
+        - ``sampling_frequency``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``low_cutoff``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``high_cutoff``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``reference``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``notch``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``channel_label`` (Good or Bad)
+      * - ``electrical_series.name`` (if available)
+        - ``stream_id``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``description``
+      * - ``electrode.location``
+        - ``software_filter_types``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``status``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``status_description``
+      * - ``electrical_series.conversion`` (if available)
+        - ``gain``
+      * - ``electrical_series.starting_time`` (if available)
+        - ``time_offset``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``time_reference_channel``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``ground``
+      * - | ~Not Yet Implemented~
+          | Please directly edit the file(s)
+          | or `Request This Feature <request-feature_>`_
+        - ``recording_mode``

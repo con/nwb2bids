@@ -1,9 +1,15 @@
 """Configuration file for sybil-based doc testing."""
+import datetime
 import json
 import pathlib
 import shutil
 import subprocess
+import uuid
 
+import dateutil
+import pandas
+import pynwb
+import pynwb.testing.mock.file
 from sybil import Sybil
 from sybil.parsers.rest import CodeBlockParser, PythonCodeBlockParser, SkipParser
 
@@ -59,11 +65,27 @@ def sybil_setup(namespace):
         run_config=run_config,
     )
 
+    expected_files = pathlib.Path(__file__).parent / "expected_files"
+
     # Make common imports and paths available
-    namespace["Path"] = pathlib.Path
+    namespace["datetime"] = datetime
+    namespace["dateutil"] = dateutil
     namespace["pathlib"] = pathlib
+    namespace["uuid"] = uuid
+
+    namespace["pandas"] = pandas
+    namespace["pynwb"] = pynwb
+    namespace["pynwb.ecephys"] = pynwb.ecephys
     namespace["nwb2bids"] = nwb2bids
     namespace["tutorial_base"] = tutorial_base
+    namespace["bids_directory"] = bids_directory
+
+    tutorial_nwbfile_path = bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_ecephys.nwb"
+    tutorial_nwbfile = pynwb.read_nwb(path=tutorial_nwbfile_path)
+    namespace["tutorial_nwbfile"] = tutorial_nwbfile
+
+    # namespace["nwbfile"] = pynwb.testing.mock.file.mock_NWBFile()
+    namespace["expected_files"] = expected_files
 
 
 pytest_collect_file = Sybil(
