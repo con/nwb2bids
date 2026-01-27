@@ -364,7 +364,7 @@ The ``channels.tsv`` file contains a row for each channel:
    :language: text
 
 You may notice many differences between the classic NWB electrode fields and the ``channels.tsv`` file. In particular,
-a number of these values are not specifies in the NWB ``electrodes`` table, but are instead set on any data-containing
+a number of these values are not specified in the NWB ``electrodes`` table, but are instead set on any data-containing
 ``ElectricalSeries`` objects that link to those electrodes. In these cases, **nwb2bids** will attempt to find
 and extract the relevant values.
 
