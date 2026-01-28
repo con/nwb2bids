@@ -31,7 +31,7 @@ class Electrode(BaseMetadataModel):
     internal_pipette_diameter: float | None = None  # in micrometers
     external_pipette_diameter: float | None = None  # in micrometers
 
-    def __eq__(self, other: typing_extensions.Self) -> bool:
+    def __eq__(self, other: typing.Any) -> bool:
         if not isinstance(other, Electrode):
             return False
 
