@@ -42,3 +42,12 @@ jobs:
           pip install -e . --group docs
       - name: Run doc tests
         run: python -m pytest docs/ -v
+
+  all-tests-passed:
+    if: always()
+    needs: [Tests, RemoteTests, DocTests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
