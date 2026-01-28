@@ -170,4 +170,4 @@ Related Tools and Converters
 
 **AI Assistants for Standards:**
 
-- `qp - AI Assistants Collection <https://github.com/magland/qp>`_: A curated collection of AI assistants for various neuroscience projects and data standards, providing interactive help with BIDS, NWB, and related tools
+- `qp - AI Assistants Collection <https://github.com/magland/qp>`_: A curated collection of AI assistants for various neuroscience projects and data standards, providing interactive help with BIDS, NWB, and related tools.
