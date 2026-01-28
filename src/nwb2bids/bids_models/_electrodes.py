@@ -116,7 +116,7 @@ class Electrode(BaseMetadataModel):
         default=None,
     )
 
-    def __eq__(self, other: typing_extensions.Self) -> bool:
+    def __eq__(self, other: typing.Any) -> bool:
         if not isinstance(other, Electrode):
             return False
 
