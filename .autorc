@@ -2,7 +2,16 @@
   "plugins": [
     "git-tag",
     "first-time-contributor",
-    ["protected-branch", { "requiredStatusChecks": ["all-tests-passed", "pre-commit.ci - pr", "docs/readthedocs.org:nwb2bids"] }],
+    [
+      "protected-branch",
+      {
+        "requiredStatusChecks": [
+          "all-tests-passed",
+          "pre-commit.ci - pr",
+          "docs/readthedocs.org:nwb2bids"
+        ]
+      }
+    ],
     "released"
   ],
   "owner": "con",
