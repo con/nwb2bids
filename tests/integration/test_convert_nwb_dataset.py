@@ -151,6 +151,12 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     probes_json = json.loads(probes_json_file_path.read_text())
     expected_probes_json = {
         "description": {"Description": "Probe description from NWB file.", "LongName": "Description"},
+        "manufacturer": {
+            "Description": "Manufacturer of the probes system (for "
+            "example, 'openephys', "
+            "'alphaomega','blackrock').",
+            "LongName": "Manufacturer",
+        },
         "probe_name": {
             "Description": "A unique identifier of the probe, can be " "identical with the device_serial_number.",
             "LongName": "Probe name",

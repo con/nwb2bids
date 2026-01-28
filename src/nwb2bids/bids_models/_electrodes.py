@@ -9,6 +9,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
+from ._model_utils import _get_present_fields
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
@@ -268,17 +269,10 @@ class ElectrodeTable(BaseMetadataContainerModel):
         """
         file_path = pathlib.Path(file_path)
 
-        # Only write descriptions for fields that are present or required
-        non_defaulted_fields = {
-            field
-            for electrode in self.electrodes
-            for field, value in electrode.model_dump().items()
-            if value is not None
-            and field != getattr(Electrode.model_fields.get(field, []), "default", None) is not None
-        }
+        present_non_additional_fields = _get_present_fields(models=self.electrodes)
 
         json_content: dict[str, dict[str, typing.Any]] = collections.defaultdict(dict)
-        for field in non_defaulted_fields:
+        for field in present_non_additional_fields:
             if title := getattr(Electrode.model_fields[field], "title"):
                 json_content[field]["LongName"] = title
             if description := getattr(Electrode.model_fields[field], "description"):
