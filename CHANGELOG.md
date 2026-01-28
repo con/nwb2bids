@@ -1,3 +1,21 @@
+# v0.11.1 (Wed Jan 28 2026)
+
+#### 🐛 Bug Fix
+
+- Eliminate typing errors in `_channels.py` [#308](https://github.com/con/nwb2bids/pull/308) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 📝 Documentation
+
+- Expanded data standards documentation section [#299](https://github.com/con/nwb2bids/pull/299) ([@yarikoptic](https://github.com/yarikoptic) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### Authors: 3
+
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Isaac To ([@candleindark](https://github.com/candleindark))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
 # v0.10.0 (Wed Jan 28 2026)
 
 #### 🚀 Enhancement
