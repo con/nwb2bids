@@ -1,0 +1,5 @@
+{
+    "participant_id": "A unique identifier for this participant.",
+    "species": "The species should be the proper Latin binomial species name from the NCBI Taxonomy (for example, Mus musculus).",
+    "sex": "String value indicating phenotypical sex, one of \"male\", \"female\", \"other\".\n\tFor \"male\", use one of these values: male, m, M, MALE, Male.\n\tFor \"female\", use one of these values: female, f, F, FEMALE, Female.\n\tFor \"other\", use one of these values: other, o, O, OTHER, Other."
+}

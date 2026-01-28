@@ -7,21 +7,25 @@ Developer Guide
 Design
 ------
 
-For **basic users**, ``nwb2bids`` is intended to be a simple-to-use tool for converting NWB datasets to BIDS format
+For **basic users**, **nwb2bids** is intended to be a simple-to-use tool for converting NWB datasets to near-BIDS format
 with minimal user configuration.
 
-For **advanced users**, ``nwb2bids`` is designed to be easily extensible to support new NWB data types, BIDS extensions,
+For **advanced users**, **nwb2bids** is designed to be easily extensible to support new NWB data types, BIDS extensions,
 and custom configurable behavior.
 
 Whenever working on a new feature, keep in mind how to make it easy to understand and use for the **basic users**,
 while still being flexible enough for the **advanced users**.
+
+**nwb2bids** makes every effort to collect and return all errors, warnings, and informational messages encountered during conversion
+to the user at the end of the process, rather than stopping at the first error. This provides a comprehensive
+overview of all issues that need to be addressed.
 
 
 
 Philosophy
 ----------
 
-``nwb2bids`` is also designed with the following principles in mind:
+**nwb2bids** is also designed with the following principles in mind:
 
 - **Modularity**: The codebase is organized into clear, modular components that encapsulate specific functionality. This makes it easier to maintain, test, and extend the code.
 
@@ -42,14 +46,14 @@ This project uses ``pytest`` for testing with comprehensive coverage across mult
 
 Tests are organized into three categories:
 
-- **Unit tests** (``tests/unit/``): Test individual components in isolation
-- **Integration tests** (``tests/integration/``): Test interactions between components
-- **CLI tests** (``tests/convert_nwb_dataset/``): Test command-line interface behavior
+- **Unit tests** (``tests/unit/``): Test individual components in isolation.
+- **Integration tests** (``tests/integration/``): Test interactions between components.
+- **CLI tests** (``tests/convert_nwb_dataset/``): Test command-line interface behavior.
 
 Some tests are marked as ``remote`` when they require downloading data from remote sources (e.g., DANDI Archive).
 
 Running Tests Locally
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
 
@@ -124,21 +128,21 @@ CI Troubleshooting
 
 For debugging CI failures interactively, use the **Custom dispatch tests** workflow which supports `tmate <https://tmate.io/>`_ debugging sessions.
 
-1. Go to `Custom dispatch tests workflow <https://github.com/con/nwb2bids/actions/workflows/custom_dispatch_tests.yml>`_
+1. Go to `Custom dispatch tests workflow <https://github.com/con/nwb2bids/actions/workflows/custom_dispatch_tests.yml>`_.
 
-2. Click **"Run workflow"**
+2. Click **"Run workflow"**.
 
-3. Select the desired OS and Python version from the dropdowns
+3. Select the desired OS and Python version from the dropdowns.
 
-4. Check **"Enable tmate debugging session"**
+4. Check **"Enable tmate debugging session"**.
 
-5. Click **"Run workflow"** to start
+5. Click **"Run workflow"** to start.
 
 6. Monitor the workflow run. When it reaches the "Setup tmate session" step, it will display an SSH command like::
 
       ssh randomstring@nyc1.tmate.io
 
-7. Use this command to connect to the CI environment
+7. Use this command to connect to the CI environment.
 
 The session runs under `tmux <https://github.com/tmux/tmux/wiki>`_. Quick reference:
 
@@ -226,7 +230,20 @@ about...") since these titles become changelog entries.
 
 The label interactions leading to changelog sections are roughly as follows:
 
-- ``minor`` / ``enhancement`` -> 'Feature'
-- ``patch`` / ``bug`` -> 'Bug Fix'
-- ``documentation`` -> 'Documentation'
-- ``internal`` -> 'Internal' (ONLY if no other above labels are present; e.g., `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under 'Bug Fix' instead of 'Internal')
+.. container:: table-wrapper
+
+    .. list-table::
+       :header-rows: 1
+
+       * - PR Labels
+         - Changelog Section
+       * - ``minor`` or ``enhancement``
+         - Feature
+       * - ``patch`` or ``bug``
+         - Bug Fix
+       * - ``documentation``
+         - Documentation
+       * - ``internal``
+         - Internal [#internal-note]_
+
+.. [#internal-note] Only if no other labels above are present (*e.g.*, `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under "Bug Fix")

@@ -1,0 +1,9 @@
+name	electrode_name	type	units	sampling_frequency	stream_id	gain
+ch000	e000	n/a	V	30000.0	ExampleElectricalSeries	3.02734375e-06
+ch001	e001	n/a	V	30000.0	ExampleElectricalSeries	3.02734375e-06
+ch002	e002	n/a	V	30000.0	ExampleElectricalSeries	3.02734375e-06
+ch003	e003	n/a	V	30000.0	ExampleElectricalSeries	3.02734375e-06
+ch004	e004	n/a	V	30000.0	ExampleElectricalSeries	3.02734375e-06
+ch005	e005	n/a	V	30000.0	ExampleElectricalSeries	3.02734375e-06
+ch006	e006	n/a	V	30000.0	ExampleElectricalSeries	3.02734375e-06
+ch007	e007	n/a	V	30000.0	ExampleElectricalSeries	3.02734375e-06

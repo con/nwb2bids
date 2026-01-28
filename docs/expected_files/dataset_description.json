@@ -1,0 +1,17 @@
+{
+    "Name": "`nwb2bids` Conversion Gallery Example",
+    "BIDSVersion": "1.10.1",
+    "HEDVersion": "8.3.0",
+    "Description": "An example dataset description!",
+    "DatasetType": "raw",
+    "Authors": ["Baker, Cody"],
+    "License": "CC-BY-4.0",
+    "GeneratedBy": [
+        {
+            "Name": "nwb2bids",
+            "Version": "0.9.1",
+            "Description": "Tool to reorganize NWB files into a BIDS directory layout.",
+            "CodeURL": "https://github.com/con/nwb2bids"
+        }
+    ]
+}
