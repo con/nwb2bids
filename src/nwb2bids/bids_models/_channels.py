@@ -16,7 +16,7 @@ from ..notifications import Notification
 
 def _infer_scalar_field(
     electrode_name_to_series: dict[str, list[pynwb.icephys.PatchClampSeries]], field_name: str
-) -> dict[str, float | None]:
+) -> dict[str, typing.Any]:
     """For icephys specifically, infer some scalar field (e.g., rate, gain) for each electrode name."""
     electrode_name_to_field_values = collections.defaultdict(set)
     for electrode_name, series_list in electrode_name_to_series.items():
