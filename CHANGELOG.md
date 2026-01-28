@@ -1,3 +1,124 @@
+# v0.10.0 (Wed Jan 28 2026)
+
+#### 🚀 Enhancement
+
+- Populated JSON sidecars [#301](https://github.com/con/nwb2bids/pull/301) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Centralized more notifications [#296](https://github.com/con/nwb2bids/pull/296) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Mapped "unknown" electrode locations to "n/a" [#295](https://github.com/con/nwb2bids/pull/295) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Standardized `n/a` to be BIDS compliant and added probe description [#289](https://github.com/con/nwb2bids/pull/289) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Created common `Notification` definitions [#284](https://github.com/con/nwb2bids/pull/284) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Refactored `_read_first_bytes` to `_file_startswith` for clarity of use [#287](https://github.com/con/nwb2bids/pull/287) ([@Copilot](https://github.com/Copilot))
+- Updated model fields to the latest BEP32 state [#278](https://github.com/con/nwb2bids/pull/278) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Clean up Dockerfiles, reduce image, add latest-minimal [#273](https://github.com/con/nwb2bids/pull/273) ([@asmacdo](https://github.com/asmacdo))
+
+#### 🐛 Bug Fix
+
+- test release workflow 2 [#312](https://github.com/con/nwb2bids/pull/312) ([@asmacdo](https://github.com/asmacdo))
+- Test auto-release workflow [#310](https://github.com/con/nwb2bids/pull/310) ([@asmacdo](https://github.com/asmacdo))
+- Use GitHub App token for auto-release check runs [#309](https://github.com/con/nwb2bids/pull/309) ([@asmacdo](https://github.com/asmacdo))
+- Required CI checks to pass before auto-release merges [#306](https://github.com/con/nwb2bids/pull/306) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Eliminated typing errors in `_electrodes.py` [#305](https://github.com/con/nwb2bids/pull/305) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#298](https://github.com/con/nwb2bids/pull/298) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Added copy-on-write support (requires Python 3.14) [#294](https://github.com/con/nwb2bids/pull/294) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Corrected model field descriptions for Notifications [#277](https://github.com/con/nwb2bids/pull/277) ([@candleindark](https://github.com/candleindark))
+- bump codecov-action [#270](https://github.com/con/nwb2bids/pull/270) ([@asmacdo](https://github.com/asmacdo))
+- [pre-commit.ci] pre-commit autoupdate [#269](https://github.com/con/nwb2bids/pull/269) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Resolved more MyPy errors in Events [#268](https://github.com/con/nwb2bids/pull/268) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Removed trailing period in testing assertions [#264](https://github.com/con/nwb2bids/pull/264) ([@yarikoptic](https://github.com/yarikoptic) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Updated logo image source in README [#263](https://github.com/con/nwb2bids/pull/263) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### ⚠️ Pushed to `main`
+
+- revert ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- ideas ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🏠 Internal
+
+- Finish standardizing remaining notification definitions [#302](https://github.com/con/nwb2bids/pull/302) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Fix dependency groups definition [#285](https://github.com/con/nwb2bids/pull/285) ([@candleindark](https://github.com/candleindark))
+- Added tests for container images [#282](https://github.com/con/nwb2bids/pull/282) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Replaced `pip` with `uv` as the installer for Hatch [#283](https://github.com/con/nwb2bids/pull/283) ([@candleindark](https://github.com/candleindark))
+- Removed hatch workaround for `dependency-groups` [#281](https://github.com/con/nwb2bids/pull/281) ([@candleindark](https://github.com/candleindark))
+- [pre-commit.ci] pre-commit autoupdate [#276](https://github.com/con/nwb2bids/pull/276) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Enable mypy precommit [#272](https://github.com/con/nwb2bids/pull/272) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@candleindark](https://github.com/candleindark))
+- Fixed mypy errors in `src/nwb2bids/bids_models/_events.py` that are not results of the `Events` model definition [#261](https://github.com/con/nwb2bids/pull/261) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 📝 Documentation
+
+- Added conversion gallery showcasing NWB to BIDS field mappings [#288](https://github.com/con/nwb2bids/pull/288) ([@Copilot](https://github.com/Copilot) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Enhanced developer documentation [#291](https://github.com/con/nwb2bids/pull/291) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### Authors: 6
+
+- [@Copilot](https://github.com/Copilot)
+- [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
+- Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Isaac To ([@candleindark](https://github.com/candleindark))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
+# v0.10.0 (Wed Jan 28 2026)
+
+#### 🚀 Enhancement
+
+- Populated JSON sidecars [#301](https://github.com/con/nwb2bids/pull/301) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Centralized more notifications [#296](https://github.com/con/nwb2bids/pull/296) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Mapped "unknown" electrode locations to "n/a" [#295](https://github.com/con/nwb2bids/pull/295) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Standardized `n/a` to be BIDS compliant and added probe description [#289](https://github.com/con/nwb2bids/pull/289) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Created common `Notification` definitions [#284](https://github.com/con/nwb2bids/pull/284) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Refactored `_read_first_bytes` to `_file_startswith` for clarity of use [#287](https://github.com/con/nwb2bids/pull/287) ([@Copilot](https://github.com/Copilot))
+- Updated model fields to the latest BEP32 state [#278](https://github.com/con/nwb2bids/pull/278) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Clean up Dockerfiles, reduce image, add latest-minimal [#273](https://github.com/con/nwb2bids/pull/273) ([@asmacdo](https://github.com/asmacdo))
+
+#### 🐛 Bug Fix
+
+- Test auto-release workflow [#310](https://github.com/con/nwb2bids/pull/310) ([@asmacdo](https://github.com/asmacdo))
+- Use GitHub App token for auto-release check runs [#309](https://github.com/con/nwb2bids/pull/309) ([@asmacdo](https://github.com/asmacdo))
+- Required CI checks to pass before auto-release merges [#306](https://github.com/con/nwb2bids/pull/306) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Eliminated typing errors in `_electrodes.py` [#305](https://github.com/con/nwb2bids/pull/305) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#298](https://github.com/con/nwb2bids/pull/298) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Added copy-on-write support (requires Python 3.14) [#294](https://github.com/con/nwb2bids/pull/294) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Corrected model field descriptions for Notifications [#277](https://github.com/con/nwb2bids/pull/277) ([@candleindark](https://github.com/candleindark))
+- bump codecov-action [#270](https://github.com/con/nwb2bids/pull/270) ([@asmacdo](https://github.com/asmacdo))
+- [pre-commit.ci] pre-commit autoupdate [#269](https://github.com/con/nwb2bids/pull/269) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Resolved more MyPy errors in Events [#268](https://github.com/con/nwb2bids/pull/268) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Removed trailing period in testing assertions [#264](https://github.com/con/nwb2bids/pull/264) ([@yarikoptic](https://github.com/yarikoptic) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Updated logo image source in README [#263](https://github.com/con/nwb2bids/pull/263) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### ⚠️ Pushed to `main`
+
+- revert ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- ideas ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🏠 Internal
+
+- Finish standardizing remaining notification definitions [#302](https://github.com/con/nwb2bids/pull/302) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Fix dependency groups definition [#285](https://github.com/con/nwb2bids/pull/285) ([@candleindark](https://github.com/candleindark))
+- Added tests for container images [#282](https://github.com/con/nwb2bids/pull/282) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Replaced `pip` with `uv` as the installer for Hatch [#283](https://github.com/con/nwb2bids/pull/283) ([@candleindark](https://github.com/candleindark))
+- Removed hatch workaround for `dependency-groups` [#281](https://github.com/con/nwb2bids/pull/281) ([@candleindark](https://github.com/candleindark))
+- [pre-commit.ci] pre-commit autoupdate [#276](https://github.com/con/nwb2bids/pull/276) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Enable mypy precommit [#272](https://github.com/con/nwb2bids/pull/272) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@candleindark](https://github.com/candleindark))
+- Fixed mypy errors in `src/nwb2bids/bids_models/_events.py` that are not results of the `Events` model definition [#261](https://github.com/con/nwb2bids/pull/261) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 📝 Documentation
+
+- Added conversion gallery showcasing NWB to BIDS field mappings [#288](https://github.com/con/nwb2bids/pull/288) ([@Copilot](https://github.com/Copilot) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Enhanced developer documentation [#291](https://github.com/con/nwb2bids/pull/291) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### Authors: 6
+
+- [@Copilot](https://github.com/Copilot)
+- [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
+- Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Isaac To ([@candleindark](https://github.com/candleindark))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
 # v0.9.0 (Wed Jan 07 2026)
 
 ### Release Notes
