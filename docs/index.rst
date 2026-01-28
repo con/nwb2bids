@@ -129,7 +129,7 @@ Currently Supported Standards
   - **BEP32 (BIDS Extension Proposal 32)**: Currently supported for micro-electrode electrophysiology, including extracellular (``ecephys``) and intracellular (``icephys``) electrophysiology, as well as associated behavioral events.
     See the `BEP32 pull request <https://github.com/bids-standard/bids-specification/pull/1705>`_ for specification details.
 
-* **HED (Hierarchical Event Descriptors)**: Basic support for annotating events and experimental structure with standardized vocabularies.
+* **HED (Hierarchical Event Descriptors)** (`hedtags.org <https://www.hedtags.org/>`_): Basic support for annotating events and experimental structure with standardized vocabularies.
   **nwb2bids** currently includes HED version specification (v8.3.0) in dataset metadata and automatically assigns basic HED tags to event tables (e.g., "Experimental-trial" for trials, "Time-block" for epochs).
   Future work will extend HED annotation capabilities.
 
@@ -138,9 +138,9 @@ Planned Future Support
 
 We are actively planning to extend **nwb2bids** support to include:
 
-* **ndx-events**: NWB extension for representing event data
-* **ndx-pose + BIDS motion**: For pose estimation and motion capture data
-* Additional data modalities: stimuli, videos, microscopy, and eye tracking
+* `ndx-events <https://github.com/rly/ndx-events>`_: NWB extension for representing timestamped event and TTL pulse data
+* `ndx-pose <https://github.com/rly/ndx-pose>`_ + `BIDS motion <https://bids-specification.readthedocs.io/en/stable/modality-specific-files/motion.html>`_: For pose estimation and motion capture data
+* Additional data modalities: stimuli, videos, `microscopy (BEP031) <https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2022.871228/full>`_, and `eye tracking (BEP020) <https://bids.neuroimaging.io/extensions/beps/bep_020.html>`_
 * Extended HED annotation capabilities beyond basic tagging
 
 These extensions will require integration with their respective standards and may depend on external tooling or additional NWB extensions.
@@ -150,7 +150,7 @@ Related Standardization Efforts
 
 **nwb2bids** operates in the broader context of neuroscience data standardization initiatives:
 
-* `DICOM WG-32: Neurophysiology Data <https://www.dicomstandard.org/activity/wgs/wg-32>`_: The Digital Imaging and Communications in Medicine (DICOM) working group focused on standardizing neurophysiology data, including EEG, EMG, evoked potentials, and other clinical neurophysiology signals.
+* `DICOM <https://www.dicomstandard.org/>`_ `WG-32: Neurophysiology Data <https://www.dicomstandard.org/activity/wgs/wg-32>`_: The Digital Imaging and Communications in Medicine (DICOM) working group focused on standardizing neurophysiology data, including EEG, EMG, evoked potentials, and other clinical neurophysiology signals.
   While DICOM and NWB/BIDS serve different use cases and communities, awareness of parallel standardization efforts helps users understand the broader landscape of neurophysiology data standards.
 
 Related Tools and Converters
