@@ -8,6 +8,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
+from ._model_utils import _build_json_sidecar
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
@@ -15,21 +16,105 @@ _NULL_LOCATION_PLACEHOLDERS = {"", "unknown", "no location", "N/A"}
 
 
 class Electrode(BaseMetadataModel):
-    name: str
-    probe_name: str
-    x: float = numpy.nan
-    y: float = numpy.nan
-    z: float = numpy.nan
-    hemisphere: str = "n/a"
-    impedance: float = numpy.nan  # in kOhms
-    shank_id: str = "n/a"
-    size: float | None = None  # in square micrometers
-    electrode_shape: str | None = None
-    material: str | None = None
-    location: str | None = None
-    pipette_solution: str | None = None
-    internal_pipette_diameter: float | None = None  # in micrometers
-    external_pipette_diameter: float | None = None  # in micrometers
+    name: str = pydantic.Field(
+        description="Name of the electrode contact point.",
+        title="Electrode name",
+    )
+    probe_name: str = pydantic.Field(
+        description=(
+            "A unique identifier of the probe, can be identical with the device_serial_number. "
+            "The value MUST match a probe_name entry in the corresponding *_probes.tsv file, linking this electrode "
+            "to its associated probe. For electrodes not associated with a probe, use n/a."
+        ),
+        title="Probe name",
+    )
+    x: float = pydantic.Field(
+        description=(
+            "Recorded position along the x-axis. When no space-<label> entity is used in the filename, "
+            "the position along the local width-axis relative to the probe origin "
+            "(see coordinate_reference_point in *_probes.tsv) in micrometers (um). "
+            "When a space-<label> entity is used in the filename, the position relative to the origin of the "
+            "coordinate system along the first axis. Units are specified by MicroephysCoordinateUnits in the "
+            "corresponding *_coordsystem.json file."
+        ),
+        title="x",
+        default=numpy.nan,
+    )
+    y: float = pydantic.Field(
+        description=(
+            "Recorded position along the y-axis. When no space-<label> entity is used in the filename, "
+            "the position along the local height-axis relative to the probe origin "
+            "(see coordinate_reference_point in *_probes.tsv) in micrometers (um). "
+            "When a space-<label> entity is used in the filename, the position relative to the origin of the "
+            "coordinate system along the second axis. Units are specified by MicroephysCoordinateUnits in the "
+            "corresponding *_coordsystem.json file."
+        ),
+        title="y",
+        default=numpy.nan,
+    )
+    z: float = pydantic.Field(
+        description=(
+            "Recorded position along the z-axis. For 2D electrode localizations, "
+            "this SHOULD be a column of n/a values. "
+            "When no space-<label> entity is used in the filename, the position along the local depth-axis relative to "
+            "the probe origin (see coordinate_reference_point in *_probes.tsv) in micrometers (um). "
+            "When a space-<label> entity is used in the filename, the position relative to the origin of the "
+            "coordinate system along the third axis. Units are specified by MicroephysCoordinateUnits in the "
+            "corresponding *_coordsystem.json file. For 2D electrode localizations (for example, when the "
+            "coordinate system is Pixels), this SHOULD be a column of n/a values."
+        ),
+        title="z",
+        default=numpy.nan,
+    )
+    hemisphere: typing.Literal["L", "R", "n/a"] = pydantic.Field(
+        description="The hemisphere in which the electrode is placed.", title="Hemisphere", default="n/a"
+    )
+    impedance: float = pydantic.Field(
+        description="Impedance of the electrode, units MUST be in kOhm.", title="Impedance", default=numpy.nan
+    )
+    shank_id: str = pydantic.Field(
+        description=(
+            "A unique identifier to specify which shank of the probe the electrode is on. "
+            "This is useful for spike sorting when the electrodes are on a multi-shank probe."
+        ),
+        title="Shank ID",
+        default="n/a",
+    )
+    size: float | None = pydantic.Field(
+        description="Surface area of the electrode, units MUST be in um^2.",
+        title="Size",
+        default=None,
+    )
+    electrode_shape: str | None = pydantic.Field(
+        description="Description of the shape of the electrode (for example, square, circle).",
+        title="Electrode shape",
+        default=None,
+    )
+    material: str | None = pydantic.Field(
+        description="Material of the electrode (for example, Tin, Ag/AgCl, Gold).",
+        title="Material",
+        default=None,
+    )
+    location: str | None = pydantic.Field(
+        description="An indication on the location of the electrode (for example, cortical layer 3, CA1).",
+        title="Location",
+        default=None,
+    )
+    pipette_solution: str | None = pydantic.Field(
+        description="The solution used to fill the pipette.",
+        title="Pipette solution",
+        default=None,
+    )
+    internal_pipette_diameter: float | None = pydantic.Field(
+        description="The internal diameter of the pipette in micrometers.",
+        title="Internal pipette diameter",
+        default=None,
+    )
+    external_pipette_diameter: float | None = pydantic.Field(
+        description="The external diameter of the pipette in micrometers.",
+        title="External pipette diameter",
+        default=None,
+    )
 
     def __eq__(self, other: typing.Any) -> bool:
         if not isinstance(other, Electrode):
@@ -184,9 +269,10 @@ class ElectrodeTable(BaseMetadataContainerModel):
         """
         file_path = pathlib.Path(file_path)
 
+        json_content = _build_json_sidecar(models=self.electrodes)
+
+        if "hemisphere" in json_content:
+            json_content["hemisphere"]["Levels"] = {"L": "left", "R": "right"}
+
         with file_path.open(mode="w") as file_stream:
-            json.dump(
-                obj=dict(),  # TODO
-                fp=file_stream,
-                indent=4,
-            )
+            json.dump(obj=json_content, fp=file_stream, indent=4)
