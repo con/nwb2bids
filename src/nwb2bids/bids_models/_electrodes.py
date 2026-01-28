@@ -1,4 +1,3 @@
-import collections
 import json
 import pathlib
 import typing
@@ -9,7 +8,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._model_utils import _get_present_fields
+from ._model_utils import _build_json_sidecar
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
@@ -269,14 +268,10 @@ class ElectrodeTable(BaseMetadataContainerModel):
         """
         file_path = pathlib.Path(file_path)
 
-        present_non_additional_fields = _get_present_fields(models=self.electrodes)
+        json_content = _build_json_sidecar(models=self.electrodes)
 
-        json_content: dict[str, dict[str, typing.Any]] = collections.defaultdict(dict)
-        for field in present_non_additional_fields:
-            if title := getattr(Electrode.model_fields[field], "title"):
-                json_content[field]["LongName"] = title
-            if description := getattr(Electrode.model_fields[field], "description"):
-                json_content[field]["Description"] = description
+        if "hemisphere" in json_content:
+            json_content["hemisphere"]["Levels"] = {"L": "left", "R": "right"}
 
         with file_path.open(mode="w") as file_stream:
             json.dump(obj=json_content, fp=file_stream, indent=4)

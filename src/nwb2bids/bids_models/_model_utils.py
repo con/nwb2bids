@@ -1,3 +1,4 @@
+import collections
 import typing
 
 import pydantic
@@ -17,3 +18,18 @@ def _get_present_fields(models: typing.Sequence[pydantic.BaseModel]) -> set[str]
         )
     }
     return present_non_additional_fields
+
+
+def _build_json_sidecar(models: typing.Sequence[pydantic.BaseModel]) -> dict[str, dict[str, typing.Any]]:
+    """Build a JSON sidecar dictionary from the provided models."""
+    present_non_additional_fields = _get_present_fields(models=models)
+
+    reference_model = list(models)[0]
+    json_content: dict[str, dict[str, typing.Any]] = collections.defaultdict(dict)
+    for field in present_non_additional_fields:
+        if title := getattr(reference_model.model_fields[field], "title"):
+            json_content[field]["LongName"] = title
+        if description := getattr(reference_model.model_fields[field], "description"):
+            json_content[field]["Description"] = description
+
+    return json_content

@@ -1,4 +1,3 @@
-import collections
 import json
 import pathlib
 import typing
@@ -8,7 +7,7 @@ import pydantic
 import pynwb
 import typing_extensions
 
-from ._model_utils import _get_present_fields
+from ._model_utils import _build_json_sidecar
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
@@ -126,7 +125,7 @@ class Probe(BaseMetadataModel):
         title="Anatomical reference point",
         default=None,
     )
-    hemisphere: typing.Literal["L", "R"] | None = pydantic.Field(
+    hemisphere: typing.Literal["L", "R", "n/a"] | None = pydantic.Field(
         description="Hemisphere in which the probe is placed.", title="Hemisphere", default=None
     )
     associated_brain_region: str | None = pydantic.Field(
@@ -267,14 +266,7 @@ class ProbeTable(BaseMetadataContainerModel):
         """
         file_path = pathlib.Path(file_path)
 
-        present_non_additional_fields = _get_present_fields(models=self.probes)
-
-        json_content: dict[str, dict[str, typing.Any]] = collections.defaultdict(dict)
-        for field in present_non_additional_fields:
-            if title := getattr(Probe.model_fields[field], "title"):
-                json_content[field]["LongName"] = title
-            if description := getattr(Probe.model_fields[field], "description"):
-                json_content[field]["Description"] = description
+        json_content = _build_json_sidecar(models=self.probes)
 
         default_descriptions = {
             "description": {"Description": "Probe description from NWB file.", "LongName": "Description"}
