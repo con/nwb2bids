@@ -181,10 +181,6 @@ module = ["*._probes"]
 disable_error_code = ["attr-defined"]
 
 [[tool.mypy.overrides]]
-module = ["*._electrodes"]
-disable_error_code = ["override", "union-attr"]
-
-[[tool.mypy.overrides]]
 module = ["nwb2bids.bids_models._channels"]
 disable_error_code = ["union-attr"]
 
