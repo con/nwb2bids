@@ -7,3 +7,9 @@ button.copybtn {
 span.copybutton {
    opacity: 0;
 }
+
+/* Make tighter tables use auto width instead of full width */
+.table-wrapper table {
+    width: auto !important;
+    text-align: center;
+}

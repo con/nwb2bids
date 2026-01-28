@@ -59,6 +59,7 @@ linkcheck_ignore = []
 # Disable left (Section Navigation) sidebars for specific sections
 html_sidebars = {
     "user_guide": [],
+    "conversion_gallery": [],
     "developer_guide": [],
 }
 

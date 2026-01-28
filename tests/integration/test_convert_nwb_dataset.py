@@ -141,7 +141,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     expected_probe_tsv_lines = [
         "probe_name\ttype\tmanufacturer\tdescription",
         (
-            "ExampleProbe\tn/a\t`nwb2bids.testing` module\tThis is an example ecephys probe "
+            "ExampleProbe\tn/a\t`nwb2bids` test suite\tThis is an example ecephys probe "
             "used for demonstration purposes."
         ),
     ]
