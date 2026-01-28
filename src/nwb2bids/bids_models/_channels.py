@@ -371,6 +371,7 @@ class ChannelTable(BaseMetadataContainerModel):
         """
         file_path = pathlib.Path(file_path)
 
+        # Only write descriptions for fields that are present or required
         non_defaulted_fields = {
             field
             for channel in self.channels

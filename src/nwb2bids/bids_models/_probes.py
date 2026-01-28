@@ -266,6 +266,7 @@ class ProbeTable(BaseMetadataContainerModel):
         """
         file_path = pathlib.Path(file_path)
 
+        # Only write descriptions for fields that are present or required
         non_defaulted_fields = {
             field
             for probe in self.probes
