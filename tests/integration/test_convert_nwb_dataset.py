@@ -187,7 +187,11 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     )
     electrodes_json = json.loads(electrodes_json_file_path.read_text())
     expected_electrodes_json = {
-        "hemisphere": {"Description": "The hemisphere in which the electrode is " "placed.", "LongName": "Hemisphere"},
+        "hemisphere": {
+            "Description": "The hemisphere in which the electrode is " "placed.",
+            "Levels": {"L": "left", "R": "right"},
+            "LongName": "Hemisphere",
+        },
         "impedance": {"Description": "Impedance of the electrode, units MUST be in " "kOhm.", "LongName": "Impedance"},
         "location": {
             "Description": "An indication on the location of the electrode " "(for example, cortical layer 3, CA1).",
@@ -236,7 +240,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
             "LongName": "y",
         },
         "z": {
-            "Description": "Recorded position along the z-axis.For 2D electrode "
+            "Description": "Recorded position along the z-axis. For 2D electrode "
             "localizations, this SHOULD be a column of n/a values. "
             "When no space-<label> entity is used in the filename, "
             "the position along the local depth-axis relative to the "
@@ -284,7 +288,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
         "gain": {
             "Description": "Amplification factor applied from signal detection "
             "at the electrode to the signal stored in the data "
-            "file.If no gain factor is provided it is assumed to "
+            "file. If no gain factor is provided it is assumed to "
             "be 1.",
             "LongName": "Gain",
         },
