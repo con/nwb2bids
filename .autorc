@@ -7,8 +7,6 @@
       {
         "requiredStatusChecks": [
           "all-tests-passed",
-          "pre-commit.ci - pr",
-          "docs/readthedocs.org:nwb2bids"
         ]
       }
     ],
