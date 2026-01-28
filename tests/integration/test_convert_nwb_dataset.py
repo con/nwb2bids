@@ -189,6 +189,10 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     expected_electrodes_json = {
         "hemisphere": {"Description": "The hemisphere in which the electrode is " "placed.", "LongName": "Hemisphere"},
         "impedance": {"Description": "Impedance of the electrode, units MUST be in " "kOhm.", "LongName": "Impedance"},
+        "location": {
+            "Description": "An indication on the location of the electrode " "(for example, cortical layer 3, CA1).",
+            "LongName": "Location",
+        },
         "name": {"Description": "Name of the electrode contact point.", "LongName": "Electrode name"},
         "probe_name": {
             "Description": "A unique identifier of the probe, can be "
@@ -277,7 +281,16 @@ def test_ecephys_tutorial_convert_nwb_dataset(
             "associated with an electrode, use n/a.",
             "LongName": "Electrode name",
         },
+        "gain": {
+            "Description": "Amplification factor applied from signal detection "
+            "at the electrode to the signal stored in the data "
+            "file.If no gain factor is provided it is assumed to "
+            "be 1.",
+            "LongName": "Gain",
+        },
         "name": {"Description": "Label of the channel.", "LongName": "Channel name"},
+        "sampling_frequency": {"Description": "Sampling rate of the channel in Hz.", "LongName": "Sampling frequency"},
+        "stream_id": {"Description": "Data stream of the recording the signal.", "LongName": "Stream ID"},
         "type": {
             "Description": "Type of channel; MUST use the channel types listed "
             "below. Note that the type MUST be in upper-case.",
