@@ -2,7 +2,14 @@
   "plugins": [
     "git-tag",
     "first-time-contributor",
-    "protected-branch",
+    [
+      "protected-branch",
+      {
+        "requiredStatusChecks": [
+          "all-tests-passed",
+        ]
+      }
+    ],
     "released"
   ],
   "owner": "con",
