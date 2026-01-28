@@ -54,7 +54,7 @@ class Electrode(BaseMetadataModel):
     )
     z: float = pydantic.Field(
         description=(
-            "Recorded position along the z-axis.For 2D electrode localizations, this SHOULD be a column of n/a values. "
+            "Recorded position along the z-axis. For 2D electrode localizations, this SHOULD be a column of n/a values. "
             "When no space-<label> entity is used in the filename, the position along the local depth-axis relative to "
             "the probe origin (see coordinate_reference_point in *_probes.tsv) in micrometers (um). "
             "When a space-<label> entity is used in the filename, the position relative to the origin of the "

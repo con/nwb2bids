@@ -155,7 +155,7 @@ class Channel(BaseMetadataModel):
     )
     gain: float | None = pydantic.Field(
         description=(
-            "Amplification factor applied from signal detection at the electrode to the signal stored in the data file."
+            "Amplification factor applied from signal detection at the electrode to the signal stored in the data file. "
             "If no gain factor is provided it is assumed to be 1."
         ),
         title="Gain",
