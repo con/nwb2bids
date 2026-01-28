@@ -31,7 +31,7 @@ class Electrode(BaseMetadataModel):
     internal_pipette_diameter: float | None = None  # in micrometers
     external_pipette_diameter: float | None = None  # in micrometers
 
-    def __eq__(self, other: typing_extensions.Self) -> bool:
+    def __eq__(self, other: typing.Any) -> bool:
         if not isinstance(other, Electrode):
             return False
 
@@ -182,6 +182,8 @@ class ElectrodeTable(BaseMetadataContainerModel):
         file_path : path
             The path to the output JSON file.
         """
+        file_path = pathlib.Path(file_path)
+
         with file_path.open(mode="w") as file_stream:
             json.dump(
                 obj=dict(),  # TODO
