@@ -33,7 +33,7 @@ def _generate_ecephys_file(*, nwbfile_path: pathlib.Path, subject_id: str = "001
     probe = pynwb.testing.mock.ecephys.mock_Device(
         name="ExampleProbe",
         description="This is an example ecephys probe used for demonstration purposes.",
-        manufacturer="`nwb2bids.testing` module",
+        manufacturer="`nwb2bids` test suite",
         nwbfile=nwbfile,
     )
     shank = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(
