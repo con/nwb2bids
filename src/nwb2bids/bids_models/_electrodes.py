@@ -182,7 +182,6 @@ class ElectrodeTable(BaseMetadataContainerModel):
         file_path : path
             The path to the output JSON file.
         """
-        # Ensure `file_path` is a Path object
         file_path = pathlib.Path(file_path)
 
         with file_path.open(mode="w") as file_stream:
