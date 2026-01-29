@@ -24,6 +24,77 @@
   </p>
 </div>
 
-Reorganize NWB files into a BIDS directory layout.
+**nwb2bids** reorganizes [NWB](https://www.nwb.org/) (Neurodata Without Borders) files into a [BIDS](https://bids.neuroimaging.io/) (Brain Imaging Data Structure) directory layout, making your neurophysiology data more accessible and shareable.
 
-Currently developed for the `microephys` BIDS modality, which encompasses both the NWB `ecephys` and `icephys` neurodata subtypes, and which is currently pending formal inclusion in BIDS schema as part of [BEP032](https://github.com/bids-standard/bids-specification/pull/1705).
+
+
+## Features
+
+- **Automatic conversion**: Renames NWB files and directories to conform to BIDS conventions
+- **Metadata extraction**: Populates BIDS sidecar TSV & JSON files from NWB metadata
+- **BEP032 support**: Currently supports micro-electrode electrophysiology (extracellular `ecephys` and intracellular `icephys`) and associated behavioral events per [BEP032](https://github.com/bids-standard/bids-specification/pull/1705)
+
+
+
+## Installation
+
+Install the latest stable release using `pip` or `conda`:
+
+```bash
+# Using pip
+pip install nwb2bids
+
+# Using conda
+conda install -c conda-forge nwb2bids
+```
+
+
+
+## Quick Start
+
+### Command Line Interface
+
+Convert NWB files to BIDS from the command line:
+
+```bash
+# Convert files from a directory
+nwb2bids convert path/to/nwb/files/
+
+# Specify output directory
+nwb2bids convert path/to/nwb/files/ --bids-directory path/to/bids/output/
+
+# Convert multiple sources
+nwb2bids convert path/to/directory/ single_file.nwb another_file.nwb
+```
+
+
+
+## Documentation
+
+For comprehensive information, please visit our full documentation:
+
+📖 **[nwb2bids.readthedocs.io](https://nwb2bids.readthedocs.io/)**
+
+The documentation includes:
+- [User Guide](https://nwb2bids.readthedocs.io/en/latest/user_guide.html) - Detailed usage instructions and advanced features
+- [Tutorials](https://nwb2bids.readthedocs.io/en/latest/tutorials.html) - Step-by-step examples
+- [API Reference](https://nwb2bids.readthedocs.io/en/latest/api/index.html) - Complete function and class documentation
+- [Developer Guide](https://nwb2bids.readthedocs.io/en/latest/developer_guide.html) - Contributing guidelines
+
+
+
+## Use Cases
+
+**nwb2bids** was developed to support the [DANDI Archive](https://dandiarchive.org/) project, enabling researchers to convert neurophysiology datasets from NWB to BIDS format.
+
+### Track development with BIDS-Dandisets
+
+The [bids-dandisets organization](https://github.com/bids-dandisets/) hosts BIDS-formatted versions of datasets from DANDI Archive. You can:
+
+- Browse converted datasets at [github.com/bids-dandisets](https://github.com/bids-dandisets/)
+- Track conversion progress via the [dashboard](https://github.com/bids-dandisets/dashboard?tab=readme-ov-file)
+- Access datasets efficiently using [DataLad](https://www.datalad.org/) for version-controlled data management
+
+## Contributing
+
+We welcome contributions! Please see our [Developer Guide](https://nwb2bids.readthedocs.io/en/latest/developer_guide.html) for details on how to contribute.
