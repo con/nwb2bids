@@ -35,7 +35,7 @@
 
 ## Installation
 
-Install the latest stable release using pip or conda:
+Install the latest stable release using `pip` or `conda`:
 
 ```bash
 # Using pip
@@ -86,7 +86,7 @@ nwb2bids.convert_nwb_dataset(
 
 **nwb2bids** was developed to support the [DANDI Archive](https://dandiarchive.org/) project, enabling researchers to convert neurophysiology datasets from NWB to BIDS format.
 
-### Working with BIDS Dandisets
+### Track development with BIDS-Dandisets
 
 The [bids-dandisets organization](https://github.com/bids-dandisets/) hosts BIDS-formatted versions of datasets from DANDI Archive. You can:
 
