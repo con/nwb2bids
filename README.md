@@ -44,11 +44,6 @@ pip install nwb2bids
 conda install -c conda-forge nwb2bids
 ```
 
-To work with datasets on DANDI Archive, install with the `dandi` extra:
-
-```bash
-pip install "nwb2bids[dandi]"
-```
 
 ## Quick Start
 
