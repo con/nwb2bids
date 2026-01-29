@@ -110,6 +110,3 @@ The documentation includes:
 
 We welcome contributions! Please see our [Developer Guide](https://nwb2bids.readthedocs.io/en/latest/developer_guide.html) for details on how to contribute.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
