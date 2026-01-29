@@ -1,3 +1,25 @@
+# v0.11.1 (Thu Jan 29 2026)
+
+#### 🐛 Bug Fix
+
+- Tested auto release for final time [#315](https://github.com/con/nwb2bids/pull/315) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Automatic release [#314](https://github.com/con/nwb2bids/pull/314) ([@github-actions[bot]](https://github.com/github-actions[bot]) [@nwb2bids-releaser[bot]](https://github.com/nwb2bids-releaser[bot]))
+- Eliminate typing errors in `_channels.py` [#308](https://github.com/con/nwb2bids/pull/308) ([@candleindark](https://github.com/candleindark) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 📝 Documentation
+
+- Expanded data standards documentation section [#299](https://github.com/con/nwb2bids/pull/299) ([@yarikoptic](https://github.com/yarikoptic) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### Authors: 5
+
+- [@github-actions[bot]](https://github.com/github-actions[bot])
+- [@nwb2bids-releaser[bot]](https://github.com/nwb2bids-releaser[bot])
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Isaac To ([@candleindark](https://github.com/candleindark))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
 # v0.11.1 (Wed Jan 28 2026)
 
 #### 🐛 Bug Fix
