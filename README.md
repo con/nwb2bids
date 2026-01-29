@@ -58,7 +58,7 @@ pip install "nwb2bids[dandi]"
 Convert NWB files to BIDS from the command line:
 
 ```bash
-# Convert files in current directory
+# Convert files from a directory
 nwb2bids convert path/to/nwb/files/
 
 # Specify output directory
@@ -76,15 +76,15 @@ Use nwb2bids programmatically:
 import nwb2bids
 
 # Convert NWB files to BIDS
-nwb2bids.convert_nwb_to_bids(
+nwb2bids.convert_nwb_dataset(
     nwb_paths=["path/to/nwb/files/"],
-    bids_directory="path/to/bids/output/"
+    run_config=nwb2bids.RunConfig(bids_directory="path/to/bids/output/")
 )
 ```
 
 ## Use Cases
 
-**nwb2bids** was developed to support the [DANDI Archive](https://dandiarchive.org/) project, enabling researchers to convert neurophysiology datasets from NWB to BIDS format. 
+**nwb2bids** was developed to support the [DANDI Archive](https://dandiarchive.org/) project, enabling researchers to convert neurophysiology datasets from NWB to BIDS format.
 
 ### Working with BIDS Dandisets
 
