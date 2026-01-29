@@ -9,7 +9,7 @@
    developer_guide
    api/index
 
-.. image:: assets/nwb2bids-color.svg
+.. image:: assets/nwb2bids-neutral.svg
    :alt: nwb2bids logo
    :align: center
    :width: 200px

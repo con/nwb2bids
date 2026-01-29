@@ -32,8 +32,8 @@ html_theme_options = {
     "use_edit_page_button": True,
     "show_toc_level": 2,
     "logo": {
-        "image_light": "assets/nwb2bids-black.svg",
-        "image_dark": "assets/nwb2bids-white.svg",
+        "image_light": "assets/nwb2bids-neutral.svg",
+        "image_dark": "assets/nwb2bids-neutral.svg",
     }
 }
 
