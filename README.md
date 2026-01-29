@@ -31,7 +31,6 @@
 - **Automatic conversion**: Renames NWB files and directories to conform to BIDS conventions
 - **Metadata extraction**: Populates BIDS sidecar TSV & JSON files from NWB metadata
 - **BEP032 support**: Currently supports micro-electrode electrophysiology (extracellular `ecephys` and intracellular `icephys`) and associated behavioral events per [BEP032](https://github.com/bids-standard/bids-specification/pull/1705)
-- **Remote datasets**: Works with datasets hosted on [DANDI Archive](https://dandiarchive.org/)
 
 ## Installation
 
