@@ -109,4 +109,3 @@ The documentation includes:
 ## Contributing
 
 We welcome contributions! Please see our [Developer Guide](https://nwb2bids.readthedocs.io/en/latest/developer_guide.html) for details on how to contribute.
-
