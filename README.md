@@ -26,11 +26,15 @@
 
 **nwb2bids** reorganizes [NWB](https://www.nwb.org/) (Neurodata Without Borders) files into a [BIDS](https://bids.neuroimaging.io/) (Brain Imaging Data Structure) directory layout, making your neurophysiology data more accessible and shareable.
 
+
+
 ## Features
 
 - **Automatic conversion**: Renames NWB files and directories to conform to BIDS conventions
 - **Metadata extraction**: Populates BIDS sidecar TSV & JSON files from NWB metadata
 - **BEP032 support**: Currently supports micro-electrode electrophysiology (extracellular `ecephys` and intracellular `icephys`) and associated behavioral events per [BEP032](https://github.com/bids-standard/bids-specification/pull/1705)
+
+
 
 ## Installation
 
@@ -43,6 +47,7 @@ pip install nwb2bids
 # Using conda
 conda install -c conda-forge nwb2bids
 ```
+
 
 
 ## Quick Start
@@ -62,31 +67,7 @@ nwb2bids convert path/to/nwb/files/ --bids-directory path/to/bids/output/
 nwb2bids convert path/to/directory/ single_file.nwb another_file.nwb
 ```
 
-### Python API
 
-Use nwb2bids programmatically:
-
-```python
-import nwb2bids
-
-# Convert NWB files to BIDS
-nwb2bids.convert_nwb_dataset(
-    nwb_paths=["path/to/nwb/files/"],
-    run_config=nwb2bids.RunConfig(bids_directory="path/to/bids/output/")
-)
-```
-
-## Use Cases
-
-**nwb2bids** was developed to support the [DANDI Archive](https://dandiarchive.org/) project, enabling researchers to convert neurophysiology datasets from NWB to BIDS format.
-
-### Track development with BIDS-Dandisets
-
-The [bids-dandisets organization](https://github.com/bids-dandisets/) hosts BIDS-formatted versions of datasets from DANDI Archive. You can:
-
-- Browse converted datasets at [github.com/bids-dandisets](https://github.com/bids-dandisets/)
-- Track conversion progress via the [dashboard](https://github.com/bids-dandisets/dashboard?tab=readme-ov-file)
-- Access datasets efficiently using [DataLad](https://www.datalad.org/) for version-controlled data management
 
 ## Documentation
 
@@ -99,6 +80,20 @@ The documentation includes:
 - [Tutorials](https://nwb2bids.readthedocs.io/en/latest/tutorials.html) - Step-by-step examples
 - [API Reference](https://nwb2bids.readthedocs.io/en/latest/api/index.html) - Complete function and class documentation
 - [Developer Guide](https://nwb2bids.readthedocs.io/en/latest/developer_guide.html) - Contributing guidelines
+
+
+
+## Use Cases
+
+**nwb2bids** was developed to support the [DANDI Archive](https://dandiarchive.org/) project, enabling researchers to convert neurophysiology datasets from NWB to BIDS format.
+
+### Track development with BIDS-Dandisets
+
+The [bids-dandisets organization](https://github.com/bids-dandisets/) hosts BIDS-formatted versions of datasets from DANDI Archive. You can:
+
+- Browse converted datasets at [github.com/bids-dandisets](https://github.com/bids-dandisets/)
+- Track conversion progress via the [dashboard](https://github.com/bids-dandisets/dashboard?tab=readme-ov-file)
+- Access datasets efficiently using [DataLad](https://www.datalad.org/) for version-controlled data management
 
 ## Contributing
 
