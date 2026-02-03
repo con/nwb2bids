@@ -169,7 +169,7 @@ class ProbeTable(BaseMetadataContainerModel):
     def _check_fields(self) -> None:
         self._internal_notifications = []
 
-        probes_missing_description = [probe for probe in self.probes if probe.description is None]
+        probes_missing_description = [probe for probe in self.probes if getattr(probe, "description", None) is None]
         for _ in probes_missing_description:
             notification = Notification.from_definition(
                 identifier="MissingDescription",
