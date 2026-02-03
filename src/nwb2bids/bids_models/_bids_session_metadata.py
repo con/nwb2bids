@@ -89,7 +89,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         if isinstance(next(iter(nwbfile_paths)), pathlib.Path):
             nwbfiles = [cache_read_nwb(nwbfile_path) for nwbfile_path in nwbfile_paths]
         else:
-            nwbfiles = [_stream_nwb(url=url) for url in nwbfile_paths]
+            nwbfiles = [_stream_nwb(url=url) for url in typing.cast(list[pydantic.HttpUrl], nwbfile_paths)]
 
         session_ids = {nwbfile.session_id for nwbfile in nwbfiles}
         if len(session_ids) > 1:

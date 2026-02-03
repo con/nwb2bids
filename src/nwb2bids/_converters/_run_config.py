@@ -57,23 +57,12 @@ class RunConfig(pydantic.BaseModel):
         The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
     """
 
-    bids_directory: typing.Annotated[
-        pathlib.Path,
-        pydantic.Field(default_factory=pathlib.Path.cwd),
-        pydantic.AfterValidator(_validate_bids_directory),
-    ]
+    bids_directory: pathlib.Path = pydantic.Field(default_factory=pathlib.Path.cwd)
     additional_metadata_file_path: pydantic.FilePath | None = None
-    file_mode: typing.Annotated[
-        typing.Literal["move", "copy", "symlink"], pydantic.Field(default_factory=_determine_file_mode)
-    ]
-    cache_directory: typing.Annotated[
-        pydantic.DirectoryPath, pydantic.Field(default_factory=_get_nwb2bids_home_directory)
-    ]
-    sanitization_config: typing.Annotated[
-        SanitizationConfig,
-        pydantic.Field(default_factory=lambda _: SanitizationConfig()),
-    ]
-    run_id: typing.Annotated[str, pydantic.Field(default_factory=_generate_run_id)]
+    file_mode: typing.Literal["move", "copy", "symlink"] = pydantic.Field(default_factory=_determine_file_mode)
+    cache_directory: pydantic.DirectoryPath = pydantic.Field(default_factory=_get_nwb2bids_home_directory)
+    sanitization_config: SanitizationConfig = pydantic.Field(default_factory=SanitizationConfig)
+    run_id: str = pydantic.Field(default_factory=_generate_run_id)
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 
     model_config = pydantic.ConfigDict(
@@ -104,3 +93,8 @@ class RunConfig(pydantic.BaseModel):
         """The file path leading to a JSON dump of the notifications."""
         notifications_file_path = self._nwb2bids_directory / f"{self.run_id}_notifications.json"
         return notifications_file_path
+
+    @pydantic.field_validator("bids_directory", mode="after")
+    @classmethod
+    def validate_bids_directory(cls, value: pathlib.Path) -> pathlib.Path:
+        return _validate_bids_directory(value)
