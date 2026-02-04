@@ -12,6 +12,22 @@ def _validate_bids_directory(path: pathlib.Path) -> pathlib.Path:
     - it points to an empty directory, in which case a minimal `dataset_description.json` file will be
       created and added to the directory.
     - it does not point to an object in the file system, but its parent exists as a directory.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        The path to validate as a BIDS directory.
+
+    Returns
+    -------
+    pathlib.Path
+        The validated BIDS directory path.
+
+    Raises
+    ------
+    ValueError
+        If the given path is not valid according to the criteria above (as this function
+        is designed to be used as a field validator for a pydantic model).
     """
 
     if path.is_dir():
