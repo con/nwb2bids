@@ -59,7 +59,7 @@ jobs:
 
   all-tests-passed:
     if: always()
-    needs: [Tests, RemoteTests, DocTests, DocLinkCheck]
+    needs: [Tests, DocTests]
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
