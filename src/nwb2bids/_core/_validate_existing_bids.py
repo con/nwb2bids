@@ -2,15 +2,44 @@ import json
 import pathlib
 
 
-def _validate_bids_directory(directory: pathlib.Path) -> pathlib.Path:
-    """Validate bids_directory: if exists, must be valid BIDS; if not, parent must exist."""
-    if directory.exists():
-        return _validate_existing_directory_as_bids(directory)
+def _validate_bids_directory(path: pathlib.Path) -> pathlib.Path:
+    """
+    Validate that a given path points to a BIDS directory
 
-    if not directory.parent.exists():
-        raise ValueError(f"parent directory does not exist: {directory.parent}")
+    The given path is considered valid if:
 
-    return directory
+    - it points to an existing BIDS directory, which contains a valid `dataset_description.json` file.
+    - it points to an empty directory, in which case a minimal `dataset_description.json` file will be
+      created and added to the directory.
+    - it does not point to an object in the file system, but its parent exists as a directory.
+
+    Parameters
+    ----------
+    path : pathlib.Path
+        The path to validate as a BIDS directory.
+
+    Returns
+    -------
+    pathlib.Path
+        The validated BIDS directory path.
+
+    Raises
+    ------
+    ValueError
+        If the given path is not valid according to the criteria above (as this function
+        is designed to be used as a field validator for a pydantic model).
+    """
+
+    if path.is_dir():
+        return _validate_existing_directory_as_bids(path)
+    if path.exists():
+        raise ValueError(f"The path ({path}) exists but is not a directory.")
+    if not path.parent.is_dir():
+        if not path.parent.exists():
+            raise ValueError(f"The parent path ({path.parent}) does not exist.")
+        raise ValueError(f"The parent path ({path.parent}) exists but is not a directory.")
+
+    return path
 
 
 def _validate_existing_directory_as_bids(directory: pathlib.Path) -> pathlib.Path:
