@@ -27,5 +27,8 @@ def test_run_config_missing_parent_raises(temporary_bids_directory: pathlib.Path
     """Test that an exception is raised when parent directory doesn't exist."""
     nested_bids_directory = temporary_bids_directory / "nonexistent_parent" / "child"
 
-    with pytest.raises(expected_exception=pydantic.ValidationError, match="parent directory does not exist"):
+    with pytest.raises(
+        expected_exception=pydantic.ValidationError,
+        match=r"The parent path \(\S+\) does not exist",
+    ):
         nwb2bids.RunConfig(bids_directory=nested_bids_directory)
