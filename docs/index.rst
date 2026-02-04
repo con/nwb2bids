@@ -162,7 +162,7 @@ Related Tools and Converters
 
 - `NWB Guide <https://nwb-guide.readthedocs.io/en/latest/>`_: A no-code graphical interface for converting data to NWB format.
 
-- `NeuroConv <https://neuroconv.readthedocs.io/en/latest/>`_: A Python library providing low-code conversion pipelines to NWB format from various proprietary and open formats.
+- `NeuroConv <https://neuroconv.readthedocs.io/en/stable/>`_: A Python library providing low-code conversion pipelines to NWB format from various proprietary and open formats.
 
 **BIDS Converters for Other Modalities:**
 
