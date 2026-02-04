@@ -3,12 +3,25 @@ import pathlib
 
 
 def _validate_bids_directory(path: pathlib.Path) -> pathlib.Path:
-    """Validate bids_directory: if exists, must be valid BIDS; if not, parent must exist."""
-    if path.exists():
-        return _validate_existing_directory_as_bids(path)
+    """
+    Validate that a given path points to a BIDS directory
 
-    if not path.parent.exists():
-        raise ValueError(f"parent directory does not exist: {path.parent}")
+    The given path is considered valid if:
+
+    - it points to an existing BIDS directory, which contains a valid `dataset_description.json` file.
+    - it points to an empty directory, in which case a minimal `dataset_description.json` file will be
+      created and added to the directory.
+    - it does not point to an object in the file system, but its parent exists as a directory.
+    """
+
+    if path.is_dir():
+        return _validate_existing_directory_as_bids(path)
+    if path.exists():
+        raise ValueError(f"The path ({path}) exists but is not a directory.")
+    if not path.parent.is_dir():
+        if not path.parent.exists():
+            raise ValueError(f"The parent path ({path.parent}) does not exist.")
+        raise ValueError(f"The parent path ({path.parent}) exists but is not a directory.")
 
     return path
 
