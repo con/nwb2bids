@@ -12,9 +12,7 @@ from pathlib import Path
 import pandas as pd
 from docutils import nodes
 from docutils.parsers.rst import directives
-from sphinx.directives.code import CodeBlock
 from sphinx.util.docutils import SphinxDirective
-from tabulate import tabulate
 
 
 class TSVTableDirective(SphinxDirective):
@@ -121,10 +119,10 @@ class TSVTableDirective(SphinxDirective):
         
         # Body rows
         html_parts.append('<tbody>')
-        for idx, row in df.iterrows():
+        for line_num, (idx, row) in enumerate(df.iterrows(), start=2):
             html_parts.append('<tr>')
             if show_linenums:
-                html_parts.append(f'<td>{idx + 2}</td>')  # +2 because line 1 is header
+                html_parts.append(f'<td>{line_num}</td>')  # Start at line 2 (line 1 is header)
             for val in row:
                 html_parts.append(f'<td>{self._escape_html(val)}</td>')
             html_parts.append('</tr>')
