@@ -17,12 +17,12 @@ from sphinx.util.docutils import SphinxDirective
 
 class TSVTableDirective(SphinxDirective):
     """Directive to render TSV files as HTML tables with proper styling.
-    
+
     This directive reads a TSV file and renders it as an HTML table with:
     - Proper alignment and styling
     - Ability to copy-paste as TSV
     - Line numbers (optional)
-    
+
     Usage:
         .. tsv-table:: path/to/file.tsv
            :show-linenums:
@@ -40,7 +40,7 @@ class TSVTableDirective(SphinxDirective):
         # Get the TSV file path relative to the source directory
         env = self.env
         rel_filename, filename = env.relfn2path(self.arguments[0])
-        
+
         # Check if file exists
         filepath = Path(filename)
         if not filepath.exists():
@@ -48,7 +48,7 @@ class TSVTableDirective(SphinxDirective):
                 f'TSV file not found: {filename}',
                 line=self.lineno
             )]
-        
+
         # Read the TSV file
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
@@ -58,7 +58,7 @@ class TSVTableDirective(SphinxDirective):
                 f'Error reading TSV file {filename}: {e}',
                 line=self.lineno
             )]
-        
+
         # Parse TSV with pandas
         try:
             df = pd.read_csv(
@@ -74,27 +74,27 @@ class TSVTableDirective(SphinxDirective):
                 f'Error parsing TSV file {filename}: {e}',
                 line=self.lineno
             )]
-        
+
         # Determine if we should show line numbers
         show_linenums = "show-linenums" in self.options
-        
+
         # Generate HTML table
         html = self._generate_html_table(df, show_linenums, content)
-        
+
         # Create raw HTML node
         raw_node = nodes.raw('', html, format='html')
         raw_node['classes'] = ['tsv-table-container']
-        
+
         return [raw_node]
-    
+
     def _generate_html_table(self, df: pd.DataFrame, show_linenums: bool, raw_content: str) -> str:
         """Generate HTML table from DataFrame.
-        
+
         Args:
             df: DataFrame containing TSV data
             show_linenums: Whether to show line numbers
             raw_content: Raw TSV content for copy functionality
-            
+
         Returns:
             HTML string for the table
         """
@@ -104,11 +104,11 @@ class TSVTableDirective(SphinxDirective):
             table_classes.append("index")
         else:
             table_classes.append("noindex")
-        
+
         # Build HTML table manually for better control
         html_parts = []
         html_parts.append(f'<table class="{" ".join(table_classes)}">')
-        
+
         # Header row
         html_parts.append('<thead><tr>')
         if show_linenums:
@@ -116,7 +116,7 @@ class TSVTableDirective(SphinxDirective):
         for col in df.columns:
             html_parts.append(f'<th>{self._escape_html(col)}</th>')
         html_parts.append('</tr></thead>')
-        
+
         # Body rows
         html_parts.append('<tbody>')
         for line_num, (idx, row) in enumerate(df.iterrows(), start=2):
@@ -127,12 +127,12 @@ class TSVTableDirective(SphinxDirective):
                 html_parts.append(f'<td>{self._escape_html(val)}</td>')
             html_parts.append('</tr>')
         html_parts.append('</tbody>')
-        
+
         html_parts.append('</table>')
-        
+
         # Join without newlines to preserve copy-paste behavior
         return ''.join(html_parts)
-    
+
     def _escape_html(self, text: str) -> str:
         """Escape HTML special characters."""
         return (str(text)
@@ -146,7 +146,7 @@ class TSVTableDirective(SphinxDirective):
 def setup(app):
     """Register the directive with Sphinx."""
     app.add_directive('tsv-table', TSVTableDirective)
-    
+
     return {
         'version': '0.1',
         'parallel_read_safe': True,
