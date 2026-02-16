@@ -89,8 +89,7 @@ singular ``Subject`` object. In BIDS, information about all subjects in the data
 
 The ``sessions.tsv`` file contains a row for each session of a subject:
 
-.. literalinclude:: ./expected_files/sub-001_sessions.tsv
-   :language: text
+.. tsv-table:: ./expected_files/sub-001_sessions.tsv
 
 .. invisible-code-block: python
 
@@ -105,8 +104,7 @@ The ``sessions.tsv`` file contains a row for each session of a subject:
 
 The ``participants.tsv`` file contains a row for each subject:
 
-.. literalinclude:: ./expected_files/participants.tsv
-   :language: text
+.. tsv-table:: ./expected_files/participants.tsv
 
 .. note::
 
@@ -176,8 +174,7 @@ these become entries in the ``probes.tsv`` and ``probes.json`` sidecar files.
 
 The ``probes.tsv`` file contains a row for each probe:
 
-.. literalinclude:: ./expected_files/sub-001_ses-A_probes.tsv
-   :language: text
+.. tsv-table:: ./expected_files/sub-001_ses-A_probes.tsv
 
 .. note::
 
@@ -266,8 +263,7 @@ traditional 'shank' in ecephys. In BIDS, they appear in the ``electrodes.tsv`` a
 
 The ``electrodes.tsv`` file contains a row for each electrode:
 
-.. literalinclude:: ./expected_files/sub-001_ses-A_electrodes.tsv
-   :language: text
+.. tsv-table:: ./expected_files/sub-001_ses-A_electrodes.tsv
 
 You may notice many differences between the classic NWB electrode fields and the ``electrodes.tsv`` file. BIDS
 requires several fields that NWB does not, but their values may be set to ``n/a`` if they are not known. Additionally,
@@ -360,8 +356,7 @@ and ``channels.json`` sidecar files.
 
 The ``channels.tsv`` file contains a row for each channel:
 
-.. literalinclude:: ./expected_files/sub-001_ses-A_channels.tsv
-   :language: text
+.. tsv-table:: ./expected_files/sub-001_ses-A_channels.tsv
 
 You may notice many differences between the classic NWB electrode fields and the ``channels.tsv`` file. In particular,
 a number of these values are not specified in the NWB ``electrodes`` table, but are instead set on any data-containing

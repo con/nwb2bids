@@ -13,3 +13,70 @@ span.copybutton {
     width: auto !important;
     text-align: center;
 }
+
+/* TSV Table Styling - Inspired by BIDS specification */
+.tsv-table {
+    font-feature-settings: "kern";
+    min-width: 100%;
+    border-collapse: collapse;
+    overflow: auto;
+    display: block;
+    margin: 1em 0;
+}
+
+.tsv-table th {
+    font-family: var(--pst-font-family-monospace, monospace);
+    font-weight: 800;
+    background-color: var(--pst-color-surface, #f7f7f7);
+    border-top: 1px solid var(--pst-color-border, #ccc);
+    font-size: 0.85em;
+    padding: 8px 12px;
+    text-align: center;
+}
+
+.tsv-table.index tr th:first-child {
+    background-color: var(--pst-color-background, #fff);
+    border-top: 0;
+    user-select: none;
+}
+
+.tsv-table tr:last-child td {
+    border-bottom: 1px solid var(--pst-color-border, #ccc);
+}
+
+.tsv-table tr:first-child td {
+    border-top: 1px solid var(--pst-color-border, #ccc);
+}
+
+.tsv-table td {
+    font-family: var(--pst-font-family-monospace, monospace);
+    font-size: 0.85em;
+    text-align: center;
+    vertical-align: middle;
+    background-color: var(--pst-color-surface, #f7f7f7);
+    padding: 6px 12px;
+    white-space: nowrap;
+}
+
+.tsv-table.index td:first-child {
+    color: var(--pst-color-text-muted, #666);
+    font-family: var(--pst-font-family-base, sans-serif);
+    font-size: 0.75em;
+    background-color: var(--pst-color-background, #fff);
+    padding-right: 15px;
+    text-align: right;
+    min-width: 25px;
+    width: 35px;
+    border-top: 0;
+    user-select: none;
+}
+
+.tsv-table.index tr:last-child td:first-child {
+    border-bottom: 0;
+}
+
+/* Container for TSV tables */
+.tsv-table-container {
+    overflow-x: auto;
+    margin: 1em 0;
+}
