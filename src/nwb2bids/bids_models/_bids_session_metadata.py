@@ -11,6 +11,7 @@ from ._base_metadata_model import BaseMetadataContainerModel
 from ._channels import ChannelTable
 from ._electrodes import ElectrodeTable
 from ._events import Events
+from ._general_metadata import GeneralMetadata
 from ._model_globals import _VALID_ID_REGEX
 from ._participant import Participant
 from ._probes import ProbeTable
@@ -18,7 +19,7 @@ from .._converters._run_config import RunConfig
 from .._tools import cache_read_nwb
 from ..notifications import Notification
 from ..sanitization import Sanitization
-from ._general_metadata import GeneralMetadata
+
 
 class BidsSessionMetadata(BaseMetadataContainerModel):
     """
@@ -99,6 +100,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         session_id = next(iter(session_ids))
 
         participant = Participant.from_nwbfiles(nwbfiles=nwbfiles)
+        general_metadata = GeneralMetadata.from_nwbfiles(nwbfiles=nwbfiles)
         events = Events.from_nwbfiles(nwbfiles=nwbfiles)
         probe_table = ProbeTable.from_nwbfiles(nwbfiles=nwbfiles)
         electrode_table = ElectrodeTable.from_nwbfiles(nwbfiles=nwbfiles)
@@ -107,6 +109,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         dictionary = {
             "session_id": session_id,
             "participant": participant,
+            "general_metadata": general_metadata,
             "run_config": run_config,
         }
         if events is not None:

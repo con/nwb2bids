@@ -146,6 +146,38 @@ And the corresponding ``participants.json`` file provides detailed descriptions 
 
 
 
+General Metadata
+----------------
+
+NWB files can contain a number of high-level metadata fields that describe the overall experiment, acquisition parameters, and other details that don't neatly belong to specific neurodata types.
+These fields are typically set on the top-level ``pynwb.NWBFile`` object.
+
+**NWB file metadata:**
+
+.. code-block:: python
+
+   nwbfile = pynwb.NWBFile(
+      # TODO
+   )
+
+.. invisible-code-block: python
+
+   tutorial_probe = tutorial_nwbfile.devices["ExampleProbe"]
+
+   assert probe.name == tutorial_probe.name
+   assert probe.manufacturer == tutorial_probe.manufacturer
+   assert probe.description == tutorial_probe.description
+
+**BIDS general metadata:**
+
+Depending on the modality, ``ecephys.json`` or ``icephys.json`` file contains metadata such as:
+
+.. code-block:: json
+
+   {}
+
+
+
 Ecephys Probes
 --------------
 
