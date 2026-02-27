@@ -13,7 +13,7 @@ jobs:
         with:
           script: |
             const labels = context.payload.pull_request.labels;
-            
+
             if (labels.length === 0) {
               core.setFailed('❌ PR must have at least one label');
             } else {
