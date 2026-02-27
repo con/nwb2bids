@@ -1,0 +1,21 @@
+name: Require Labels
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+
+jobs:
+  label-check:
+    runs-on: ubuntu-latest
+    if: '!github.event.pull_request.draft'
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels;
+            
+            if (labels.length === 0) {
+              core.setFailed('❌ PR must have at least one label');
+            } else {
+              core.info(`✅ PR labeled: ${labels.map(l => l.name).join(', ')}`);
+            }
