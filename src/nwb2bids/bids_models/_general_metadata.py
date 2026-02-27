@@ -228,7 +228,7 @@ class GeneralMetadata(pydantic.BaseModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfiles(cls, nwbfiles: list[pynwb.NWBFile]) -> typing_extensions.Self:
+    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self:
         """
         Extracts all unique general metadata from the in-memory NWBFile objects.
         """
