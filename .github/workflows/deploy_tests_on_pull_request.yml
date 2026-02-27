@@ -64,6 +64,4 @@ jobs:
     steps:
       - uses: re-actors/alls-green@release/v1
         with:
-          jobs: |
-            ${{ toJSON(needs) }}
-            label-check
+          jobs: ${{ toJSON(needs) }}
