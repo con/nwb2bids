@@ -18,7 +18,7 @@ from .._converters._run_config import RunConfig
 from .._tools import cache_read_nwb
 from ..notifications import Notification
 from ..sanitization import Sanitization
-
+from ._general_metadata import GeneralMetadata
 
 class BidsSessionMetadata(BaseMetadataContainerModel):
     """
@@ -27,6 +27,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
 
     session_id: str | None = pydantic.Field(description="A unique session identifier.", default=None)
     participant: Participant = pydantic.Field(description="Metadata about a participant used in this experiment.")
+    general_metadata: GeneralMetadata = pydantic.Field(description="General metadata about the experiment.")
     events: Events | None = pydantic.Field(
         description="Timing data and metadata regarding events that occur during this experiment.", default=None
     )
