@@ -13,12 +13,12 @@ jobs:
           script: |
             const labels = context.payload.pull_request.labels;
             const isDraft = context.payload.pull_request.draft;
-            
+
             if (isDraft) {
               core.info('⏭️  Skipping label check for draft PR');
               return;
             }
-            
+
             if (labels.length === 0) {
               core.setFailed('❌ PR must have at least one label');
             } else {
