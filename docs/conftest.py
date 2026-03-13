@@ -10,7 +10,6 @@ import dateutil
 import pandas
 import pynwb
 import pynwb.testing.mock.file
-import sybil
 import sybil.parsers.rest
 
 import nwb2bids
