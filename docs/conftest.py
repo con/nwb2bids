@@ -10,9 +10,10 @@ import dateutil
 import pandas
 import pynwb
 import pynwb.testing.mock.file
-from sybil import Sybil
-from sybil.parsers.rest import CodeBlockParser, PythonCodeBlockParser, SkipParser
+import sybil
 
+# from sybil import Sybil
+# from sybil.parsers.rest import CodeBlockParser, PythonCodeBlockParser, SkipParser
 import nwb2bids
 
 
@@ -89,11 +90,11 @@ def sybil_setup(namespace: dict[str, typing.Any]):
 
 
 
-pytest_collect_file = Sybil(
+pytest_collect_file = sybil.Sybil(
     parsers=[
-        SkipParser(),
-        CodeBlockParser(language="bash", evaluator=bash_evaluator),
-        PythonCodeBlockParser(),
+        sybil.parsers.rest.SkipParser(),
+        sybil.parsers.rest.CodeBlockParser(language="bash", evaluator=bash_evaluator),
+        sybil.parsers.rest.PythonCodeBlockParser(),
     ],
     patterns=["tutorials.rst", "conversion_gallery.rst"],
     setup=sybil_setup,
