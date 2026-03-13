@@ -190,14 +190,14 @@ Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contain
      - BIDS Field
    * - ``nwbfile.institution``
      - ``InstitutionName``
-    * - ??
-      - InstitutionAddress
-    * - ??
-      - InstitutionalDepartmentName
-    * - ??
-      - PowerLineFrequency
-    * - ``nwbfile.device[index].manufacturer``
-      - Manufacturer
+   * - ??
+     - InstitutionAddress
+   * - ??
+     - InstitutionalDepartmentName
+   * - ??
+     - PowerLineFrequency
+   * - ``nwbfile.device[index].manufacturer``
+     - Manufacturer
 
 
 
