@@ -1,0 +1,26 @@
+name: Require PR labels
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize, ready_for_review]
+
+jobs:
+  label-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels;
+            const isDraft = context.payload.pull_request.draft;
+
+            if (isDraft) {
+              core.info('⏭️  Skipping label check for draft PR');
+              return;
+            }
+
+            if (labels.length === 0) {
+              core.setFailed('❌ PR must have at least one label');
+            } else {
+              core.info(`✅ PR labeled: ${labels.map(l => l.name).join(', ')}`);
+            }

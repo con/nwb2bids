@@ -47,6 +47,7 @@ class DatasetConverter(BaseConverter):
         cls,
         dandiset_id: str = pydantic.Field(pattern=r"^\d{6}$"),
         api_url: str | None = None,
+        version_id: str = "draft",
         token: str | None = None,
         limit: int | None = None,
         run_config: RunConfig = pydantic.Field(default_factory=lambda: RunConfig()),
@@ -63,6 +64,8 @@ class DatasetConverter(BaseConverter):
             DANDI instance specified by the :envvar:`DANDI_INSTANCE` environment variable
             is used. If the :envvar:`DANDI_INSTANCE` environment variable is not specified,
             The API URL of the `"dandi"` DANDI instance is used.
+        version_id : str, default: "draft"
+            The version ID of the Dandiset to be converted.
         token : str, optional
             The authentication token for accessing the DANDI instance.
             If not provided, will attempt to read from the environment variable `DANDI_API_KEY` if it exists.
@@ -77,7 +80,6 @@ class DatasetConverter(BaseConverter):
             import dandi.dandiapi
 
             client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
-            version_id = "draft"  # Only allow running on draft version
             dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
 
             dataset_description, _internal_notifications = get_bids_dataset_description(dandiset=dandiset)
