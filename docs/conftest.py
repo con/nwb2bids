@@ -11,9 +11,8 @@ import pandas
 import pynwb
 import pynwb.testing.mock.file
 import sybil
+import sybil.parsers.rest
 
-# from sybil import Sybil
-# from sybil.parsers.rest import CodeBlockParser, PythonCodeBlockParser, SkipParser
 import nwb2bids
 
 
