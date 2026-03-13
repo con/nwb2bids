@@ -124,6 +124,7 @@ def test_session_converter_write_ecephys_metadata(
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-001_ses-A_ecephys.json",
                 "sub-001_ses-A_probes.tsv",
                 "sub-001_ses-A_probes.json",
                 "sub-001_ses-A_channels.tsv",

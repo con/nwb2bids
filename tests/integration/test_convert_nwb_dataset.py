@@ -122,6 +122,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-001_ses-A_ecephys.json",
                 "sub-001_ses-A_ecephys.nwb",
                 "sub-001_ses-A_channels.tsv",
                 "sub-001_ses-A_channels.json",
@@ -340,6 +341,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-001_ses-A_ecephys.json",
                 "sub-001_ses-A_ecephys.nwb",
                 "sub-001_ses-A_channels.tsv",
                 "sub-001_ses-A_channels.json",
