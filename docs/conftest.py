@@ -4,14 +4,14 @@ import json
 import pathlib
 import shutil
 import subprocess
+import typing
 import uuid
 
 import dateutil
 import pandas
 import pynwb
 import pynwb.testing.mock.file
-from sybil import Sybil
-from sybil.parsers.rest import CodeBlockParser, PythonCodeBlockParser, SkipParser
+import sybil.parsers.rest
 
 import nwb2bids
 
@@ -28,8 +28,9 @@ def bash_evaluator(example):
         return f"Command failed (exit {result.returncode}):\n{result.stderr}"
 
 
-def sybil_setup(namespace):
-    """Clean and regenerate tutorial data before tests.
+def sybil_setup(namespace: dict[str, typing.Any]):
+    """
+    Clean and regenerate tutorial data before tests.
 
     NOTE: This runs once per document, not per code block. If multiple examples
     in the same document write to the same output directory, they will conflict.
@@ -37,7 +38,7 @@ def sybil_setup(namespace):
     """
     tutorial_base = nwb2bids.testing.get_tutorial_directory()
     if tutorial_base.exists():
-        shutil.rmtree(tutorial_base)
+        shutil.rmtree(tutorial_base)  # May cause issues on Windows, but does not show up in CI
 
     nwb2bids.testing.generate_ephys_tutorial(mode="file")
     nwb2bids.testing.generate_ephys_tutorial(mode="dataset")
@@ -87,11 +88,12 @@ def sybil_setup(namespace):
     namespace["expected_files"] = expected_files
 
 
-pytest_collect_file = Sybil(
+
+pytest_collect_file = sybil.Sybil(
     parsers=[
-        SkipParser(),
-        CodeBlockParser(language="bash", evaluator=bash_evaluator),
-        PythonCodeBlockParser(),
+        sybil.parsers.rest.SkipParser(),
+        sybil.parsers.rest.CodeBlockParser(language="bash", evaluator=bash_evaluator),
+        sybil.parsers.rest.PythonCodeBlockParser(),
     ],
     patterns=["tutorials.rst", "conversion_gallery.rst"],
     setup=sybil_setup,
