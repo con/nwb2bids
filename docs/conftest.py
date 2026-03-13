@@ -2,6 +2,7 @@
 import datetime
 import json
 import pathlib
+import shutil
 import subprocess
 import typing
 import uuid
@@ -36,8 +37,8 @@ def sybil_setup(namespace: dict[str, typing.Any]):
     Use distinct output directories (e.g., bids_dataset_cli_1, bids_dataset_py_1).
     """
     tutorial_base = nwb2bids.testing.get_tutorial_directory()
-    # if tutorial_base.exists():
-    #     shutil.rmtree(tutorial_base)
+    if tutorial_base.exists():
+        shutil.rmtree(tutorial_base)  # May cause issues on Windows, but does not show up in CI
 
     nwb2bids.testing.generate_ephys_tutorial(mode="file")
     nwb2bids.testing.generate_ephys_tutorial(mode="dataset")
