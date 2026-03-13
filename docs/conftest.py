@@ -2,8 +2,8 @@
 import datetime
 import json
 import pathlib
-import shutil
 import subprocess
+import typing
 import uuid
 
 import dateutil
@@ -28,16 +28,17 @@ def bash_evaluator(example):
         return f"Command failed (exit {result.returncode}):\n{result.stderr}"
 
 
-def sybil_setup(namespace):
-    """Clean and regenerate tutorial data before tests.
+def sybil_setup(namespace: dict[str, typing.Any]):
+    """
+    Clean and regenerate tutorial data before tests.
 
     NOTE: This runs once per document, not per code block. If multiple examples
     in the same document write to the same output directory, they will conflict.
     Use distinct output directories (e.g., bids_dataset_cli_1, bids_dataset_py_1).
     """
     tutorial_base = nwb2bids.testing.get_tutorial_directory()
-    if tutorial_base.exists():
-        shutil.rmtree(tutorial_base)
+    # if tutorial_base.exists():
+    #     shutil.rmtree(tutorial_base)
 
     nwb2bids.testing.generate_ephys_tutorial(mode="file")
     nwb2bids.testing.generate_ephys_tutorial(mode="dataset")
@@ -85,6 +86,7 @@ def sybil_setup(namespace):
     namespace["tutorial_nwbfile"] = tutorial_nwbfile
 
     namespace["expected_files"] = expected_files
+
 
 
 pytest_collect_file = Sybil(

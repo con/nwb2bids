@@ -108,8 +108,8 @@ The ``participants.tsv`` file contains a row for each subject:
 
 .. note::
 
-	The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
-	effort to produce valid files based on input data.
+   The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
+   effort to produce valid files based on input data.
 
 .. invisible-code-block: python
 
@@ -150,31 +150,54 @@ General Metadata
 ----------------
 
 NWB files can contain a number of high-level metadata fields that describe the overall experiment, acquisition parameters, and other details that don't neatly belong to specific neurodata types.
-These fields are typically set on the top-level ``pynwb.NWBFile`` object.
+These fields are typically set on the top-level ``pynwb.NWBFile`` object, though there are a few that belong to
+particular subfields such as ``pynwb.DeviceModel``.
 
 **NWB file metadata:**
 
 .. code-block:: python
 
-   nwbfile = pynwb.NWBFile(
-      # TODO
+   general_metadata_nwbfile = pynwb.NWBFile(
+       session_id="B",
+       session_start_time=datetime.datetime(1970, 1, 2, tzinfo=dateutil.tz.tzutc()),
+       session_description="An example NWB file used for demonstration of general metadata mapping.",
+       identifier=uuid.uuid4().hex,
+
    )
-
-.. invisible-code-block: python
-
-   tutorial_probe = tutorial_nwbfile.devices["ExampleProbe"]
-
-   assert probe.name == tutorial_probe.name
-   assert probe.manufacturer == tutorial_probe.manufacturer
-   assert probe.description == tutorial_probe.description
+   general_metadata_device = pynwb.file.DeviceModel(
+       name="ExampleDevice",
+       description="This is an example device used for demonstration of general metadata mapping.",
+       manufacturer="imec",
+       model_number="NP2014",
+   )
+   general_metadata_nwbfile.add_device_model(general_metadata_device)
 
 **BIDS general metadata:**
 
-Depending on the modality, ``ecephys.json`` or ``icephys.json`` file contains metadata such as:
+Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contains metadata such as:
 
 .. code-block:: json
 
    {}
+
+**Mapping:**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - NWB Field
+     - BIDS Field
+   * - ``nwbfile.institution``
+     - ``InstitutionName``
+    * - ??
+      - InstitutionAddress
+    * - ??
+      - InstitutionalDepartmentName
+    * - ??
+      - PowerLineFrequency
+    * - ``nwbfile.device[index].manufacturer``
+      - Manufacturer
 
 
 
@@ -210,8 +233,8 @@ The ``probes.tsv`` file contains a row for each probe:
 
 .. note::
 
-	The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
-	effort to produce valid files based on input data.
+   The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
+   effort to produce valid files based on input data.
 
 .. invisible-code-block: python
 
@@ -251,6 +274,7 @@ And the corresponding ``probes.json`` file provides detailed descriptions of eac
         - ``manufacturer``
       * - ``Device.description``
         - ``description``
+
 
 
 Ecephys Electrodes
