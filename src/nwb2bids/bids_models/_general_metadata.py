@@ -281,4 +281,4 @@ class GeneralMetadata(pydantic.BaseModel):
             The path to the file where the metadata will be saved.
         """
         with pathlib.Path(file_path).open(mode="w") as file_stream:
-            json.dump(obj=self.model_dump(), fp=file_stream, indent=4)
+            json.dump(obj=self.model_dump(exclude_none=True), fp=file_stream, indent=4)
