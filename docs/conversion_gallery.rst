@@ -206,7 +206,7 @@ Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contain
                 "BodyPartDetailsOntology": "http://purl.obolibrary.org/obo/UBERON_0001384"
            }
 
-    .. tab:: _in vivo_
+    .. tab:: in vivo
 
         .. code-block:: json
 
@@ -224,7 +224,7 @@ Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contain
            }
 
 .. tabs::
-    .. tab:: _ex vivo_
+    .. tab:: ex vivo
 
         .. code-block:: json
 
