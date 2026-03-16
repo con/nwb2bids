@@ -206,7 +206,7 @@ Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contain
                 "BodyPartDetailsOntology": "http://purl.obolibrary.org/obo/UBERON_0001384"
            }
 
-    .. tab:: in vivo
+    .. tab:: *in vivo*
 
         .. code-block:: json
 
@@ -223,8 +223,7 @@ Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contain
                 "Instructions": "Mice were trained to stop running in response to air puffs."
            }
 
-.. tabs::
-    .. tab:: ex vivo
+    .. tab:: *ex vivo*
 
         .. code-block:: json
 
