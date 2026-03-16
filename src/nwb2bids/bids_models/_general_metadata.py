@@ -235,11 +235,37 @@ class GeneralMetadata(pydantic.BaseModel):
         if len(nwbfiles) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
-        # nwbfile = nwbfiles[0]
+        nwbfile = nwbfiles[0]
 
-        dictionary: dict[str, str] = dict()
+        dictionary: dict[str, str] = {
+            "PowerLineFrequency": "n/a",
+            "SamplingFrequency": "n/a",
+            "SoftwareFilters": "n/a",
+        }
 
-        # TODO
+        if nwbfile.institution is not None:
+            dictionary["InstitutionName"] = nwbfile.institution
+
+        all_acquisition_electrical_series = [
+            series for series in nwbfile.acquisition.values() if isinstance(series, pynwb.ecephys.ElectricalSeries)
+        ]
+        if len(all_acquisition_electrical_series) == 1:
+            electrical_series = all_acquisition_electrical_series[0]
+
+            if electrical_series.rate is not None:
+                dictionary["SamplingFrequency"] = electrical_series.rate
+            if electrical_series.data is not None and electrical_series.rate is not None:
+                dictionary["RecordingDuration"] = electrical_series.data.shape[0] / electrical_series.rate
+
+            electrode_group = electrical_series.electrodes[0].group[0]
+            if (manufacturer := electrode_group.device.manufacturer) is not None and manufacturer != "":
+                dictionary["Manufacturer"] = manufacturer
+            if (model_number := electrode_group.device.model_number) is not None and model_number != "":
+                dictionary["ManufacturersModelVersion"] = model_number
+
+            if (brain_region := electrode_group.location) is not None or brain_region not in ["", "unknown", "n/a"]:
+                dictionary["BodyPart"] = "BRAIN"
+                dictionary["BodyPartDetails"] = brain_region
 
         general_metadata = cls(**dictionary)
         return general_metadata
