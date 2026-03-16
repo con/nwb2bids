@@ -188,16 +188,16 @@ Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contain
                 "InstitutionName": "My Institution",
                 "InstitutionAddress": "123 Institution Rd, My City, My State, My Country",
                 "InstitutionalDepartmentName": "My Department",
-                "PowerLineFrequency": "60",  # In Hz
+                "PowerLineFrequency": "60",  // In Hz
                 "Manufacturer": "imec",
                 "ManufacturersModelName": "NP",
                 "ManufacturersModelVersion": "2014",
                 "RecordingSetupName": "MyLabsRig",
-                "SamplingFrequency": 30000.0,  # In Hz
+                "SamplingFrequency": 30000.0,  // In Hz
                 "DeviceSerialNumber": "ABC123",
                 "SoftwareName": "RecordingSoftware",
                 "SoftwareVersions": "1.0.0",
-                "RecordingDuration": "7200",  # In seconds
+                "RecordingDuration": "7200",  // In seconds
                 "RecordingType": "continuous",
                 "SoftwareFilters": {"Anti-aliasing filter": {"half-amplitude cutoff (Hz)": 500, "Roll-off": "6dB/Octave"}},
                 "HardwareFilters": {"Highpass RC filter": {"Half amplitude cutoff (Hz)": 0.0159, "Roll-off": "6dB/Octave"}},
@@ -215,7 +215,7 @@ Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contain
                 "PharmaceuticalDoseAmount": 5,
                 "PharmaceuticalDoseUnits": "mg/kg",
                 "PharmaceuticalDoseRegimen": "Given peri-operatively and maintained during recording sessions to manage pain from the craniotomy/implant without sedation.",
-                "PharmaceuticalDoseTime": "0",  # In seconds
+                "PharmaceuticalDoseTime": "0",  // In seconds
                 "SampleEnvironment": "in-vivo",
                 "SupplementarySignals": "Running wheel velocity.",
                 "TaskName": "My Running Task",
