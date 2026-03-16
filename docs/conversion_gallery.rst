@@ -231,7 +231,7 @@ Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contain
            {
                 "SampleEnvironment": "ex-vivo",
                 "SampleEmbedding": "Epoxy resin",
-                "SliceThickness": "5",  # In microns
+                "SliceThickness": "5",  // In microns
                 "SampleExtractionProtocol": "Aliquot of primary motor cortex extracted from brain and embedded in epoxy resin."
            }
 
