@@ -147,39 +147,39 @@ class GeneralMetadata(pydantic.BaseModel):
         ),
         default=None,
     )
-    BodyPart: float | None = pydantic.Field(
+    BodyPart: str | None = pydantic.Field(
         description="Body part of the organ / body region scanned.",
         default=None,
     )
-    BodyPartDetails: float | None = pydantic.Field(
+    BodyPartDetails: str | None = pydantic.Field(
         description='Additional details about body part or location (for example: "corpus callosum").',
         default=None,
     )
-    BodyPartDetailsOntology: float | None = pydantic.Field(
+    BodyPartDetailsOntology: str | None = pydantic.Field(
         description=(
             'URI of ontology used for BodyPartDetails (for example: "https://www.ebi.ac.uk/ols/ontologies/uberon").'
         ),
         default=None,
     )
-    SampleEnvironment: float | None = pydantic.Field(
+    SampleEnvironment: str | None = pydantic.Field(
         description=(
             'Environment in which the sample was imaged. MUST be one of: "in vivo", "ex vivo" or "in vitro". '
             'Must be one of: "in vivo", "ex vivo", "in vitro".'
         ),
         default=None,
     )
-    SampleEmbedding: float | None = pydantic.Field(
+    SampleEmbedding: str | None = pydantic.Field(
         description='Description of the tissue sample embedding (for example: "Epoxy resin").',
         default=None,
     )
-    SliceThickness: float | None = pydantic.Field(
+    SliceThickness: int | float | None = pydantic.Field(
         description=(
             'Slice thickness of the tissue sample in the unit micrometers ("um") (for example: 5). '
             "Must be a number greater than 0."
         ),
         default=None,
     )
-    SampleExtractionProtocol: float | None = pydantic.Field(
+    SampleExtractionProtocol: str | None = pydantic.Field(
         description="Description of the sample extraction protocol or URI (for example from protocols.io).",
         default=None,
     )
