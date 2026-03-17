@@ -237,7 +237,7 @@ class GeneralMetadata(pydantic.BaseModel):
             raise NotImplementedError(message)
         nwbfile = nwbfiles[0]
 
-        dictionary: dict[str, str] = {
+        dictionary: dict[str, str | int | float | None] = {
             "PowerLineFrequency": "n/a",
             "SamplingFrequency": "n/a",
             "SoftwareFilters": "n/a",
