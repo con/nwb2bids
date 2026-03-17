@@ -263,7 +263,7 @@ class GeneralMetadata(pydantic.BaseModel):
             if (model_number := electrode_group.device.model_number) is not None and model_number != "":
                 dictionary["ManufacturersModelVersion"] = model_number
 
-            if (brain_region := electrode_group.location) is not None or brain_region not in ["", "unknown", "n/a"]:
+            if (brain_region := electrode_group.location) is not None and brain_region not in ["", "unknown", "n/a"]:
                 dictionary["BodyPart"] = "BRAIN"
                 dictionary["BodyPartDetails"] = brain_region
 
