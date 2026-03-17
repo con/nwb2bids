@@ -81,6 +81,7 @@ To convert a single NWB file to BIDS dataset structure, we run the following com
                 "directories": set(),
                 "files": {
                     "sub-001_ses-A_ecephys.nwb",
+                    "sub-001_ses-A_ecephys.json",
                     "sub-001_ses-A_channels.tsv",
                     "sub-001_ses-A_channels.json",
                     "sub-001_ses-A_electrodes.tsv",
@@ -112,6 +113,7 @@ along the lines of:
         └── ses-A/
             └── ecephys/
                 ├── sub-001_ses-A_ecephys.nwb
+                ├── sub-001_ses-A_ecephys.json
                 ├── sub-001_ses-A_channels.tsv
                 ├── sub-001_ses-A_channels.json
                 ├── sub-001_ses-A_electrodes.tsv
@@ -177,6 +179,7 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
                 "directories": set(),
                 "files": {
                     "sub-001_ses-A_ecephys.nwb",
+                    "sub-001_ses-A_ecephys.json",
                     "sub-001_ses-A_channels.tsv",
                     "sub-001_ses-A_channels.json",
                     "sub-001_ses-A_electrodes.tsv",
@@ -193,6 +196,7 @@ To convert all of the NWB files under a directory to BIDS, we can run the follow
                 "directories": set(),
                 "files": {
                     "sub-001_ses-B_ecephys.nwb",
+                    "sub-001_ses-B_ecephys.json",
                     "sub-001_ses-B_channels.tsv",
                     "sub-001_ses-B_channels.json",
                     "sub-001_ses-B_electrodes.tsv",
@@ -220,6 +224,7 @@ And our BIDS dataset should look like:
         ├── ses-A/
         │   └── ecephys/
         │       ├── sub-001_ses-A_ecephys.nwb
+        │       ├── sub-001_ses-A_ecephys.json
         │       ├── sub-001_ses-A_channels.tsv
         │       ├── sub-001_ses-A_channels.json
         │       ├── sub-001_ses-A_electrodes.tsv
@@ -229,6 +234,7 @@ And our BIDS dataset should look like:
         └── ses-B/
             └── ecephys/
                 ├── sub-001_ses-B_ecephys.nwb
+                ├── sub-001_ses-B_ecephys.json
                 ├── sub-001_ses-B_channels.tsv
                 ├── sub-001_ses-B_channels.json
                 ├── sub-001_ses-B_electrodes.tsv
@@ -337,6 +343,7 @@ We can select which files and directories to convert like so:
                 "directories": set(),
                 "files": {
                     "sub-001_ses-A_ecephys.nwb",
+                    "sub-001_ses-A_ecephys.json",
                     "sub-001_ses-A_channels.tsv",
                     "sub-001_ses-A_channels.json",
                     "sub-001_ses-A_electrodes.tsv",
@@ -353,6 +360,7 @@ We can select which files and directories to convert like so:
                 "directories": set(),
                 "files": {
                     "sub-001_ses-B_ecephys.nwb",
+                    "sub-001_ses-B_ecephys.json",
                     "sub-001_ses-B_channels.tsv",
                     "sub-001_ses-B_channels.json",
                     "sub-001_ses-B_electrodes.tsv",
@@ -373,6 +381,7 @@ We can select which files and directories to convert like so:
                 "directories": set(),
                 "files": {
                     "sub-002_ses-C_ecephys.nwb",
+                    "sub-002_ses-C_ecephys.json",
                     "sub-002_ses-C_channels.tsv",
                     "sub-002_ses-C_channels.json",
                     "sub-002_ses-C_electrodes.tsv",
@@ -400,6 +409,7 @@ Our resulting BIDS dataset should now contain all three NWB files converted to B
     │   ├── ses-A/
     │   │   └── ecephys/
     │   │       ├── sub-001_ses-A_ecephys.nwb
+    │   │       ├── sub-001_ses-A_ecephys.json
     │   │       ├── sub-001_ses-A_channels.tsv
     │   │       ├── sub-001_ses-A_channels.json
     │   │       ├── sub-001_ses-A_electrodes.tsv
@@ -409,6 +419,7 @@ Our resulting BIDS dataset should now contain all three NWB files converted to B
     │   └── ses-B/
     │       └── ecephys/
     │           ├── sub-001_ses-B_ecephys.nwb
+    │           ├── sub-001_ses-B_ecephys.json
     │           ├── sub-001_ses-B_channels.tsv
     │           ├── sub-001_ses-B_channels.json
     │           ├── sub-001_ses-B_electrodes.tsv
@@ -421,6 +432,7 @@ Our resulting BIDS dataset should now contain all three NWB files converted to B
         └── ses-C/
             └── ecephys/
                 ├── sub-002_ses-C_ecephys.nwb
+                ├── sub-002_ses-C_ecephys.json
                 ├── sub-002_ses-C_channels.tsv
                 ├── sub-002_ses-C_channels.json
                 ├── sub-002_ses-C_electrodes.tsv
@@ -496,6 +508,7 @@ To test this out, we can create a new empty directory and navigate into it befor
                 "directories": set(),
                 "files": {
                     "sub-001_ses-A_ecephys.nwb",
+                    "sub-001_ses-A_ecephys.json",
                     "sub-001_ses-A_channels.tsv",
                     "sub-001_ses-A_channels.json",
                     "sub-001_ses-A_electrodes.tsv",
@@ -512,6 +525,7 @@ To test this out, we can create a new empty directory and navigate into it befor
                 "directories": set(),
                 "files": {
                     "sub-001_ses-B_ecephys.nwb",
+                    "sub-001_ses-B_ecephys.json",
                     "sub-001_ses-B_channels.tsv",
                     "sub-001_ses-B_channels.json",
                     "sub-001_ses-B_electrodes.tsv",
@@ -532,6 +546,7 @@ To test this out, we can create a new empty directory and navigate into it befor
                 "directories": set(),
                 "files": {
                     "sub-002_ses-C_ecephys.nwb",
+                    "sub-002_ses-C_ecephys.json",
                     "sub-002_ses-C_channels.tsv",
                     "sub-002_ses-C_channels.json",
                     "sub-002_ses-C_electrodes.tsv",
@@ -651,6 +666,7 @@ To include this additional metadata during conversion, we can use the following 
                 "directories": set(),
                 "files": {
                     "sub-001_ses-A_ecephys.nwb",
+                    "sub-001_ses-A_ecephys.json",
                     "sub-001_ses-A_channels.tsv",
                     "sub-001_ses-A_channels.json",
                     "sub-001_ses-A_electrodes.tsv",
@@ -724,6 +740,7 @@ broken down into the following distinct steps:
             "directories": set(),
             "files": {
                 "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_ecephys.json",
                 "sub-001_ses-A_channels.tsv",
                 "sub-001_ses-A_channels.json",
                 "sub-001_ses-A_electrodes.tsv",

@@ -106,7 +106,7 @@ Understanding the Standardization Landscape
 **nwb2bids** operates at the intersection of multiple neuroscience data standards.
 This section clarifies which standards are currently supported, which are planned for future implementation, and how they relate to the broader standardization ecosystem.
 
-For a comprehensive overview of neuroscience data standards and their relationships, see the `SfN 2025: "The Ecosystem of Standards in Neuroscience: Which Ones Are For You?" Poster <https://doi.org/10.5281/zenodo.18333007>`_ by Oliver Rübel *et al*.
+For a comprehensive overview of neuroscience data standards and their relationships, see the `SfN 2025: "The Ecosystem of Standards in Neuroscience: Which Ones Are For You?" Poster <https://zenodo.org/doi/10.5281/zenodo.18333007>`_ by Oliver Rübel *et al*.
 
 Currently Supported Standards
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

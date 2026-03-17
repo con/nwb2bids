@@ -53,6 +53,7 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-YutaMouse20_ses-YutaMouse20-140321_ecephys.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140321_channels.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140321_channels.tsv",
                 "sub-YutaMouse20_ses-YutaMouse20-140321_ecephys.nwb",
@@ -70,6 +71,7 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-YutaMouse20_ses-YutaMouse20-140327_ecephys.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140327_channels.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140327_channels.tsv",
                 "sub-YutaMouse20_ses-YutaMouse20-140327_ecephys.nwb",
@@ -130,6 +132,7 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.nwb",
@@ -190,6 +193,7 @@ def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.nwb",

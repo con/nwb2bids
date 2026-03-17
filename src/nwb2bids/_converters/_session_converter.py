@@ -195,6 +195,10 @@ class SessionConverter(BaseConverter):
         file_prefix = f"sub-{participant_id}_ses-{session_id}"
 
         modality_directory = self._establish_modality_subdirectory()
+
+        modality = modality_directory.name
+        general_metadata_file_path = modality_directory / f"{file_prefix}_{modality}.json"
+        self.session_metadata.general_metadata.to_json(file_path=general_metadata_file_path)
         if self.session_metadata.probe_table is not None:
             probes_tsv_file_path = modality_directory / f"{file_prefix}_probes.tsv"
             self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)

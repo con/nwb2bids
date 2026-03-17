@@ -11,6 +11,7 @@ from ._base_metadata_model import BaseMetadataContainerModel
 from ._channels import ChannelTable
 from ._electrodes import ElectrodeTable
 from ._events import Events
+from ._general_metadata import GeneralMetadata
 from ._model_globals import _VALID_ID_REGEX
 from ._participant import Participant
 from ._probes import ProbeTable
@@ -27,6 +28,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
 
     session_id: str | None = pydantic.Field(description="A unique session identifier.", default=None)
     participant: Participant = pydantic.Field(description="Metadata about a participant used in this experiment.")
+    general_metadata: GeneralMetadata = pydantic.Field(description="General metadata about the experiment.")
     events: Events | None = pydantic.Field(
         description="Timing data and metadata regarding events that occur during this experiment.", default=None
     )
@@ -98,6 +100,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         session_id = next(iter(session_ids))
 
         participant = Participant.from_nwbfiles(nwbfiles=nwbfiles)
+        general_metadata = GeneralMetadata.from_nwbfiles(nwbfiles=nwbfiles)
         events = Events.from_nwbfiles(nwbfiles=nwbfiles)
         probe_table = ProbeTable.from_nwbfiles(nwbfiles=nwbfiles)
         electrode_table = ElectrodeTable.from_nwbfiles(nwbfiles=nwbfiles)
@@ -106,6 +109,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         dictionary = {
             "session_id": session_id,
             "participant": participant,
+            "general_metadata": general_metadata,
             "run_config": run_config,
         }
         if events is not None:
