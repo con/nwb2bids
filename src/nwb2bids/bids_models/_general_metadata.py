@@ -103,7 +103,7 @@ class GeneralMetadata(pydantic.BaseModel):
     )
     SoftwareFilters: dict[str, dict[str, typing.Any]] | typing.Literal["n/a"] = pydantic.Field(
         description=(
-            'Object of temporal software filters applied, or "n/a" if the data is not available.Each key-value pair '
+            'Object of temporal software filters applied, or "n/a" if the data is not available. Each key-value pair '
             "in the JSON object is a name of the filter and an object in which its parameters are defined as "
             "key-value pairs ( for example, "
             '{"Anti-aliasing filter": {"half-amplitude cutoff (Hz)": 500, "Roll-off": "6dB/Octave"}}).'
@@ -192,7 +192,7 @@ class GeneralMetadata(pydantic.BaseModel):
     )
     TaskName: str | None = pydantic.Field(
         description=(
-            "	Name of the task. No two tasks should have the same name. The task label included in the filename "
+            "Name of the task. No two tasks should have the same name. The task label included in the filename "
             'MAY be derived from this "TaskName" field by removing all non-alphanumeric or + characters (that is, '
             "all except those matching [0-9a-zA-Z+]), and potentially replacing spaces with + to ease readability. "
             'For example "TaskName" "faces n-back" or "head nodding" could correspond to task labels faces+n+back '
@@ -237,7 +237,7 @@ class GeneralMetadata(pydantic.BaseModel):
             raise NotImplementedError(message)
         nwbfile = nwbfiles[0]
 
-        dictionary: dict[str, str] = {
+        dictionary: dict[str, str | int | float | None] = {
             "PowerLineFrequency": "n/a",
             "SamplingFrequency": "n/a",
             "SoftwareFilters": "n/a",
@@ -263,7 +263,7 @@ class GeneralMetadata(pydantic.BaseModel):
             if (model_number := electrode_group.device.model_number) is not None and model_number != "":
                 dictionary["ManufacturersModelVersion"] = model_number
 
-            if (brain_region := electrode_group.location) is not None or brain_region not in ["", "unknown", "n/a"]:
+            if (brain_region := electrode_group.location) is not None and brain_region not in ["", "unknown", "n/a"]:
                 dictionary["BodyPart"] = "BRAIN"
                 dictionary["BodyPartDetails"] = brain_region
 
