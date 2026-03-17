@@ -384,15 +384,15 @@ def test_ecephys_minimal_convert_nwb_dataset(
     channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
-        "name\telectrode_name\ttype\tunits",
-        "ch000\te000\tn/a\tV",
-        "ch001\te001\tn/a\tV",
-        "ch002\te002\tn/a\tV",
-        "ch003\te003\tn/a\tV",
-        "ch004\te004\tn/a\tV",
-        "ch005\te005\tn/a\tV",
-        "ch006\te006\tn/a\tV",
-        "ch007\te007\tn/a\tV",
+        "name\telectrode_name\ttype\tunits\tsampling_frequency",
+        "ch000\te000\tn/a\tV\t-1.0",
+        "ch001\te001\tn/a\tV\t-1.0",
+        "ch002\te002\tn/a\tV\t-1.0",
+        "ch003\te003\tn/a\tV\t-1.0",
+        "ch004\te004\tn/a\tV\t-1.0",
+        "ch005\te005\tn/a\tV\t-1.0",
+        "ch006\te006\tn/a\tV\t-1.0",
+        "ch007\te007\tn/a\tV\t-1.0",
     ]
     assert channels_tsv_lines == expected_channels_tsv_lines
 
