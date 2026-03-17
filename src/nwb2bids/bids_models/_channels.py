@@ -227,7 +227,7 @@ class ChannelTable(BaseMetadataContainerModel):
         modality = "ecephys" if has_ecephys_electrodes else "icephys"
         if modality == "ecephys":
             # Only scan electrical series listed under acquisition since those under processing can downsample the rate
-            sampling_frequency = None
+            sampling_frequency = -1.0
             stream_id = None
             gain = None
             raw_electrical_series = [

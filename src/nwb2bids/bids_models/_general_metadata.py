@@ -239,7 +239,7 @@ class GeneralMetadata(pydantic.BaseModel):
 
         dictionary: dict[str, str | int | float | None] = {
             "PowerLineFrequency": "n/a",
-            "SamplingFrequency": "n/a",
+            "SamplingFrequency": -1.0,
             "SoftwareFilters": "n/a",
         }
 
