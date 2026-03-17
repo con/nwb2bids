@@ -54,13 +54,13 @@ class GeneralMetadata(pydantic.BaseModel):
         description="Custom name of the recording setup.",
         default=None,
     )
-    SamplingFrequency: float | typing.Literal["n/a"] = pydantic.Field(
+    SamplingFrequency: float = pydantic.Field(
         description=(
             "Sampling frequency (in Hz) of all the data in the recording, regardless of their type "
             "(for example, 2400). Internal (maximum) sampling frequency (in Hz) of the recording "
             '(for example, "24000").'
         ),
-        default="n/a",
+        default=-1.0,
     )
     DeviceSerialNumber: str | None = pydantic.Field(
         description=(

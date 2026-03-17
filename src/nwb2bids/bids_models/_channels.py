@@ -68,10 +68,10 @@ class Channel(BaseMetadataModel):
         title="Units",
         default="V",
     )
-    sampling_frequency: float | None = pydantic.Field(
+    sampling_frequency: float = pydantic.Field(
         description="Sampling rate of the channel in Hz.",
         title="Sampling frequency",
-        default=None,
+        default=-1.0,
     )
     low_cutoff: float | None = pydantic.Field(
         description=(
