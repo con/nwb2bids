@@ -223,7 +223,9 @@ class SessionConverter(BaseConverter):
             self.session_metadata.electrode_table.to_json(file_path=electrodes_json_file_path)
 
             if self.run_config.space is not None:
-                coordsystem_file_path = modality_directory / f"{file_prefix}_space-{self.run_config.space}_coordsystem.json"
+                coordsystem_file_path = (
+                    modality_directory / f"{file_prefix}_space-{self.run_config.space}_coordsystem.json"
+                )
                 write_coordsystem_json(file_path=coordsystem_file_path, space=self.run_config.space)
 
     def write_events_files(self) -> None:
