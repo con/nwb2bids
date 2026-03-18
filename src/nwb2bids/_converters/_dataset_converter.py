@@ -334,9 +334,7 @@ class DatasetConverter(BaseConverter):
                 if is_field_in_table.get(field, False) is True
             }
             if sanitization_config is not None and sanitization_config.sub_labels:
-                participants_json["participant_id_orig"] = (
-                    "The original participant identifier before sanitization."
-                )
+                participants_json["participant_id_orig"] = "The original participant identifier before sanitization."
             participants_json_file_path = self.run_config.bids_directory / "participants.json"
             with participants_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=participants_json, fp=file_stream, indent=4)
@@ -356,7 +354,11 @@ class DatasetConverter(BaseConverter):
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
 
         # Check if session ID sanitization is enabled
-        sanitization_config = self.session_converters[0].session_metadata.sanitization.sanitization_config if self.session_converters else None
+        sanitization_config = (
+            self.session_converters[0].session_metadata.sanitization.sanitization_config
+            if self.session_converters
+            else None
+        )
         if sanitization_config is not None and sanitization_config.ses_labels:
             sessions_json["session_id_orig"] = "The original session identifier before sanitization."
 
