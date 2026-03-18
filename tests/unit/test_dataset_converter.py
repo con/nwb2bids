@@ -334,7 +334,6 @@ def test_dataset_converter_write_bidsignore(
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target=archive_target)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-    dataset_converter.extract_metadata()
     dataset_converter.write_bidsignore()
     assert not any(dataset_converter.notifications)
 
@@ -351,7 +350,6 @@ def test_dataset_converter_no_bidsignore_with_archive_target_none(
     nwb_paths = [minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-    dataset_converter.extract_metadata()
     dataset_converter.write_bidsignore()
     assert not any(dataset_converter.notifications)
 
