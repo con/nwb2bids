@@ -57,10 +57,10 @@ Always place the **actual** (test) value on the **left** and the **expected** va
 
 .. code-block:: python
 
-   # Correct
+   # Convention
    assert actual_value == expected_value
 
-   # Incorrect
+   # Not conventional
    assert expected_value == actual_value
 
 For ``pandas`` comparisons, use ``left`` for the actual value and ``right`` for the expected value:
