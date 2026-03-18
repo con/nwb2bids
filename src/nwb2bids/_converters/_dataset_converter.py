@@ -272,7 +272,7 @@ class DatasetConverter(BaseConverter):
         # Deduplicate all rows of the frame
         deduplicated_data_frame = aggregated_data_frame.drop_duplicates(ignore_index=True).copy()
 
-        # Save original IDs before sanitization (for potential participant_id_orig column)
+        # Save original IDs before sanitization (for potential original_participant_id column)
         original_participant_id_values = deduplicated_data_frame["participant_id"].copy()
 
         # Apply sanitization
@@ -297,12 +297,12 @@ class DatasetConverter(BaseConverter):
             .astype("string")
         )
 
-        # Add participant_id_orig column if sub_labels sanitization is enabled
+        # Add original_participant_id column if sub_labels sanitization is enabled
         sanitization_config = sanitizations[0].sanitization_config if sanitizations else None
         if sanitization_config is not None and sanitization_config.sub_labels:
             participants_data_frame.insert(
                 loc=1,
-                column="participant_id_orig",
+                column="original_participant_id",
                 value=original_participant_id_values.apply(lambda pid: f"sub-{pid}").astype("string"),
             )
 
@@ -311,7 +311,7 @@ class DatasetConverter(BaseConverter):
         # BIDS Validator is strict regarding column order
         required_column_order = [
             field
-            for field in ["participant_id", "participant_id_orig", "species", "sex", "strain"]
+            for field in ["participant_id", "original_participant_id", "species", "sex", "strain"]
             if is_field_in_table.get(field, False) is True
         ]
         column_order = required_column_order + [
@@ -334,7 +334,7 @@ class DatasetConverter(BaseConverter):
                 if is_field_in_table.get(field, False) is True
             }
             if sanitization_config is not None and sanitization_config.sub_labels:
-                participants_json["participant_id_orig"] = "The original participant identifier before sanitization."
+                participants_json["original_participant_id"] = "The original participant identifier before sanitization."
             participants_json_file_path = self.run_config.bids_directory / "participants.json"
             with participants_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=participants_json, fp=file_stream, indent=4)
@@ -360,7 +360,7 @@ class DatasetConverter(BaseConverter):
             else None
         )
         if sanitization_config is not None and sanitization_config.ses_labels:
-            sessions_json["session_id_orig"] = "The original session identifier before sanitization."
+            sessions_json["original_session_id"] = "The original session identifier before sanitization."
 
         for participant_id, sessions_metadata in participant_id_to_sessions.items():
             sanitized_participant_id = participant_id
@@ -376,12 +376,12 @@ class DatasetConverter(BaseConverter):
                 {"session_id": [f"ses-{session_id}" for session_id in sanitized_session_ids]}
             )
 
-            # Add session_id_orig column if ses_labels sanitization is enabled
+            # Add original_session_id column if ses_labels sanitization is enabled
             if sanitization_config is not None and sanitization_config.ses_labels:
                 original_session_ids = [
                     session_metadata.sanitization.original_session_id for session_metadata in sessions_metadata
                 ]
-                sessions_data_frame["session_id_orig"] = pandas.Series(
+                sessions_data_frame["original_session_id"] = pandas.Series(
                     [f"ses-{session_id}" for session_id in original_session_ids]
                 ).astype("string")
 

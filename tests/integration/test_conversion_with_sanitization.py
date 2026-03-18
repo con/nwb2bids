@@ -46,18 +46,18 @@ def test_convert_nwb_dataset_basic_sanitization(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
-    # Check that participants.tsv has participant_id_orig column with original (pre-sanitization) value
+    # Check that participants.tsv has original_participant_id column with original (pre-sanitization) value
     participants_tsv_path = temporary_bids_directory / "participants.tsv"
     participants_tsv_lines = participants_tsv_path.read_text().splitlines()
     assert participants_tsv_lines[0].split("\t")[0] == "participant_id"
-    assert participants_tsv_lines[0].split("\t")[1] == "participant_id_orig"
+    assert participants_tsv_lines[0].split("\t")[1] == "original_participant_id"
     assert participants_tsv_lines[1].split("\t")[0] == "sub-bad+subject+id"
     assert participants_tsv_lines[1].split("\t")[1] == "sub-bad subject id"
 
-    # Check that sessions.tsv has session_id_orig column with original (pre-sanitization) value
+    # Check that sessions.tsv has original_session_id column with original (pre-sanitization) value
     sessions_tsv_path = temporary_bids_directory / "sub-bad+subject+id" / "sub-bad+subject+id_sessions.tsv"
     sessions_tsv_lines = sessions_tsv_path.read_text().splitlines()
     assert sessions_tsv_lines[0].split("\t")[0] == "session_id"
-    assert sessions_tsv_lines[0].split("\t")[1] == "session_id_orig"
+    assert sessions_tsv_lines[0].split("\t")[1] == "original_session_id"
     assert sessions_tsv_lines[1].split("\t")[0] == "ses-problematic+2"
     assert sessions_tsv_lines[1].split("\t")[1] == "ses-#problematic!2~"
