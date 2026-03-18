@@ -218,7 +218,7 @@ class DatasetConverter(BaseConverter):
 
     def write_bidsignore(self) -> None:
         """Write the `.bidsignore` file if an archive target of `"dandi"` or `"ember"` is specified."""
-        if self.run_config.archive_target is None:
+        if (archive_target := self.run_config.archive_target) is None or archive_target not in ["dandi", "ember"]:
             return
 
         bidsignore_file_path = self.run_config.bids_directory / ".bidsignore"

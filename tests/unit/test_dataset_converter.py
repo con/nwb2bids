@@ -344,7 +344,7 @@ def test_dataset_converter_write_bidsignore(
 
 
 @pytest.mark.ai_generated
-def test_dataset_converter_write_bidsignore_no_archive_target(
+def test_dataset_converter_no_bidsignore_with_archive_target_none(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     """Test that write_bidsignore does not create a .bidsignore file when archive_target is None."""
