@@ -608,8 +608,8 @@ def test_ecephys_convert_with_space_paxinos_watson(
         "MicroephysCoordinateSystemDescription": (
             "Paxinos and Watson Rat Brain Atlas, 7th edition. "
             "The origin is at Bregma. "
-            "X is anterior-posterior (anterior positive), "
-            "Y is inferior-superior (superior positive), "
+            "X is anterior-posterior (anterior negative), "
+            "Y is inferior-superior (inferior positive), "
             "Z is left-right (right positive). "
             "Coordinates are in millimeters."
         ),

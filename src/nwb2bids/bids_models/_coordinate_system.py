@@ -9,8 +9,6 @@ import json
 import pathlib
 import typing
 
-_DATA_FILE = pathlib.Path(__file__).parent / "_coordinate_system_data.json"
-
 
 def write_coordsystem_json(
     file_path: str | pathlib.Path,
@@ -27,7 +25,8 @@ def write_coordsystem_json(
         The space/atlas label.
     """
     file_path = pathlib.Path(file_path)
-    all_data: dict[str, dict[str, str]] = json.loads(_DATA_FILE.read_text())
+    data_file = pathlib.Path(__file__).parent / "_coordinate_system_data.json"
+    all_data: dict[str, dict[str, str]] = json.loads(data_file.read_text())
     content = all_data[space]
     with file_path.open(mode="w") as file_stream:
         json.dump(obj=content, fp=file_stream, indent=4)
