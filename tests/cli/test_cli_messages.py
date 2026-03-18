@@ -34,7 +34,7 @@ def test_problematic_cli_error_messages(
         "",
     ]
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
-    assert expected_message == actual_lines[:-2]
+    assert actual_lines[:-2] == expected_message
     assert "Please review the full notifications report at" in actual_lines[-2]
     assert b"No modality information found in session metadata" in result.stderr
 
@@ -52,7 +52,7 @@ def test_problematic_cli_critical_messages(
 
     expected_message = ["", "BIDS dataset was successfully created, but may not be valid!", ""]
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
-    assert expected_message == actual_lines[:-2]
+    assert actual_lines[:-2] == expected_message
     assert "Please review the full notifications report at" in actual_lines[-2]
     assert b"No modality information found in session metadata" in result.stderr
 
@@ -75,7 +75,7 @@ def test_problematic_cli_info_messages(
         "",
     ]
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
-    assert expected_message == actual_lines[:-2]
+    assert actual_lines[:-2] == expected_message
     assert "Please review the full notifications report at" in actual_lines[-2]
     assert result.stderr == b""
 
@@ -93,7 +93,7 @@ def test_cli_success(
 
     expected_message = ["", "BIDS dataset was successfully created!", ""]
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
-    assert expected_message == actual_lines
+    assert actual_lines == expected_message
     assert b"No modality information found in session metadata" in result.stderr
 
 
