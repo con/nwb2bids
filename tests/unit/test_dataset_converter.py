@@ -358,6 +358,7 @@ def test_dataset_converter_no_bidsignore_with_archive_target_none(
     bidsignore_file_path = temporary_bids_directory / ".bidsignore"
     assert not bidsignore_file_path.exists()
 
+
 @pytest.mark.ai_generated
 def test_dataset_converter_write_bidsignore_appends_to_existing(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
