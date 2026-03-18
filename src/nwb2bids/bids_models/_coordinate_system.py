@@ -40,7 +40,6 @@ _COORDINATE_SYSTEM_DATA: dict[str, dict[str, str]] = {
 }
 
 SpaceLabel = typing.Literal["AllenCCFv3", "PaxinosWatson"]
-VALID_SPACE_LABELS: tuple[str, ...] = ("AllenCCFv3", "PaxinosWatson")
 
 
 def write_coordsystem_json(file_path: str | pathlib.Path, space: str) -> None:
