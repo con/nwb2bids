@@ -374,3 +374,33 @@ def test_convert_to_bids_dataset_creates_bidsignore(
     bidsignore_file_path = temporary_bids_directory / ".bidsignore"
     assert bidsignore_file_path.exists()
     assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
+
+
+def test_dataset_converter_write_bidsignore_appends_to_existing(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """Test that write_bidsignore appends to an existing .bidsignore file."""
+    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
+    bidsignore_file_path.write_text("some_existing_entry\n")
+
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target="dandi")
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.write_bidsignore()
+
+    assert bidsignore_file_path.read_text() == "some_existing_entry\ndandiset.yaml\n"
+
+
+def test_dataset_converter_write_bidsignore_no_duplicate(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """Test that write_bidsignore does not add a duplicate dandiset.yaml entry."""
+    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
+    bidsignore_file_path.write_text("dandiset.yaml\n")
+
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target="dandi")
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.write_bidsignore()
+
+    assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
