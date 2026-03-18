@@ -302,6 +302,7 @@ known-first-party = ["nwb2bids"]
 markers = [
     "remote: mark a test as requiring remote resources",
     "container_cli_test: mark a test as suitable for container CLI testing",
+    "ai_generated: mark a test as AI generated",
 ]
 addopts = "-ra"
 testpaths = ["tests"]

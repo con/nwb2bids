@@ -482,6 +482,7 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
     )
 
 
+@pytest.mark.ai_generated
 def test_ecephys_convert_with_space_allen_ccf(
     ecephys_minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -557,6 +558,7 @@ def test_ecephys_convert_with_space_allen_ccf(
     assert coordsystem_json == expected_coordsystem_json
 
 
+@pytest.mark.ai_generated
 def test_ecephys_convert_with_space_paxinos_watson(
     ecephys_minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
