@@ -74,6 +74,18 @@ def _nwb2bids_cli():
 )
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 @rich_click.option(
+    "--archive-target",
+    "archive_target",
+    help=(
+        "The archive that the BIDS dataset is intended for. "
+        "When set, a `.bidsignore` file is created with `dandiset.yaml` listed inside, "
+        "since `dandiset.yaml` is not part of the BIDS specification."
+    ),
+    required=False,
+    type=rich_click.Choice(["dandi", "ember"], case_sensitive=True),
+    default=None,
+)
+@rich_click.option(
     "--run-id",
     help=(
         "On each unique run of nwb2bids, a run ID is generated. "
@@ -93,6 +105,7 @@ def _run_convert_nwb_dataset(
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
     run_id: str | None = None,
+    archive_target: typing.Literal["dandi", "ember"] | None = None,
     silent: bool = False,
 ) -> None:
     """
@@ -118,6 +131,7 @@ def _run_convert_nwb_dataset(
         "cache_directory": cache_directory,
         "sanitization_config": sanitization_config,
         "run_id": run_id,
+        "archive_target": archive_target,
     }
 
     # Filter out values that indicate absence of direct user input or signal to use default
