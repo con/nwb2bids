@@ -481,6 +481,21 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
         directory=temporary_run_directory, expected_structure=expected_structure
     )
 
+@pytest.mark.ai_generated
+@pytest.mark.parametrize("archive_target", ["dandi", "ember"])
+def test_convert_nwb_dataset_creates_bidsignore(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    archive_target: str,
+):
+    """Test that convert_nwb_dataset creates .bidsignore when archive_target is set."""
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target=archive_target)
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+
+    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
+    assert bidsignore_file_path.exists()
+    assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
 
 @pytest.mark.ai_generated
 def test_ecephys_convert_with_space_allen_ccf(
