@@ -223,15 +223,13 @@ class DatasetConverter(BaseConverter):
 
         bidsignore_file_path = self.run_config.bids_directory / ".bidsignore"
 
-        entry = "dandiset.yaml\n"
+        entry = "dandiset.yaml"
         if bidsignore_file_path.exists():
-            existing_content = bidsignore_file_path.read_text()
-            if entry in existing_content.splitlines(keepends=True) or entry.strip() in existing_content.splitlines():
+            existing_lines = {line.strip() for line in bidsignore_file_path.read_text().splitlines()}
+            if entry in existing_lines:
                 return
-            with bidsignore_file_path.open(mode="a") as file_stream:
-                file_stream.write(entry)
-        else:
-            bidsignore_file_path.write_text(entry)
+        with bidsignore_file_path.open(mode="a") as file_stream:
+            file_stream.write(entry + "\n")
 
     def write_dataset_description(self) -> None:
         """Write the `dataset_description.json` file."""
