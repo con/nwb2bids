@@ -25,8 +25,8 @@ def write_coordsystem_json(
         The space/atlas label.
     """
     file_path = pathlib.Path(file_path)
-    data_file = pathlib.Path(__file__).parent / "_coordinate_system_data.json"
-    all_data: dict[str, dict[str, str]] = json.loads(data_file.read_text())
+    data_file_path = pathlib.Path(__file__).parent / "_coordinate_system_data.json"
+    all_data: dict[str, dict[str, str]] = json.loads(data_file_path.read_text())
     content = all_data[space]
     with file_path.open(mode="w") as file_stream:
         json.dump(obj=content, fp=file_stream, indent=4)
