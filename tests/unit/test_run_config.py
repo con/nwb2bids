@@ -29,3 +29,22 @@ def test_run_config_missing_parent_raises(temporary_bids_directory: pathlib.Path
 
     with pytest.raises(expected_exception=pydantic.ValidationError, match="parent directory does not exist"):
         nwb2bids.RunConfig(bids_directory=nested_bids_directory)
+
+
+def test_run_config_archive_target_default_is_none(temporary_bids_directory: pathlib.Path):
+    """Test that the archive_target field defaults to None."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    assert run_config.archive_target is None
+
+
+@pytest.mark.parametrize("archive_target", ["dandi", "ember"])
+def test_run_config_archive_target_valid_values(temporary_bids_directory: pathlib.Path, archive_target: str):
+    """Test that archive_target accepts valid values."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target=archive_target)
+    assert run_config.archive_target == archive_target
+
+
+def test_run_config_archive_target_invalid_value_raises(temporary_bids_directory: pathlib.Path):
+    """Test that archive_target rejects invalid values."""
+    with pytest.raises(expected_exception=pydantic.ValidationError):
+        nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target="invalid")

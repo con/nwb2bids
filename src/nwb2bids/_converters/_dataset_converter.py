@@ -204,6 +204,7 @@ class DatasetConverter(BaseConverter):
             self.write_participants_metadata()
             self.write_sessions_metadata()
             self.write_dataset_description()
+            self.write_bidsignore()
         except Exception:  # noqa
             notification = Notification.from_definition(
                 identifier="LocalInitializationFailure", traceback=traceback.format_exc()
@@ -214,6 +215,21 @@ class DatasetConverter(BaseConverter):
             self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
             notifications_dump = [notification.model_dump(mode="json") for notification in self.notifications]
             self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
+
+    def write_bidsignore(self) -> None:
+        """Write the `.bidsignore` file if an archive target of `"dandi"` or `"ember"` is specified."""
+        if (archive_target := self.run_config.archive_target) is None or archive_target not in ["dandi", "ember"]:
+            return
+
+        bidsignore_file_path = self.run_config.bids_directory / ".bidsignore"
+
+        entry = "dandiset.yaml"
+        if bidsignore_file_path.exists():
+            existing_lines = {line.strip() for line in bidsignore_file_path.read_text().splitlines()}
+            if entry in existing_lines:
+                return
+        with bidsignore_file_path.open(mode="a") as file_stream:
+            file_stream.write(entry + "\n")
 
     def write_dataset_description(self) -> None:
         """Write the `dataset_description.json` file."""
