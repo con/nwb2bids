@@ -1,43 +1,15 @@
+"""
+This submodule has been simplified from the style of its siblings.
+
+Rather than defining a mutable Pydantic model with live validation, we encode a few hard-coded
+JSON contents to directly lookup and dump when needed.
+"""
+
 import json
 import pathlib
 import typing
 
-_COORDINATE_SYSTEM_DATA: dict[str, dict[str, str]] = {
-    "AllenCCFv3": {
-        "MicroephysCoordinateSystem": "AllenCCFv3",
-        "MicroephysCoordinateUnits": "um",
-        "MicroephysCoordinateSystemDescription": (
-            "Allen Mouse Brain Common Coordinate Framework version 3. "
-            "The origin is at the anterior commissure. "
-            "X is anterior-posterior (anterior positive), "
-            "Y is inferior-superior (superior positive), "
-            "Z is left-right (right positive). "
-            "Coordinates are in micrometers."
-        ),
-        "MicroephysCoordinateProcessingDescription": (
-            "Electrode positions were registered to the Allen CCF using anatomical landmarks "
-            "and/or histological verification."
-        ),
-        "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/j.cell.2020.04.007",
-    },
-    "PaxinosWatson": {
-        "MicroephysCoordinateSystem": "PaxinosWatson",
-        "MicroephysCoordinateUnits": "mm",
-        "MicroephysCoordinateSystemDescription": (
-            "Paxinos and Watson Rat Brain Atlas, 7th edition. "
-            "The origin is at Bregma. "
-            "X is anterior-posterior (anterior positive), "
-            "Y is inferior-superior (superior positive), "
-            "Z is left-right (right positive). "
-            "Coordinates are in millimeters."
-        ),
-        "MicroephysCoordinateProcessingDescription": (
-            "Electrode positions were registered to the Paxinos and Watson atlas using anatomical landmarks "
-            "and/or histological verification."
-        ),
-        "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/C2009-0-63235-9",
-    },
-}
+_DATA_FILE = pathlib.Path(__file__).parent / "_coordinate_system_data.json"
 
 
 def write_coordsystem_json(
@@ -51,10 +23,11 @@ def write_coordsystem_json(
     ----------
     file_path : path
         The path to the output `*_coordsystem.json` file.
-    space : str
-        The space/atlas label (e.g., ``"AllenCCFv3"`` or ``"PaxinosWatson"``).
+    space : {"AllenCCFv3", "PaxinosWatson"}
+        The space/atlas label.
     """
     file_path = pathlib.Path(file_path)
-    content = _COORDINATE_SYSTEM_DATA[space]
+    all_data: dict[str, dict[str, str]] = json.loads(_DATA_FILE.read_text())
+    content = all_data[space]
     with file_path.open(mode="w") as file_stream:
         json.dump(obj=content, fp=file_stream, indent=4)
