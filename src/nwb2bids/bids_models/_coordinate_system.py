@@ -16,7 +16,7 @@ _COORDINATE_SYSTEM_DATA: dict[str, dict[str, str]] = {
         ),
         "MicroephysCoordinateProcessingDescription": (
             "Electrode positions were registered to the Allen CCF using anatomical landmarks "
-            "and histological verification."
+            "and/or histological verification."
         ),
         "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/j.cell.2020.04.007",
     },
@@ -33,7 +33,7 @@ _COORDINATE_SYSTEM_DATA: dict[str, dict[str, str]] = {
         ),
         "MicroephysCoordinateProcessingDescription": (
             "Electrode positions were registered to the Paxinos and Watson atlas using anatomical landmarks "
-            "and histological verification."
+            "and/or histological verification."
         ),
         "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/C2009-0-63235-9",
     },
