@@ -14,6 +14,7 @@ from ._run_config import RunConfig
 from .._converters._base_converter import BaseConverter
 from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
+from ..bids_models._coordinate_system import write_coordsystem_json
 from ..notifications import Notification
 
 
@@ -214,11 +215,16 @@ class SessionConverter(BaseConverter):
             self.session_metadata.channel_table.to_json(file_path=channels_json_file_path)
 
         if self.session_metadata.electrode_table is not None:
-            electrodes_tsv_file_path = modality_directory / f"{file_prefix}_electrodes.tsv"
+            space_entity = f"_space-{self.run_config.space}" if self.run_config.space else ""
+            electrodes_tsv_file_path = modality_directory / f"{file_prefix}{space_entity}_electrodes.tsv"
             self.session_metadata.electrode_table.to_tsv(file_path=electrodes_tsv_file_path)
 
-            electrodes_json_file_path = modality_directory / f"{file_prefix}_electrodes.json"
+            electrodes_json_file_path = modality_directory / f"{file_prefix}{space_entity}_electrodes.json"
             self.session_metadata.electrode_table.to_json(file_path=electrodes_json_file_path)
+
+            if self.run_config.space is not None:
+                coordsystem_file_path = modality_directory / f"{file_prefix}_space-{self.run_config.space}_coordsystem.json"
+                write_coordsystem_json(file_path=coordsystem_file_path, space=self.run_config.space)
 
     def write_events_files(self) -> None:
         """Write the `_events.tsv` and `_events.json` files for this session."""

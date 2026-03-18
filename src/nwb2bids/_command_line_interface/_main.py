@@ -74,6 +74,17 @@ def _nwb2bids_cli():
 )
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 @rich_click.option(
+    "--space",
+    help=(
+        "The atlas/coordinate space label to apply to electrode positions. "
+        "When specified, a `space-<label>` entity is added to the `*_electrodes.tsv` filename "
+        "and a corresponding `*_space-<label>_coordsystem.json` sidecar file is created."
+    ),
+    required=False,
+    type=rich_click.Choice(["AllenCCFv3", "PaxinosWatson"], case_sensitive=True),
+    default=None,
+)
+@rich_click.option(
     "--run-id",
     help=(
         "On each unique run of nwb2bids, a run ID is generated. "
@@ -94,6 +105,7 @@ def _run_convert_nwb_dataset(
     cache_directory: str | None = None,
     run_id: str | None = None,
     silent: bool = False,
+    space: str | None = None,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -118,6 +130,7 @@ def _run_convert_nwb_dataset(
         "cache_directory": cache_directory,
         "sanitization_config": sanitization_config,
         "run_id": run_id,
+        "space": space,
     }
 
     # Filter out values that indicate absence of direct user input or signal to use default
