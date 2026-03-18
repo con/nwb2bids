@@ -84,8 +84,8 @@ def _nwb2bids_cli():
     type=rich_click.Choice(["AllenCCFv3", "PaxinosWatson"], case_sensitive=True),
     default=None,
 )
-    "--archive-target",
 @rich_click.option(
+    "--archive-target",
     "archive_target",
     help=(
         "The archive that the BIDS dataset is intended for. "
