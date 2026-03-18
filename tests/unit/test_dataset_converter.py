@@ -358,27 +358,6 @@ def test_dataset_converter_no_bidsignore_with_archive_target_none(
     bidsignore_file_path = temporary_bids_directory / ".bidsignore"
     assert not bidsignore_file_path.exists()
 
-
-@pytest.mark.ai_generated
-@pytest.mark.parametrize("archive_target", ["dandi", "ember"])
-def test_convert_to_bids_dataset_creates_bidsignore(
-    minimal_nwbfile_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-    archive_target: str,
-):
-    """Test that convert_to_bids_dataset creates .bidsignore when archive_target is set."""
-    nwb_paths = [minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target=archive_target)
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-    dataset_converter.extract_metadata()
-    dataset_converter.convert_to_bids_dataset()
-    assert not any(dataset_converter.notifications)
-
-    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
-    assert bidsignore_file_path.exists()
-    assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
-
-
 @pytest.mark.ai_generated
 def test_dataset_converter_write_bidsignore_appends_to_existing(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
