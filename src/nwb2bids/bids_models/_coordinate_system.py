@@ -1,5 +1,6 @@
 import json
 import pathlib
+import typing
 
 _COORDINATE_SYSTEM_DATA: dict[str, dict[str, str]] = {
     "AllenCCFv3": {
@@ -39,7 +40,10 @@ _COORDINATE_SYSTEM_DATA: dict[str, dict[str, str]] = {
 }
 
 
-def write_coordsystem_json(file_path: str | pathlib.Path, space: str) -> None:
+def write_coordsystem_json(
+    file_path: str | pathlib.Path,
+    space: typing.Literal["AllenCCFv3", "PaxinosWatson"],
+) -> None:
     """
     Write a BIDS coordinate system JSON sidecar file for the given space label.
 
