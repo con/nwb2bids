@@ -336,7 +336,9 @@ class DatasetConverter(BaseConverter):
                 if is_field_in_table.get(field, False) is True
             }
             if sanitization_config is not None and sanitization_config.sub_labels:
-                participants_json["original_participant_id"] = "The original participant identifier before sanitization."
+                participants_json["original_participant_id"] = (
+                    "The original participant identifier before sanitization."
+                )
             participants_json_file_path = self.run_config.bids_directory / "participants.json"
             with participants_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=participants_json, fp=file_stream, indent=4)
