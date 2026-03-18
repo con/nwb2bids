@@ -550,7 +550,7 @@ def test_ecephys_convert_with_space_allen_ccf(
         ),
         "MicroephysCoordinateProcessingDescription": (
             "Electrode positions were registered to the Allen CCF using anatomical landmarks "
-            "and histological verification."
+            "and/or histological verification."
         ),
         "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/j.cell.2020.04.007",
     }
@@ -596,7 +596,7 @@ def test_ecephys_convert_with_space_paxinos_watson(
         ),
         "MicroephysCoordinateProcessingDescription": (
             "Electrode positions were registered to the Paxinos and Watson atlas using anatomical landmarks "
-            "and histological verification."
+            "and/or histological verification."
         ),
         "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/C2009-0-63235-9",
     }
