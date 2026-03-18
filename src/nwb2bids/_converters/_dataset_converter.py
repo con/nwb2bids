@@ -217,7 +217,7 @@ class DatasetConverter(BaseConverter):
             self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
 
     def write_bidsignore(self) -> None:
-        """Write the `.bidsignore` file if an archive target is specified."""
+        """Write the `.bidsignore` file if an archive target of `"dandi"` or `"ember"` is specified."""
         if self.run_config.archive_target is None:
             return
 

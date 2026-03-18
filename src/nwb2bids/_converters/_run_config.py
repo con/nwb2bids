@@ -55,11 +55,11 @@ class RunConfig(pydantic.BaseModel):
         Set this option to override this to any identifying string.
         This ID is used in the naming of the files saved to your run directory.
         The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
-    archive_target : one of "dandi", "ember", or None
-        The archive that the BIDS dataset is intended for.
-        When set to a non-None value, a `.bidsignore` file is created in the BIDS directory
+    archive_target : one of "dandi", "ember", or None, default: None
+        The archive you intend to upload the BIDS dataset to.
+        When set to a non-`None` value, a `.bidsignore` file is created in the BIDS directory
         containing `dandiset.yaml`, since `dandiset.yaml` is not part of the BIDS specification.
-        Defaults to None (no `.bidsignore` file is created).
+        If `None`, then no `.bidsignore` file is created.
     """
 
     bids_directory: pathlib.Path = pydantic.Field(default_factory=pathlib.Path.cwd)

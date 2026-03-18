@@ -325,6 +325,7 @@ def test_dataset_description_validates_exactly_one_nwb2bids():
     assert dataset_description.GeneratedBy[1].Name == "nwb2bids"
 
 
+@pytest.mark.ai_generated
 @pytest.mark.parametrize("archive_target", ["dandi", "ember"])
 def test_dataset_converter_write_bidsignore(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path, archive_target: str
@@ -342,6 +343,7 @@ def test_dataset_converter_write_bidsignore(
     assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
 
 
+@pytest.mark.ai_generated
 def test_dataset_converter_write_bidsignore_no_archive_target(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -357,6 +359,7 @@ def test_dataset_converter_write_bidsignore_no_archive_target(
     assert not bidsignore_file_path.exists()
 
 
+@pytest.mark.ai_generated
 @pytest.mark.parametrize("archive_target", ["dandi", "ember"])
 def test_convert_to_bids_dataset_creates_bidsignore(
     minimal_nwbfile_path: pathlib.Path,
@@ -376,6 +379,7 @@ def test_convert_to_bids_dataset_creates_bidsignore(
     assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
 
 
+@pytest.mark.ai_generated
 def test_dataset_converter_write_bidsignore_appends_to_existing(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -391,6 +395,7 @@ def test_dataset_converter_write_bidsignore_appends_to_existing(
     assert bidsignore_file_path.read_text() == "some_existing_entry\ndandiset.yaml\n"
 
 
+@pytest.mark.ai_generated
 def test_dataset_converter_write_bidsignore_no_duplicate(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
