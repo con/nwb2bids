@@ -481,6 +481,7 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
         directory=temporary_run_directory, expected_structure=expected_structure
     )
 
+
 @pytest.mark.ai_generated
 @pytest.mark.parametrize("archive_target", ["dandi", "ember"])
 def test_convert_nwb_dataset_creates_bidsignore(
@@ -496,6 +497,7 @@ def test_convert_nwb_dataset_creates_bidsignore(
     bidsignore_file_path = temporary_bids_directory / ".bidsignore"
     assert bidsignore_file_path.exists()
     assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
+
 
 @pytest.mark.ai_generated
 def test_ecephys_convert_with_space_allen_ccf(
