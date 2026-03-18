@@ -298,12 +298,14 @@ class DatasetConverter(BaseConverter):
         )
 
         # Add original_participant_id column if sub_labels sanitization is enabled
-        sanitization_config = sanitizations[0].sanitization_config if sanitizations else None
+        sanitization_config = sanitizations[0].sanitization_config if len(sanitizations) != 0 else None
         if sanitization_config is not None and sanitization_config.sub_labels:
             participants_data_frame.insert(
                 loc=1,
                 column="original_participant_id",
-                value=original_participant_id_values.apply(lambda pid: f"sub-{pid}").astype("string"),
+                value=original_participant_id_values.apply(lambda participant_id: f"sub-{participant_id}").astype(
+                    "string"
+                ),
             )
 
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
@@ -356,7 +358,7 @@ class DatasetConverter(BaseConverter):
         # Check if session ID sanitization is enabled
         sanitization_config = (
             self.session_converters[0].session_metadata.sanitization.sanitization_config
-            if self.session_converters
+            if len(self.session_converters) != 0
             else None
         )
         if sanitization_config is not None and sanitization_config.ses_labels:
