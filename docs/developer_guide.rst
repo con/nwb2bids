@@ -50,6 +50,25 @@ Tests are organized into three categories:
 - **Integration tests** (``tests/integration/``): Test interactions between components.
 - **CLI tests** (``tests/convert_nwb_dataset/``): Test command-line interface behavior.
 
+Assertion Style
+~~~~~~~~~~~~~~~
+
+Always place the **actual** (test) value on the **left** and the **expected** value on the **right** in assertions:
+
+.. code-block:: python
+
+   # Correct
+   assert actual_value == expected_value
+
+   # Incorrect
+   assert expected_value == actual_value
+
+For ``pandas`` comparisons, use ``left`` for the actual value and ``right`` for the expected value:
+
+.. code-block:: python
+
+   pandas.testing.assert_frame_equal(left=actual_dataframe, right=expected_dataframe)
+
 Some tests are marked as ``remote`` when they require downloading data from remote sources (e.g., DANDI Archive).
 
 Running Tests Locally
