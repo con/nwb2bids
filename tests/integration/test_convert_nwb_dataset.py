@@ -487,7 +487,7 @@ def test_ecephys_convert_with_space_allen_ccf(
 ):
     """
     Conversion with `space='AllenCCFv3'` adds the `space-AllenCCFv3` entity.
-    
+
     Adds entity to electrode files and writes a new coordsystem JSON file.
     """
     nwb_paths = [ecephys_minimal_nwbfile_path]
@@ -562,7 +562,7 @@ def test_ecephys_convert_with_space_paxinos_watson(
 ):
     """
     Conversion with `space='PaxinosWatson'` adds the `space-PaxinosWatson`.
-    
+
     Adds entity to electrode files and writes a new coordsystem JSON file.
     """
     nwb_paths = [ecephys_minimal_nwbfile_path]
