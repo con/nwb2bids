@@ -77,8 +77,8 @@ def _nwb2bids_cli():
     "--space",
     help=(
         "The atlas/coordinate space label to apply to electrode positions. "
-        "When specified, a `space-<label>` entity is added to the `*_electrodes.tsv` filename "
-        "and a corresponding `*_space-<label>_coordsystem.json` sidecar file is created."
+        "When specified, a `space-[label]` entity is added to the `*_electrodes.tsv` filename "
+        "and a corresponding `*_space-[label]_coordsystem.json` sidecar file is created."
     ),
     required=False,
     type=rich_click.Choice(["AllenCCFv3", "PaxinosWatson"], case_sensitive=True),
