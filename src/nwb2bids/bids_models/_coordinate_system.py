@@ -1,6 +1,5 @@
 import json
 import pathlib
-import typing
 
 _COORDINATE_SYSTEM_DATA: dict[str, dict[str, str]] = {
     "AllenCCFv3": {
@@ -38,8 +37,6 @@ _COORDINATE_SYSTEM_DATA: dict[str, dict[str, str]] = {
         "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/C2009-0-63235-9",
     },
 }
-
-SpaceLabel = typing.Literal["AllenCCFv3", "PaxinosWatson"]
 
 
 def write_coordsystem_json(file_path: str | pathlib.Path, space: str) -> None:

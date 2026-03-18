@@ -7,7 +7,6 @@ import pydantic
 from .._core._file_mode import _determine_file_mode
 from .._core._home import _get_nwb2bids_home_directory
 from .._core._validate_existing_bids import _validate_bids_directory
-from ..bids_models._coordinate_system import SpaceLabel
 from ..sanitization import SanitizationConfig
 
 
@@ -64,7 +63,7 @@ class RunConfig(pydantic.BaseModel):
     cache_directory: pydantic.DirectoryPath = pydantic.Field(default_factory=_get_nwb2bids_home_directory)
     sanitization_config: SanitizationConfig = pydantic.Field(default_factory=SanitizationConfig)
     run_id: str = pydantic.Field(default_factory=_generate_run_id)
-    space: SpaceLabel | None = pydantic.Field(
+    space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = pydantic.Field(
         default=None,
         description=(
             "The atlas/coordinate space label to apply to electrode positions. "

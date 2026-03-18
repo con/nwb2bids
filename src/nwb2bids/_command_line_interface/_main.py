@@ -105,7 +105,7 @@ def _run_convert_nwb_dataset(
     cache_directory: str | None = None,
     run_id: str | None = None,
     silent: bool = False,
-    space: str | None = None,
+    space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
 ) -> None:
     """
     Convert NWB files to BIDS format.
