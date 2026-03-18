@@ -68,6 +68,14 @@ class RunConfig(pydantic.BaseModel):
     cache_directory: pydantic.DirectoryPath = pydantic.Field(default_factory=_get_nwb2bids_home_directory)
     sanitization_config: SanitizationConfig = pydantic.Field(default_factory=SanitizationConfig)
     run_id: str = pydantic.Field(default_factory=_generate_run_id)
+    space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = pydantic.Field(
+        default=None,
+        description=(
+            "The atlas/coordinate space label to apply to electrode positions. "
+            "When specified, a `space-<label>` entity is added to the `*_electrodes.tsv` filename "
+            "and a `*_space-<label>_coordsystem.json` sidecar file is created."
+        ),
+    )
     archive_target: typing.Literal["dandi", "ember"] | None = None
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 

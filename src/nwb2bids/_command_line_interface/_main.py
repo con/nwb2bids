@@ -74,6 +74,17 @@ def _nwb2bids_cli():
 )
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 @rich_click.option(
+    "--space",
+    help=(
+        "The atlas/coordinate space label to apply to electrode positions. "
+        "When specified, a `space-[label]` entity is added to the `*_electrodes.tsv` filename "
+        "and a corresponding `*_space-[label]_coordsystem.json` sidecar file is created."
+    ),
+    required=False,
+    type=rich_click.Choice(["AllenCCFv3", "PaxinosWatson"], case_sensitive=True),
+    default=None,
+)
+@rich_click.option(
     "--archive-target",
     "archive_target",
     help=(
@@ -107,6 +118,7 @@ def _run_convert_nwb_dataset(
     run_id: str | None = None,
     archive_target: typing.Literal["dandi", "ember"] | None = None,
     silent: bool = False,
+    space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -131,6 +143,7 @@ def _run_convert_nwb_dataset(
         "cache_directory": cache_directory,
         "sanitization_config": sanitization_config,
         "run_id": run_id,
+        "space": space,
         "archive_target": archive_target,
     }
 
