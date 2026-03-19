@@ -8,6 +8,7 @@ import warnings
 
 import pydantic
 import typing_extensions
+from tqdm import tqdm
 
 from ._datalad_utils import _content_is_retrieved
 from ._run_config import RunConfig
@@ -86,7 +87,12 @@ class SessionConverter(BaseConverter):
             ]
 
         unique_session_id_to_nwbfile_paths = collections.defaultdict(list)
-        for nwbfile_path in nwbfile_paths_to_convert:
+        for nwbfile_path in tqdm(
+            nwbfile_paths_to_convert,
+            desc="Scanning NWB files",
+            unit="file",
+            disable=not run_config.verbose,
+        ):
             unique_session_id_to_nwbfile_paths[cache_read_nwb(nwbfile_path).session_id].append(nwbfile_path)
 
         session_converters = [

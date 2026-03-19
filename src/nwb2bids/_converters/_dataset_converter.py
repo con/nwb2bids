@@ -5,6 +5,7 @@ import traceback
 import pandas
 import pydantic
 import typing_extensions
+from tqdm import tqdm
 
 from ._dandi_utils import get_bids_dataset_description
 from ._run_config import RunConfig
@@ -110,7 +111,12 @@ class DatasetConverter(BaseConverter):
                     nwbfile_paths=[asset.get_content_url(follow_redirects=1, strip_query=True) for asset in assets],
                     run_config=run_config,
                 )
-                for session_id, assets in sorted_session_id_to_assets.items()
+                for session_id, assets in tqdm(
+                    sorted_session_id_to_assets.items(),
+                    desc="Initializing sessions",
+                    unit="session",
+                    disable=not run_config.verbose,
+                )
             ]
 
             dataset_converter = cls(
@@ -184,8 +190,12 @@ class DatasetConverter(BaseConverter):
             collections.deque(
                 (
                     session_converter.extract_metadata()
-                    for session_converter in self.session_converters
-                    if session_converter.session_metadata is None
+                    for session_converter in tqdm(
+                        [sc for sc in self.session_converters if sc.session_metadata is None],
+                        desc="Extracting metadata",
+                        unit="session",
+                        disable=not self.run_config.verbose,
+                    )
                 ),
                 maxlen=0,
             )
@@ -198,7 +208,12 @@ class DatasetConverter(BaseConverter):
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
         try:
-            for session_converter in self.session_converters:
+            for session_converter in tqdm(
+                self.session_converters,
+                desc="Converting sessions",
+                unit="session",
+                disable=not self.run_config.verbose,
+            ):
                 session_converter.convert_to_bids_session()
 
             self.write_participants_metadata()
