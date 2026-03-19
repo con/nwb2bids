@@ -5,6 +5,7 @@ import typing
 import pydantic
 
 from .._core._file_mode import _determine_file_mode
+from .._core._global_config import _load_run_config_defaults
 from .._core._home import _get_nwb2bids_home_directory
 from .._core._validate_existing_bids import _validate_bids_directory
 from ..sanitization import SanitizationConfig
@@ -107,6 +108,57 @@ class RunConfig(pydantic.BaseModel):
         """The file path leading to a JSON dump of the notifications."""
         notifications_file_path = self._nwb2bids_directory / f"{self.run_id}_notifications.json"
         return notifications_file_path
+
+    @classmethod
+    def from_dotenv_files(cls, **explicit_kwargs: typing.Any) -> "RunConfig":
+        """
+        Create a :class:`RunConfig` with defaults loaded from ``.env`` configuration files.
+
+        Reads persistent defaults from:
+
+        * ``~/.nwb2bids/.env`` — global (user-level) configuration
+        * ``<bids_directory>/.nwb2bids/.env`` — local (dataset-specific) configuration
+
+        Environment variables prefixed with ``NWB2BIDS_`` override values read from the files.
+        Any keyword arguments passed directly to this method override everything else.
+
+        Priority order (lowest → highest):
+
+        1. ``~/.nwb2bids/.env``
+        2. ``<bids_directory>/.nwb2bids/.env``
+        3. ``NWB2BIDS_*`` environment variables
+        4. *explicit_kwargs* (highest priority)
+
+        Parameters
+        ----------
+        **explicit_kwargs :
+            Keyword arguments forwarded directly to :class:`RunConfig`.
+            These take precedence over any value from a config file or environment variable.
+
+        Examples
+        --------
+        Given ``~/.nwb2bids/.env`` containing::
+
+            NWB2BIDS_FILE_MODE=symlink
+            NWB2BIDS_SANITIZATION_SUB_LABELS=true
+
+        >>> run_config = RunConfig.from_dotenv_files(bids_directory="/tmp/my_bids")
+        >>> run_config.file_mode  # from global config file
+        'symlink'
+
+        An explicitly provided keyword argument still wins::
+
+        >>> run_config = RunConfig.from_dotenv_files(bids_directory="/tmp/my_bids", file_mode="copy")
+        >>> run_config.file_mode  # explicit kwarg overrides .env value
+        'copy'
+        """
+        bids_directory = explicit_kwargs.get("bids_directory")
+        bids_directory_path = pathlib.Path(bids_directory) if bids_directory is not None else None
+        dotenv_defaults = _load_run_config_defaults(bids_directory=bids_directory_path)
+
+        # Explicit kwargs win over dotenv defaults
+        merged = {**dotenv_defaults, **explicit_kwargs}
+        return cls(**merged)
 
     @pydantic.field_validator("bids_directory", mode="after")
     @classmethod

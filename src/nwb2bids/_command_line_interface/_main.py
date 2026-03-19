@@ -133,19 +133,23 @@ def _run_convert_nwb_dataset(
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
-    # Convert CLI args to snake_case
-    sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
 
-    run_config_kwargs = {
+    run_config_kwargs: dict[str, typing.Any] = {
         "bids_directory": bids_directory,
         "additional_metadata_file_path": additional_metadata_file_path,
         "file_mode": file_mode,
         "cache_directory": cache_directory,
-        "sanitization_config": sanitization_config,
         "run_id": run_id,
         "space": space,
         "archive_target": archive_target,
     }
+
+    # Only include sanitization_config when the user explicitly passed --sanitization flags,
+    # so that dotenv-file defaults for sanitization are not silently overridden.
+    if sanitization:
+        run_config_kwargs["sanitization_config"] = SanitizationConfig(
+            **{value.replace("-", "_"): True for value in sanitization}
+        )
 
     # Filter out values that indicate absence of direct user input or signal to use default
     non_missing_run_config_kwargs = {
@@ -153,7 +157,10 @@ def _run_convert_nwb_dataset(
         for key, value in run_config_kwargs.items()
         if (key != "file_mode" and value is not None) or (key == "file_mode" and value != "auto")
     }
-    run_config = RunConfig(**non_missing_run_config_kwargs)
+    run_config = RunConfig.from_dotenv_files(**non_missing_run_config_kwargs)
+
+    # Capture the resolved sanitization config for the summary output below.
+    sanitization_config = run_config.sanitization_config
 
     dataset_converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
