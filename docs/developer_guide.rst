@@ -248,15 +248,20 @@ The label interactions leading to changelog sections are roughly as follows:
     .. list-table::
        :header-rows: 1
 
-       * - PR Labels
-         - Changelog Section
-       * - ``minor`` or ``enhancement``
+       * - PR labels
+         - Changelog section
+         - Assign semantic label
+       * - ``enhancement``
+         - minor
          - Feature
-       * - ``patch`` or ``bug``
+       * - ``bug``
          - Bug Fix
+         - patch
        * - ``documentation``
          - Documentation
+         - patch
        * - ``internal``
          - Internal [#internal-note]_
+         - patch
 
 .. [#internal-note] Only if no other labels above are present (*e.g.*, `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under "Bug Fix")
