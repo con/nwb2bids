@@ -13,7 +13,6 @@ from ._datalad_utils import _content_is_retrieved
 from ._run_config import RunConfig
 from .._converters._base_converter import BaseConverter
 from .._tools import cache_read_nwb
-from .._tools._probeinterface import _parse_probe_flag
 from ..bids_models import BidsSessionMetadata
 from ..bids_models._coordinate_system import write_coordsystem_json
 from ..notifications import Notification
@@ -213,7 +212,7 @@ class SessionConverter(BaseConverter):
                     probe_name=self.run_config.probe,
                 )
                 if probe_term_url is not None:
-                    _, probe_model_name = _parse_probe_flag(self.run_config.probe)
+                    _, probe_model_name = self.run_config.probe.split("/", maxsplit=1)
                 # Propagate any notifications produced by the probe lookup (e.g. ProbeNotFound)
                 self.notifications += [
                     n for n in self.session_metadata.probe_table.notifications if n not in self.notifications

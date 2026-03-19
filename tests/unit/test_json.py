@@ -2,10 +2,8 @@ import json
 import pathlib
 import unittest.mock
 
-import pytest
-
 import nwb2bids
-from nwb2bids._tools._probeinterface import _get_probeinterface_term_url, _parse_probe_flag
+from nwb2bids._tools._probeinterface import _get_probeinterface_term_url
 
 
 def test_probe_json_includes_optional_fields_when_set(tmp_path: pathlib.Path) -> None:
@@ -45,19 +43,6 @@ def test_get_probeinterface_term_url() -> None:
         "/neuronexus/A1x32-Poly3-10mm-50-177/A1x32-Poly3-10mm-50-177.json"
     )
     assert url == expected
-
-
-def test_parse_probe_flag_valid() -> None:
-    """Test that _parse_probe_flag correctly parses a valid manufacturer/model string."""
-    manufacturer, model = _parse_probe_flag("neuronexus/A1x32-Poly3-10mm-50-177")
-    assert manufacturer == "neuronexus"
-    assert model == "A1x32-Poly3-10mm-50-177"
-
-
-def test_parse_probe_flag_invalid_raises() -> None:
-    """Test that _parse_probe_flag raises on an invalid format."""
-    with pytest.raises(ValueError, match="Invalid --probe value"):
-        _parse_probe_flag("no-slash-here")
 
 
 def test_probe_json_no_term_url_by_default(tmp_path: pathlib.Path) -> None:

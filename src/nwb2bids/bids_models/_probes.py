@@ -10,7 +10,7 @@ import pynwb
 import typing_extensions
 
 from ._model_utils import _build_json_sidecar
-from .._tools._probeinterface import _get_probeinterface_term_url, _parse_probe_flag
+from .._tools._probeinterface import _get_probeinterface_term_url
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
@@ -328,12 +328,12 @@ class ProbeTable(BaseMetadataContainerModel):
         """
         bids_directory = pathlib.Path(bids_directory)
 
-        try:
-            manufacturer, model = _parse_probe_flag(probe_name)
-        except ValueError:
+        parts = probe_name.split("/", maxsplit=1)
+        if len(parts) != 2 or not parts[0] or not parts[1]:
             notification = Notification.from_definition(identifier="ProbeNotFound")
             self._internal_notifications.append(notification)
             return None
+        manufacturer, model = parts
 
         term_url = _get_probeinterface_term_url(manufacturer=manufacturer, model=model)
         try:
