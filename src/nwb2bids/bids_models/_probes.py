@@ -299,9 +299,7 @@ class ProbeTable(BaseMetadataContainerModel):
             json.dump(obj=json_content, fp=file_stream, indent=4)
 
     @pydantic.validate_call
-    def write_probe_interface_file(
-        self, bids_directory: str | pathlib.Path, probe_name: str
-    ) -> str | None:
+    def write_probe_interface_file(self, bids_directory: str | pathlib.Path, probe_name: str) -> str | None:
         """
         Fetch the ProbeInterface JSON for a named probe and write it to the BIDS dataset.
 

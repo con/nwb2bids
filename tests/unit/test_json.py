@@ -182,4 +182,3 @@ def test_write_probe_interface_file_network_error_adds_notification(tmp_path: pa
     assert term_url is None
     assert not (bids_dir / "probes").exists()
     assert any(n.identifier == "ProbeNotFound" for n in probe_table.notifications)
-
