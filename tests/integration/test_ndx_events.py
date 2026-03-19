@@ -30,7 +30,7 @@ def _ecephys_path(bids_dir: pathlib.Path) -> pathlib.Path:
 
 def _run_conversion(
     nwbfile_path: pathlib.Path, bids_dir: pathlib.Path
-) -> nwb2bids.convert_nwb_dataset:  # type: ignore[valid-type]
+) -> nwb2bids.DatasetConverter:  # type: ignore[name-defined]
     run_config = nwb2bids.RunConfig(bids_directory=bids_dir)
     return nwb2bids.convert_nwb_dataset(nwb_paths=[nwbfile_path], run_config=run_config)
 

@@ -123,10 +123,11 @@ class Events(BaseMetadataModel):
 
 _NDX_EVENTS_CLASS_NAMES = frozenset(
     {
-        # ndx-events v0.4.0
+        # ndx-events v0.4.0+: redesigned DynamicTable-based API
         "EventsTable",
-        # ndx-events v1.x / v2.x
+        # ndx-events v1.x: simple timestamped events
         "Events",
+        # ndx-events v2.x: added label and TTL support
         "LabeledEvents",
         "AnnotatedEventsTable",
         "TTLs",
@@ -237,7 +238,7 @@ def _ndx_events_table_to_data_frame(neurodata_object: typing.Any) -> pandas.Data
     # Older ndx-events versions (v1/v2): Events, LabeledEvents, AnnotatedEventsTable, TTLs
     timestamps = getattr(neurodata_object, "timestamps", None)
     if timestamps is None:
-        # Some TTL-style objects store data rather than timestamps
+        # TTLs-style objects store pulse data in a 'data' attribute rather than 'timestamps'
         timestamps = getattr(neurodata_object, "data", None)
     if timestamps is None:
         return None
