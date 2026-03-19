@@ -164,4 +164,3 @@ def test_write_probe_interface_file_skips_on_network_error(tmp_path: pathlib.Pat
         probe_table.write_probe_interface_file(bids_directory=bids_dir)
 
     assert not (bids_dir / "probes").exists()
-

@@ -10,8 +10,8 @@ import pynwb
 import typing_extensions
 
 from ._model_utils import _build_json_sidecar
-from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from .._tools._probeinterface import _get_probeinterface_term_url
+from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
 
