@@ -270,5 +270,5 @@ The label interactions leading to changelog sections are roughly as follows:
          - 🔩 Dependency Updates
          - Only changed the dependencies of internal workings, such as the CI or docs. If altering the dependencies of the source code, consider it a ``patch`` without a related ``bug``.
 
-.. [#internal-note] If given a semantic version such as ``patch`` (*e.g.*, `PR #355 <https://github.com/con/nwb2bids/pull/355>`_ had both ``documentation`` and ``patch``, but was automatically placed under `"Bug Fix" <https://github.com/con/nwb2bids/blob/19d793549bfdca3efb3e67e89721a629fcdcd56f/CHANGELOG.md#L10>`_)
+.. [#documentation-note] If given a semantic version such as ``patch`` (*e.g.*, `PR #355 <https://github.com/con/nwb2bids/pull/355>`_ had both ``documentation`` and ``patch``, but was automatically placed under `"Bug Fix" <https://github.com/con/nwb2bids/blob/19d793549bfdca3efb3e67e89721a629fcdcd56f/CHANGELOG.md#L10>`_)
 .. [#internal-note] If given a semantic version such as ``patch`` (*e.g.*, `PR #357 <https://github.com/con/nwb2bids/pull/357>`_ had both ``internal`` and ``patch``, but was automatically placed under `"Bug Fix" <https://github.com/con/nwb2bids/blob/19d793549bfdca3efb3e67e89721a629fcdcd56f/CHANGELOG.md#L9>`_)
