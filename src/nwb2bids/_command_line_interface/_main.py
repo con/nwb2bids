@@ -108,6 +108,16 @@ def _nwb2bids_cli():
     type=str,
     default=None,
 )
+@rich_click.option(
+    "--probe",
+    is_flag=True,
+    help=(
+        "When set, fetches ProbeInterface JSON files for known probes from the ProbeInterface library "
+        "and writes them to the `probes/` directory of the BIDS dataset. "
+        "Requires each probe to have both `manufacturer` and `model` fields set in the NWB file."
+    ),
+    default=False,
+)
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
@@ -119,6 +129,7 @@ def _run_convert_nwb_dataset(
     archive_target: typing.Literal["dandi", "ember"] | None = None,
     silent: bool = False,
     space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
+    probe: bool = False,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -145,6 +156,7 @@ def _run_convert_nwb_dataset(
         "run_id": run_id,
         "space": space,
         "archive_target": archive_target,
+        "probe": probe,
     }
 
     # Filter out values that indicate absence of direct user input or signal to use default

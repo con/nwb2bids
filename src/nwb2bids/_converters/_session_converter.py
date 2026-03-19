@@ -207,6 +207,11 @@ class SessionConverter(BaseConverter):
             probes_json_file_path = modality_directory / f"{file_prefix}_probes.json"
             self.session_metadata.probe_table.to_json(file_path=probes_json_file_path)
 
+            if self.run_config.probe:
+                self.session_metadata.probe_table.write_probe_interface_file(
+                    bids_directory=self.run_config.bids_directory
+                )
+
         if self.session_metadata.channel_table is not None:
             channels_tsv_file_path = modality_directory / f"{file_prefix}_channels.tsv"
             self.session_metadata.channel_table.to_tsv(file_path=channels_tsv_file_path)

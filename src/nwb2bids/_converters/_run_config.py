@@ -77,6 +77,13 @@ class RunConfig(pydantic.BaseModel):
         ),
     )
     archive_target: typing.Literal["dandi", "ember"] | None = None
+    probe: bool = pydantic.Field(
+        default=False,
+        description=(
+            "When True, fetches ProbeInterface JSON files for known probes from the ProbeInterface library "
+            "and writes them to the ``probes/`` directory of the BIDS dataset."
+        ),
+    )
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 
     model_config = pydantic.ConfigDict(

@@ -1,6 +1,8 @@
 import json
 import pathlib
 import typing
+import urllib.error
+import urllib.request
 
 import pandas
 import pydantic
@@ -9,6 +11,7 @@ import typing_extensions
 
 from ._model_utils import _build_json_sidecar
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
+from .._tools._probeinterface import _get_probeinterface_term_url
 from ..notifications import Notification
 
 
@@ -276,5 +279,47 @@ class ProbeTable(BaseMetadataContainerModel):
         if "hemisphere" in json_content:
             json_content["hemisphere"]["Levels"] = {"L": "left", "R": "right"}
 
+        if "model" in json_content:
+            model_levels: dict[str, dict[str, str]] = {}
+            for probe in self.probes:
+                if probe.model is not None and probe.manufacturer is not None:
+                    term_url = _get_probeinterface_term_url(manufacturer=probe.manufacturer, model=probe.model)
+                    model_levels[probe.model] = {"TermURL": term_url}
+            if model_levels:
+                json_content["model"]["Levels"] = model_levels
+
         with file_path.open(mode="w") as file_stream:
             json.dump(obj=json_content, fp=file_stream, indent=4)
+
+    @pydantic.validate_call
+    def write_probe_interface_file(self, bids_directory: str | pathlib.Path) -> None:
+        """
+        Fetch ProbeInterface JSON files for known probes and write them to the BIDS dataset.
+
+        For each probe with both ``manufacturer`` and ``model`` fields set, this method fetches
+        the corresponding ProbeInterface JSON from the ProbeInterface library and writes it to
+        ``{bids_directory}/probes/{model}.json``.
+
+        Parameters
+        ----------
+        bids_directory : path
+            The root directory of the BIDS dataset.
+        """
+        bids_directory = pathlib.Path(bids_directory)
+        probes_directory = bids_directory / "probes"
+
+        for probe in self.probes:
+            if probe.manufacturer is None or probe.model is None:
+                continue
+
+            term_url = _get_probeinterface_term_url(manufacturer=probe.manufacturer, model=probe.model)
+            try:
+                with urllib.request.urlopen(term_url) as response:  # noqa: S310
+                    probe_data = json.loads(response.read())
+            except (OSError, urllib.error.URLError):
+                continue
+
+            probes_directory.mkdir(exist_ok=True)
+            output_path = probes_directory / f"{probe.model}.json"
+            with output_path.open(mode="w") as file_stream:
+                json.dump(obj=probe_data, fp=file_stream, indent=4)
