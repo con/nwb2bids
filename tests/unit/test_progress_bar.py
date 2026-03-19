@@ -29,120 +29,6 @@ def test_run_config_silent_can_be_set_to_true(temporary_bids_directory: pathlib.
 
 
 @pytest.mark.ai_generated
-def test_session_converter_scan_nwb_files_progress_bar_enabled(
-    minimal_nwbfile_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-) -> None:
-    """A progress bar should be displayed when silent=False during NWB file scanning (SessionConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
-
-    with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
-        mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
-        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
-
-    assert mock_tqdm.call_count == 2
-    scan_call = mock_tqdm.call_args_list[0]
-    _, kwargs = scan_call
-    assert kwargs["desc"] == "Scanning NWB files"
-    assert kwargs["unit"] == "file"
-    assert kwargs["disable"] is False
-
-
-@pytest.mark.ai_generated
-def test_session_converter_scan_nwb_files_progress_bar_disabled(
-    minimal_nwbfile_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-) -> None:
-    """The progress bar should be disabled when silent=True during NWB file scanning (SessionConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
-
-    with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
-        mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
-        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
-
-    assert mock_tqdm.call_count == 2
-    scan_call = mock_tqdm.call_args_list[0]
-    _, kwargs = scan_call
-    assert kwargs["disable"] is True
-
-
-@pytest.mark.ai_generated
-def test_session_converter_initialize_sessions_progress_bar_enabled(
-    minimal_nwbfile_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-) -> None:
-    """A progress bar should be displayed when silent=False during session initialization (SessionConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
-
-    with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
-        mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
-        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
-
-    assert mock_tqdm.call_count == 2
-    init_call = mock_tqdm.call_args_list[1]
-    _, kwargs = init_call
-    assert kwargs["desc"] == "Initializing sessions"
-    assert kwargs["unit"] == "session"
-    assert kwargs["disable"] is False
-
-
-@pytest.mark.ai_generated
-def test_session_converter_initialize_sessions_progress_bar_disabled(
-    minimal_nwbfile_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-) -> None:
-    """The progress bar should be disabled when silent=True during session initialization (SessionConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
-
-    with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
-        mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
-        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
-
-    assert mock_tqdm.call_count == 2
-    init_call = mock_tqdm.call_args_list[1]
-    _, kwargs = init_call
-    assert kwargs["disable"] is True
-
-
-@pytest.mark.ai_generated
-def test_scan_nwb_files_progress_bar_enabled(
-    minimal_nwbfile_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-) -> None:
-    """A progress bar should be displayed when silent=False during NWB file scanning (DatasetConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
-
-    with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
-        mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
-        nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
-
-    assert mock_tqdm.call_count == 2
-    scan_call = mock_tqdm.call_args_list[0]
-    _, kwargs = scan_call
-    assert kwargs["desc"] == "Scanning NWB files"
-    assert kwargs["unit"] == "file"
-    assert kwargs["disable"] is False
-
-
-@pytest.mark.ai_generated
-def test_scan_nwb_files_progress_bar_disabled(
-    minimal_nwbfile_path: pathlib.Path,
-    temporary_bids_directory: pathlib.Path,
-) -> None:
-    """The progress bar should be disabled when silent=True during NWB file scanning (DatasetConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
-
-    with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
-        mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
-        nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
-
-    assert mock_tqdm.call_count == 2
-    scan_call = mock_tqdm.call_args_list[0]
-    _, kwargs = scan_call
-    assert kwargs["disable"] is True
-
-
-@pytest.mark.ai_generated
 def test_extract_metadata_progress_bar_enabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
@@ -235,20 +121,23 @@ def test_progress_bar_output_visible_in_stderr(
     tmp_path: pathlib.Path,
 ) -> None:
     """Real tqdm output should contain the expected description text stored in the adjacent golden file."""
-    expected_content = (_EXPECTED_OUTPUT_DIR / "scan_nwb_files.txt").read_text().strip()
+    expected_content = (_EXPECTED_OUTPUT_DIR / "extract_metadata.txt").read_text().strip()
 
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=[minimal_nwbfile_path], run_config=run_config
+    )
     buffer = io.StringIO()
 
     def capturing_tqdm(iterable, **kwargs):
         kwargs["file"] = buffer
         return real_tqdm(iterable, **kwargs)
 
-    with patch("nwb2bids._converters._session_converter.tqdm", side_effect=capturing_tqdm):
-        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
+    with patch("nwb2bids._converters._dataset_converter.tqdm", side_effect=capturing_tqdm):
+        dataset_converter.extract_metadata()
 
     captured_output = buffer.getvalue()
-    (tmp_path / "scan_nwb_files_stderr.txt").write_text(captured_output)
+    (tmp_path / "extract_metadata_stderr.txt").write_text(captured_output)
 
     assert expected_content in captured_output
 
@@ -261,14 +150,17 @@ def test_progress_bar_no_output_when_disabled(
 ) -> None:
     """When silent=True, tqdm should produce no output; captured file should be empty."""
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=[minimal_nwbfile_path], run_config=run_config
+    )
     buffer = io.StringIO()
 
     def capturing_tqdm(iterable, **kwargs):
         kwargs["file"] = buffer
         return real_tqdm(iterable, **kwargs)
 
-    with patch("nwb2bids._converters._session_converter.tqdm", side_effect=capturing_tqdm):
-        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
+    with patch("nwb2bids._converters._dataset_converter.tqdm", side_effect=capturing_tqdm):
+        dataset_converter.extract_metadata()
 
     captured_output = buffer.getvalue()
     output_file = tmp_path / "silent_stderr.txt"
@@ -305,6 +197,6 @@ def test_cli_without_silent_shows_progress_bar(
     result = cli_runner(command)
 
     assert result.returncode == 0
-    # Progress bar output ("Scanning NWB files", "Extracting metadata", "Converting sessions")
+    # Progress bar output ("Extracting metadata", "Converting sessions")
     # is written to stderr by tqdm
-    assert b"Scanning NWB files" in result.stderr or b"Extracting metadata" in result.stderr
+    assert b"Extracting metadata" in result.stderr or b"Converting sessions" in result.stderr
