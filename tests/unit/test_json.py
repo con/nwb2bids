@@ -1,3 +1,4 @@
+import http.client
 import json
 import pathlib
 import unittest.mock
@@ -109,12 +110,13 @@ def test_write_probe_interface_file_writes_json_for_known_probe(tmp_path: pathli
     bids_dir = tmp_path / "bids_output"
     bids_dir.mkdir()
 
-    with unittest.mock.patch("urllib.request.urlopen") as mock_urlopen:
+    with unittest.mock.patch("http.client.HTTPSConnection") as mock_connection_class:
+        mock_connection = unittest.mock.MagicMock()
         mock_response = unittest.mock.MagicMock()
+        mock_response.status = http.client.OK
         mock_response.read.return_value = json.dumps(fake_probe_data).encode()
-        mock_response.__enter__ = lambda s: s
-        mock_response.__exit__ = unittest.mock.MagicMock(return_value=False)
-        mock_urlopen.return_value = mock_response
+        mock_connection.getresponse.return_value = mock_response
+        mock_connection_class.return_value = mock_connection
 
         term_url = probe_table.write_probe_interface_file(
             bids_directory=bids_dir, probe_name="neuronexus/A1x32-Poly3-10mm-50-177"
@@ -149,8 +151,8 @@ def test_write_probe_interface_file_invalid_probe_name_adds_notification(tmp_pat
     assert any(n.identifier == "ProbeNotFound" for n in probe_table.notifications)
 
 
-def test_write_probe_interface_file_network_error_adds_notification(tmp_path: pathlib.Path) -> None:
-    """Test that write_probe_interface_file adds a ProbeNotFound notification when the library URL is unreachable."""
+def test_write_probe_interface_file_not_found_adds_notification(tmp_path: pathlib.Path) -> None:
+    """Test that write_probe_interface_file adds a ProbeNotFound notification when the library returns 404."""
     probe_table = nwb2bids.bids_models.ProbeTable(
         probes=[nwb2bids.bids_models.Probe(probe_name="ProbeA", description="test probe")],
         modality="ecephys",
@@ -159,7 +161,13 @@ def test_write_probe_interface_file_network_error_adds_notification(tmp_path: pa
     bids_dir = tmp_path / "bids_output"
     bids_dir.mkdir()
 
-    with unittest.mock.patch("urllib.request.urlopen", side_effect=OSError("network error")):
+    with unittest.mock.patch("http.client.HTTPSConnection") as mock_connection_class:
+        mock_connection = unittest.mock.MagicMock()
+        mock_response = unittest.mock.MagicMock()
+        mock_response.status = http.client.NOT_FOUND
+        mock_connection.getresponse.return_value = mock_response
+        mock_connection_class.return_value = mock_connection
+
         term_url = probe_table.write_probe_interface_file(
             bids_directory=bids_dir, probe_name="neuronexus/A1x32-Poly3-10mm-50-177"
         )

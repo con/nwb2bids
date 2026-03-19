@@ -1,8 +1,8 @@
+import http.client
 import json
 import pathlib
 import typing
-import urllib.error
-import urllib.request
+import urllib.parse
 
 import pandas
 import pydantic
@@ -290,10 +290,14 @@ class ProbeTable(BaseMetadataContainerModel):
         if "hemisphere" in json_content:
             json_content["hemisphere"]["Levels"] = {"L": "left", "R": "right"}
 
-        if "model" in json_content and probe_term_url is not None and probe_model_name is not None:
-            if "Levels" not in json_content["model"]:
-                json_content["model"]["Levels"] = {}
-            json_content["model"]["Levels"][probe_model_name] = {"TermURL": probe_term_url}
+        if probe_term_url is not None and probe_model_name is not None:
+            probe_models = {probe.model for probe in self.probes if probe.model is not None}
+            if probe_model_name in probe_models:
+                if "model" not in json_content:
+                    json_content["model"] = {}
+                if "Levels" not in json_content["model"]:
+                    json_content["model"]["Levels"] = {}
+                json_content["model"]["Levels"][probe_model_name] = {"TermURL": probe_term_url}
 
         with file_path.open(mode="w") as file_stream:
             json.dump(obj=json_content, fp=file_stream, indent=4)
@@ -336,13 +340,15 @@ class ProbeTable(BaseMetadataContainerModel):
         manufacturer, model = parts
 
         term_url = _get_probeinterface_term_url(manufacturer=manufacturer, model=model)
-        try:
-            with urllib.request.urlopen(term_url) as response:  # noqa: S310
-                probe_data = json.loads(response.read())
-        except (OSError, urllib.error.URLError):
+        parsed = urllib.parse.urlparse(term_url)
+        connection = http.client.HTTPSConnection(parsed.netloc)
+        connection.request("GET", parsed.path)
+        http_response = connection.getresponse()
+        if http_response.status != http.client.OK:
             notification = Notification.from_definition(identifier="ProbeNotFound")
             self._internal_notifications.append(notification)
             return None
+        probe_data = json.loads(http_response.read())
 
         probes_directory = bids_directory / "probes"
         probes_directory.mkdir(exist_ok=True)
