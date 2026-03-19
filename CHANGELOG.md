@@ -1,3 +1,54 @@
+# v0.12.0 (Thu Mar 19 2026)
+
+#### 🚀 Enhancement
+
+- Added general metadata support [#333](https://github.com/con/nwb2bids/pull/333) (codycbakerphd@gmail.com [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🐛 Bug Fix
+
+- Require semantic version label in PR label check workflow [#357](https://github.com/con/nwb2bids/pull/357) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Updated PR labels and changelog section formatting [#355](https://github.com/con/nwb2bids/pull/355) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Made channel requirements explicit [#358](https://github.com/con/nwb2bids/pull/358) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Record original (pre-sanitization) entity labels in participants.tsv and sessions.tsv [#347](https://github.com/con/nwb2bids/pull/347) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Add `--space` flag with atlas-specific `coordsystem.json` sidecar generation [#344](https://github.com/con/nwb2bids/pull/344) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Add `.bidsignore` with `dandiset.yaml` for archive-targeted conversions [#346](https://github.com/con/nwb2bids/pull/346) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Eliminate static typing errors in `_bids_session_metadata.py` [#322](https://github.com/con/nwb2bids/pull/322) ([@candleindark](https://github.com/candleindark))
+
+#### 🏠 Internal
+
+- Notified admin via email when `major` label is applied to a PR [#360](https://github.com/con/nwb2bids/pull/360) ([@Copilot](https://github.com/Copilot))
+- Standardized assertion order (actual left, expected right) throughout tests [#345](https://github.com/con/nwb2bids/pull/345) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Relaxed sphinx version to latest [#340](https://github.com/con/nwb2bids/pull/340) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#339](https://github.com/con/nwb2bids/pull/339) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Added workflow to require labels on PRs [#335](https://github.com/con/nwb2bids/pull/335) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Fixed failing remote tests [#334](https://github.com/con/nwb2bids/pull/334) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#332](https://github.com/con/nwb2bids/pull/332) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- [pre-commit.ci] pre-commit autoupdate [#329](https://github.com/con/nwb2bids/pull/329) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Eliminate static typing errors in `_probes.py` [#321](https://github.com/con/nwb2bids/pull/321) ([@candleindark](https://github.com/candleindark))
+
+#### 📝 Documentation
+
+- Added TSV table rendering directive for Sphinx documentation [#328](https://github.com/con/nwb2bids/pull/328) ([@Copilot](https://github.com/Copilot) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed some doc links related to BEPs [#326](https://github.com/con/nwb2bids/pull/326) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Added external link checking to CI [#324](https://github.com/con/nwb2bids/pull/324) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Expanded README with installation, usage, and DANDI ecosystem context [#318](https://github.com/con/nwb2bids/pull/318) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### 🔩 Dependency Updates
+
+- [pre-commit.ci] pre-commit autoupdate [#336](https://github.com/con/nwb2bids/pull/336) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- [pre-commit.ci] pre-commit autoupdate [#325](https://github.com/con/nwb2bids/pull/325) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### Authors: 6
+
+- [@Copilot](https://github.com/Copilot)
+- [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
+- Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- CodyCBakerPhD (codycbakerphd@gmail.com)
+- Isaac To ([@candleindark](https://github.com/candleindark))
+
+---
+
 # v0.11.1 (Thu Jan 29 2026)
 
 #### 🐛 Bug Fix
