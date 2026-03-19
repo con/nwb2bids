@@ -252,16 +252,16 @@ The label interactions leading to changelog sections are roughly as follows:
          - Changelog section
          - Assign semantic label
        * - ``enhancement``
-         - minor
-         - Feature
+         - 🚀 Enhancement
+         - ``minor``
        * - ``bug``
-         - Bug Fix
-         - patch
+         - 🐛 Bug Fix
+         - ``patch``
        * - ``documentation``
-         - Documentation
-         - patch
+         - 📝 Documentation
+         - ``patch``
        * - ``internal``
-         - Internal [#internal-note]_
-         - patch
+         - 🏠 Internal [#internal-note]_
+         - ``patch``
 
 .. [#internal-note] Only if no other labels above are present (*e.g.*, `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under "Bug Fix")
