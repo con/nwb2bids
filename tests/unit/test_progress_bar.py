@@ -28,17 +28,17 @@ def _capturing_tqdm():
 
 
 @pytest.mark.ai_generated
-def test_run_config_verbose_defaults_to_true(temporary_bids_directory: pathlib.Path) -> None:
-    """RunConfig.verbose should default to True so progress bars are shown by default."""
+def test_run_config_silent_defaults_to_false(temporary_bids_directory: pathlib.Path) -> None:
+    """RunConfig.silent should default to False so progress bars are shown by default."""
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
-    assert run_config.verbose is True
+    assert run_config.silent is False
 
 
 @pytest.mark.ai_generated
-def test_run_config_verbose_can_be_set_to_false(temporary_bids_directory: pathlib.Path) -> None:
-    """RunConfig.verbose=False should be accepted and stored correctly."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=False)
-    assert run_config.verbose is False
+def test_run_config_silent_can_be_set_to_true(temporary_bids_directory: pathlib.Path) -> None:
+    """RunConfig.silent=True should be accepted and stored correctly."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
+    assert run_config.silent is True
 
 
 @pytest.mark.ai_generated
@@ -46,8 +46,8 @@ def test_session_converter_scan_nwb_files_progress_bar_enabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ) -> None:
-    """A progress bar should be displayed when verbose=True during NWB file scanning (SessionConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=True)
+    """A progress bar should be displayed when silent=False during NWB file scanning (SessionConverter)."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
 
     with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
         mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
@@ -65,8 +65,8 @@ def test_session_converter_scan_nwb_files_progress_bar_disabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ) -> None:
-    """The progress bar should be disabled when verbose=False during NWB file scanning (SessionConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=False)
+    """The progress bar should be disabled when silent=True during NWB file scanning (SessionConverter)."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
 
     with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
         mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
@@ -82,8 +82,8 @@ def test_scan_nwb_files_progress_bar_enabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ) -> None:
-    """A progress bar should be displayed when verbose=True during NWB file scanning (DatasetConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=True)
+    """A progress bar should be displayed when silent=False during NWB file scanning (DatasetConverter)."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
 
     with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
         mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
@@ -101,8 +101,8 @@ def test_scan_nwb_files_progress_bar_disabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ) -> None:
-    """The progress bar should be disabled when verbose=False during NWB file scanning (DatasetConverter)."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=False)
+    """The progress bar should be disabled when silent=True during NWB file scanning (DatasetConverter)."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
 
     with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
         mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
@@ -118,8 +118,8 @@ def test_extract_metadata_progress_bar_enabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ) -> None:
-    """A progress bar should be displayed when verbose=True during metadata extraction."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=True)
+    """A progress bar should be displayed when silent=False during metadata extraction."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
         nwb_paths=[minimal_nwbfile_path], run_config=run_config
     )
@@ -140,8 +140,8 @@ def test_extract_metadata_progress_bar_disabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ) -> None:
-    """The progress bar should be disabled when verbose=False during metadata extraction."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=False)
+    """The progress bar should be disabled when silent=True during metadata extraction."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
         nwb_paths=[minimal_nwbfile_path], run_config=run_config
     )
@@ -160,8 +160,8 @@ def test_convert_to_bids_dataset_progress_bar_enabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ) -> None:
-    """A progress bar should be displayed when verbose=True during BIDS conversion."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=True)
+    """A progress bar should be displayed when silent=False during BIDS conversion."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
         nwb_paths=[minimal_nwbfile_path], run_config=run_config
     )
@@ -183,8 +183,8 @@ def test_convert_to_bids_dataset_progress_bar_disabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
 ) -> None:
-    """The progress bar should be disabled when verbose=False during BIDS conversion."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=False)
+    """The progress bar should be disabled when silent=True during BIDS conversion."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
         nwb_paths=[minimal_nwbfile_path], run_config=run_config
     )
@@ -205,8 +205,8 @@ def test_progress_bar_output_visible_in_stderr(
     temporary_bids_directory: pathlib.Path,
     _capturing_tqdm,
 ) -> None:
-    """When verbose=True, tqdm should write progress output to stderr."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=True)
+    """When silent=False, tqdm should write progress output to stderr."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
         nwb_paths=[minimal_nwbfile_path], run_config=run_config
     )
@@ -224,8 +224,8 @@ def test_progress_bar_no_output_when_disabled(
     temporary_bids_directory: pathlib.Path,
     _capturing_tqdm,
 ) -> None:
-    """When verbose=False, tqdm should produce no output."""
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, verbose=False)
+    """When silent=True, tqdm should produce no output."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
     dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
         nwb_paths=[minimal_nwbfile_path], run_config=run_config
     )

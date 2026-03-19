@@ -91,7 +91,7 @@ class SessionConverter(BaseConverter):
             nwbfile_paths_to_convert,
             desc="Scanning NWB files",
             unit="file",
-            disable=not run_config.verbose,
+            disable=run_config.silent,
         ):
             unique_session_id_to_nwbfile_paths[cache_read_nwb(nwbfile_path).session_id].append(nwbfile_path)
 

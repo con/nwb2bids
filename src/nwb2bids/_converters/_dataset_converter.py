@@ -115,7 +115,7 @@ class DatasetConverter(BaseConverter):
                     sorted_session_id_to_assets.items(),
                     desc="Initializing sessions",
                     unit="session",
-                    disable=not run_config.verbose,
+                    disable=run_config.silent,
                 )
             ]
 
@@ -194,7 +194,7 @@ class DatasetConverter(BaseConverter):
                         [sc for sc in self.session_converters if sc.session_metadata is None],
                         desc="Extracting metadata",
                         unit="session",
-                        disable=not self.run_config.verbose,
+                        disable=self.run_config.silent,
                     )
                 ),
                 maxlen=0,
@@ -212,7 +212,7 @@ class DatasetConverter(BaseConverter):
                 self.session_converters,
                 desc="Converting sessions",
                 unit="session",
-                disable=not self.run_config.verbose,
+                disable=self.run_config.silent,
             ):
                 session_converter.convert_to_bids_session()
 

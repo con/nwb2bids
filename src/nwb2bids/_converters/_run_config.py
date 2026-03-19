@@ -60,9 +60,9 @@ class RunConfig(pydantic.BaseModel):
         When set to a non-`None` value, a `.bidsignore` file is created in the BIDS directory
         containing `dandiset.yaml`, since `dandiset.yaml` is not part of the BIDS specification.
         If `None`, then no `.bidsignore` file is created.
-    verbose : bool, default: True
-        Whether to display progress bars during conversion.
-        Set to ``False`` to suppress progress bar output (e.g., when ``--silent`` is used).
+    silent : bool, default: False
+        Whether to suppress progress bar output during conversion.
+        Set to ``True`` to hide all progress bars (e.g., when ``--silent`` is used via the CLI).
     """
 
     bids_directory: pathlib.Path = pydantic.Field(default_factory=pathlib.Path.cwd)
@@ -80,7 +80,7 @@ class RunConfig(pydantic.BaseModel):
         ),
     )
     archive_target: typing.Literal["dandi", "ember"] | None = None
-    verbose: bool = True
+    silent: bool = False
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 
     model_config = pydantic.ConfigDict(
