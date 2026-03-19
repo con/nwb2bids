@@ -21,6 +21,15 @@ jobs:
 
             if (labels.length === 0) {
               core.setFailed('❌ PR must have at least one label');
-            } else {
-              core.info(`✅ PR labeled: ${labels.map(l => l.name).join(', ')}`);
+              return;
             }
+
+            const semanticLabels = ['major', 'minor', 'patch'];
+            const hasSemanticLabel = labels.some(l => semanticLabels.includes(l.name));
+
+            if (!hasSemanticLabel) {
+              core.setFailed(`❌ PR must have at least one semantic version label (${semanticLabels.join(', ')})`);
+              return;
+            }
+
+            core.info(`✅ PR labeled: ${labels.map(l => l.name).join(', ')}`);
