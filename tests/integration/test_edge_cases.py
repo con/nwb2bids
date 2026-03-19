@@ -34,21 +34,14 @@ def test_convert_nwb_dataset_with_additional_metadata(
         },
         temporary_bids_directory
         / "sub-123": {
-            "directories": {"ses-456"},
-            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
-        },
-        temporary_bids_directory
-        / "sub-123"
-        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456"
         / "ecephys": {
             "directories": set(),
-            "files": {"sub-123_ses-456_ecephys.nwb"},
+            "files": {"sub-123_ecephys.nwb"},
         },
     }
     nwb2bids.testing.assert_subdirectory_structure(
@@ -71,21 +64,14 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset(
         },
         temporary_bids_directory
         / "sub-123": {
-            "directories": {"ses-456"},
-            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
-        },
-        temporary_bids_directory
-        / "sub-123"
-        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456"
         / "ecephys": {
             "directories": set(),
-            "files": {"sub-123_ses-456_ecephys.nwb"},
+            "files": {"sub-123_ecephys.nwb"},
         },
     }
     nwb2bids.testing.assert_subdirectory_structure(
@@ -111,21 +97,14 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset_with_broken_symlink(
         },
         temporary_bids_directory
         / "sub-123": {
-            "directories": {"ses-456"},
-            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
-        },
-        temporary_bids_directory
-        / "sub-123"
-        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
-        / "ses-456"
         / "ecephys": {
             "directories": set(),
-            "files": {"sub-123_ses-456_ecephys.nwb"},
+            "files": {"sub-123_ecephys.nwb"},
         },
     }
     nwb2bids.testing.assert_subdirectory_structure(
@@ -206,7 +185,7 @@ def test_symlink_resolves_correctly_with_relative_path(
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
-    symlink_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_ecephys.nwb"
+    symlink_path = temporary_bids_directory / "sub-123" / "ecephys" / "sub-123_ecephys.nwb"
 
     assert symlink_path.is_symlink(), "Expected a symlink to be created"
     assert symlink_path.resolve() == minimal_nwbfile_path.resolve(), "Symlink does not resolve to original file"

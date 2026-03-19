@@ -22,29 +22,22 @@ def test_icephys_tutorial_file(tmpdir: py.path.local, temporary_bids_directory: 
         },
         temporary_bids_directory
         / "sub-001": {
-            "directories": {"ses-A"},
-            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
-        },
-        temporary_bids_directory
-        / "sub-001"
-        / "ses-A": {
             "directories": {"icephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-001"
-        / "ses-A"
         / "icephys": {
             "directories": set(),
             "files": {
-                "sub-001_ses-A_icephys.json",
-                "sub-001_ses-A_icephys.nwb",
-                "sub-001_ses-A_probes.json",
-                "sub-001_ses-A_probes.tsv",
-                "sub-001_ses-A_electrodes.json",
-                "sub-001_ses-A_electrodes.tsv",
-                "sub-001_ses-A_channels.json",
-                "sub-001_ses-A_channels.tsv",
+                "sub-001_icephys.json",
+                "sub-001_icephys.nwb",
+                "sub-001_probes.json",
+                "sub-001_probes.tsv",
+                "sub-001_electrodes.json",
+                "sub-001_electrodes.tsv",
+                "sub-001_channels.json",
+                "sub-001_channels.tsv",
             },
         },
     }
