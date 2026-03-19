@@ -16,7 +16,6 @@ import pytest
 
 import nwb2bids
 
-# TODO: add ndx-events
 # TODO: add DynamicTable's in acquisition with *_time columns
 
 
@@ -476,6 +475,77 @@ def problematic_nwbfile_path_missing_session_id(testing_files_directory: pathlib
     events_subdirectory = testing_files_directory / "missing_session_id"
     events_subdirectory.mkdir(exist_ok=True)
     nwbfile_path = events_subdirectory / "missing_session_id.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def ndx_events_table_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """An NWB file containing an ndx-events EventsTable (timestamps only, no duration)."""
+    nwbfile = _make_minimal_nwbfile()
+
+    events_table = nwb2bids.testing.mock_events_table()
+    nwbfile.add_acquisition(events_table)
+
+    ndx_events_subdirectory = testing_files_directory / "ndx_events"
+    ndx_events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = ndx_events_subdirectory / "ndx_events_table.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def ndx_events_table_with_duration_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """An NWB file containing an ndx-events EventsTable with timestamps and duration (some NaN)."""
+    nwbfile = _make_minimal_nwbfile()
+
+    events_table = nwb2bids.testing.mock_events_table_with_duration()
+    nwbfile.add_acquisition(events_table)
+
+    ndx_events_subdirectory = testing_files_directory / "ndx_events"
+    ndx_events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = ndx_events_subdirectory / "ndx_events_table_with_duration.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def ndx_events_table_with_label_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """An NWB file containing an ndx-events EventsTable with timestamps and a label column."""
+    nwbfile = _make_minimal_nwbfile()
+
+    events_table = nwb2bids.testing.mock_events_table_with_label()
+    nwbfile.add_acquisition(events_table)
+
+    ndx_events_subdirectory = testing_files_directory / "ndx_events"
+    ndx_events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = ndx_events_subdirectory / "ndx_events_table_with_label.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def ndx_events_mixed_with_time_intervals_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """An NWB file containing both an ndx-events EventsTable and a TimeIntervals table."""
+    nwbfile = _make_minimal_nwbfile()
+
+    trials = nwb2bids.testing.mock_trials_table()
+    nwbfile.trials = trials
+
+    events_table = nwb2bids.testing.mock_events_table()
+    nwbfile.add_acquisition(events_table)
+
+    ndx_events_subdirectory = testing_files_directory / "ndx_events"
+    ndx_events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = ndx_events_subdirectory / "ndx_events_mixed.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 
