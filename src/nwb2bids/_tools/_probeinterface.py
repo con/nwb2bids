@@ -1,9 +1,5 @@
 """Utilities for looking up probe information from the ProbeInterface library."""
 
-_PROBEINTERFACE_LIBRARY_BASE_URL = (
-    "https://raw.githubusercontent.com/SpikeInterface/probeinterface_library/refs/heads/main"
-)
-
 
 def _get_probeinterface_term_url(*, manufacturer: str, model: str) -> str:
     """
@@ -21,7 +17,10 @@ def _get_probeinterface_term_url(*, manufacturer: str, model: str) -> str:
     term_url : str
         The raw URL pointing to the ProbeInterface JSON file in the library.
     """
-    return f"{_PROBEINTERFACE_LIBRARY_BASE_URL}/{manufacturer}/{model}/{model}.json"
+    return (
+        f"https://raw.githubusercontent.com/SpikeInterface/probeinterface_library"
+        f"/refs/heads/main/{manufacturer}/{model}/{model}.json"
+    )
 
 
 def _parse_probe_flag(probe_flag: str) -> tuple[str, str]:
