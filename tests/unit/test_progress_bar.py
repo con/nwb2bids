@@ -40,8 +40,9 @@ def test_session_converter_scan_nwb_files_progress_bar_enabled(
         mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
         nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
 
-    mock_tqdm.assert_called_once()
-    _, kwargs = mock_tqdm.call_args
+    assert mock_tqdm.call_count == 2
+    scan_call = mock_tqdm.call_args_list[0]
+    _, kwargs = scan_call
     assert kwargs["desc"] == "Scanning NWB files"
     assert kwargs["unit"] == "file"
     assert kwargs["disable"] is False
@@ -59,8 +60,47 @@ def test_session_converter_scan_nwb_files_progress_bar_disabled(
         mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
         nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
 
-    mock_tqdm.assert_called_once()
-    _, kwargs = mock_tqdm.call_args
+    assert mock_tqdm.call_count == 2
+    scan_call = mock_tqdm.call_args_list[0]
+    _, kwargs = scan_call
+    assert kwargs["disable"] is True
+
+
+@pytest.mark.ai_generated
+def test_session_converter_initialize_sessions_progress_bar_enabled(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+) -> None:
+    """A progress bar should be displayed when silent=False during session initialization (SessionConverter)."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
+
+    with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
+        mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
+        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
+
+    assert mock_tqdm.call_count == 2
+    init_call = mock_tqdm.call_args_list[1]
+    _, kwargs = init_call
+    assert kwargs["desc"] == "Initializing sessions"
+    assert kwargs["unit"] == "session"
+    assert kwargs["disable"] is False
+
+
+@pytest.mark.ai_generated
+def test_session_converter_initialize_sessions_progress_bar_disabled(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+) -> None:
+    """The progress bar should be disabled when silent=True during session initialization (SessionConverter)."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
+
+    with patch("nwb2bids._converters._session_converter.tqdm") as mock_tqdm:
+        mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
+        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
+
+    assert mock_tqdm.call_count == 2
+    init_call = mock_tqdm.call_args_list[1]
+    _, kwargs = init_call
     assert kwargs["disable"] is True
 
 
@@ -76,8 +116,9 @@ def test_scan_nwb_files_progress_bar_enabled(
         mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
         nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
 
-    mock_tqdm.assert_called_once()
-    _, kwargs = mock_tqdm.call_args
+    assert mock_tqdm.call_count == 2
+    scan_call = mock_tqdm.call_args_list[0]
+    _, kwargs = scan_call
     assert kwargs["desc"] == "Scanning NWB files"
     assert kwargs["unit"] == "file"
     assert kwargs["disable"] is False
@@ -95,8 +136,9 @@ def test_scan_nwb_files_progress_bar_disabled(
         mock_tqdm.side_effect = lambda iterable, **kwargs: iterable
         nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
 
-    mock_tqdm.assert_called_once()
-    _, kwargs = mock_tqdm.call_args
+    assert mock_tqdm.call_count == 2
+    scan_call = mock_tqdm.call_args_list[0]
+    _, kwargs = scan_call
     assert kwargs["disable"] is True
 
 

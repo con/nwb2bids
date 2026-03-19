@@ -101,7 +101,12 @@ class SessionConverter(BaseConverter):
                 nwbfile_paths=nwbfile_paths,
                 run_config=run_config,
             )
-            for session_id, nwbfile_paths in unique_session_id_to_nwbfile_paths.items()
+            for session_id, nwbfile_paths in tqdm(
+                unique_session_id_to_nwbfile_paths.items(),
+                desc="Initializing sessions",
+                unit="session",
+                disable=run_config.silent,
+            )
         ]
         return session_converters
 
