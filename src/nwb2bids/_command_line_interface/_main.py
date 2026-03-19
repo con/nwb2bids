@@ -110,13 +110,16 @@ def _nwb2bids_cli():
 )
 @rich_click.option(
     "--probe",
-    is_flag=True,
     help=(
-        "When set, fetches ProbeInterface JSON files for known probes from the ProbeInterface library "
-        "and writes them to the `probes/` directory of the BIDS dataset. "
-        "Requires each probe to have both `manufacturer` and `model` fields set in the NWB file."
+        "Look up the specified probe in the ProbeInterface library and write its geometry JSON to "
+        "the `probes/` directory of the BIDS dataset. "
+        "The value must follow the `manufacturer/model` format used by the ProbeInterface library, "
+        "e.g. `neuronexus/A1x32-Poly3-10mm-50-177`. "
+        "If the probe cannot be found, a notification is posted but conversion continues."
     ),
-    default=False,
+    required=False,
+    type=str,
+    default=None,
 )
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
@@ -129,7 +132,7 @@ def _run_convert_nwb_dataset(
     archive_target: typing.Literal["dandi", "ember"] | None = None,
     silent: bool = False,
     space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
-    probe: bool = False,
+    probe: str | None = None,
 ) -> None:
     """
     Convert NWB files to BIDS format.

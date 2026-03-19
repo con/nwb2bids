@@ -10,7 +10,7 @@ import pynwb
 import typing_extensions
 
 from ._model_utils import _build_json_sidecar
-from .._tools._probeinterface import _get_probeinterface_term_url
+from .._tools._probeinterface import _get_probeinterface_term_url, _parse_probe_flag
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
@@ -258,7 +258,12 @@ class ProbeTable(BaseMetadataContainerModel):
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call
-    def to_json(self, file_path: str | pathlib.Path) -> None:
+    def to_json(
+        self,
+        file_path: str | pathlib.Path,
+        probe_term_url: str | None = None,
+        probe_model_name: str | None = None,
+    ) -> None:
         """
         Save the probes information to a JSON file.
 
@@ -266,6 +271,12 @@ class ProbeTable(BaseMetadataContainerModel):
         ----------
         file_path : path
             The path to the output JSON file.
+        probe_term_url : str, optional
+            A TermURL to include under ``model.Levels[probe_model_name].TermURL`` in the sidecar.
+            Only used when ``probe_model_name`` is also provided and ``model`` is a column in the
+            probe table (i.e., at least one probe has a non-null ``model`` value).
+        probe_model_name : str, optional
+            The model name used as the key under ``model.Levels`` when adding a TermURL.
         """
         file_path = pathlib.Path(file_path)
 
@@ -279,47 +290,66 @@ class ProbeTable(BaseMetadataContainerModel):
         if "hemisphere" in json_content:
             json_content["hemisphere"]["Levels"] = {"L": "left", "R": "right"}
 
-        if "model" in json_content:
-            model_levels: dict[str, dict[str, str]] = {}
-            for probe in self.probes:
-                if probe.model is not None and probe.manufacturer is not None:
-                    term_url = _get_probeinterface_term_url(manufacturer=probe.manufacturer, model=probe.model)
-                    model_levels[probe.model] = {"TermURL": term_url}
-            if model_levels:
-                json_content["model"]["Levels"] = model_levels
+        if "model" in json_content and probe_term_url is not None and probe_model_name is not None:
+            if "Levels" not in json_content["model"]:
+                json_content["model"]["Levels"] = {}
+            json_content["model"]["Levels"][probe_model_name] = {"TermURL": probe_term_url}
 
         with file_path.open(mode="w") as file_stream:
             json.dump(obj=json_content, fp=file_stream, indent=4)
 
     @pydantic.validate_call
-    def write_probe_interface_file(self, bids_directory: str | pathlib.Path) -> None:
+    def write_probe_interface_file(
+        self, bids_directory: str | pathlib.Path, probe_name: str
+    ) -> str | None:
         """
-        Fetch ProbeInterface JSON files for known probes and write them to the BIDS dataset.
+        Fetch the ProbeInterface JSON for a named probe and write it to the BIDS dataset.
 
-        For each probe with both ``manufacturer`` and ``model`` fields set, this method fetches
-        the corresponding ProbeInterface JSON from the ProbeInterface library and writes it to
-        ``{bids_directory}/probes/{model}.json``.
+        The probe is identified by the ``probe_name`` string, which must follow the
+        ``manufacturer/model`` format used by the ProbeInterface library
+        (e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``).
+
+        On success, writes ``{bids_directory}/probes/{model}.json`` and returns the TermURL
+        pointing to the probe in the ProbeInterface library.
+
+        On failure (probe not found or network error), appends a ``ProbeNotFound`` notification
+        to this table's internal notifications and returns ``None`` without writing any files.
 
         Parameters
         ----------
         bids_directory : path
             The root directory of the BIDS dataset.
+        probe_name : str
+            The probe identifier in ``manufacturer/model`` format.
+
+        Returns
+        -------
+        term_url : str or None
+            The TermURL for the probe in the ProbeInterface library, or ``None`` if the lookup
+            failed.
         """
         bids_directory = pathlib.Path(bids_directory)
+
+        try:
+            manufacturer, model = _parse_probe_flag(probe_name)
+        except ValueError:
+            notification = Notification.from_definition(identifier="ProbeNotFound")
+            self._internal_notifications.append(notification)
+            return None
+
+        term_url = _get_probeinterface_term_url(manufacturer=manufacturer, model=model)
+        try:
+            with urllib.request.urlopen(term_url) as response:  # noqa: S310
+                probe_data = json.loads(response.read())
+        except (OSError, urllib.error.URLError):
+            notification = Notification.from_definition(identifier="ProbeNotFound")
+            self._internal_notifications.append(notification)
+            return None
+
         probes_directory = bids_directory / "probes"
+        probes_directory.mkdir(exist_ok=True)
+        output_path = probes_directory / f"{model}.json"
+        with output_path.open(mode="w") as file_stream:
+            json.dump(obj=probe_data, fp=file_stream, indent=4)
 
-        for probe in self.probes:
-            if probe.manufacturer is None or probe.model is None:
-                continue
-
-            term_url = _get_probeinterface_term_url(manufacturer=probe.manufacturer, model=probe.model)
-            try:
-                with urllib.request.urlopen(term_url) as response:  # noqa: S310
-                    probe_data = json.loads(response.read())
-            except (OSError, urllib.error.URLError):
-                continue
-
-            probes_directory.mkdir(exist_ok=True)
-            output_path = probes_directory / f"{probe.model}.json"
-            with output_path.open(mode="w") as file_stream:
-                json.dump(obj=probe_data, fp=file_stream, indent=4)
+        return term_url
