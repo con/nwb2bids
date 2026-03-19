@@ -231,6 +231,52 @@ def test_progress_bar_no_output_when_disabled(
 
 
 @pytest.mark.ai_generated
+def test_full_workflow_progress_bar_output(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    tmp_path: pathlib.Path,
+) -> None:
+    """All three progress bars should appear in succession during a full from_nwb_paths → extract_metadata → convert_to_bids_dataset run.
+
+    This test also validates that each bar occupies position=0 (the default) and overwrites the previous line in the
+    terminal, since we have not set position or leave kwargs.  Because all three bars share the same output buffer
+    here, their descriptions appear one after another in captured text, which lets us assert on ordering without
+    needing a real TTY.
+    """
+    expected_lines = (_EXPECTED_OUTPUT_DIR / "full_workflow.txt").read_text().strip().splitlines()
+
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
+    buffer = io.StringIO()
+
+    def capturing_tqdm(iterable, **kwargs):
+        kwargs["file"] = buffer
+        return real_tqdm(iterable, **kwargs)
+
+    with (
+        patch("nwb2bids._converters._session_converter.tqdm", side_effect=capturing_tqdm),
+        patch("nwb2bids._converters._dataset_converter.tqdm", side_effect=capturing_tqdm),
+    ):
+        dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+            nwb_paths=[minimal_nwbfile_path], run_config=run_config
+        )
+        dataset_converter.extract_metadata()
+        dataset_converter.convert_to_bids_dataset()
+
+    captured_output = buffer.getvalue()
+    (tmp_path / "full_workflow_stderr.txt").write_text(captured_output)
+
+    # Verify every expected line appears in the captured output
+    for expected_line in expected_lines:
+        assert expected_line in captured_output, (
+            f"Expected progress bar line {expected_line!r} not found in captured output"
+        )
+
+    # Verify the bars appear in the correct order
+    positions = [captured_output.index(line) for line in expected_lines]
+    assert positions == sorted(positions), "Progress bars did not appear in the expected order"
+
+
+@pytest.mark.ai_generated
 @pytest.mark.container_cli_test
 def test_cli_silent_suppresses_progress_bar(
     minimal_nwbfile_path: pathlib.Path,
