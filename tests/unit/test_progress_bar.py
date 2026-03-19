@@ -1,13 +1,17 @@
 """Unit tests for progress bar behavior in DatasetConverter and SessionConverter."""
 
+import io
 import pathlib
 import subprocess
 from collections.abc import Callable
 from unittest.mock import patch
 
 import pytest
+from tqdm import tqdm as real_tqdm
 
 import nwb2bids
+
+_EXPECTED_OUTPUT_DIR = pathlib.Path(__file__).parent / "expected_progress_output"
 
 
 @pytest.mark.ai_generated
@@ -183,39 +187,52 @@ def test_convert_to_bids_dataset_progress_bar_disabled(
 
 
 @pytest.mark.ai_generated
-@pytest.mark.container_cli_test
 def test_progress_bar_output_visible_in_stderr(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
     tmp_path: pathlib.Path,
 ) -> None:
-    """When silent=False, the real tqdm progress bar output should appear in stderr and be saved for inspection."""
-    command = f"nwb2bids convert {minimal_nwbfile_path} -o {temporary_bids_directory}"
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    """Real tqdm output should contain the expected description text stored in the adjacent golden file."""
+    expected_content = (_EXPECTED_OUTPUT_DIR / "scan_nwb_files.txt").read_text().strip()
 
-    stderr_output = result.stderr
-    output_file = tmp_path / "progress_bar_stderr.txt"
-    output_file.write_bytes(stderr_output)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=False)
+    buffer = io.StringIO()
 
-    assert b"Scanning NWB files" in stderr_output or b"Extracting metadata" in stderr_output
+    def capturing_tqdm(iterable, **kwargs):
+        kwargs["file"] = buffer
+        return real_tqdm(iterable, **kwargs)
+
+    with patch("nwb2bids._converters._session_converter.tqdm", side_effect=capturing_tqdm):
+        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
+
+    captured_output = buffer.getvalue()
+    (tmp_path / "scan_nwb_files_stderr.txt").write_text(captured_output)
+
+    assert expected_content in captured_output
 
 
 @pytest.mark.ai_generated
-@pytest.mark.container_cli_test
 def test_progress_bar_no_output_when_disabled(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
     tmp_path: pathlib.Path,
 ) -> None:
-    """When silent=True (--silent flag), no progress bar output should appear in stderr."""
-    command = f"nwb2bids convert {minimal_nwbfile_path} -o {temporary_bids_directory} --silent"
-    result = subprocess.run(args=command, shell=True, capture_output=True)
+    """When silent=True, tqdm should produce no output; captured file should be empty."""
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, silent=True)
+    buffer = io.StringIO()
 
-    stderr_output = result.stderr
+    def capturing_tqdm(iterable, **kwargs):
+        kwargs["file"] = buffer
+        return real_tqdm(iterable, **kwargs)
+
+    with patch("nwb2bids._converters._session_converter.tqdm", side_effect=capturing_tqdm):
+        nwb2bids.SessionConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
+
+    captured_output = buffer.getvalue()
     output_file = tmp_path / "silent_stderr.txt"
-    output_file.write_bytes(stderr_output)
+    output_file.write_text(captured_output)
 
-    assert stderr_output == b""
+    assert captured_output == output_file.read_text() == ""
 
 
 @pytest.mark.ai_generated
