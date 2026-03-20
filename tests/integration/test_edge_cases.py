@@ -204,7 +204,9 @@ def test_symlink_resolves_correctly_with_relative_path(
     relative_nwb_path = pathlib.Path(minimal_nwbfile_path.name)
 
     nwb_paths = [relative_nwb_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, file_mode="symlink", force_session_labels=True)
+    run_config = nwb2bids.RunConfig(
+        bids_directory=temporary_bids_directory, file_mode="symlink", force_session_labels=True
+    )
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 

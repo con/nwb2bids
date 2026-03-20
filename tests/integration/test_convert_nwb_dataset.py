@@ -503,7 +503,9 @@ def test_ecephys_convert_with_space_allen_ccf(
     Adds entity to electrode files and writes a new coordsystem JSON file.
     """
     nwb_paths = [ecephys_minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, space="AllenCCFv3", force_session_labels=True)
+    run_config = nwb2bids.RunConfig(
+        bids_directory=temporary_bids_directory, space="AllenCCFv3", force_session_labels=True
+    )
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -579,7 +581,9 @@ def test_ecephys_convert_with_space_paxinos_watson(
     Adds entity to electrode files and writes a new coordsystem JSON file.
     """
     nwb_paths = [ecephys_minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, space="PaxinosWatson", force_session_labels=True)
+    run_config = nwb2bids.RunConfig(
+        bids_directory=temporary_bids_directory, space="PaxinosWatson", force_session_labels=True
+    )
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 

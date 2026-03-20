@@ -59,7 +59,9 @@ def test_minimal_cli_on_file_path(
     temporary_bids_directory: pathlib.Path,
     cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
-    command = f"nwb2bids convert --bids-directory {temporary_bids_directory} {minimal_nwbfile_path} --force-session-labels"
+    command = (
+        f"nwb2bids convert --bids-directory {temporary_bids_directory} {minimal_nwbfile_path} --force-session-labels"
+    )
 
     result = cli_runner(command)
     assert (
@@ -103,7 +105,9 @@ def test_ecephys_cli(
     temporary_bids_directory: pathlib.Path,
     cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
-    command = f"nwb2bids convert {ecephys_tutorial_nwbfile_path.parent} -o {temporary_bids_directory} --force-session-labels"
+    command = (
+        f"nwb2bids convert {ecephys_tutorial_nwbfile_path.parent} -o {temporary_bids_directory} --force-session-labels"
+    )
     result = cli_runner(command)
     assert (
         result.returncode == 0
