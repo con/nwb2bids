@@ -10,7 +10,7 @@ import nwb2bids
 
 def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     nwb_paths = [trials_events_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -21,17 +21,24 @@ def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_
         },
         temporary_bids_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ecephys.nwb",
-                "sub-123_events.tsv",
-                "sub-123_events.json",
+                "sub-123_ses-456_ecephys.nwb",
+                "sub-123_ses-456_events.tsv",
+                "sub-123_ses-456_events.json",
             },
         },
     }
@@ -39,7 +46,7 @@ def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
-    tsv_file_path = temporary_bids_directory / "sub-123" / "ecephys" / "sub-123_events.tsv"
+    tsv_file_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_events.tsv"
     actual_dataframe = pandas.read_csv(filepath_or_buffer=tsv_file_path, sep="\t")
     expected_dataframe = pandas.DataFrame(
         {
@@ -51,7 +58,7 @@ def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_
     )
     pandas.testing.assert_frame_equal(left=actual_dataframe, right=expected_dataframe)
 
-    json_file_path = temporary_bids_directory / "sub-123" / "ecephys" / "sub-123_events.json"
+    json_file_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_events.json"
     expected_json_content = {
         "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
         "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
@@ -70,7 +77,7 @@ def test_trials_events(trials_events_nwbfile_path: pathlib.Path, temporary_bids_
 
 def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     nwb_paths = [epochs_events_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -81,17 +88,24 @@ def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_
         },
         temporary_bids_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ecephys.nwb",
-                "sub-123_events.tsv",
-                "sub-123_events.json",
+                "sub-123_ses-456_ecephys.nwb",
+                "sub-123_ses-456_events.tsv",
+                "sub-123_ses-456_events.json",
             },
         },
     }
@@ -99,7 +113,7 @@ def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
-    json_file_path = temporary_bids_directory / "sub-123" / "ecephys" / "sub-123_events.json"
+    json_file_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_events.json"
     expected_json_content = {
         "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
         "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},
@@ -118,7 +132,7 @@ def test_epochs_events(epochs_events_nwbfile_path: pathlib.Path, temporary_bids_
 
 def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     nwb_paths = [multiple_events_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -129,17 +143,24 @@ def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_b
         },
         temporary_bids_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ecephys.nwb",
-                "sub-123_events.tsv",
-                "sub-123_events.json",
+                "sub-123_ses-456_ecephys.nwb",
+                "sub-123_ses-456_events.tsv",
+                "sub-123_ses-456_events.json",
             },
         },
     }
@@ -147,7 +168,7 @@ def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_b
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
-    json_file_path = temporary_bids_directory / "sub-123" / "ecephys" / "sub-123_events.json"
+    json_file_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_events.json"
     expected_json_content = {
         "onset": {"Description": "Onset of the event, measured from the beginning of the acquisition.", "Units": "s"},
         "duration": {"Description": "Duration of the event (measured from onset).", "Units": "s"},

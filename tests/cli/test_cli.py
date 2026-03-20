@@ -15,7 +15,7 @@ def test_minimal_cli_on_directory(
     temporary_bids_directory: pathlib.Path,
     cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
-    command = f"nwb2bids convert {minimal_nwbfile_path.parent} -o {temporary_bids_directory}"
+    command = f"nwb2bids convert {minimal_nwbfile_path.parent} -o {temporary_bids_directory} --force-session-labels"
 
     result = cli_runner(command)
     assert (
@@ -29,15 +29,22 @@ def test_minimal_cli_on_directory(
         },
         temporary_bids_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ecephys.nwb",
+                "sub-123_ses-456_ecephys.nwb",
             },
         },
     }
@@ -52,7 +59,7 @@ def test_minimal_cli_on_file_path(
     temporary_bids_directory: pathlib.Path,
     cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
-    command = f"nwb2bids convert --bids-directory {temporary_bids_directory} {minimal_nwbfile_path}"
+    command = f"nwb2bids convert --bids-directory {temporary_bids_directory} {minimal_nwbfile_path} --force-session-labels"
 
     result = cli_runner(command)
     assert (
@@ -66,15 +73,22 @@ def test_minimal_cli_on_file_path(
         },
         temporary_bids_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ecephys.nwb",
+                "sub-123_ses-456_ecephys.nwb",
             },
         },
     }
@@ -89,7 +103,7 @@ def test_ecephys_cli(
     temporary_bids_directory: pathlib.Path,
     cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
-    command = f"nwb2bids convert {ecephys_tutorial_nwbfile_path.parent} -o {temporary_bids_directory}"
+    command = f"nwb2bids convert {ecephys_tutorial_nwbfile_path.parent} -o {temporary_bids_directory} --force-session-labels"
     result = cli_runner(command)
     assert (
         result.returncode == 0
@@ -102,22 +116,29 @@ def test_ecephys_cli(
         },
         temporary_bids_directory
         / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-001"
+        / "ses-A"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-001_ecephys.json",
-                "sub-001_ecephys.nwb",
-                "sub-001_channels.tsv",
-                "sub-001_channels.json",
-                "sub-001_electrodes.tsv",
-                "sub-001_electrodes.json",
-                "sub-001_probes.tsv",
-                "sub-001_probes.json",
+                "sub-001_ses-A_ecephys.json",
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
             },
         },
     }

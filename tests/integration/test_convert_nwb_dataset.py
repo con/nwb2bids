@@ -12,7 +12,7 @@ def test_minimal_convert_nwb_dataset_from_directory(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path.parent]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -23,15 +23,22 @@ def test_minimal_convert_nwb_dataset_from_directory(
         },
         temporary_bids_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ecephys.nwb",
+                "sub-123_ses-456_ecephys.nwb",
             },
         },
     }
@@ -50,7 +57,7 @@ def test_minimal_convert_nwb_dataset_from_file_path(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -61,15 +68,22 @@ def test_minimal_convert_nwb_dataset_from_file_path(
         },
         temporary_bids_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ecephys.nwb",
+                "sub-123_ses-456_ecephys.nwb",
             },
         },
     }
@@ -82,7 +96,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     ecephys_tutorial_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [ecephys_tutorial_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -93,22 +107,29 @@ def test_ecephys_tutorial_convert_nwb_dataset(
         },
         temporary_bids_directory
         / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-001"
+        / "ses-A"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-001_ecephys.json",
-                "sub-001_ecephys.nwb",
-                "sub-001_channels.tsv",
-                "sub-001_channels.json",
-                "sub-001_electrodes.tsv",
-                "sub-001_electrodes.json",
-                "sub-001_probes.tsv",
-                "sub-001_probes.json",
+                "sub-001_ses-A_ecephys.json",
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
             },
         },
     }
@@ -116,7 +137,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
-    probes_tsv_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_probes.tsv"
+    probes_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.tsv"
     probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
     expected_probe_tsv_lines = [
         "probe_name\ttype\tmanufacturer\tdescription",
@@ -127,7 +148,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 
-    probes_json_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_probes.json"
+    probes_json_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.json"
     probes_json = json.loads(probes_json_file_path.read_text())
     expected_probes_json = {
         "description": {"Description": "Probe description from NWB file.", "LongName": "Description"},
@@ -145,7 +166,9 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     }
     assert probes_json == expected_probes_json
 
-    electrodes_tsv_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.tsv"
+    electrodes_tsv_file_path = (
+        temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
+    )
     electrodes_tsv_lines = electrodes_tsv_file_path.read_text().splitlines()
     expected_electrodes_tsv_lines = [
         "name\tprobe_name\tx\ty\tz\themisphere\timpedance\tshank_id\tlocation",
@@ -160,7 +183,9 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     ]
     assert electrodes_tsv_lines == expected_electrodes_tsv_lines
 
-    electrodes_json_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.json"
+    electrodes_json_file_path = (
+        temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.json"
+    )
     electrodes_json = json.loads(electrodes_json_file_path.read_text())
     expected_electrodes_json = {
         "hemisphere": {
@@ -234,7 +259,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     }
     assert electrodes_json == expected_electrodes_json
 
-    channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_channels.tsv"
+    channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
         "name\telectrode_name\ttype\tunits\tsampling_frequency\tstream_id\tgain",
@@ -249,7 +274,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     ]
     assert channels_tsv_lines == expected_channels_tsv_lines
 
-    channels_json_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_channels.json"
+    channels_json_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.json"
     channels_json = json.loads(channels_json_file_path.read_text())
     expected_channels_json = {
         "electrode_name": {
@@ -290,7 +315,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
     ecephys_minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [ecephys_minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -301,22 +326,29 @@ def test_ecephys_minimal_convert_nwb_dataset(
         },
         temporary_bids_directory
         / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-001"
+        / "ses-A"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-001_ecephys.json",
-                "sub-001_ecephys.nwb",
-                "sub-001_channels.tsv",
-                "sub-001_channels.json",
-                "sub-001_electrodes.tsv",
-                "sub-001_electrodes.json",
-                "sub-001_probes.tsv",
-                "sub-001_probes.json",
+                "sub-001_ses-A_ecephys.json",
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_electrodes.tsv",
+                "sub-001_ses-A_electrodes.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
             },
         },
     }
@@ -324,7 +356,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
         directory=temporary_bids_directory, expected_structure=expected_structure
     )
 
-    probes_tsv_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_probes.tsv"
+    probes_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_probes.tsv"
     probes_tsv_lines = probes_tsv_file_path.read_text().splitlines()
     expected_probe_tsv_lines = [
         "probe_name\ttype\tdescription",
@@ -332,7 +364,9 @@ def test_ecephys_minimal_convert_nwb_dataset(
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 
-    electrodes_tsv_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.tsv"
+    electrodes_tsv_file_path = (
+        temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_electrodes.tsv"
+    )
     electrodes_tsv_lines = electrodes_tsv_file_path.read_text().splitlines()
     expected_electrodes_tsv_lines = [
         "name\tprobe_name\tx\ty\tz\themisphere\timpedance\tshank_id\tlocation",
@@ -347,7 +381,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
     ]
     assert electrodes_tsv_lines == expected_electrodes_tsv_lines
 
-    channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_channels.tsv"
+    channels_tsv_file_path = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys" / "sub-001_ses-A_channels.tsv"
     channels_tsv_lines = channels_tsv_file_path.read_text().splitlines()
     expected_channels_tsv_lines = [
         "name\telectrode_name\ttype\tunits\tsampling_frequency",
@@ -409,7 +443,8 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
     nwb_relative = minimal_nwbfile_path.relative_to(temporary_run_directory.parent)
     nwb_paths = [pathlib.Path("..") / nwb_relative]
 
-    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    run_config = nwb2bids.RunConfig(force_session_labels=True)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
     expected_structure = {
@@ -419,14 +454,21 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
         },
         temporary_run_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_run_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_run_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
-            "files": {"sub-123_ecephys.nwb"},
+            "files": {"sub-123_ses-456_ecephys.nwb"},
         },
     }
     nwb2bids.testing.assert_subdirectory_structure(
@@ -461,11 +503,11 @@ def test_ecephys_convert_with_space_allen_ccf(
     Adds entity to electrode files and writes a new coordsystem JSON file.
     """
     nwb_paths = [ecephys_minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, space="AllenCCFv3")
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, space="AllenCCFv3", force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
-    ecephys_directory = temporary_bids_directory / "sub-001" / "ecephys"
+    ecephys_directory = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys"
 
     expected_structure = {
         temporary_bids_directory: {
@@ -474,23 +516,29 @@ def test_ecephys_convert_with_space_allen_ccf(
         },
         temporary_bids_directory
         / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A": {
             "directories": {"ecephys"},
             "files": set(),
         },
         ecephys_directory: {
             "directories": set(),
             "files": {
-                "sub-001_ecephys.json",
-                "sub-001_ecephys.nwb",
-                "sub-001_channels.tsv",
-                "sub-001_channels.json",
-                "sub-001_probes.tsv",
-                "sub-001_probes.json",
+                "sub-001_ses-A_ecephys.json",
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
                 # Space entity is added to electrode files
-                "sub-001_space-AllenCCFv3_electrodes.tsv",
-                "sub-001_space-AllenCCFv3_electrodes.json",
+                "sub-001_ses-A_space-AllenCCFv3_electrodes.tsv",
+                "sub-001_ses-A_space-AllenCCFv3_electrodes.json",
                 # Coordinate system sidecar
-                "sub-001_space-AllenCCFv3_coordsystem.json",
+                "sub-001_ses-A_space-AllenCCFv3_coordsystem.json",
             },
         },
     }
@@ -499,7 +547,7 @@ def test_ecephys_convert_with_space_allen_ccf(
     )
 
     # Verify coordsystem.json content
-    coordsystem_file_path = ecephys_directory / "sub-001_space-AllenCCFv3_coordsystem.json"
+    coordsystem_file_path = ecephys_directory / "sub-001_ses-A_space-AllenCCFv3_coordsystem.json"
     coordsystem_json = json.loads(coordsystem_file_path.read_text())
     expected_coordsystem_json = {
         "MicroephysCoordinateSystem": "AllenCCFv3",
@@ -531,22 +579,22 @@ def test_ecephys_convert_with_space_paxinos_watson(
     Adds entity to electrode files and writes a new coordsystem JSON file.
     """
     nwb_paths = [ecephys_minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, space="PaxinosWatson")
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, space="PaxinosWatson", force_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
-    ecephys_directory = temporary_bids_directory / "sub-001" / "ecephys"
+    ecephys_directory = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys"
 
     # Verify space-PaxinosWatson electrode files are created
-    assert (ecephys_directory / "sub-001_space-PaxinosWatson_electrodes.tsv").exists()
-    assert (ecephys_directory / "sub-001_space-PaxinosWatson_electrodes.json").exists()
+    assert (ecephys_directory / "sub-001_ses-A_space-PaxinosWatson_electrodes.tsv").exists()
+    assert (ecephys_directory / "sub-001_ses-A_space-PaxinosWatson_electrodes.json").exists()
 
     # Verify no unspaced electrode files were created
-    assert not (ecephys_directory / "sub-001_electrodes.tsv").exists()
-    assert not (ecephys_directory / "sub-001_electrodes.json").exists()
+    assert not (ecephys_directory / "sub-001_ses-A_electrodes.tsv").exists()
+    assert not (ecephys_directory / "sub-001_ses-A_electrodes.json").exists()
 
     # Verify coordsystem.json content
-    coordsystem_file_path = ecephys_directory / "sub-001_space-PaxinosWatson_coordsystem.json"
+    coordsystem_file_path = ecephys_directory / "sub-001_ses-A_space-PaxinosWatson_coordsystem.json"
     coordsystem_json = json.loads(coordsystem_file_path.read_text())
     expected_coordsystem_json = {
         "MicroephysCoordinateSystem": "PaxinosWatson",

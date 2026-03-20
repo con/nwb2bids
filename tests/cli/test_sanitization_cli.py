@@ -17,7 +17,7 @@ def test_cli_basic_sanitization(
 ):
     command = (
         f"nwb2bids convert {problematic_nwbfile_path_2} -o {temporary_bids_directory} "
-        "--sanitization sub-labels --sanitization ses-labels"
+        "--sanitization sub-labels --sanitization ses-labels --force-session-labels"
     )
 
     result = cli_runner(command)
@@ -32,15 +32,22 @@ def test_cli_basic_sanitization(
         },
         temporary_bids_directory
         / "sub-bad+subject+id": {
+            "directories": {"ses-problematic+2"},
+            "files": {"sub-bad+subject+id_sessions.json", "sub-bad+subject+id_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-bad+subject+id"
+        / "ses-problematic+2": {
             "directories": {"ecephys"},
             "files": set(),
         },
         temporary_bids_directory
         / "sub-bad+subject+id"
+        / "ses-problematic+2"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-bad+subject+id_ecephys.nwb",
+                "sub-bad+subject+id_ses-problematic+2_ecephys.nwb",
             },
         },
     }
