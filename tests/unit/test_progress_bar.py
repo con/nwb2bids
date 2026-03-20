@@ -267,9 +267,9 @@ def test_full_workflow_progress_bar_output(
 
     # Verify every expected line appears in the captured output
     for expected_line in expected_lines:
-        assert expected_line in captured_output, (
-            f"Expected progress bar line {expected_line!r} not found in captured output"
-        )
+        assert (
+            expected_line in captured_output
+        ), f"Expected progress bar line {expected_line!r} not found in captured output"
 
     # Verify the bars appear in the correct order
     positions = [captured_output.index(line) for line in expected_lines]
