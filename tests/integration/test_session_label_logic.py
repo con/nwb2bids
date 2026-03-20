@@ -162,3 +162,45 @@ def test_set_use_session_labels_single_subject_multi_session(
 
     assert len(dataset_converter.session_converters) == 2
     assert all(sc.use_session_labels is True for sc in dataset_converter.session_converters)
+
+
+def test_force_session_labels_overrides_single_session_default(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """With force_session_labels=True, a single-session subject still gets `ses-` labels."""
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
+
+    # ses- directory present even though only one session exists
+    expected_structure = {
+        temporary_bids_directory: {
+            "directories": {"sub-123"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-456"
+        / "ecephys": {
+            "directories": set(),
+            "files": {"sub-123_ses-456_ecephys.nwb"},
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
+
+    assert len(dataset_converter.session_converters) == 1
+    assert dataset_converter.session_converters[0].use_session_labels is True

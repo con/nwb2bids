@@ -166,7 +166,7 @@ def _run_convert_nwb_dataset(
         for key, value in run_config_kwargs.items()
         if (key not in ("file_mode", "force_session_labels") and value is not None)
         or (key == "file_mode" and value != "auto")
-        or (key == "force_session_labels" and value is True)
+        or (key == "force_session_labels" and value is not False)
     }
     run_config = RunConfig(**non_missing_run_config_kwargs)
 
