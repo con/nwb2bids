@@ -215,7 +215,7 @@ class SessionConverter(BaseConverter):
                     _, probe_model_name = self.run_config.probe.split("/", maxsplit=1)
                 # Propagate any notifications produced by the probe lookup (e.g. ProbeNotFound)
                 self.notifications += [
-                    n for n in self.session_metadata.probe_table.notifications if n not in self.notifications
+                    notif for notif in self.session_metadata.probe_table.notifications if notif not in self.notifications
                 ]
 
             probes_json_file_path = modality_directory / f"{file_prefix}_probes.json"
