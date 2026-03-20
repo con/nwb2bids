@@ -145,6 +145,7 @@ def _run_convert_nwb_dataset(
         "run_id": run_id,
         "space": space,
         "archive_target": archive_target,
+        "silent": silent,
     }
 
     # Filter out values that indicate absence of direct user input or signal to use default
