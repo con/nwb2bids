@@ -201,9 +201,6 @@ class SessionConverter(BaseConverter):
         general_metadata_file_path = modality_directory / f"{file_prefix}_{modality}.json"
         self.session_metadata.general_metadata.to_json(file_path=general_metadata_file_path)
         if self.session_metadata.probe_table is not None:
-            probes_tsv_file_path = modality_directory / f"{file_prefix}_probes.tsv"
-            self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)
-
             probe_term_url = None
             probe_model_name = None
             if self.run_config.probe is not None:
@@ -213,10 +210,18 @@ class SessionConverter(BaseConverter):
                 )
                 if probe_term_url is not None:
                     _, probe_model_name = self.run_config.probe.split("/", maxsplit=1)
+                    # Set the model on each probe from the run config value; the NWB file does not
+                    # contain enough information to determine this, so we use the explicitly provided value.
+                    for probe in self.session_metadata.probe_table.probes:
+                        if probe.model is None:
+                            probe.model = probe_model_name
                 # Propagate any notifications produced by the probe lookup (e.g. ProbeNotFound)
                 self.notifications += [
                     notif for notif in self.session_metadata.probe_table.notifications if notif not in self.notifications
                 ]
+
+            probes_tsv_file_path = modality_directory / f"{file_prefix}_probes.tsv"
+            self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)
 
             probes_json_file_path = modality_directory / f"{file_prefix}_probes.json"
             self.session_metadata.probe_table.to_json(
