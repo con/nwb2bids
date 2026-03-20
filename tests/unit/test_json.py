@@ -4,7 +4,6 @@ import pathlib
 import unittest.mock
 
 import nwb2bids
-from nwb2bids._tools._probeinterface import _get_probeinterface_term_url
 
 
 def test_probe_json_includes_optional_fields_when_set(tmp_path: pathlib.Path) -> None:
@@ -34,16 +33,6 @@ def test_probe_json_includes_optional_fields_when_set(tmp_path: pathlib.Path) ->
         "type": {"Description": "The type of the probe.", "LongName": "Type"},
     }
     assert json_content == expected_content
-
-
-def test_get_probeinterface_term_url() -> None:
-    """Test that the ProbeInterface term URL is correctly constructed."""
-    url = _get_probeinterface_term_url(manufacturer="neuronexus", model="A1x32-Poly3-10mm-50-177")
-    expected = (
-        "https://raw.githubusercontent.com/SpikeInterface/probeinterface_library/refs/heads/main"
-        "/neuronexus/A1x32-Poly3-10mm-50-177/A1x32-Poly3-10mm-50-177.json"
-    )
-    assert url == expected
 
 
 def test_probe_json_no_term_url_by_default(tmp_path: pathlib.Path) -> None:

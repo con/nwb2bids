@@ -10,7 +10,6 @@ import pynwb
 import typing_extensions
 
 from ._model_utils import _build_json_sidecar
-from .._tools._probeinterface import _get_probeinterface_term_url
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
 from ..notifications import Notification
 
@@ -339,7 +338,10 @@ class ProbeTable(BaseMetadataContainerModel):
             return None
         manufacturer, model = parts
 
-        term_url = _get_probeinterface_term_url(manufacturer=manufacturer, model=model)
+        term_url = (
+            f"https://raw.githubusercontent.com/SpikeInterface/probeinterface_library"
+            f"/refs/heads/main/{manufacturer}/{model}/{model}.json"
+        )
         parsed = urllib.parse.urlparse(term_url)
         connection = http.client.HTTPSConnection(parsed.netloc)
         connection.request("GET", parsed.path)
