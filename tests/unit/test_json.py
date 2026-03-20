@@ -64,7 +64,6 @@ def test_probe_json_includes_term_url_when_probe_flag_provided(tmp_path: pathlib
             nwb2bids.bids_models.Probe(
                 probe_name="ProbeA",
                 manufacturer="neuronexus",
-                model="A1x32-Poly3-10mm-50-177",
                 description="test probe",
             ),
         ],
@@ -119,7 +118,6 @@ def test_write_probe_interface_file_writes_json_for_known_probe(tmp_path: pathli
     )
     assert term_url == expected_term_url
     assert model_name == "A1x32-Poly3-10mm-50-177"
-    assert probe_table.probes[0].model == "A1x32-Poly3-10mm-50-177"
 
 
 def test_write_probe_interface_file_invalid_probe_name_adds_notification(tmp_path: pathlib.Path) -> None:

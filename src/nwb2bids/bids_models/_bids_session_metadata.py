@@ -102,7 +102,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         participant = Participant.from_nwbfiles(nwbfiles=nwbfiles)
         general_metadata = GeneralMetadata.from_nwbfiles(nwbfiles=nwbfiles)
         events = Events.from_nwbfiles(nwbfiles=nwbfiles)
-        probe_table = ProbeTable.from_nwbfiles(nwbfiles=nwbfiles)
+        probe_table = ProbeTable.from_nwbfiles(nwbfiles=nwbfiles, probe_name=run_config.probe)
         electrode_table = ElectrodeTable.from_nwbfiles(nwbfiles=nwbfiles)
         channel_table = ChannelTable.from_nwbfiles(nwbfiles=nwbfiles)
 

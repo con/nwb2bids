@@ -203,7 +203,11 @@ class ProbeTable(BaseMetadataContainerModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
+    def from_nwbfiles(
+        cls,
+        nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]],
+        probe_name: str | None = None,
+    ) -> typing_extensions.Self | None:
         if len(nwbfiles) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
@@ -228,12 +232,16 @@ class ProbeTable(BaseMetadataContainerModel):
             icephys_electrodes = nwbfile.icephys_electrodes.values()
             unique_devices = {electrode.device for electrode in icephys_electrodes}
 
+        parts = probe_name.split("/", maxsplit=1) if probe_name else []
+        model_from_flag = parts[1] if len(parts) == 2 and parts[0] and parts[1] else None
+
         probes = [
             Probe(
                 probe_name=device.name,
                 type="n/a",  # TODO via additional metadata
                 manufacturer=device.manufacturer,
                 description=device.description,
+                model=model_from_flag,
                 # TODO: handle more extra custom columns
             )
             for device in unique_devices
@@ -275,8 +283,7 @@ class ProbeTable(BaseMetadataContainerModel):
             The path to the output JSON file.
         probe_term_url : str, optional
             A TermURL to include under ``model.Levels[probe_model_name].TermURL`` in the sidecar.
-            Only used when ``probe_model_name`` is also provided and ``model`` is a column in the
-            probe table (i.e., at least one probe has a non-null ``model`` value).
+            Only used when ``probe_model_name`` is also provided.
         probe_model_name : str, optional
             The model name used as the key under ``model.Levels`` when adding a TermURL.
         """
@@ -292,8 +299,7 @@ class ProbeTable(BaseMetadataContainerModel):
         if "hemisphere" in json_content:
             json_content["hemisphere"]["Levels"] = {"L": "left", "R": "right"}
 
-        probe_models = {probe.model for probe in self.probes if probe.model is not None}
-        if probe_term_url is not None and probe_model_name is not None and probe_model_name in probe_models:
+        if probe_term_url is not None and probe_model_name is not None:
             json_content.setdefault("model", {}).setdefault("Levels", {})[probe_model_name] = {
                 "TermURL": probe_term_url
             }
@@ -312,8 +318,7 @@ class ProbeTable(BaseMetadataContainerModel):
         ``manufacturer/model`` format used by the ProbeInterface library
         (e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``).
 
-        On success, writes ``{bids_directory}/probes/{model}.json``, sets the ``model`` field on
-        each probe that does not already have one, and returns ``(term_url, model_name)``.
+        On success, writes ``{bids_directory}/probes/{model}.json`` and returns ``(term_url, model_name)``.
 
         On failure (probe not found or network error), appends a ``ProbeNotFound`` notification
         to this table's internal notifications and returns ``(None, None)`` without writing any files.
@@ -355,9 +360,5 @@ class ProbeTable(BaseMetadataContainerModel):
         output_path = probes_directory / f"{model}.json"
         with output_path.open(mode="w") as file_stream:
             json.dump(obj=probe_data, fp=file_stream, indent=4)
-
-        for probe in self.probes:
-            if probe.model is None:
-                probe.model = model
 
         return term_url, model
