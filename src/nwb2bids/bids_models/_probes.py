@@ -291,7 +291,9 @@ class ProbeTable(BaseMetadataContainerModel):
 
         probe_models = {probe.model for probe in self.probes if probe.model is not None}
         if probe_term_url is not None and probe_model_name is not None and probe_model_name in probe_models:
-            json_content.setdefault("model", {}).setdefault("Levels", {})[probe_model_name] = {"TermURL": probe_term_url}
+            json_content.setdefault("model", {}).setdefault("Levels", {})[probe_model_name] = {
+                "TermURL": probe_term_url
+            }
 
         with file_path.open(mode="w") as file_stream:
             json.dump(obj=json_content, fp=file_stream, indent=4)

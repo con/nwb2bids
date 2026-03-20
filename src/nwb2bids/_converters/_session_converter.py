@@ -217,7 +217,9 @@ class SessionConverter(BaseConverter):
                             probe.model = probe_model_name
                 # Propagate any notifications produced by the probe lookup (e.g. ProbeNotFound)
                 self.notifications += [
-                    notif for notif in self.session_metadata.probe_table.notifications if notif not in self.notifications
+                    notif
+                    for notif in self.session_metadata.probe_table.notifications
+                    if notif not in self.notifications
                 ]
 
             probes_tsv_file_path = modality_directory / f"{file_prefix}_probes.tsv"
