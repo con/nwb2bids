@@ -111,10 +111,10 @@ def _nwb2bids_cli():
 @rich_click.option(
     "--probe",
     help=(
-            "When set, fetches the ProbeInterface JSON for the specified probe from the ProbeInterface library "
-            "and writes it to the ``probes/`` directory of the BIDS dataset. "
-            "The value must follow the ``manufacturer/model`` format used by the ProbeInterface library, "
-            "e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``."
+        "When set, fetches the ProbeInterface JSON for the specified probe from the ProbeInterface library "
+        "and writes it to the ``probes/`` directory of the BIDS dataset. "
+        "The value must follow the ``manufacturer/model`` format used by the ProbeInterface library, "
+        "e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``."
     ),
     required=False,
     type=str,
