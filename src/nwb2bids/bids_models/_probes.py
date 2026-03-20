@@ -1,11 +1,16 @@
 import json
 import pathlib
 import typing
+import warnings
 
 import pandas
 import pydantic
 import pynwb
 import typing_extensions
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=Warning, module="requests")
+    import requests
 
 from ._model_utils import _build_json_sidecar
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
@@ -333,8 +338,6 @@ class ProbeTable(BaseMetadataContainerModel):
             self._internal_notifications.append(notification)
             return None, None
         manufacturer, model = parts
-
-        import requests  # lazy import to avoid a startup warning on some environments
 
         term_url = (
             f"https://raw.githubusercontent.com/SpikeInterface/probeinterface_library"
