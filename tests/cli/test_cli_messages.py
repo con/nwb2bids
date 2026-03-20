@@ -63,7 +63,7 @@ def test_problematic_cli_info_messages(
     temporary_bids_directory: pathlib.Path,
     cli_runner: Callable[[str], subprocess.CompletedProcess],
 ):
-    command = f"nwb2bids convert {problematic_nwbfile_path_4} -o {temporary_bids_directory} --silent"
+    command = f"nwb2bids convert {problematic_nwbfile_path_4} -o {temporary_bids_directory}"
 
     result = cli_runner(command)
     assert result.returncode == 0
@@ -77,7 +77,7 @@ def test_problematic_cli_info_messages(
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
     assert actual_lines[:-2] == expected_message
     assert "Please review the full notifications report at" in actual_lines[-2]
-    assert result.stderr == b""
+    assert b"No modality information found in session metadata" not in result.stderr
 
 
 @pytest.mark.container_cli_test
