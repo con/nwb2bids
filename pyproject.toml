@@ -76,6 +76,7 @@ dependencies = [
     "requests",
     "rich-click",
     "pydantic",
+    "tqdm",
     "typing-extensions",  # TODO: remove when dropping support for Python 3.10
     "ruamel.yaml~=0.18.15",  # https://sourceforge.net/p/ruamel-yaml-clib/tickets/47/
 ]

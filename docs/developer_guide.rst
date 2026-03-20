@@ -261,7 +261,7 @@ The label interactions leading to changelog sections are roughly as follows:
        * - ``documentation``
          - 📝 Documentation
          - None [#documentation-note]_
-         - Only changed something about the documentation
+         - Only changed something about the documentation.
        * - ``internal``
          - 🏠 Internal
          - None [#internal-note]_

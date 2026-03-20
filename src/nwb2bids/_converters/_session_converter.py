@@ -8,6 +8,7 @@ import warnings
 
 import pydantic
 import typing_extensions
+from tqdm import tqdm
 
 from ._datalad_utils import _content_is_retrieved
 from ._run_config import RunConfig
@@ -95,7 +96,12 @@ class SessionConverter(BaseConverter):
                 nwbfile_paths=nwbfile_paths,
                 run_config=run_config,
             )
-            for session_id, nwbfile_paths in unique_session_id_to_nwbfile_paths.items()
+            for session_id, nwbfile_paths in tqdm(
+                unique_session_id_to_nwbfile_paths.items(),
+                desc="Initializing sessions",
+                unit="session",
+                disable=run_config.silent,
+            )
         ]
         return session_converters
 
