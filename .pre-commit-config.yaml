@@ -40,4 +40,5 @@ repos:
         additional_dependencies:
          - "types-PyYAML"
          - "pandas-stubs"
+         - "types-requests"
          - "pydantic"
