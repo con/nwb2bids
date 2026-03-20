@@ -104,6 +104,47 @@ Run tests with coverage:
 
 The coverage report will be generated in ``htmlcov/index.html``.
 
+Code Quality (Pre-commit Hooks)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This project uses `pre-commit <https://pre-commit.com/>`_ to run code quality checks automatically before each commit.
+The hooks include **black** (formatting), **ruff** (linting), **mypy** (type checking), and **codespell** (spell checking).
+
+Install pre-commit and the hooks once:
+
+.. code-block:: bash
+
+   pip install pre-commit
+   pre-commit install
+
+Run all hooks manually against all files (recommended before opening a PR):
+
+.. code-block:: bash
+
+   pre-commit run --all-files
+
+Pre-commit will attempt to auto-fix most formatting and lint issues. After it modifies files, re-run the command to
+confirm everything passes:
+
+.. code-block:: bash
+
+   pre-commit run --all-files  # re-run to verify all hooks pass after auto-fixes
+
+Resolving MyPy errors
+^^^^^^^^^^^^^^^^^^^^^
+
+MyPy errors must be fixed manually. Common patterns:
+
+- **Missing return type annotation**: add a return type to the function signature (e.g., ``-> None``, ``-> str``).
+- **Unexpected type**: narrow the type with a guard clause or cast (e.g., ``if value is None: return``).
+- **Missing stub package**: install the missing stubs (e.g., ``pip install types-PyYAML``) or add ``# type: ignore[import-untyped]``.
+
+Run mypy on its own to iterate quickly:
+
+.. code-block:: bash
+
+   mypy src/ tests/
+
 Building Docs Locally
 ~~~~~~~~~~~~~~~~~~~~~
 

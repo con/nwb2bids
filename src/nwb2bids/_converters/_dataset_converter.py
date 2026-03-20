@@ -187,11 +187,14 @@ class DatasetConverter(BaseConverter):
 
     def extract_metadata(self) -> None:
         try:
+            sessions_needing_metadata = [sc for sc in self.session_converters if sc.session_metadata is None]
+            if not sessions_needing_metadata:
+                return
             collections.deque(
                 (
                     session_converter.extract_metadata()
                     for session_converter in tqdm(
-                        [sc for sc in self.session_converters if sc.session_metadata is None],
+                        sessions_needing_metadata,
                         desc="Extracting metadata",
                         unit="session",
                         disable=self.run_config.silent,
