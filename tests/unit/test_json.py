@@ -1,4 +1,3 @@
-import http.client
 import json
 import pathlib
 import unittest.mock
@@ -99,13 +98,11 @@ def test_write_probe_interface_file_writes_json_for_known_probe(tmp_path: pathli
     bids_dir = tmp_path / "bids_output"
     bids_dir.mkdir()
 
-    with unittest.mock.patch("http.client.HTTPSConnection") as mock_connection_class:
-        mock_connection = unittest.mock.MagicMock()
+    with unittest.mock.patch("requests.get") as mock_get:
         mock_response = unittest.mock.MagicMock()
-        mock_response.status = http.client.OK
-        mock_response.read.return_value = json.dumps(fake_probe_data).encode()
-        mock_connection.getresponse.return_value = mock_response
-        mock_connection_class.return_value = mock_connection
+        mock_response.ok = True
+        mock_response.json.return_value = fake_probe_data
+        mock_get.return_value = mock_response
 
         term_url = probe_table.write_probe_interface_file(
             bids_directory=bids_dir, probe_name="neuronexus/A1x32-Poly3-10mm-50-177"
@@ -150,12 +147,10 @@ def test_write_probe_interface_file_not_found_adds_notification(tmp_path: pathli
     bids_dir = tmp_path / "bids_output"
     bids_dir.mkdir()
 
-    with unittest.mock.patch("http.client.HTTPSConnection") as mock_connection_class:
-        mock_connection = unittest.mock.MagicMock()
+    with unittest.mock.patch("requests.get") as mock_get:
         mock_response = unittest.mock.MagicMock()
-        mock_response.status = http.client.NOT_FOUND
-        mock_connection.getresponse.return_value = mock_response
-        mock_connection_class.return_value = mock_connection
+        mock_response.ok = False
+        mock_get.return_value = mock_response
 
         term_url = probe_table.write_probe_interface_file(
             bids_directory=bids_dir, probe_name="neuronexus/A1x32-Poly3-10mm-50-177"

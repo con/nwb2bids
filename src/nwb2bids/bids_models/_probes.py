@@ -1,12 +1,11 @@
-import http.client
 import json
 import pathlib
 import typing
-import urllib.parse
 
 import pandas
 import pydantic
 import pynwb
+import requests
 import typing_extensions
 
 from ._model_utils import _build_json_sidecar
@@ -339,15 +338,12 @@ class ProbeTable(BaseMetadataContainerModel):
             f"https://raw.githubusercontent.com/SpikeInterface/probeinterface_library"
             f"/refs/heads/main/{manufacturer}/{model}/{model}.json"
         )
-        parsed = urllib.parse.urlparse(term_url)
-        connection = http.client.HTTPSConnection(parsed.netloc)
-        connection.request("GET", parsed.path)
-        http_response = connection.getresponse()
-        if http_response.status != http.client.OK:
+        http_response = requests.get(term_url)
+        if not http_response.ok:
             notification = Notification.from_definition(identifier="ProbeNotFound")
             self._internal_notifications.append(notification)
             return None
-        probe_data = json.loads(http_response.read())
+        probe_data = http_response.json()
 
         probes_directory = bids_directory / "probes"
         probes_directory.mkdir(exist_ok=True)
