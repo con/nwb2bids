@@ -204,17 +204,10 @@ class SessionConverter(BaseConverter):
             probe_term_url = None
             probe_model_name = None
             if self.run_config.probe is not None:
-                probe_term_url = self.session_metadata.probe_table.write_probe_interface_file(
+                probe_term_url, probe_model_name = self.session_metadata.probe_table.write_probe_interface_file(
                     bids_directory=self.run_config.bids_directory,
                     probe_name=self.run_config.probe,
                 )
-                if probe_term_url is not None:
-                    _, probe_model_name = self.run_config.probe.split("/", maxsplit=1)
-                    # Set the model on each probe from the run config value; the NWB file does not
-                    # contain enough information to determine this, so we use the explicitly provided value.
-                    for probe in self.session_metadata.probe_table.probes:
-                        if probe.model is None:
-                            probe.model = probe_model_name
                 # Propagate any notifications produced by the probe lookup (e.g. ProbeNotFound)
                 self.notifications += [
                     notif

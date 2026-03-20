@@ -298,7 +298,9 @@ class ProbeTable(BaseMetadataContainerModel):
             json.dump(obj=json_content, fp=file_stream, indent=4)
 
     @pydantic.validate_call
-    def write_probe_interface_file(self, bids_directory: str | pathlib.Path, probe_name: str) -> str | None:
+    def write_probe_interface_file(
+        self, bids_directory: str | pathlib.Path, probe_name: str
+    ) -> tuple[str, str] | tuple[None, None]:
         """
         Fetch the ProbeInterface JSON for a named probe and write it to the BIDS dataset.
 
@@ -306,11 +308,11 @@ class ProbeTable(BaseMetadataContainerModel):
         ``manufacturer/model`` format used by the ProbeInterface library
         (e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``).
 
-        On success, writes ``{bids_directory}/probes/{model}.json`` and returns the TermURL
-        pointing to the probe in the ProbeInterface library.
+        On success, writes ``{bids_directory}/probes/{model}.json``, sets the ``model`` field on
+        each probe that does not already have one, and returns ``(term_url, model_name)``.
 
         On failure (probe not found or network error), appends a ``ProbeNotFound`` notification
-        to this table's internal notifications and returns ``None`` without writing any files.
+        to this table's internal notifications and returns ``(None, None)`` without writing any files.
 
         Parameters
         ----------
@@ -321,9 +323,8 @@ class ProbeTable(BaseMetadataContainerModel):
 
         Returns
         -------
-        term_url : str or None
-            The TermURL for the probe in the ProbeInterface library, or ``None`` if the lookup
-            failed.
+        result : (str, str) or (None, None)
+            ``(term_url, model_name)`` on success, or ``(None, None)`` if the lookup failed.
         """
         bids_directory = pathlib.Path(bids_directory)
 
@@ -331,7 +332,7 @@ class ProbeTable(BaseMetadataContainerModel):
         if len(parts) != 2 or not parts[0] or not parts[1]:
             notification = Notification.from_definition(identifier="ProbeNotFound")
             self._internal_notifications.append(notification)
-            return None
+            return None, None
         manufacturer, model = parts
 
         term_url = (
@@ -342,7 +343,7 @@ class ProbeTable(BaseMetadataContainerModel):
         if not http_response.ok:
             notification = Notification.from_definition(identifier="ProbeNotFound")
             self._internal_notifications.append(notification)
-            return None
+            return None, None
         probe_data = http_response.json()
 
         probes_directory = bids_directory / "probes"
@@ -351,4 +352,8 @@ class ProbeTable(BaseMetadataContainerModel):
         with output_path.open(mode="w") as file_stream:
             json.dump(obj=probe_data, fp=file_stream, indent=4)
 
-        return term_url
+        for probe in self.probes:
+            if probe.model is None:
+                probe.model = model
+
+        return term_url, model

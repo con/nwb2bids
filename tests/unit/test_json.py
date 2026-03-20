@@ -104,7 +104,7 @@ def test_write_probe_interface_file_writes_json_for_known_probe(tmp_path: pathli
         mock_response.json.return_value = fake_probe_data
         mock_get.return_value = mock_response
 
-        term_url = probe_table.write_probe_interface_file(
+        term_url, model_name = probe_table.write_probe_interface_file(
             bids_directory=bids_dir, probe_name="neuronexus/A1x32-Poly3-10mm-50-177"
         )
 
@@ -118,6 +118,8 @@ def test_write_probe_interface_file_writes_json_for_known_probe(tmp_path: pathli
         "/neuronexus/A1x32-Poly3-10mm-50-177/A1x32-Poly3-10mm-50-177.json"
     )
     assert term_url == expected_term_url
+    assert model_name == "A1x32-Poly3-10mm-50-177"
+    assert probe_table.probes[0].model == "A1x32-Poly3-10mm-50-177"
 
 
 def test_write_probe_interface_file_invalid_probe_name_adds_notification(tmp_path: pathlib.Path) -> None:
@@ -130,9 +132,10 @@ def test_write_probe_interface_file_invalid_probe_name_adds_notification(tmp_pat
     bids_dir = tmp_path / "bids_output"
     bids_dir.mkdir()
 
-    term_url = probe_table.write_probe_interface_file(bids_directory=bids_dir, probe_name="no-slash-here")
+    term_url, model_name = probe_table.write_probe_interface_file(bids_directory=bids_dir, probe_name="no-slash-here")
 
     assert term_url is None
+    assert model_name is None
     assert not (bids_dir / "probes").exists()
     assert any(n.identifier == "ProbeNotFound" for n in probe_table.notifications)
 
@@ -152,10 +155,11 @@ def test_write_probe_interface_file_not_found_adds_notification(tmp_path: pathli
         mock_response.ok = False
         mock_get.return_value = mock_response
 
-        term_url = probe_table.write_probe_interface_file(
+        term_url, model_name = probe_table.write_probe_interface_file(
             bids_directory=bids_dir, probe_name="neuronexus/A1x32-Poly3-10mm-50-177"
         )
 
     assert term_url is None
+    assert model_name is None
     assert not (bids_dir / "probes").exists()
     assert any(n.identifier == "ProbeNotFound" for n in probe_table.notifications)
