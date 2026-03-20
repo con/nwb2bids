@@ -5,7 +5,6 @@ import typing
 import pandas
 import pydantic
 import pynwb
-import requests
 import typing_extensions
 
 from ._model_utils import _build_json_sidecar
@@ -334,6 +333,8 @@ class ProbeTable(BaseMetadataContainerModel):
             self._internal_notifications.append(notification)
             return None, None
         manufacturer, model = parts
+
+        import requests  # lazy import to avoid a startup warning on some environments
 
         term_url = (
             f"https://raw.githubusercontent.com/SpikeInterface/probeinterface_library"
