@@ -236,7 +236,7 @@ def test_full_workflow_progress_bar_output(
     temporary_bids_directory: pathlib.Path,
     tmp_path: pathlib.Path,
 ) -> None:
-    """All three progress bars should appear in succession during a full from_nwb_paths → extract_metadata → convert_to_bids_dataset run.
+    """All three progress bars should appear in succession during a full from_nwb_paths.
 
     This test also validates that each bar occupies position=0 (the default) and overwrites the previous line in the
     terminal, since we have not set position or leave kwargs.  Because all three bars share the same output buffer
