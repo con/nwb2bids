@@ -158,6 +158,7 @@ def _run_convert_nwb_dataset(
         "space": space,
         "archive_target": archive_target,
         "force_session_labels": force_session_labels,
+        "silent": silent,
     }
 
     # Filter out values that indicate absence of direct user input or signal to use default

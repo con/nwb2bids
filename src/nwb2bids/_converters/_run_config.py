@@ -66,6 +66,9 @@ class RunConfig(pydantic.BaseModel):
         By default (`False`), `ses-` labels are omitted for single-session subjects unless more than 50% of
         subjects have multiple sessions, in which case they are applied to all subjects for dataset-level
         consistency.
+    silent : bool, default: False
+        Whether to suppress progress bar output during conversion.
+        Set to ``True`` to hide all progress bars (e.g., when ``--silent`` is used via the CLI).
     """
 
     bids_directory: pathlib.Path = pydantic.Field(default_factory=pathlib.Path.cwd)
@@ -90,6 +93,7 @@ class RunConfig(pydantic.BaseModel):
             "even when every subject has only a single session."
         ),
     )
+    silent: bool = False
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 
     model_config = pydantic.ConfigDict(
