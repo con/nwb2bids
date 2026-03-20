@@ -145,9 +145,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     }
     assert probes_json == expected_probes_json
 
-    electrodes_tsv_file_path = (
-        temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.tsv"
-    )
+    electrodes_tsv_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.tsv"
     electrodes_tsv_lines = electrodes_tsv_file_path.read_text().splitlines()
     expected_electrodes_tsv_lines = [
         "name\tprobe_name\tx\ty\tz\themisphere\timpedance\tshank_id\tlocation",
@@ -162,9 +160,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     ]
     assert electrodes_tsv_lines == expected_electrodes_tsv_lines
 
-    electrodes_json_file_path = (
-        temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.json"
-    )
+    electrodes_json_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.json"
     electrodes_json = json.loads(electrodes_json_file_path.read_text())
     expected_electrodes_json = {
         "hemisphere": {
@@ -336,9 +332,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
     ]
     assert probes_tsv_lines == expected_probe_tsv_lines
 
-    electrodes_tsv_file_path = (
-        temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.tsv"
-    )
+    electrodes_tsv_file_path = temporary_bids_directory / "sub-001" / "ecephys" / "sub-001_electrodes.tsv"
     electrodes_tsv_lines = electrodes_tsv_file_path.read_text().splitlines()
     expected_electrodes_tsv_lines = [
         "name\tprobe_name\tx\ty\tz\themisphere\timpedance\tshank_id\tlocation",

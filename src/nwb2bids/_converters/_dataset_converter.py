@@ -222,9 +222,7 @@ class DatasetConverter(BaseConverter):
 
         for session_converter in self.session_converters:
             participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
-            session_converter.use_session_labels = (
-                participant_session_counts[participant_id] > 1 or use_labels_globally
-            )
+            session_converter.use_session_labels = participant_session_counts[participant_id] > 1 or use_labels_globally
 
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""

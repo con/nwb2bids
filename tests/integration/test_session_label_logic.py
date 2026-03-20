@@ -28,11 +28,14 @@ def test_single_session_subject_no_ses_label(
             "directories": {"sub-123"},
             "files": {"dataset_description.json", "participants.json", "participants.tsv"},
         },
-        temporary_bids_directory / "sub-123": {
+        temporary_bids_directory
+        / "sub-123": {
             "directories": {"ecephys"},
             "files": set(),
         },
-        temporary_bids_directory / "sub-123" / "ecephys": {
+        temporary_bids_directory
+        / "sub-123"
+        / "ecephys": {
             "directories": set(),
             "files": {"sub-123_ecephys.nwb"},
         },
@@ -61,23 +64,34 @@ def test_multi_session_subject_uses_ses_labels(
             "directories": {"sub-123"},
             "files": {"dataset_description.json", "participants.json", "participants.tsv"},
         },
-        temporary_bids_directory / "sub-123": {
+        temporary_bids_directory
+        / "sub-123": {
             "directories": {"ses-session-0", "ses-session-1"},
             "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
         },
-        temporary_bids_directory / "sub-123" / "ses-session-0": {
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-session-0": {
             "directories": {"ecephys"},
             "files": set(),
         },
-        temporary_bids_directory / "sub-123" / "ses-session-0" / "ecephys": {
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-session-0"
+        / "ecephys": {
             "directories": set(),
             "files": {"sub-123_ses-session-0_ecephys.nwb"},
         },
-        temporary_bids_directory / "sub-123" / "ses-session-1": {
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-session-1": {
             "directories": {"ecephys"},
             "files": set(),
         },
-        temporary_bids_directory / "sub-123" / "ses-session-1" / "ecephys": {
+        temporary_bids_directory
+        / "sub-123"
+        / "ses-session-1"
+        / "ecephys": {
             "directories": set(),
             "files": {"sub-123_ses-session-1_ecephys.nwb"},
         },
