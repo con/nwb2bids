@@ -8,6 +8,8 @@ import pydantic
 import pynwb
 import typing_extensions
 
+# Suppress the RequestsDependencyWarning that requests emits on import when urllib3/chardet
+# versions don't exactly match its pinned expectations; this is harmless for our usage.
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=Warning, module="requests")
     import requests
