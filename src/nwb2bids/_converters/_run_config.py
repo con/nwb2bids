@@ -60,8 +60,8 @@ class RunConfig(pydantic.BaseModel):
         When set to a non-`None` value, a `.bidsignore` file is created in the BIDS directory
         containing `dandiset.yaml`, since `dandiset.yaml` is not part of the BIDS specification.
         If `None`, then no `.bidsignore` file is created.
-    force_session_labels : bool, default: False
-        When `True`, forces `ses-` labels and session-level subdirectories to always be included in BIDS output,
+    use_session_labels : bool, default: False
+        When `True`, `ses-` labels and session-level subdirectories are always included in BIDS output,
         even when every subject has only a single session.
         By default (`False`), `ses-` labels are omitted for single-session subjects unless more than 50% of
         subjects have multiple sessions, in which case they are applied to all subjects for dataset-level
@@ -86,11 +86,13 @@ class RunConfig(pydantic.BaseModel):
         ),
     )
     archive_target: typing.Literal["dandi", "ember"] | None = None
-    force_session_labels: bool = pydantic.Field(
+    use_session_labels: bool = pydantic.Field(
         default=False,
         description=(
-            "When True, forces `ses-` labels and session-level subdirectories to always be included in BIDS output, "
+            "When True, `ses-` labels and session-level subdirectories are always included in BIDS output, "
             "even when every subject has only a single session."
+        ),
+    )
     probe: str | None = pydantic.Field(
         default=None,
         description=(

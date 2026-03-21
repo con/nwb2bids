@@ -12,7 +12,7 @@ def test_minimal_convert_nwb_dataset_from_directory(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path.parent]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -57,7 +57,7 @@ def test_minimal_convert_nwb_dataset_from_file_path(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -96,7 +96,7 @@ def test_ecephys_tutorial_convert_nwb_dataset(
     ecephys_tutorial_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [ecephys_tutorial_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -315,7 +315,7 @@ def test_ecephys_minimal_convert_nwb_dataset(
     ecephys_minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [ecephys_minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -443,7 +443,7 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
     nwb_relative = minimal_nwbfile_path.relative_to(temporary_run_directory.parent)
     nwb_paths = [pathlib.Path("..") / nwb_relative]
 
-    run_config = nwb2bids.RunConfig(force_session_labels=True)
+    run_config = nwb2bids.RunConfig(use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -504,7 +504,7 @@ def test_ecephys_convert_with_space_allen_ccf(
     """
     nwb_paths = [ecephys_minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(
-        bids_directory=temporary_bids_directory, space="AllenCCFv3", force_session_labels=True
+        bids_directory=temporary_bids_directory, space="AllenCCFv3", use_session_labels=True
     )
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
@@ -582,7 +582,7 @@ def test_ecephys_convert_with_space_paxinos_watson(
     """
     nwb_paths = [ecephys_minimal_nwbfile_path]
     run_config = nwb2bids.RunConfig(
-        bids_directory=temporary_bids_directory, space="PaxinosWatson", force_session_labels=True
+        bids_directory=temporary_bids_directory, space="PaxinosWatson", use_session_labels=True
     )
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)

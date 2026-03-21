@@ -17,7 +17,7 @@ def test_cli_basic_sanitization(
 ):
     command = (
         f"nwb2bids convert {problematic_nwbfile_path_2} -o {temporary_bids_directory} "
-        "--sanitization sub-labels --sanitization ses-labels --force-session-labels"
+        "--sanitization sub-labels --sanitization ses-labels --use-session-labels"
     )
 
     result = cli_runner(command)

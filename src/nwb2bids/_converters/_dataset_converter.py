@@ -213,14 +213,14 @@ class DatasetConverter(BaseConverter):
         Determine whether each session converter should include the `ses-` entity in file names.
 
         Rules:
-        - If `force_session_labels` is True in the run config, all sessions use `ses-` labels.
+        - If `use_session_labels` is True in the run config, all sessions use `ses-` labels.
         - A subject with more than one session always uses the `ses-` label for its sessions.
         - If more than 50% of all subjects have more than one session, all session converters use `ses-` labels
           to ensure dataset-level consistency.
         - Otherwise (when ≤50% of subjects have multiple sessions), single-session subjects do not use
           `ses-` labels.
         """
-        if self.run_config.force_session_labels:
+        if self.run_config.use_session_labels:
             for session_converter in self.session_converters:
                 session_converter.use_session_labels = True
             return

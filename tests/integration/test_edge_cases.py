@@ -24,7 +24,7 @@ def test_convert_nwb_dataset_with_additional_metadata(
     run_config = nwb2bids.RunConfig(
         bids_directory=temporary_bids_directory,
         additional_metadata_file_path=additional_metadata_file_path,
-        force_session_labels=True,
+        use_session_labels=True,
     )
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
@@ -62,7 +62,7 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset(
     mock_datalad_dataset: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
     nwb_paths = [mock_datalad_dataset]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -102,7 +102,7 @@ def test_convert_nwb_dataset_on_mock_datalad_dataset_with_broken_symlink(
     broken_symlink.symlink_to(target="non_existent_file.nwb")
 
     nwb_paths = [mock_datalad_dataset]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
@@ -205,7 +205,7 @@ def test_symlink_resolves_correctly_with_relative_path(
 
     nwb_paths = [relative_nwb_path]
     run_config = nwb2bids.RunConfig(
-        bids_directory=temporary_bids_directory, file_mode="symlink", force_session_labels=True
+        bids_directory=temporary_bids_directory, file_mode="symlink", use_session_labels=True
     )
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)

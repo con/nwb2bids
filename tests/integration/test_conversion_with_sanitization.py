@@ -12,7 +12,7 @@ def test_convert_nwb_dataset_basic_sanitization(
     run_config = nwb2bids.RunConfig(
         bids_directory=temporary_bids_directory,
         sanitization_config=nwb2bids.sanitization.SanitizationConfig(sub_labels=True, ses_labels=True),
-        force_session_labels=True,
+        use_session_labels=True,
     )
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert len(dataset_converter.notifications) == 4

@@ -164,12 +164,12 @@ def test_set_use_session_labels_single_subject_multi_session(
     assert all(sc.use_session_labels is True for sc in dataset_converter.session_converters)
 
 
-def test_force_session_labels_overrides_single_session_default(
+def test_use_session_labels_overrides_single_session_default(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
-    """With force_session_labels=True, a single-session subject still gets `ses-` labels."""
+    """With use_session_labels=True, a single-session subject still gets `ses-` labels."""
     nwb_paths = [minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, force_session_labels=True)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 

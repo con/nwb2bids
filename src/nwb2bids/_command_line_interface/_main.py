@@ -121,10 +121,10 @@ def _nwb2bids_cli():
     default=None,
 )
 @rich_click.option(
-    "--force-session-labels",
-    "force_session_labels",
+    "--use-session-labels",
+    "use_session_labels",
     help=(
-        "When set, forces `ses-` labels and session-level subdirectories to always be included in BIDS output, "
+        "When set, `ses-` labels and session-level subdirectories are always included in BIDS output, "
         "even when every subject has only a single session. "
         "By default (`False`), `ses-` labels are omitted for single-session subjects unless more than 50% of "
         "subjects have multiple sessions, in which case they are applied to all subjects for dataset-level "
@@ -145,7 +145,7 @@ def _run_convert_nwb_dataset(
     silent: bool = False,
     space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
     probe: str | None = None,
-    force_session_labels: bool = False,
+    use_session_labels: bool = False,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -172,7 +172,7 @@ def _run_convert_nwb_dataset(
         "run_id": run_id,
         "space": space,
         "archive_target": archive_target,
-        "force_session_labels": force_session_labels,
+        "use_session_labels": use_session_labels,
         "probe": probe,
         "silent": silent,
     }
@@ -181,9 +181,9 @@ def _run_convert_nwb_dataset(
     non_missing_run_config_kwargs = {
         key: value
         for key, value in run_config_kwargs.items()
-        if (key not in ("file_mode", "force_session_labels") and value is not None)
+        if (key not in ("file_mode", "use_session_labels") and value is not None)
         or (key == "file_mode" and value != "auto")
-        or (key == "force_session_labels" and value is not False)
+        or (key == "use_session_labels" and value is not False)
     }
     run_config = RunConfig(**non_missing_run_config_kwargs)
 
