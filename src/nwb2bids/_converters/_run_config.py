@@ -91,6 +91,13 @@ class RunConfig(pydantic.BaseModel):
         description=(
             "When True, forces `ses-` labels and session-level subdirectories to always be included in BIDS output, "
             "even when every subject has only a single session."
+    probe: str | None = pydantic.Field(
+        default=None,
+        description=(
+            "When set, fetches the ProbeInterface JSON for the specified probe from the ProbeInterface library "
+            "and writes it to the ``probes/`` directory of the BIDS dataset. "
+            "The value must follow the ``manufacturer/model`` format used by the ProbeInterface library, "
+            "e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``."
         ),
     )
     silent: bool = False

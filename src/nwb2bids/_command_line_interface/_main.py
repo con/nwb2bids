@@ -119,6 +119,18 @@ def _nwb2bids_cli():
     type=str,
     default=None,
 )
+@rich_click.option(
+    "--probe",
+    help=(
+        "When set, fetches the ProbeInterface JSON for the specified probe from the ProbeInterface library "
+        "and writes it to the ``probes/`` directory of the BIDS dataset. "
+        "The value must follow the ``manufacturer/model`` format used by the ProbeInterface library, "
+        "e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``."
+    ),
+    required=False,
+    type=str,
+    default=None,
+)
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
@@ -131,6 +143,7 @@ def _run_convert_nwb_dataset(
     silent: bool = False,
     space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
     force_session_labels: bool = False,
+    probe: str | None = None,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -158,6 +171,7 @@ def _run_convert_nwb_dataset(
         "space": space,
         "archive_target": archive_target,
         "force_session_labels": force_session_labels,
+        "probe": probe,
         "silent": silent,
     }
 
