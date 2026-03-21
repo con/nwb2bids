@@ -126,7 +126,9 @@ def _nwb2bids_cli():
     help=(
         "When set, forces `ses-` labels and session-level subdirectories to always be included in BIDS output, "
         "even when every subject has only a single session. "
-        "By default, `ses-` labels are omitted for single-session subjects."
+        "By default (`False`), `ses-` labels are omitted for single-session subjects unless more than 50% of "
+        "subjects have multiple sessions, in which case they are applied to all subjects for dataset-level "
+        "consistency."
     ),
     is_flag=True,
     default=False,
