@@ -80,6 +80,15 @@ class RunConfig(pydantic.BaseModel):
         ),
     )
     archive_target: typing.Literal["dandi", "ember"] | None = None
+    probe: str | None = pydantic.Field(
+        default=None,
+        description=(
+            "When set, fetches the ProbeInterface JSON for the specified probe from the ProbeInterface library "
+            "and writes it to the ``probes/`` directory of the BIDS dataset. "
+            "The value must follow the ``manufacturer/model`` format used by the ProbeInterface library, "
+            "e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``."
+        ),
+    )
     silent: bool = False
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 
