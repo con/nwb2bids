@@ -85,17 +85,6 @@ def _nwb2bids_cli():
     default=None,
 )
 @rich_click.option(
-    "--force-session-labels",
-    "force_session_labels",
-    help=(
-        "When set, forces `ses-` labels and session-level subdirectories to always be included in BIDS output, "
-        "even when every subject has only a single session. "
-        "By default, `ses-` labels are omitted for single-session subjects."
-    ),
-    is_flag=True,
-    default=False,
-)
-@rich_click.option(
     "--archive-target",
     "archive_target",
     help=(
@@ -131,6 +120,17 @@ def _nwb2bids_cli():
     type=str,
     default=None,
 )
+@rich_click.option(
+    "--force-session-labels",
+    "force_session_labels",
+    help=(
+        "When set, forces `ses-` labels and session-level subdirectories to always be included in BIDS output, "
+        "even when every subject has only a single session. "
+        "By default, `ses-` labels are omitted for single-session subjects."
+    ),
+    is_flag=True,
+    default=False,
+)
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
@@ -142,8 +142,8 @@ def _run_convert_nwb_dataset(
     archive_target: typing.Literal["dandi", "ember"] | None = None,
     silent: bool = False,
     space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
-    force_session_labels: bool = False,
     probe: str | None = None,
+    force_session_labels: bool = False,
 ) -> None:
     """
     Convert NWB files to BIDS format.
