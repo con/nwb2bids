@@ -1,0 +1,16 @@
+{
+    "AllenCCFv3": {
+        "MicroephysCoordinateSystem": "AllenCCFv3",
+        "MicroephysCoordinateUnits": "um",
+        "MicroephysCoordinateSystemDescription": "Allen Mouse Brain Common Coordinate Framework version 3. The origin is at the anterior commissure. X is anterior-posterior (anterior positive), Y is inferior-superior (superior positive), Z is left-right (right positive). Coordinates are in micrometers.",
+        "MicroephysCoordinateProcessingDescription": "Electrode positions were registered to the Allen CCF using anatomical landmarks and/or histological verification.",
+        "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/j.cell.2020.04.007"
+    },
+    "PaxinosWatson": {
+        "MicroephysCoordinateSystem": "PaxinosWatson",
+        "MicroephysCoordinateUnits": "mm",
+        "MicroephysCoordinateSystemDescription": "Paxinos and Watson Rat Brain Atlas, 7th edition. The origin is at Bregma. X is anterior-posterior (anterior negative), Y is inferior-superior (inferior positive), Z is left-right (right positive). Coordinates are in millimeters.",
+        "MicroephysCoordinateProcessingDescription": "Electrode positions were registered to the Paxinos and Watson atlas using anatomical landmarks and/or histological verification.",
+        "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/C2009-0-63235-9"
+    }
+}

@@ -1,11 +1,18 @@
 import json
 import pathlib
 import typing
+import warnings
 
 import pandas
 import pydantic
 import pynwb
 import typing_extensions
+
+# Suppress the RequestsDependencyWarning that requests emits on import when urllib3/chardet
+# versions don't exactly match its pinned expectations; this is harmless for our usage.
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=Warning, module="requests")
+    import requests
 
 from ._model_utils import _build_json_sidecar
 from ..bids_models._base_metadata_model import BaseMetadataContainerModel, BaseMetadataModel
@@ -198,7 +205,11 @@ class ProbeTable(BaseMetadataContainerModel):
 
     @classmethod
     @pydantic.validate_call
-    def from_nwbfiles(cls, nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]]) -> typing_extensions.Self | None:
+    def from_nwbfiles(
+        cls,
+        nwbfiles: list[pydantic.InstanceOf[pynwb.NWBFile]],
+        probe_name: str | None = None,
+    ) -> typing_extensions.Self | None:
         if len(nwbfiles) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
@@ -223,12 +234,16 @@ class ProbeTable(BaseMetadataContainerModel):
             icephys_electrodes = nwbfile.icephys_electrodes.values()
             unique_devices = {electrode.device for electrode in icephys_electrodes}
 
+        parts = probe_name.split("/", maxsplit=1) if probe_name else []
+        model_from_flag = parts[1] if len(parts) == 2 and parts[0] and parts[1] else None
+
         probes = [
             Probe(
                 probe_name=device.name,
                 type="n/a",  # TODO via additional metadata
                 manufacturer=device.manufacturer,
                 description=device.description,
+                model=model_from_flag,
                 # TODO: handle more extra custom columns
             )
             for device in unique_devices
@@ -255,7 +270,12 @@ class ProbeTable(BaseMetadataContainerModel):
         data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call
-    def to_json(self, file_path: str | pathlib.Path) -> None:
+    def to_json(
+        self,
+        file_path: str | pathlib.Path,
+        probe_term_url: str | None = None,
+        probe_model_name: str | None = None,
+    ) -> None:
         """
         Save the probes information to a JSON file.
 
@@ -263,6 +283,11 @@ class ProbeTable(BaseMetadataContainerModel):
         ----------
         file_path : path
             The path to the output JSON file.
+        probe_term_url : str, optional
+            A TermURL to include under ``model.Levels[probe_model_name].TermURL`` in the sidecar.
+            Only used when ``probe_model_name`` is also provided.
+        probe_model_name : str, optional
+            The model name used as the key under ``model.Levels`` when adding a TermURL.
         """
         file_path = pathlib.Path(file_path)
 
@@ -276,5 +301,66 @@ class ProbeTable(BaseMetadataContainerModel):
         if "hemisphere" in json_content:
             json_content["hemisphere"]["Levels"] = {"L": "left", "R": "right"}
 
+        if probe_term_url is not None and probe_model_name is not None:
+            json_content.setdefault("model", {}).setdefault("Levels", {})[probe_model_name] = {
+                "TermURL": probe_term_url
+            }
+
         with file_path.open(mode="w") as file_stream:
             json.dump(obj=json_content, fp=file_stream, indent=4)
+
+    @pydantic.validate_call
+    def write_probe_interface_file(
+        self, bids_directory: str | pathlib.Path, probe_name: str
+    ) -> tuple[str, str] | tuple[None, None]:
+        """
+        Fetch the ProbeInterface JSON for a named probe and write it to the BIDS dataset.
+
+        The probe is identified by the ``probe_name`` string, which must follow the
+        ``manufacturer/model`` format used by the ProbeInterface library
+        (e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``).
+
+        On success, writes ``{bids_directory}/probes/{model}.json`` and returns ``(term_url, model_name)``.
+
+        On failure (probe not found or network error), appends a ``ProbeNotFound`` notification
+        to this table's internal notifications and returns ``(None, None)`` without writing any files.
+
+        Parameters
+        ----------
+        bids_directory : path
+            The root directory of the BIDS dataset.
+        probe_name : str
+            The probe identifier in ``manufacturer/model`` format.
+
+        Returns
+        -------
+        result : (str, str) or (None, None)
+            ``(term_url, model_name)`` on success, or ``(None, None)`` if the lookup failed.
+        """
+        bids_directory = pathlib.Path(bids_directory)
+
+        parts = probe_name.split("/", maxsplit=1)
+        if len(parts) != 2 or not parts[0] or not parts[1]:
+            notification = Notification.from_definition(identifier="ProbeNotFound")
+            self._internal_notifications.append(notification)
+            return None, None
+        manufacturer, model = parts
+
+        term_url = (
+            f"https://raw.githubusercontent.com/SpikeInterface/probeinterface_library"
+            f"/refs/heads/main/{manufacturer}/{model}/{model}.json"
+        )
+        http_response = requests.get(term_url)
+        if not http_response.ok:
+            notification = Notification.from_definition(identifier="ProbeNotFound")
+            self._internal_notifications.append(notification)
+            return None, None
+        probe_data = http_response.json()
+
+        probes_directory = bids_directory / "probes"
+        probes_directory.mkdir(exist_ok=True)
+        output_path = probes_directory / f"{model}.json"
+        with output_path.open(mode="w") as file_stream:
+            json.dump(obj=probe_data, fp=file_stream, indent=4)
+
+        return term_url, model

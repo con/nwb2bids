@@ -74,12 +74,47 @@ def _nwb2bids_cli():
 )
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 @rich_click.option(
+    "--space",
+    help=(
+        "The atlas/coordinate space label to apply to electrode positions. "
+        "When specified, a `space-[label]` entity is added to the `*_electrodes.tsv` filename "
+        "and a corresponding `*_space-[label]_coordsystem.json` sidecar file is created."
+    ),
+    required=False,
+    type=rich_click.Choice(["AllenCCFv3", "PaxinosWatson"], case_sensitive=True),
+    default=None,
+)
+@rich_click.option(
+    "--archive-target",
+    "archive_target",
+    help=(
+        "The archive that the BIDS dataset is intended for. "
+        "When set, a `.bidsignore` file is created with `dandiset.yaml` listed inside, "
+        "since `dandiset.yaml` is not part of the BIDS specification."
+    ),
+    required=False,
+    type=rich_click.Choice(["dandi", "ember"], case_sensitive=True),
+    default=None,
+)
+@rich_click.option(
     "--run-id",
     help=(
         "On each unique run of nwb2bids, a run ID is generated. "
         "Set this option to override this to any identifying string. "
         "This ID is used in the naming of the notification and sanitization reports saved to your cache directory. "
         'The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."'
+    ),
+    required=False,
+    type=str,
+    default=None,
+)
+@rich_click.option(
+    "--probe",
+    help=(
+        "When set, fetches the ProbeInterface JSON for the specified probe from the ProbeInterface library "
+        "and writes it to the ``probes/`` directory of the BIDS dataset. "
+        "The value must follow the ``manufacturer/model`` format used by the ProbeInterface library, "
+        "e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``."
     ),
     required=False,
     type=str,
@@ -93,7 +128,10 @@ def _run_convert_nwb_dataset(
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
     run_id: str | None = None,
+    archive_target: typing.Literal["dandi", "ember"] | None = None,
     silent: bool = False,
+    space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
+    probe: str | None = None,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -118,6 +156,10 @@ def _run_convert_nwb_dataset(
         "cache_directory": cache_directory,
         "sanitization_config": sanitization_config,
         "run_id": run_id,
+        "space": space,
+        "archive_target": archive_target,
+        "probe": probe,
+        "silent": silent,
     }
 
     # Filter out values that indicate absence of direct user input or signal to use default

@@ -73,8 +73,10 @@ requires-python = ">=3.10"
 dependencies = [
     "pandas",
     "pynwb",
+    "requests",
     "rich-click",
     "pydantic",
+    "tqdm",
     "typing-extensions",  # TODO: remove when dropping support for Python 3.10
     "ruamel.yaml~=0.18.15",  # https://sourceforge.net/p/ruamel-yaml-clib/tickets/47/
 ]
@@ -114,13 +116,13 @@ Changelog = "https://github.com/con/nwb2bids/blob/main/CHANGELOG.md"
 nwb2bids = "nwb2bids._command_line_interface._main:_nwb2bids_cli"
 
 [dependency-groups]
-type-stubs = ["pandas-stubs"]
+type-stubs = ["pandas-stubs", "types-requests"]
 test = ["pytest", "datalad", "git-annex", "sybil"]
 coverage = [{include-group = "test"}, "pytest-cov"]
 dev = [{include-group = "type-stubs"}, {include-group = "test"}, "ipython", "pre-commit"]
 types = [{include-group = "type-stubs"}, {include-group = "test"}, "mypy"]
 docs = [
-    "sphinx<9.0.0",
+    "sphinx",
     "sphinx-tabs",
     "pydata-sphinx-theme",
     "sphinx-copybutton",
@@ -302,6 +304,7 @@ known-first-party = ["nwb2bids"]
 markers = [
     "remote: mark a test as requiring remote resources",
     "container_cli_test: mark a test as suitable for container CLI testing",
+    "ai_generated: mark a test as written entirely by an AI agent",
 ]
 addopts = "-ra"
 testpaths = ["tests"]

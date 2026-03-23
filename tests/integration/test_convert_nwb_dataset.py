@@ -480,3 +480,143 @@ def test_implicit_bids_directory_with_relative_nwb_paths(
     nwb2bids.testing.assert_subdirectory_structure(
         directory=temporary_run_directory, expected_structure=expected_structure
     )
+
+
+@pytest.mark.ai_generated
+@pytest.mark.parametrize("archive_target", ["dandi", "ember"])
+def test_convert_nwb_dataset_creates_bidsignore(
+    minimal_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+    archive_target: str,
+):
+    """Test that convert_nwb_dataset creates .bidsignore when archive_target is set."""
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target=archive_target)
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+
+    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
+    assert bidsignore_file_path.exists()
+    assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
+
+
+@pytest.mark.ai_generated
+def test_ecephys_convert_with_space_allen_ccf(
+    ecephys_minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """
+    Conversion with `space='AllenCCFv3'` adds the `space-AllenCCFv3` entity.
+
+    Adds entity to electrode files and writes a new coordsystem JSON file.
+    """
+    nwb_paths = [ecephys_minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, space="AllenCCFv3")
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
+
+    ecephys_directory = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys"
+
+    expected_structure = {
+        temporary_bids_directory: {
+            "directories": {"sub-001"},
+            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001": {
+            "directories": {"ses-A"},
+            "files": {"sub-001_sessions.json", "sub-001_sessions.tsv"},
+        },
+        temporary_bids_directory
+        / "sub-001"
+        / "ses-A": {
+            "directories": {"ecephys"},
+            "files": set(),
+        },
+        ecephys_directory: {
+            "directories": set(),
+            "files": {
+                "sub-001_ses-A_ecephys.json",
+                "sub-001_ses-A_ecephys.nwb",
+                "sub-001_ses-A_channels.tsv",
+                "sub-001_ses-A_channels.json",
+                "sub-001_ses-A_probes.tsv",
+                "sub-001_ses-A_probes.json",
+                # Space entity is added to electrode files
+                "sub-001_ses-A_space-AllenCCFv3_electrodes.tsv",
+                "sub-001_ses-A_space-AllenCCFv3_electrodes.json",
+                # Coordinate system sidecar
+                "sub-001_ses-A_space-AllenCCFv3_coordsystem.json",
+            },
+        },
+    }
+    nwb2bids.testing.assert_subdirectory_structure(
+        directory=temporary_bids_directory, expected_structure=expected_structure
+    )
+
+    # Verify coordsystem.json content
+    coordsystem_file_path = ecephys_directory / "sub-001_ses-A_space-AllenCCFv3_coordsystem.json"
+    coordsystem_json = json.loads(coordsystem_file_path.read_text())
+    expected_coordsystem_json = {
+        "MicroephysCoordinateSystem": "AllenCCFv3",
+        "MicroephysCoordinateUnits": "um",
+        "MicroephysCoordinateSystemDescription": (
+            "Allen Mouse Brain Common Coordinate Framework version 3. "
+            "The origin is at the anterior commissure. "
+            "X is anterior-posterior (anterior positive), "
+            "Y is inferior-superior (superior positive), "
+            "Z is left-right (right positive). "
+            "Coordinates are in micrometers."
+        ),
+        "MicroephysCoordinateProcessingDescription": (
+            "Electrode positions were registered to the Allen CCF using anatomical landmarks "
+            "and/or histological verification."
+        ),
+        "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/j.cell.2020.04.007",
+    }
+    assert coordsystem_json == expected_coordsystem_json
+
+
+@pytest.mark.ai_generated
+def test_ecephys_convert_with_space_paxinos_watson(
+    ecephys_minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """
+    Conversion with `space='PaxinosWatson'` adds the `space-PaxinosWatson`.
+
+    Adds entity to electrode files and writes a new coordsystem JSON file.
+    """
+    nwb_paths = [ecephys_minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, space="PaxinosWatson")
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+    assert not any(dataset_converter.notifications)
+
+    ecephys_directory = temporary_bids_directory / "sub-001" / "ses-A" / "ecephys"
+
+    # Verify space-PaxinosWatson electrode files are created
+    assert (ecephys_directory / "sub-001_ses-A_space-PaxinosWatson_electrodes.tsv").exists()
+    assert (ecephys_directory / "sub-001_ses-A_space-PaxinosWatson_electrodes.json").exists()
+
+    # Verify no unspaced electrode files were created
+    assert not (ecephys_directory / "sub-001_ses-A_electrodes.tsv").exists()
+    assert not (ecephys_directory / "sub-001_ses-A_electrodes.json").exists()
+
+    # Verify coordsystem.json content
+    coordsystem_file_path = ecephys_directory / "sub-001_ses-A_space-PaxinosWatson_coordsystem.json"
+    coordsystem_json = json.loads(coordsystem_file_path.read_text())
+    expected_coordsystem_json = {
+        "MicroephysCoordinateSystem": "PaxinosWatson",
+        "MicroephysCoordinateUnits": "mm",
+        "MicroephysCoordinateSystemDescription": (
+            "Paxinos and Watson Rat Brain Atlas, 7th edition. "
+            "The origin is at Bregma. "
+            "X is anterior-posterior (anterior negative), "
+            "Y is inferior-superior (inferior positive), "
+            "Z is left-right (right positive). "
+            "Coordinates are in millimeters."
+        ),
+        "MicroephysCoordinateProcessingDescription": (
+            "Electrode positions were registered to the Paxinos and Watson atlas using anatomical landmarks "
+            "and/or histological verification."
+        ),
+        "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/C2009-0-63235-9",
+    }
+    assert coordsystem_json == expected_coordsystem_json
