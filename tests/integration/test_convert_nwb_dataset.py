@@ -407,7 +407,8 @@ def test_implicit_bids_directory(
     monkeypatch.chdir(temporary_bids_directory)
 
     nwb_paths = [minimal_nwbfile_path]
-    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+    run_config = nwb2bids.RunConfig(use_session_labels=True)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert not any(dataset_converter.notifications)
 
     expected_structure = {
@@ -417,15 +418,22 @@ def test_implicit_bids_directory(
         },
         implicit_bids_directory
         / "sub-123": {
+            "directories": {"ses-456"},
+            "files": {"sub-123_sessions.json", "sub-123_sessions.tsv"},
+        },
+        implicit_bids_directory
+        / "sub-123"
+        / "ses-456": {
             "directories": {"ecephys"},
             "files": set(),
         },
         implicit_bids_directory
         / "sub-123"
+        / "ses-456"
         / "ecephys": {
             "directories": set(),
             "files": {
-                "sub-123_ecephys.nwb",
+                "sub-123_ses-456_ecephys.nwb",
             },
         },
     }
