@@ -39,7 +39,7 @@ To convert a single NWB file to BIDS dataset structure, we run the following com
 
             cd ~/nwb2bids_tutorials/ecephys_tutorial_file
 
-            nwb2bids convert ecephys.nwb --bids-directory bids_dataset_cli_1
+            nwb2bids convert ecephys.nwb --bids-directory bids_dataset_cli_1 --use-session-labels
 
     .. tab:: Python Library
 
@@ -54,7 +54,7 @@ To convert a single NWB file to BIDS dataset structure, we run the following com
             bids_directory = tutorial_directory / "bids_dataset_py_1"
             bids_directory.mkdir(exist_ok=True)
 
-            run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
+            run_config = nwb2bids.RunConfig(bids_directory=bids_directory, use_session_labels=True)
             converter = nwb2bids.convert_nwb_dataset(
                 nwb_paths=nwb_paths,
                 run_config=run_config,
@@ -283,7 +283,7 @@ We can select which files and directories to convert like so:
                     cd ~/nwb2bids_tutorials/ecephys_tutorial_dataset
 
                     nwb2bids convert ecephys_session_3.nwb some_sessions \
-                        --bids-directory bids_dataset_cli_3
+                        --bids-directory bids_dataset_cli_3 --use-session-labels
 
             .. tab:: Windows
 
@@ -294,7 +294,7 @@ We can select which files and directories to convert like so:
                     cd ~/nwb2bids_tutorials/ecephys_tutorial_dataset
 
                     nwb2bids convert ecephys_session_3.nwb some_sessions ^
-                        --bids-directory bids_dataset_cli_3
+                        --bids-directory bids_dataset_cli_3 --use-session-labels
 
         The command line can take any number of inputs (separated by spaces) prior to other flags such as
         ``--bids-directory``. Shell globs, such as ``*.nwb``, could be used as shown in
@@ -316,7 +316,7 @@ We can select which files and directories to convert like so:
             bids_directory = tutorial_directory / "bids_dataset_py_3"
             bids_directory.mkdir(exist_ok=True)
 
-            run_config = nwb2bids.RunConfig(bids_directory=bids_directory)
+            run_config = nwb2bids.RunConfig(bids_directory=bids_directory, use_session_labels=True)
             converter = nwb2bids.convert_nwb_dataset(
                 nwb_paths=nwb_paths,
                 run_config=run_config,
@@ -462,7 +462,7 @@ To test this out, we can create a new empty directory and navigate into it befor
             mkdir bids_dataset_cli_4
             cd bids_dataset_cli_4
 
-            nwb2bids convert ../ecephys_session_3.nwb ../some_sessions/*.nwb
+            nwb2bids convert ../ecephys_session_3.nwb ../some_sessions/*.nwb --use-session-labels
 
         The command line can take any number of inputs (separated by spaces) prior to other flags such as
         ``--bids-directory``. These inputs can be any mix of files or directories.
@@ -485,7 +485,8 @@ To test this out, we can create a new empty directory and navigate into it befor
             bids_directory.mkdir(exist_ok=True)
             os.chdir(path=bids_directory)
 
-            converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths)
+            run_config = nwb2bids.RunConfig(use_session_labels=True)
+            converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
 
 .. invisible-code-block: python
 
@@ -608,7 +609,8 @@ To include this additional metadata during conversion, we can use the following 
 
                     nwb2bids convert ecephys.nwb \
                         --bids-directory bids_dataset_cli_5 \
-                        --additional-metadata-file-path metadata.json
+                        --additional-metadata-file-path metadata.json \
+                        --use-session-labels
 
             .. tab:: Windows
 
@@ -620,7 +622,8 @@ To include this additional metadata during conversion, we can use the following 
 
                     nwb2bids convert ecephys.nwb ^
                         --bids-directory bids_dataset_cli_5 ^
-                        --additional-metadata-file-path metadata.json
+                        --additional-metadata-file-path metadata.json ^
+                        --use-session-labels
 
     .. tab:: Python Library
 
@@ -639,6 +642,7 @@ To include this additional metadata during conversion, we can use the following 
             run_config = nwb2bids.RunConfig(
                 bids_directory=bids_directory,
                 additional_metadata_file_path=additional_metadata_file_path,
+                use_session_labels=True,
             )
             converter = nwb2bids.convert_nwb_dataset(
                 nwb_paths=nwb_paths,
@@ -708,6 +712,7 @@ broken down into the following distinct steps:
     run_config = nwb2bids.RunConfig(
         bids_directory=bids_directory,
         additional_metadata_file_path=additional_metadata_file_path,
+        use_session_labels=True,
     )
     converter = nwb2bids.DatasetConverter.from_nwb_paths(
         nwb_paths=nwb_paths,
