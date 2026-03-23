@@ -10,9 +10,12 @@ Tests the following rules:
 
 import pathlib
 
+import pytest
+
 import nwb2bids
 
 
+@pytest.mark.ai_generated
 def test_single_session_subject_no_ses_label(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -49,6 +52,7 @@ def test_single_session_subject_no_ses_label(
     assert dataset_converter.session_converters[0].use_session_labels is False
 
 
+@pytest.mark.ai_generated
 def test_multi_session_subject_uses_ses_labels(
     directory_with_multiple_nwbfiles: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -104,6 +108,7 @@ def test_multi_session_subject_uses_ses_labels(
     assert all(sc.use_session_labels is True for sc in dataset_converter.session_converters)
 
 
+@pytest.mark.ai_generated
 def test_majority_multi_session_applies_ses_labels_globally(
     directory_with_mixed_session_counts: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -136,6 +141,7 @@ def test_majority_multi_session_applies_ses_labels_globally(
     assert expected_subX_session2.exists()
 
 
+@pytest.mark.ai_generated
 def test_set_use_session_labels_single_subject_single_session(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -150,6 +156,7 @@ def test_set_use_session_labels_single_subject_single_session(
     assert dataset_converter.session_converters[0].use_session_labels is False
 
 
+@pytest.mark.ai_generated
 def test_set_use_session_labels_single_subject_multi_session(
     directory_with_multiple_nwbfiles: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -164,6 +171,7 @@ def test_set_use_session_labels_single_subject_multi_session(
     assert all(sc.use_session_labels is True for sc in dataset_converter.session_converters)
 
 
+@pytest.mark.ai_generated
 def test_use_session_labels_overrides_single_session_default(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
