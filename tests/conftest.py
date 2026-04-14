@@ -550,3 +550,60 @@ def ndx_events_mixed_with_time_intervals_nwbfile_path(testing_files_directory: p
         file_stream.write(nwbfile)
 
     return nwbfile_path
+  
+@pytest.fixture(scope="session")
+def directory_with_multiple_subjects_and_multiple_sessions(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    A directory containing NWB files for multiple subjects each with multiple sessions.
+
+    Used to test that the `ses-` label is applied when subjects have multiple sessions.
+    Subject IDs: "subA" (sessions A1 and A2), "subB" (sessions B1 and B2).
+    Session IDs are unique across subjects to avoid grouping issues.
+    """
+    subdirectory = testing_files_directory / "multiple_subjects_multiple_sessions"
+    subdirectory.mkdir(exist_ok=True)
+
+    for subject_index in ["A", "B"]:
+        for session_index in [1, 2]:
+            nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=f"sub{subject_index}session{session_index}")
+            nwbfile.subject = pynwb.file.Subject(
+                subject_id=f"sub{subject_index}",
+                species="Mus musculus",
+                sex="M",
+            )
+            nwbfile_path = subdirectory / f"subject_{subject_index}_session_{session_index}.nwb"
+            with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+                file_stream.write(nwbfile)
+
+    return subdirectory
+
+
+@pytest.fixture(scope="session")
+def directory_with_mixed_session_counts(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    A directory where the majority (>50%) of subjects have multiple sessions.
+
+    Used to test the 50% consistency rule: if >50% of subjects have multiple sessions,
+    all subjects (including single-session ones) should use the `ses-` label.
+
+    Subject "subX": 2 sessions (X1, X2)
+    Subject "subY": 2 sessions (Y1, Y2)
+    Subject "subZ": 1 session (Z1) - single-session, but should still get ses- label
+    Session IDs are unique across subjects to avoid grouping issues.
+    """
+    subdirectory = testing_files_directory / "mixed_session_counts"
+    subdirectory.mkdir(exist_ok=True)
+
+    for subject_id, session_ids in [("subX", ["X1", "X2"]), ("subY", ["Y1", "Y2"]), ("subZ", ["Z1"])]:
+        for session_id in session_ids:
+            nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=session_id)
+            nwbfile.subject = pynwb.file.Subject(
+                subject_id=subject_id,
+                species="Mus musculus",
+                sex="M",
+            )
+            nwbfile_path = subdirectory / f"{subject_id}_{session_id}.nwb"
+            with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+                file_stream.write(nwbfile)
+
+    return subdirectory
