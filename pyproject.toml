@@ -266,6 +266,10 @@ disable_error_code = ["str-bytes-safe", "arg-type"]
 module = ["test_cli"]
 disable_error_code = ["str-bytes-safe", "arg-type"]
 
+[[tool.mypy.overrides]]
+module = ["test_session_label_logic"]
+disable_error_code = ["arg-type"]
+
 # === Temporary mypy ignores for selected files section ends ===
 
 
