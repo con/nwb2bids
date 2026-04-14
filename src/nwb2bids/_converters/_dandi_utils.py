@@ -58,11 +58,7 @@ def _get_dataset_description_from_valid_dandiset_metadata(
             if role.value == "dcite:Author"
         ]
         if not authors:
-            authors = [
-                contributor.name
-                for contributor in metadata.contributor
-                if contributor.schemaKey == "Person"
-            ]
+            authors = [contributor.name for contributor in metadata.contributor if contributor.schemaKey == "Person"]
         dataset_description_kwargs["Authors"] = authors
     if metadata.license is not None:
         dataset_description_kwargs["License"] = metadata.license[0].value.split(":")[1]
