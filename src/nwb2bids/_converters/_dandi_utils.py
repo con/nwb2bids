@@ -52,12 +52,15 @@ def _get_dataset_description_from_valid_dandiset_metadata(
     if metadata.description is not None:
         dataset_description_kwargs["Description"] = metadata.description
     if metadata.contributor is not None:
-        dataset_description_kwargs["Authors"] = [
+        authors = [
             contributor.name
             for contributor in metadata.contributor
             for role in contributor.roleName
             if role.value == "dcite:Author"
         ]
+        if not authors:
+            authors = [contributor.name for contributor in metadata.contributor if contributor.schemaKey == "Person"]
+        dataset_description_kwargs["Authors"] = authors
     if metadata.license is not None:
         dataset_description_kwargs["License"] = metadata.license[0].value.split(":")[1]
 
@@ -96,7 +99,13 @@ def _get_dataset_description_from_invalid_dandiset_metadata(
         if contributor_name is not None and is_author:
             bids_authors.append(contributor_name)
 
-    if any(bids_authors):
+    if not bids_authors:
+        for contributor in dandiset_contributors:
+            contributor_name = contributor.get("name", None)
+            if contributor_name is not None and contributor.get("schemaKey", "") == "Person":
+                bids_authors.append(contributor_name)
+
+    if bids_authors:
         dataset_description_kwargs["Authors"] = bids_authors
 
     license = raw_metadata.get("license", [])
