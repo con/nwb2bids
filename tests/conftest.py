@@ -550,7 +550,8 @@ def ndx_events_mixed_with_time_intervals_nwbfile_path(testing_files_directory: p
         file_stream.write(nwbfile)
 
     return nwbfile_path
-  
+
+
 @pytest.fixture(scope="session")
 def directory_with_multiple_subjects_and_multiple_sessions(testing_files_directory: pathlib.Path) -> pathlib.Path:
     """
