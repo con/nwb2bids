@@ -290,6 +290,23 @@ def epochs_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib
 
 
 @pytest.fixture(scope="session")
+def trials_with_numpy_column_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """An NWB file whose trials table has a column where each row is a numpy array."""
+    nwbfile = _make_minimal_nwbfile()
+
+    trials = nwb2bids.testing.mock_trials_table_with_numpy_column()
+    nwbfile.trials = trials
+
+    events_subdirectory = testing_files_directory / "trials_numpy_column"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "trials_numpy_column.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
 def multiple_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     nwbfile = _make_minimal_nwbfile()
 

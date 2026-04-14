@@ -2,6 +2,7 @@ import json
 import pathlib
 import typing
 
+import numpy
 import pandas
 import pydantic
 import pynwb
@@ -94,7 +95,13 @@ class Events(BaseMetadataModel):
             column for column in self._bids_events_data_frame.columns if column not in required_column_order
         ]
 
-        self._bids_events_data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False, columns=column_order)
+        data_frame = self._bids_events_data_frame[column_order].copy()
+        for column_name in data_frame.columns:
+            if data_frame[column_name].apply(lambda x: isinstance(x, numpy.ndarray)).any():
+                data_frame[column_name] = data_frame[column_name].apply(
+                    lambda x: json.dumps(x.tolist()) if isinstance(x, numpy.ndarray) else x
+                )
+        data_frame.to_csv(path_or_buf=file_path, sep="\t", index=False)
 
     @pydantic.validate_call
     def to_json(self, file_path: str | pathlib.Path) -> None:
