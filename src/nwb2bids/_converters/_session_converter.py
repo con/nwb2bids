@@ -8,6 +8,7 @@ import warnings
 
 import pydantic
 import typing_extensions
+from tqdm import tqdm
 
 from ._datalad_utils import _content_is_retrieved
 from ._run_config import RunConfig
@@ -95,7 +96,12 @@ class SessionConverter(BaseConverter):
                 nwbfile_paths=nwbfile_paths,
                 run_config=run_config,
             )
-            for session_id, nwbfile_paths in unique_session_id_to_nwbfile_paths.items()
+            for session_id, nwbfile_paths in tqdm(
+                unique_session_id_to_nwbfile_paths.items(),
+                desc="Initializing sessions",
+                unit="session",
+                disable=run_config.silent,
+            )
         ]
         return session_converters
 
@@ -201,11 +207,29 @@ class SessionConverter(BaseConverter):
         general_metadata_file_path = modality_directory / f"{file_prefix}_{modality}.json"
         self.session_metadata.general_metadata.to_json(file_path=general_metadata_file_path)
         if self.session_metadata.probe_table is not None:
+            probe_term_url = None
+            probe_model_name = None
+            if self.run_config.probe is not None:
+                probe_term_url, probe_model_name = self.session_metadata.probe_table.write_probe_interface_file(
+                    bids_directory=self.run_config.bids_directory,
+                    probe_name=self.run_config.probe,
+                )
+                # Propagate any notifications produced by the probe lookup (e.g. ProbeNotFound)
+                self.notifications += [
+                    notif
+                    for notif in self.session_metadata.probe_table.notifications
+                    if notif not in self.notifications
+                ]
+
             probes_tsv_file_path = modality_directory / f"{file_prefix}_probes.tsv"
             self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)
 
             probes_json_file_path = modality_directory / f"{file_prefix}_probes.json"
-            self.session_metadata.probe_table.to_json(file_path=probes_json_file_path)
+            self.session_metadata.probe_table.to_json(
+                file_path=probes_json_file_path,
+                probe_term_url=probe_term_url,
+                probe_model_name=probe_model_name,
+            )
 
         if self.session_metadata.channel_table is not None:
             channels_tsv_file_path = modality_directory / f"{file_prefix}_channels.tsv"

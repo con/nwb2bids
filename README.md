@@ -12,6 +12,7 @@
     <a href="https://nwb2bids.readthedocs.io/"><img alt="Documentation Status" src="https://readthedocs.org/projects/nwb2bids/badge/?version=latest"></a>
     <a href="https://github.com/con/nwb2bids/actions/workflows/daily_tests.yml/badge.svg"><img alt="Daily tests" src="https://github.com/con/nwb2bids/actions/workflows/daily_tests.yml/badge.svg"></a>
     <a href="https://github.com/con/nwb2bids/actions/workflows/daily_remote_tests.yml/badge.svg"><img alt="Daily tests (remote)" src="https://github.com/con/nwb2bids/actions/workflows/daily_remote_tests.yml/badge.svg"></a>
+    <a href="https://github.com/con/nwb2bids/actions/workflows/daily_doc_link_check.yml/badge.svg"><img alt="Daily doc link check" src="https://github.com/con/nwb2bids/actions/workflows/daily_doc_link_check.yml/badge.svg"></a>
   </p>
   <p align="center">
     <a href="https://pypi.org/project/nwb2bids/"><img alt="PyPI latest release version" src="https://badge.fury.io/py/nwb2bids.svg?id=py&kill_cache=1"></a>
