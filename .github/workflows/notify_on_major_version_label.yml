@@ -1,0 +1,22 @@
+name: Notify on major version label
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  NotifyOnMajorLabel:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.label.name == 'major' }}
+    permissions: {}
+    steps:
+      - uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Major version label applied to nwb2bids PR #${{ github.event.pull_request.number }}"
+          to: cody.c.baker.phd@gmail.com
+          from: nwb2bids
+          body: "The 'major' label has been applied to PR #${{ github.event.pull_request.number }} ('${{ github.event.pull_request.title }}') in the nwb2bids project. Please review at ${{ github.event.pull_request.html_url }}"

@@ -221,8 +221,7 @@ The workflow is as follows:
 Changelog
 ~~~~~~~~~
 
-The `CHANGELOG.md <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ file is auto-generated from merged PRs via
-the same Auto release process described above.
+The `CHANGELOG.md <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ file is auto-generated from merged PRs via the same Auto release process described above.
 
 Each entry is created from the PR title and categorized by the labels applied to the PR.
 
@@ -238,8 +237,7 @@ Custom entries can be created by using the PR description with the following bod
 
 Refer to `PR #244 <https://github.com/con/nwb2bids/pull/244>`_ and corresponding `v0.9.0 Release Notes <https://github.com/con/nwb2bids/releases/tag/v0.9.0>`_ for an example of this behavior.
 
-**For stylistic consistency**, please name all PR titles using the past tense (e.g., "Fix bug about..." -> "Fixed bug
-about...") since these titles become changelog entries.
+**For stylistic consistency**, please name all PR titles using the past tense (e.g., "Fix bug about..." -> "Fixed bug about...") since these titles become changelog entries.
 
 The label interactions leading to changelog sections are roughly as follows:
 
@@ -248,15 +246,30 @@ The label interactions leading to changelog sections are roughly as follows:
     .. list-table::
        :header-rows: 1
 
-       * - PR Labels
-         - Changelog Section
-       * - ``minor`` or ``enhancement``
-         - Feature
-       * - ``patch`` or ``bug``
-         - Bug Fix
+       * - PR labels
+         - Changelog section
+         - Assign semantic label
+         - Considerations
+       * - ``enhancement``
+         - 🚀 Enhancement
+         - ``minor``
+         - A new feature.
+       * - ``bug``
+         - 🐛 Bug Fix
+         - ``patch``
+         - Fixed a problem.
        * - ``documentation``
-         - Documentation
+         - 📝 Documentation
+         - None [#documentation-note]_
+         - Only changed something about the documentation.
        * - ``internal``
-         - Internal [#internal-note]_
+         - 🏠 Internal
+         - None [#internal-note]_
+         - Only changed something about the testing infrastructure or CI (including docs), but no changes to source code.
+       * - ``dependencies``
+         - 🔩 Dependency Updates
+         - None
+         - Only changed the dependencies of internal workings, such as the CI or docs. If altering the dependencies of the source code, consider it a ``patch`` without a related ``bug``.
 
-.. [#internal-note] Only if no other labels above are present (*e.g.*, `PR #242 <https://github.com/con/nwb2bids/blob/main/CHANGELOG.md>`_ had both ``internal`` and ``patch``, so it appears under "Bug Fix")
+.. [#documentation-note] If given a semantic version such as ``patch`` (*e.g.*, `PR #355 <https://github.com/con/nwb2bids/pull/355>`_ had both ``documentation`` and ``patch``, but was automatically placed under `"Bug Fix" <https://github.com/con/nwb2bids/blob/19d793549bfdca3efb3e67e89721a629fcdcd56f/CHANGELOG.md#L10>`_)
+.. [#internal-note] If given a semantic version such as ``patch`` (*e.g.*, `PR #357 <https://github.com/con/nwb2bids/pull/357>`_ had both ``internal`` and ``patch``, but was automatically placed under `"Bug Fix" <https://github.com/con/nwb2bids/blob/19d793549bfdca3efb3e67e89721a629fcdcd56f/CHANGELOG.md#L9>`_)
