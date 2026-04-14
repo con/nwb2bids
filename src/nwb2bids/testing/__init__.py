@@ -1,5 +1,5 @@
 from ._assert_subdirectory_structure import assert_subdirectory_structure
-from ._mocks._mock_neurodata_objects import mock_time_intervals, mock_epochs_table, mock_trials_table
+from ._mocks._mock_neurodata_objects import mock_time_intervals, mock_epochs_table, mock_trials_table, mock_trials_table_with_numpy_column
 from ._create_file_tree import create_file_tree
 from ._mocks._tutorials import generate_ephys_tutorial
 from ._mocks._tutorials import get_tutorial_directory
@@ -12,4 +12,5 @@ __all__ = [
     "mock_epochs_table",
     "mock_time_intervals",
     "mock_trials_table",
+    "mock_trials_table_with_numpy_column",
 ]

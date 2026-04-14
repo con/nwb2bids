@@ -191,3 +191,31 @@ def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_b
     with json_file_path.open(mode="r") as file_stream:
         actual_json_content = json.load(fp=file_stream)
     assert actual_json_content == expected_json_content
+
+
+def test_trials_events_with_numpy_array_column(
+    trials_with_numpy_column_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """Regression test: numpy array-valued columns must be serialized to JSON strings in the TSV output.
+
+    Reproduces https://github.com/con/nwb2bids/issues/338 – when a column stores a fixed-size array
+    per trial, numpy's default ``__str__`` inserts line-breaks into wide arrays, which broke TSV rows.
+    """
+    nwb_paths = [trials_with_numpy_column_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
+    nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
+
+    tsv_file_path = temporary_bids_directory / "sub-123" / "ses-456" / "ecephys" / "sub-123_ses-456_events.tsv"
+    with tsv_file_path.open(mode="r") as file_stream:
+        content = file_stream.read()
+
+    # Each data row must occupy exactly one line (no embedded newlines from numpy string formatting)
+    lines = content.splitlines()
+    assert len(lines) == 3, f"Expected 3 lines (header + 2 data rows), got {len(lines)}: {lines}"
+
+    # The pulse_times values must be valid JSON arrays (no embedded newlines)
+    actual_dataframe = pandas.read_csv(filepath_or_buffer=tsv_file_path, sep="\t")
+    assert "pulse_times" in actual_dataframe.columns
+    for cell_value in actual_dataframe["pulse_times"]:
+        parsed = json.loads(cell_value)
+        assert isinstance(parsed, list)
