@@ -222,4 +222,3 @@ class NotificationSummary:
                 path.write_text(data=json.dumps(obj=data, indent=2, cls=_CustomJSONEncoder))
         else:
             path.write_text(data=self._to_text(aggregate=aggregate))
-
