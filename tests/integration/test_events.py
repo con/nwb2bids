@@ -4,6 +4,7 @@ import json
 import pathlib
 
 import pandas
+import pytest
 
 import nwb2bids
 
@@ -193,6 +194,7 @@ def test_multiple_events(multiple_events_nwbfile_path: pathlib.Path, temporary_b
     assert actual_json_content == expected_json_content
 
 
+@pytest.mark.ai_generated
 def test_trials_events_with_numpy_array_column(
     trials_with_numpy_column_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
