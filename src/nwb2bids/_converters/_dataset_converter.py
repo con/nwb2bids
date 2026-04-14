@@ -266,7 +266,8 @@ class DatasetConverter(BaseConverter):
             self.extract_metadata()
 
             # If any session has a units table but no electrodes table, redirect all output
-            # to a 'derivatives/nwb2bids' subfolder and mark the dataset as a derivative.
+            # to a 'derivatives/nwb2bids' subfolder. DatasetType is set to 'derivative'
+            # separately inside write_dataset_description.
             if self._is_derivative:
                 derivatives_bids_directory = self.run_config.bids_directory / "derivatives" / "nwb2bids"
                 derivatives_bids_directory.mkdir(parents=True, exist_ok=True)
