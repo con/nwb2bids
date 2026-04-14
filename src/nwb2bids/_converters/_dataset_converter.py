@@ -187,11 +187,14 @@ class DatasetConverter(BaseConverter):
 
     def extract_metadata(self) -> None:
         try:
+            sessions_needing_metadata = [sc for sc in self.session_converters if sc.session_metadata is None]
+            if not sessions_needing_metadata:
+                return
             collections.deque(
                 (
                     session_converter.extract_metadata()
                     for session_converter in tqdm(
-                        [sc for sc in self.session_converters if sc.session_metadata is None],
+                        sessions_needing_metadata,
                         desc="Extracting metadata",
                         unit="session",
                         disable=self.run_config.silent,
@@ -205,9 +208,50 @@ class DatasetConverter(BaseConverter):
             )
             self._internal_notifications.append(notification)
 
+    def _set_use_session_labels(self) -> None:
+        """
+        Determine whether each session converter should include the `ses-` entity in file names.
+
+        Rules:
+        - If `use_session_labels` is True in the run config, all sessions use `ses-` labels.
+        - A subject with more than one session always uses the `ses-` label for its sessions.
+        - If more than 50% of all subjects have more than one session, all session converters use `ses-` labels
+          to ensure dataset-level consistency.
+        - Otherwise (when ≤50% of subjects have multiple sessions), single-session subjects do not use
+          `ses-` labels.
+        """
+        if self.run_config.use_session_labels:
+            for session_converter in self.session_converters:
+                session_converter.use_session_labels = True
+            return
+
+        participant_session_counts: collections.Counter = collections.Counter()
+        for session_converter in self.session_converters:
+            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
+            participant_session_counts[participant_id] += 1
+
+        total_subjects = len(participant_session_counts)
+        if total_subjects == 0:
+            return
+
+        subjects_with_multiple_sessions = sum(1 for count in participant_session_counts.values() if count > 1)
+
+        # If the majority of subjects have multiple sessions, use ses- for the entire dataset
+        use_labels_globally = (subjects_with_multiple_sessions / total_subjects) > 0.5
+
+        for session_converter in self.session_converters:
+            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
+            session_converter.use_session_labels = participant_session_counts[participant_id] > 1 or use_labels_globally
+
     def convert_to_bids_dataset(self) -> None:
         """Convert the directory of NWB files to a BIDS dataset."""
         try:
+            # Ensure all metadata is extracted before determining session label usage
+            self.extract_metadata()
+
+            # Determine which sessions should use ses- labels (requires metadata for participant IDs)
+            self._set_use_session_labels()
+
             for session_converter in tqdm(
                 self.session_converters,
                 desc="Converting sessions",
@@ -365,12 +409,16 @@ class DatasetConverter(BaseConverter):
     def write_sessions_metadata(self) -> None:
         """
         Write the `_sessions.tsv` and `_sessions.json` files, then create empty participant and session directories.
+
+        Sessions metadata files and `ses-` subdirectories are only written for subjects that use session labels
+        (i.e., subjects with multiple sessions, or all subjects when more than 50% have multiple sessions).
         """
         participant_id_to_sessions = collections.defaultdict(list)
+        participant_id_to_use_session_labels = {}
         for session_converter in self.session_converters:
-            participant_id_to_sessions[session_converter.session_metadata.sanitization.sanitized_participant_id].append(
-                session_converter.session_metadata
-            )
+            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
+            participant_id_to_sessions[participant_id].append(session_converter.session_metadata)
+            participant_id_to_use_session_labels[participant_id] = session_converter.use_session_labels
 
         # TODO: expand beyond just session_id field (mainly via additional metadata)
         sessions_schema = BidsSessionMetadata.model_json_schema()
@@ -393,6 +441,10 @@ class DatasetConverter(BaseConverter):
 
             subject_directory = self.run_config.bids_directory / f"sub-{sanitized_participant_id}"
             subject_directory.mkdir(exist_ok=True)
+
+            # Only write sessions metadata files for subjects that use ses- labels
+            if not participant_id_to_use_session_labels.get(participant_id, True):
+                continue
 
             # BIDS requires ses- prefix in table values
             sessions_data_frame = pandas.DataFrame(
