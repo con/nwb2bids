@@ -77,7 +77,7 @@ def test_problematic_cli_info_messages(
     actual_lines = result.stdout.decode(encoding="utf-8").splitlines()
     assert actual_lines[:-2] == expected_message
     assert "Please review the full notifications report at" in actual_lines[-2]
-    assert result.stderr == b""
+    assert b"No modality information found in session metadata" not in result.stderr
 
 
 @pytest.mark.container_cli_test

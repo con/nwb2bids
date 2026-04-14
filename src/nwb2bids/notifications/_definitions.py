@@ -177,6 +177,21 @@ notification_definitions.update(
             "category": Category.STYLE_SUGGESTION,
             "severity": Severity.INFO,
         },
+        "ProbeNotFound": {
+            "title": "Probe not found in ProbeInterface library",
+            "reason": (
+                "The probe specified via `--probe` could not be found in the ProbeInterface library. "
+                "No probe geometry file was written and no TermURL was added to the probes sidecar."
+            ),
+            "solution": (
+                "Verify the probe name is correct and follows the `manufacturer/model` format, "
+                "e.g. `neuronexus/A1x32-Poly3-10mm-50-177`. "
+                "Check the ProbeInterface library for available probes: "
+                "https://github.com/SpikeInterface/probeinterface_library"
+            ),
+            "category": Category.INTERNAL_ERROR,
+            "severity": Severity.WARNING,
+        },
     }
 )
 
