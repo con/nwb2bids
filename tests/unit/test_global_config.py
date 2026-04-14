@@ -166,9 +166,7 @@ def test_load_run_config_defaults_env_var_overrides_file(
     assert result["file_mode"] == "symlink"
 
 
-def test_load_run_config_defaults_env_var_without_file(
-    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_load_run_config_defaults_env_var_without_file(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """NWB2BIDS_* env vars are picked up even when no config files exist."""
     fake_home = tmp_path / "home"
     fake_home.mkdir()
@@ -273,9 +271,7 @@ def test_run_config_from_dotenv_files_local_config_overrides_global(
     assert run_config.archive_target == "ember"
 
 
-def test_run_config_from_dotenv_files_no_config(
-    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_run_config_from_dotenv_files_no_config(tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """from_dotenv_files falls back to RunConfig defaults when no .env files exist."""
     fake_home = tmp_path / "fake_home"
     fake_home.mkdir()
