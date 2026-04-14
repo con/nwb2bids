@@ -8,7 +8,6 @@ import pytest
 import nwb2bids
 
 
-
 def test_minimal_convert_nwb_dataset_from_directory(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
