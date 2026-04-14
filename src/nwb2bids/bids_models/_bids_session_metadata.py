@@ -5,6 +5,7 @@ import typing
 import h5py
 import pydantic
 import pynwb
+import pynwb.misc
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataContainerModel
@@ -21,6 +22,23 @@ from ..notifications import Notification
 from ..sanitization import Sanitization
 
 
+def _has_units_table(nwbfiles: list[pynwb.NWBFile]) -> bool:
+    """
+    Return True if any of the given NWB files contains a units table.
+
+    Checks both the top-level ``nwbfile.units`` attribute and any
+    :class:`~pynwb.misc.Units` objects stored in processing modules.
+    """
+    for nwbfile in nwbfiles:
+        if nwbfile.units is not None:
+            return True
+        for processing_module in nwbfile.processing.values():
+            for data_interface in processing_module.data_interfaces.values():
+                if isinstance(data_interface, pynwb.misc.Units):
+                    return True
+    return False
+
+
 class BidsSessionMetadata(BaseMetadataContainerModel):
     """
     Schema for the metadata of a single BIDS session.
@@ -35,6 +53,10 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     probe_table: ProbeTable | None = None
     electrode_table: ElectrodeTable | None = None
     channel_table: ChannelTable | None = None
+    has_units_table: bool = pydantic.Field(
+        description="Whether the source NWB files contain a units table (top-level or in a processing module).",
+        default=False,
+    )
     run_config: RunConfig = pydantic.Field(default_factory=RunConfig)
     sanitization: Sanitization | None = None
 
@@ -105,12 +127,14 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         probe_table = ProbeTable.from_nwbfiles(nwbfiles=nwbfiles, probe_name=run_config.probe)
         electrode_table = ElectrodeTable.from_nwbfiles(nwbfiles=nwbfiles)
         channel_table = ChannelTable.from_nwbfiles(nwbfiles=nwbfiles)
+        has_units = _has_units_table(nwbfiles=nwbfiles)
 
         dictionary = {
             "session_id": session_id,
             "participant": participant,
             "general_metadata": general_metadata,
             "run_config": run_config,
+            "has_units_table": has_units,
         }
         if events is not None:
             dictionary["events"] = events

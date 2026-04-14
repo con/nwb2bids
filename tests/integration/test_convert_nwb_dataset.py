@@ -8,6 +8,7 @@ import pytest
 import nwb2bids
 
 
+
 def test_minimal_convert_nwb_dataset_from_directory(
     minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -626,3 +627,39 @@ def test_ecephys_convert_with_space_paxinos_watson(
         "MicroephysCoordinateProcessingReference": "https://doi.org/10.1016/C2009-0-63235-9",
     }
     assert coordsystem_json == expected_coordsystem_json
+
+
+@pytest.mark.parametrize(
+    "nwbfile_fixture",
+    ["units_only_nwbfile_path", "units_in_processing_nwbfile_path"],
+    ids=["top_level_units", "processing_module_units"],
+)
+def test_units_without_electrodes_writes_derivative(
+    nwbfile_fixture: str,
+    request: pytest.FixtureRequest,
+    temporary_bids_directory: pathlib.Path,
+):
+    """
+    When an NWB file has a units table but no electrodes table, the entire dataset must be
+    written as a BIDS derivative: all sub- folders go under derivatives/nwb2bids/ and
+    dataset_description.json must contain DatasetType 'derivative'.
+    """
+    nwbfile_path = request.getfixturevalue(nwbfile_fixture)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
+    dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=[nwbfile_path], run_config=run_config)
+    assert not any(dataset_converter.notifications)
+
+    derivatives_root = temporary_bids_directory / "derivatives" / "nwb2bids"
+    assert derivatives_root.exists(), "derivatives/nwb2bids directory was not created"
+
+    dataset_description_file_path = derivatives_root / "dataset_description.json"
+    assert dataset_description_file_path.exists(), "dataset_description.json missing from derivatives directory"
+    dataset_description = json.loads(dataset_description_file_path.read_text())
+    assert dataset_description["DatasetType"] == "derivative"
+
+    # Verify that sub- folders are inside derivatives/nwb2bids, not at the root
+    sub_dirs_at_root = [path for path in temporary_bids_directory.iterdir() if path.name.startswith("sub-")]
+    assert not sub_dirs_at_root, "sub- directories should not appear at the BIDS root for derivative datasets"
+
+    sub_dirs_in_derivatives = [path for path in derivatives_root.iterdir() if path.name.startswith("sub-")]
+    assert sub_dirs_in_derivatives, "Expected at least one sub- directory inside derivatives/nwb2bids"
