@@ -39,6 +39,14 @@ class SessionConverter(BaseConverter):
     modality: typing.Literal["ecephys", "icephys"] | None = pydantic.Field(
         description="The modality for this session - auto-detected during metadata extraction step.", default=None
     )
+    use_session_labels: bool = pydantic.Field(
+        description=(
+            "Whether to include the `ses-` entity in BIDS file names and directory structure. "
+            "Set to False for single-session subjects when no other subject in the dataset has "
+            "multiple sessions. Automatically determined by DatasetConverter."
+        ),
+        default=True,
+    )
 
     @classmethod
     @pydantic.validate_call
@@ -140,6 +148,14 @@ class SessionConverter(BaseConverter):
         else:
             self.modality = next(iter(detected_modalities))
 
+    def _get_file_prefix(self) -> str:
+        """Return the BIDS file prefix, including or excluding the `ses-` entity based on `use_session_labels`."""
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
+        if self.use_session_labels:
+            return f"sub-{participant_id}_ses-{session_id}"
+        return f"sub-{participant_id}"
+
     def convert_to_bids_session(self) -> None:
         """
         Convert the NWB file to a BIDS session directory.
@@ -154,9 +170,7 @@ class SessionConverter(BaseConverter):
         if self.session_metadata is None:
             self.extract_metadata()
 
-        participant_id = self.session_metadata.sanitization.sanitized_participant_id
-        session_id = self.session_metadata.sanitization.sanitized_session_id
-        file_prefix = f"sub-{participant_id}_ses-{session_id}"
+        file_prefix = self._get_file_prefix()
 
         self.write_ephys_files()
         if self.session_metadata.events is not None:
@@ -197,9 +211,7 @@ class SessionConverter(BaseConverter):
         ):
             return
 
-        participant_id = self.session_metadata.sanitization.sanitized_participant_id
-        session_id = self.session_metadata.sanitization.sanitized_session_id
-        file_prefix = f"sub-{participant_id}_ses-{session_id}"
+        file_prefix = self._get_file_prefix()
 
         modality_directory = self._establish_modality_subdirectory()
 
@@ -259,9 +271,7 @@ class SessionConverter(BaseConverter):
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
 
-        participant_id = self.session_metadata.sanitization.sanitized_participant_id
-        session_id = self.session_metadata.sanitization.sanitized_session_id
-        file_prefix = f"sub-{participant_id}_ses-{session_id}"
+        file_prefix = self._get_file_prefix()
 
         ecephys_directory = self._establish_modality_subdirectory()
         session_events_tsv_file_path = ecephys_directory / f"{file_prefix}_events.tsv"
@@ -281,9 +291,14 @@ class SessionConverter(BaseConverter):
 
         subject_directory = self.run_config.bids_directory / f"sub-{participant_id}"
         subject_directory.mkdir(exist_ok=True)
-        session_directory = subject_directory / f"ses-{session_id}"
-        session_directory.mkdir(exist_ok=True)
-        modality_directory = session_directory / self.modality
+
+        if self.use_session_labels:
+            parent_directory = subject_directory / f"ses-{session_id}"
+            parent_directory.mkdir(exist_ok=True)
+        else:
+            parent_directory = subject_directory
+
+        modality_directory = parent_directory / self.modality
         modality_directory.mkdir(exist_ok=True)
 
         return modality_directory
