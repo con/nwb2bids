@@ -2,7 +2,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## MANDATORY: Read before making any code changes
 
-You MUST read `docs/developer_guide.rst` before making any code changes, commits, or pull requests.
+You MUST read `docs/developer_guide.rst` as well as `.github/copilot-instructions.md` before making any code changes, commits, or pull requests.
 
 It contains the authoritative project conventions including:
 - Testing categories (unit, integration, CLI) and how to run them
