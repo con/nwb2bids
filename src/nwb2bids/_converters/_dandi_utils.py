@@ -38,7 +38,8 @@ def _get_dataset_description_from_valid_dandiset_metadata(
 ) -> tuple[DatasetDescription | None, list[Notification]]:
     dataset_description_kwargs = dict()
 
-    dataset_description_kwargs["Name"] = metadata.name
+    dandiset_identifier = getattr(metadata, "identifier", "??????")
+    dataset_description_kwargs["Name"] = getattr(metadata, "name", f"DANDI Archive Dandiset {dandiset_identifier}")
     dataset_description_kwargs["BIDSVersion"] = "1.10"
     dataset_description_kwargs["HEDVersion"] = "8.3.0"
 
