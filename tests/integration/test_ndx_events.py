@@ -1,14 +1,12 @@
 """Integration tests for the `convert_nwb_dataset` function with ndx-events data types."""
 
 import json
-import math
 import pathlib
 
 import pandas
 import pytest
 
 import nwb2bids
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -40,9 +38,7 @@ def _run_conversion(
 # ---------------------------------------------------------------------------
 
 
-def test_ndx_events_table_tsv(
-    ndx_events_table_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
-):
+def test_ndx_events_table_tsv(ndx_events_table_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     """EventsTable with timestamps only should have 'n/a' in the duration column."""
     dataset_converter = _run_conversion(ndx_events_table_nwbfile_path, temporary_bids_directory)
     assert not any(dataset_converter.notifications)
@@ -58,9 +54,7 @@ def test_ndx_events_table_tsv(
     assert df["onset"].tolist() == [0.5, 1.0, 2.5, 3.0]
 
 
-def test_ndx_events_table_json(
-    ndx_events_table_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
-):
+def test_ndx_events_table_json(ndx_events_table_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path):
     """EventsTable JSON sidecar should describe onset, duration, nwb_table, and the table itself."""
     _run_conversion(ndx_events_table_nwbfile_path, temporary_bids_directory)
 
