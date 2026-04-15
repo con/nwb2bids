@@ -5,6 +5,7 @@ import typing
 import h5py
 import pydantic
 import pynwb
+import pynwb.ecephys
 import pynwb.misc
 import typing_extensions
 
@@ -39,6 +40,18 @@ def _has_units_table(nwbfiles: list[pynwb.NWBFile]) -> bool:
     return False
 
 
+def _has_electrical_series_in_acquisition(nwbfiles: list[pynwb.NWBFile]) -> bool:
+    """
+    Return True if any of the given NWB files contains an :class:`~pynwb.ecephys.ElectricalSeries`
+    directly in the ``acquisition`` module (i.e., raw, unprocessed data).
+    """
+    for nwbfile in nwbfiles:
+        for data_object in nwbfile.acquisition.values():
+            if isinstance(data_object, pynwb.ecephys.ElectricalSeries):
+                return True
+    return False
+
+
 class BidsSessionMetadata(BaseMetadataContainerModel):
     """
     Schema for the metadata of a single BIDS session.
@@ -55,6 +68,10 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
     channel_table: ChannelTable | None = None
     has_units_table: bool = pydantic.Field(
         description="Whether the source NWB files contain a units table (top-level or in a processing module).",
+        default=False,
+    )
+    has_electrical_series_in_acquisition: bool = pydantic.Field(
+        description="Whether the source NWB files contain an ElectricalSeries in the acquisition module.",
         default=False,
     )
     run_config: RunConfig = pydantic.Field(default_factory=RunConfig)
@@ -128,6 +145,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         electrode_table = ElectrodeTable.from_nwbfiles(nwbfiles=nwbfiles)
         channel_table = ChannelTable.from_nwbfiles(nwbfiles=nwbfiles)
         has_units = _has_units_table(nwbfiles=nwbfiles)
+        has_es_in_acquisition = _has_electrical_series_in_acquisition(nwbfiles=nwbfiles)
 
         dictionary = {
             "session_id": session_id,
@@ -135,6 +153,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
             "general_metadata": general_metadata,
             "run_config": run_config,
             "has_units_table": has_units,
+            "has_electrical_series_in_acquisition": has_es_in_acquisition,
         }
         if events is not None:
             dictionary["events"] = events

@@ -662,3 +662,33 @@ def test_units_without_electrodes_writes_derivative(
 
     sub_dirs_in_derivatives = [path for path in derivatives_root.iterdir() if path.name.startswith("sub-")]
     assert sub_dirs_in_derivatives, "Expected at least one sub- directory inside derivatives/nwb2bids"
+
+
+
+def test_units_with_raw_electrical_series_writes_raw(
+    units_with_raw_electrical_series_nwbfile_path: pathlib.Path,
+    temporary_bids_directory: pathlib.Path,
+):
+    """
+    When an NWB file has both a units table AND a raw ElectricalSeries in acquisition,
+    the dataset must NOT be treated as a derivative: sub- folders appear at the root and
+    dataset_description.json must have DatasetType 'raw'.
+    """
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
+    dataset_converter = nwb2bids.convert_nwb_dataset(
+        nwb_paths=[units_with_raw_electrical_series_nwbfile_path], run_config=run_config
+    )
+    assert not any(dataset_converter.notifications)
+
+    # Verify no derivatives directory was created
+    derivatives_root = temporary_bids_directory / "derivatives" / "nwb2bids"
+    assert not derivatives_root.exists(), "derivatives/nwb2bids should not be created for raw datasets"
+
+    dataset_description_file_path = temporary_bids_directory / "dataset_description.json"
+    assert dataset_description_file_path.exists()
+    dataset_description = json.loads(dataset_description_file_path.read_text())
+    assert dataset_description["DatasetType"] == "raw"
+
+    # sub- directories should be at the root
+    sub_dirs_at_root = [path for path in temporary_bids_directory.iterdir() if path.name.startswith("sub-")]
+    assert sub_dirs_at_root, "sub- directories should appear at the BIDS root for raw datasets"

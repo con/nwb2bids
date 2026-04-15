@@ -47,7 +47,8 @@ class DatasetConverter(BaseConverter):
         """
         Return True if the dataset should be written as a BIDS derivative.
 
-        This is the case when any session contains a units table but no electrodes table,
+        This is the case when any session contains a units table but no electrodes table
+        and no raw :class:`~pynwb.ecephys.ElectricalSeries` in the ``acquisition`` module,
         indicating the data is derived (e.g., spike-sorted) rather than raw.
         Metadata must be extracted before this property is meaningful.
         """
@@ -55,6 +56,7 @@ class DatasetConverter(BaseConverter):
             sc.session_metadata is not None
             and sc.session_metadata.has_units_table
             and sc.session_metadata.electrode_table is None
+            and not sc.session_metadata.has_electrical_series_in_acquisition
             for sc in self.session_converters
         )
 
