@@ -54,9 +54,9 @@ class DatasetConverter(BaseConverter):
         """
         return any(
             sc.session_metadata is not None
-            and sc.session_metadata.has_units_table
-            and sc.session_metadata.electrode_table is None
             and not sc.session_metadata.has_electrical_series_in_acquisition
+            and sc.session_metadata.electrode_table is None
+            and sc.session_metadata.has_units_table
             for sc in self.session_converters
         )
 
