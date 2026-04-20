@@ -290,6 +290,23 @@ def epochs_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib
 
 
 @pytest.fixture(scope="session")
+def trials_with_numpy_column_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """An NWB file whose trials table has a column where each row is a numpy array."""
+    nwbfile = _make_minimal_nwbfile()
+
+    trials = nwb2bids.testing.mock_trials_table_with_numpy_column()
+    nwbfile.trials = trials
+
+    events_subdirectory = testing_files_directory / "trials_numpy_column"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "trials_numpy_column.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
 def multiple_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     nwbfile = _make_minimal_nwbfile()
 
@@ -538,3 +555,77 @@ def directory_with_mixed_session_counts(testing_files_directory: pathlib.Path) -
                 file_stream.write(nwbfile)
 
     return subdirectory
+
+
+@pytest.fixture(scope="session")
+def units_only_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    An NWB file with a top-level units table but no electrodes table.
+
+    Used to verify that the output is written as a BIDS derivative.
+    """
+    nwbfile = _make_minimal_nwbfile(session_id="U1")
+    nwbfile.add_unit(spike_times=[0.1, 0.2, 0.3])
+
+    units_subdirectory = testing_files_directory / "units_only"
+    units_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = units_subdirectory / "units_only.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def units_in_processing_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    An NWB file with a units table stored inside a processing module but no electrodes table.
+
+    Used to verify that units inside processing modules also trigger derivative mode.
+    """
+    import pynwb.misc
+
+    nwbfile = _make_minimal_nwbfile(session_id="U2")
+    units_table = pynwb.misc.Units(name="units", description="Sorted units stored in processing module.")
+    units_table.add_unit(spike_times=[1.0, 2.0])
+    proc_mod = nwbfile.create_processing_module(name="ecephys", description="Processed ecephys data.")
+    proc_mod.add(units_table)
+
+    units_proc_subdirectory = testing_files_directory / "units_in_processing"
+    units_proc_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = units_proc_subdirectory / "units_in_processing.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def units_with_raw_electrical_series_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    An NWB file with a top-level units table AND a raw ElectricalSeries in the acquisition module.
+
+    Because raw data (ElectricalSeries in acquisition) is present, this should NOT be treated as
+    a BIDS derivative even though a units table exists.
+    """
+    nwbfile = _make_minimal_nwbfile(session_id="U3")
+    nwbfile.add_unit(spike_times=[0.1, 0.2])
+
+    probe = pynwb.testing.mock.ecephys.mock_Device(name="RawProbe", nwbfile=nwbfile)
+    shank = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(device=probe, nwbfile=nwbfile)
+    for _ in range(4):
+        nwbfile.add_electrode(location="n/a", group=shank)
+    electrode_region = nwbfile.create_electrode_table_region(region=list(range(4)), description="all electrodes")
+    pynwb.testing.mock.ecephys.mock_ElectricalSeries(
+        name="RawSeries",
+        electrodes=electrode_region,
+        nwbfile=nwbfile,
+    )
+
+    raw_units_subdirectory = testing_files_directory / "units_with_raw_es"
+    raw_units_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = raw_units_subdirectory / "units_with_raw_es.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
