@@ -664,7 +664,6 @@ def test_units_without_electrodes_writes_derivative(
     assert sub_dirs_in_derivatives, "Expected at least one sub- directory inside derivatives/nwb2bids"
 
 
-
 def test_units_with_raw_electrical_series_writes_raw(
     units_with_raw_electrical_series_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,

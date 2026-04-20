@@ -615,9 +615,7 @@ def units_with_raw_electrical_series_nwbfile_path(testing_files_directory: pathl
     shank = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(device=probe, nwbfile=nwbfile)
     for _ in range(4):
         nwbfile.add_electrode(location="n/a", group=shank)
-    electrode_region = nwbfile.create_electrode_table_region(
-        region=list(range(4)), description="all electrodes"
-    )
+    electrode_region = nwbfile.create_electrode_table_region(region=list(range(4)), description="all electrodes")
     pynwb.testing.mock.ecephys.mock_ElectricalSeries(
         name="RawSeries",
         electrodes=electrode_region,
