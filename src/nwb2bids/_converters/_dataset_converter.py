@@ -42,6 +42,24 @@ class DatasetConverter(BaseConverter):
         )
         return notifications
 
+    @property
+    def _is_derivative(self) -> bool:
+        """
+        Return True if the dataset should be written as a BIDS derivative.
+
+        This is the case when any session contains a units table but no electrodes table
+        and no raw :class:`~pynwb.ecephys.ElectricalSeries` in the ``acquisition`` module,
+        indicating the data is derived (e.g., spike-sorted) rather than raw.
+        Metadata must be extracted before this property is meaningful.
+        """
+        return any(
+            sc.session_metadata is not None
+            and not sc.session_metadata.has_electrical_series_in_acquisition
+            and sc.session_metadata.electrode_table is None
+            and sc.session_metadata.has_units_table
+            for sc in self.session_converters
+        )
+
     @classmethod
     @pydantic.validate_call
     def from_remote_dandiset(
@@ -249,6 +267,19 @@ class DatasetConverter(BaseConverter):
             # Ensure all metadata is extracted before determining session label usage
             self.extract_metadata()
 
+            # If any session has a units table but no electrodes table, redirect all output
+            # to a 'derivatives/nwb2bids' subfolder. DatasetType is set to 'derivative'
+            # separately inside write_dataset_description.
+            if self._is_derivative:
+                derivatives_bids_directory = self.run_config.bids_directory / "derivatives" / "nwb2bids"
+                derivatives_bids_directory.mkdir(parents=True, exist_ok=True)
+                derivative_run_config = self.run_config.model_copy(
+                    update={"bids_directory": derivatives_bids_directory}
+                )
+                self.run_config = derivative_run_config
+                for session_converter in self.session_converters:
+                    session_converter.run_config = derivative_run_config
+
             # Determine which sessions should use ses- labels (requires metadata for participant IDs)
             self._set_use_session_labels()
 
@@ -294,6 +325,9 @@ class DatasetConverter(BaseConverter):
         """Write the `dataset_description.json` file."""
         if self.dataset_description is None:
             self.dataset_description = DatasetDescription(BIDSVersion="1.10.1", HEDVersion="8.3.0")
+
+        if self._is_derivative:
+            self.dataset_description.DatasetType = "derivative"
 
         dataset_description_dictionary = self.dataset_description.model_dump()
 

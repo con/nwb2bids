@@ -12,5 +12,6 @@ It contains the authoritative project conventions including:
 - Changelog conventions (past tense PR titles, label-to-section mapping)
 - CI troubleshooting (custom dispatch with tmate)
 - Container CLI testing
+- Always run pre-commit before pushing changes
 
 Do NOT guess or assume conventions -- read the file. Additional documentation may be found under `docs/`.
