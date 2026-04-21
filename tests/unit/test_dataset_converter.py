@@ -225,7 +225,7 @@ def test_dataset_converter_write_sessions_metadata(
     dataset_converter.write_sessions_metadata()
     assert not any(dataset_converter.notifications)
 
-    expected_structure = {
+    expected_structure: dict[pathlib.Path, dict[str, set[str]]] = {
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
         temporary_bids_directory
         / "sub-123": {
