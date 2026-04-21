@@ -182,7 +182,6 @@ ignore_missing_imports = true
 module = ["nwb2bids._converters._session_converter"]
 disable_error_code = [
     "call-arg",
-    "union-attr",
     "attr-defined",  # MyPy is wrong about this one (pathlib.Path.copy on 3.14)
 ]
 

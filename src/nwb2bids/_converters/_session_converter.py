@@ -150,6 +150,13 @@ class SessionConverter(BaseConverter):
 
     def _get_file_prefix(self) -> str:
         """Return the BIDS file prefix, including or excluding the `ses-` entity based on `use_session_labels`."""
+        if self.session_metadata is None:
+            message = "Session metadata could not be extracted for this session - unable to convert to BIDS session."
+            raise RuntimeError(message)
+        if self.session_metadata.sanitization is None:
+            message = "Sanitization information is missing from session metadata - unable to build BIDS file prefix."
+            raise RuntimeError(message)
+
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
         if self.use_session_labels:
@@ -169,6 +176,9 @@ class SessionConverter(BaseConverter):
 
         if self.session_metadata is None:
             self.extract_metadata()
+        if self.session_metadata is None:
+            message = "Session metadata could not be extracted for this session - unable to convert to BIDS session."
+            raise RuntimeError(message)
 
         file_prefix = self._get_file_prefix()
 
@@ -187,7 +197,8 @@ class SessionConverter(BaseConverter):
                 continue
 
             if self.run_config.file_mode == "copy" and sys.version_info >= (3, 14):
-                nwbfile_path.copy(target=session_file_path, follow_symlinks=True)  # Uses copy-on-write when available
+                # Uses copy-on-write when available
+                nwbfile_path.copy(target=session_file_path, follow_symlinks=True)  # type: ignore[attr-defined]
             elif self.run_config.file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
             elif self.run_config.file_mode == "move":
@@ -203,6 +214,9 @@ class SessionConverter(BaseConverter):
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
+        if self.session_metadata is None:
+            message = "Session metadata could not be extracted for this session - unable to convert to BIDS session."
+            raise RuntimeError(message)
 
         if (
             self.session_metadata.probe_table is None
@@ -264,6 +278,9 @@ class SessionConverter(BaseConverter):
 
     def write_events_files(self) -> None:
         """Write the `_events.tsv` and `_events.json` files for this session."""
+        if self.session_metadata is None:
+            message = "Session metadata could not be extracted for this session - unable to convert to BIDS session."
+            raise RuntimeError(message)
         if self.session_metadata.events is None:
             message = "No events metadata found in the session metadata - unable to write events TSV."
             raise ValueError(message)
@@ -285,7 +302,16 @@ class SessionConverter(BaseConverter):
         if self.modality is None:
             message = "Modality has not been determined for this session - unable to establish modality subdirectory."
             raise ValueError(message)
-
+        if self.session_metadata is None:
+            message = (
+                "Session metadata could not be extracted for this session - unable to establish modality subdirectory."
+            )
+            raise RuntimeError(message)
+        if self.session_metadata.sanitization is None:
+            message = (
+                "Sanitization information is missing from session metadata - unable to establish modality subdirectory."
+            )
+            raise RuntimeError(message)
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
 
