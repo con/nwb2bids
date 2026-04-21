@@ -29,6 +29,8 @@ def _validate_bids_directory(path: pathlib.Path) -> pathlib.Path:
         If the given path is not valid according to the criteria above (as this function
         is designed to be used as a field validator for a pydantic model).
     """
+    if not path.exists():
+        raise ValueError(f"The path ({path}) does not exist.")
     if path.is_file():
         raise ValueError(f"The path ({path}) exists but is not a directory.")
     if not path.parent.is_dir():
