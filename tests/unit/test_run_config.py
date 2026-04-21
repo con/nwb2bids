@@ -58,6 +58,7 @@ def test_run_config_file_path_as_bids_directory_parent(temporary_bids_directory:
     ):
         nwb2bids.RunConfig(bids_directory=bids_directory)
 
+
 def test_run_config_archive_target_default_is_none(temporary_bids_directory: pathlib.Path):
     """Test that the archive_target field defaults to None."""
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
@@ -75,4 +76,3 @@ def test_run_config_archive_target_invalid_value_raises(temporary_bids_directory
     """Test that archive_target rejects invalid values."""
     with pytest.raises(expected_exception=pydantic.ValidationError):
         nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target="invalid")
-
