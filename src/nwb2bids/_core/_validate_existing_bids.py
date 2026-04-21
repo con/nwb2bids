@@ -33,7 +33,7 @@ def _validate_bids_directory(path: pathlib.Path) -> pathlib.Path:
         raise ValueError(f"The path ({path}) exists but is not a directory.")
     if not path.parent.is_dir():
         raise ValueError(f"The parent path ({path.parent}) is not a directory.")
-        
+
     return _validate_existing_directory_as_bids(path)
 
 
