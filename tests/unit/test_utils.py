@@ -7,7 +7,7 @@ def test_create_file_tree(testing_files_directory: pathlib.Path) -> None:
     test_directory = testing_files_directory / "test_file_tree_from_dict"
     test_directory.mkdir(exist_ok=True)
 
-    test_structure = {
+    test_structure: dict[str, dict | str] = {
         "a": {
             "b": {
                 "file1.txt": "Content of file 1",
