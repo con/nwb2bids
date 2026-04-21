@@ -245,7 +245,10 @@ class DatasetConverter(BaseConverter):
 
         participant_session_counts: collections.Counter = collections.Counter()
         for session_converter in self.session_converters:
-            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
+            session_metadata = session_converter.session_metadata
+            if session_metadata is None:
+                continue
+            participant_id = session_metadata.sanitization.sanitized_participant_id
             participant_session_counts[participant_id] += 1
 
         total_subjects = len(participant_session_counts)
@@ -253,12 +256,13 @@ class DatasetConverter(BaseConverter):
             return
 
         subjects_with_multiple_sessions = sum(1 for count in participant_session_counts.values() if count > 1)
-
-        # If the majority of subjects have multiple sessions, use ses- for the entire dataset
         use_labels_globally = (subjects_with_multiple_sessions / total_subjects) > 0.5
 
         for session_converter in self.session_converters:
-            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
+            session_metadata = session_converter.session_metadata
+            if session_metadata is None:
+                continue
+            participant_id = session_metadata.sanitization.sanitized_participant_id
             session_converter.use_session_labels = participant_session_counts[participant_id] > 1 or use_labels_globally
 
     def convert_to_bids_dataset(self) -> None:
@@ -337,10 +341,11 @@ class DatasetConverter(BaseConverter):
 
     def write_participants_metadata(self) -> None:
         """Write the `participants.tsv` and `participants.json` files."""
-        model_dump_per_session = []
-        for session_converter in self.session_converters:
-            model_dump = session_converter.session_metadata.participant.model_dump()
-            model_dump_per_session.append(model_dump)
+        model_dump_per_session = [
+            sc.session_metadata.participant.model_dump()
+            for sc in self.session_converters
+            if sc.session_metadata is not None
+        ]
 
         full_participants_data_frame = pandas.DataFrame.from_records(
             data=[
@@ -369,7 +374,11 @@ class DatasetConverter(BaseConverter):
         original_participant_id_values = deduplicated_data_frame["participant_id"].copy()
 
         # Apply sanitization
-        sanitizations = [converter.session_metadata.sanitization for converter in self.session_converters]
+        sanitizations = [
+            converter.session_metadata.sanitization
+            for converter in self.session_converters
+            if converter.session_metadata is not None
+        ]
         sanitized_participant_ids = {
             sanitization.original_participant_id: sanitization.sanitized_participant_id
             for sanitization in sanitizations
@@ -422,7 +431,7 @@ class DatasetConverter(BaseConverter):
 
         if len(self.session_converters) > 0:
             is_field_in_table = {field: True for field in participants_data_frame.keys()}
-            participants_schema = self.session_converters[0].session_metadata.participant.model_json_schema()
+            participants_schema = self.session_converters[0].session_metadata.participant.model_json_schema()  # type: ignore[union-attr]
             participants_json = {
                 field: info["description"]
                 for field, info in participants_schema["properties"].items()
@@ -446,20 +455,22 @@ class DatasetConverter(BaseConverter):
         participant_id_to_sessions = collections.defaultdict(list)
         participant_id_to_use_session_labels = {}
         for session_converter in self.session_converters:
-            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
-            participant_id_to_sessions[participant_id].append(session_converter.session_metadata)
+            session_metadata = session_converter.session_metadata
+            if session_metadata is None:
+                continue
+            participant_id = session_metadata.sanitization.sanitized_participant_id
+            participant_id_to_sessions[participant_id].append(session_metadata)
             participant_id_to_use_session_labels[participant_id] = session_converter.use_session_labels
+
+        sanitization_config = None
+        for sc in self.session_converters:
+            if sc.session_metadata is not None:
+                sanitization_config = sc.session_metadata.sanitization.sanitization_config
+                break
 
         # TODO: expand beyond just session_id field (mainly via additional metadata)
         sessions_schema = BidsSessionMetadata.model_json_schema()
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
-
-        # Check if session ID sanitization is enabled
-        sanitization_config = (
-            self.session_converters[0].session_metadata.sanitization.sanitization_config
-            if len(self.session_converters) != 0
-            else None
-        )
         if sanitization_config is not None and sanitization_config.ses_labels:
             sessions_json["original_session_id"] = "The original session identifier before sanitization."
 

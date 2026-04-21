@@ -187,10 +187,6 @@ disable_error_code = [
 ]
 
 [[tool.mypy.overrides]]
-module = ["nwb2bids._converters._dataset_converter"]
-disable_error_code = ["call-arg", "union-attr", "func-returns-value"]
-
-[[tool.mypy.overrides]]
 module = ["conftest"]
 disable_error_code = [
     "arg-type",
