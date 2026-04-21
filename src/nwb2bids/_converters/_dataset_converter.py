@@ -431,7 +431,8 @@ class DatasetConverter(BaseConverter):
         )
         if len(self.session_converters) > 0:
             is_field_in_table = {field: True for field in participants_data_frame.keys()}
-            participants_schema = self.session_converters[0].session_metadata.participant.model_json_schema()  # type: ignore[union-attr]
+            example_participant = self.session_converters[0].session_metadata.participant  # type: ignore[union-attr]
+            participants_schema = example_participant.model_json_schema()
             participants_json = {
                 field: info["description"]
                 for field, info in participants_schema["properties"].items()
