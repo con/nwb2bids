@@ -106,7 +106,7 @@ def test_session_converter_write_ecephys_metadata(
     assert not any(session_converter.notifications)
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-001"}, "files": {"dataset_description.json"}},
+        temporary_bids_directory: {"directories": {"sub-001"}, "files": set()},
         temporary_bids_directory
         / "sub-001": {
             "directories": {"ses-A"},
@@ -155,7 +155,7 @@ def test_session_converter_write_events_metadata(
     assert not any(session_converter.notifications)
 
     expected_structure = {
-        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
+        temporary_bids_directory: {"directories": {"sub-123"}, "files": set()},
         temporary_bids_directory
         / "sub-123": {
             "directories": {"ses-456"},

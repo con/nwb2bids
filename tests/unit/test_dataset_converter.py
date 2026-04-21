@@ -4,6 +4,7 @@ import json
 import pathlib
 
 import pandas
+import pydantic
 import pytest
 
 import nwb2bids
@@ -183,7 +184,7 @@ def test_dataset_converter_write_subject_metadata(
     expected_structure = {
         temporary_bids_directory: {
             "directories": set(),
-            "files": {"dataset_description.json", "participants.json", "participants.tsv"},
+            "files": {"participants.json", "participants.tsv"},
         }
     }
     nwb2bids.testing.assert_subdirectory_structure(
@@ -226,7 +227,7 @@ def test_dataset_converter_write_sessions_metadata(
     assert not any(dataset_converter.notifications)
 
     expected_structure: dict[pathlib.Path, dict[str, set[str]]] = {
-        temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
+        temporary_bids_directory: {"directories": {"sub-123"}, "files": set()},
         temporary_bids_directory
         / "sub-123": {
             "directories": {"ses-456"},
@@ -256,27 +257,23 @@ def test_dataset_converter_write_sessions_metadata(
     assert sessions_json == expected_sessions_json
 
 
-def test_convert_to_bids_dataset_creates_nonexistent_directory(
+def test_convert_to_bids_dataset_rejects_nonexistent_directory(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
 ):
-    """Test that `convert_to_bids_dataset` creates the `bids_directory` if it doesn't exist."""
+    """Test that `RunConfig` rejects `bids_directory` when the path does not already exist."""
     nonexistent_child = temporary_bids_directory / "new_bids_dir"
 
     nwb_paths = [minimal_nwbfile_path]
-    run_config = nwb2bids.RunConfig(
-        bids_directory=nonexistent_child, additional_metadata_file_path=additional_metadata_file_path
-    )
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-    assert not any(dataset_converter.notifications)
-
-    assert not nonexistent_child.exists()
-
-    dataset_converter.extract_metadata()
-    dataset_converter.convert_to_bids_dataset()
-    assert nonexistent_child.exists()
-    assert (nonexistent_child / "dataset_description.json").exists()
+    with pytest.raises(
+        expected_exception=pydantic.ValidationError,
+        match=r"The path \(\S+\) does not exist",
+    ):
+        run_config = nwb2bids.RunConfig(
+            bids_directory=nonexistent_child, additional_metadata_file_path=additional_metadata_file_path
+        )
+        nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
 
 
 def test_dataset_description_validates_exactly_one_nwb2bids():
