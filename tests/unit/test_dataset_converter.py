@@ -257,7 +257,7 @@ def test_dataset_converter_write_sessions_metadata(
     assert sessions_json == expected_sessions_json
 
 
-def test_run_config_rejected_nonexistent_bids_directory(
+def test_run_config_rejects_nonexistent_bids_directory(
     temporary_bids_directory: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
 ):
