@@ -181,7 +181,7 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = ["conftest"]
 disable_error_code = [
-    "arg-type",
+#    "arg-type",
     "attr-defined",  # Wrong; nested in Linux-only case
 ]
 
@@ -189,17 +189,9 @@ disable_error_code = [
 module = ["test_remote_dataset_converter"]
 disable_error_code = ["union-attr"]
 
-#[[tool.mypy.overrides]]
-#module = ["test_dataset_converter"]
-#disable_error_code = ["arg-type"]
-
 [[tool.mypy.overrides]]
 module = ["test_remote_convert_nwb_dataset"]
 disable_error_code = ["union-attr"]
-
-[[tool.mypy.overrides]]
-module = ["test_convert_nwb_dataset"]
-disable_error_code = ["var-annotated"]
 # === Temporary mypy ignores for selected files section ends ===
 
 
