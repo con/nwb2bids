@@ -191,39 +191,35 @@ disable_error_code = ["misc"]
 
 [[tool.mypy.overrides]]
 module = ["test_remote_dataset_converter"]
-disable_error_code = ["call-arg", "union-attr"]
+disable_error_code = ["union-attr"]
 
 [[tool.mypy.overrides]]
 module = ["test_dataset_converter"]
-disable_error_code = ["call-arg", "arg-type"]
+disable_error_code = ["arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["test_remote_convert_nwb_dataset"]
-disable_error_code = ["call-arg", "union-attr", "arg-type"]
-
-[[tool.mypy.overrides]]
-module = ["test_notifications"]
-disable_error_code = ["call-arg"]
+disable_error_code = ["union-attr", "arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["test_icephys_tutorial"]
-disable_error_code = ["call-arg", "arg-type"]
+disable_error_code = ["arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["test_events"]
-disable_error_code = ["call-arg", "arg-type"]
+disable_error_code = ["arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["test_edge_cases"]
-disable_error_code = ["call-arg", "arg-type"]
+disable_error_code = ["arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["test_convert_nwb_dataset"]
-disable_error_code = ["call-arg", "arg-type", "var-annotated"]
+disable_error_code = ["arg-type", "var-annotated"]
 
 [[tool.mypy.overrides]]
 module = ["test_conversion_with_sanitization"]
-disable_error_code = ["call-arg", "arg-type"]
+disable_error_code = ["arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["test_sanitization_cli"]
