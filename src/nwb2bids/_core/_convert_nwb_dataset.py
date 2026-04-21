@@ -2,6 +2,7 @@ import os
 import pathlib
 import typing
 
+import annotated_types
 import pydantic
 
 from .._converters._dataset_converter import DatasetConverter
@@ -22,11 +23,16 @@ def _make_absolute(p: pathlib.Path) -> pathlib.Path:
 AbsoluteFilePath = typing.Annotated[pydantic.FilePath, pydantic.BeforeValidator(_make_absolute)]
 AbsoluteDirectoryPath = typing.Annotated[pydantic.DirectoryPath, pydantic.BeforeValidator(_make_absolute)]
 
+NwbPathsList = typing.Annotated[
+    list[AbsoluteFilePath | AbsoluteDirectoryPath],
+    annotated_types.MinLen(1),
+]
+
 
 @pydantic.validate_call
 def convert_nwb_dataset(
     *,
-    nwb_paths: list[AbsoluteFilePath | AbsoluteDirectoryPath] = pydantic.Field(min_length=1),
+    nwb_paths: NwbPathsList,
     run_config: RunConfig = pydantic.Field(default_factory=lambda: RunConfig()),
 ) -> DatasetConverter:
     """
