@@ -1,21 +1,14 @@
 import os
 import pathlib
-import typing
 
 import pydantic
-
-
-class SubdirectoryContents(typing.TypedDict):
-    directories: set[str]
-    files: set[str]
 
 
 @pydantic.validate_call
 def assert_subdirectory_structure(
     *,
     directory: pathlib.Path,
-    expected_structure: dict[pathlib.Path, SubdirectoryContents],
-    include_hidden: bool = False,
+    expected_structure: dict[pathlib.Path, dict[str, set[str]]],
 ) -> None:
     """
     Assert that the subdirectory structure matches the expected structure.
