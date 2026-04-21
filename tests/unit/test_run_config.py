@@ -13,7 +13,7 @@ def test_run_config_immutability(temporary_bids_directory: pathlib.Path):
         run_config.run_id = "new_run_id"  # type: ignore[misc]
 
 
-def test_rejects_nonexistent_bids_directory(temporary_bids_directory: pathlib.Path):
+def test_rejected_nonexistent_bids_directory(temporary_bids_directory: pathlib.Path):
     """Test that RunConfig rejects a nonexistent bids_directory, even if its parent exists."""
     nonexistent_child = temporary_bids_directory / "new_bids_dir"
 
