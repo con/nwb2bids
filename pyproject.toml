@@ -205,14 +205,6 @@ disable_error_code = ["union-attr"]
 module = ["test_convert_nwb_dataset"]
 disable_error_code = ["var-annotated"]
 
-[[tool.mypy.overrides]]
-module = ["test_sanitization_cli"]
-disable_error_code = ["str-bytes-safe"]
-
-[[tool.mypy.overrides]]
-module = ["test_cli"]
-disable_error_code = ["str-bytes-safe"]
-
 # === Temporary mypy ignores for selected files section ends ===
 
 
