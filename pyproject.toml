@@ -8,46 +8,6 @@ source = "vcs"
 [tool.hatch.build.targets.wheel]
 packages = ["src/nwb2bids"]
 
-[tool.hatch.envs.default]
-installer = "uv"
-python = "3.10"
-
-# Execute `hatch env create test` to create all test environments.
-# Use `+` and `-` to select tests environments to run tests if needed
-# as documented in https://hatch.pypa.io/latest/cli/reference/#hatch-run.
-[[tool.hatch.envs.test.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
-feature = ["none", "dandi", "all"]
-cov = ["off", "on"]
-[tool.hatch.envs.test.overrides]
-matrix.feature.features = [
-  { value = "dandi", if = ["dandi"] },
-  { value = "all", if = ["all"] },
-]
-matrix.cov.dependency-groups = [
-  { value = "test", if = ["off"] },
-  { value = "coverage", if = ["on"] },
-]
-[tool.hatch.envs.test.scripts]
-run = "pytest {args:tests}"
-
-[tool.hatch.envs.dev]
-features = ["all"]
-dependency-groups = ["dev"]
-
-[tool.hatch.envs.types]
-features = ["all"]
-dependency-groups = ["types"]
-
-[tool.hatch.envs.types.scripts]
-# Define named script for type checking
-check = "mypy --install-types --non-interactive {args:src/nwb2bids tests}"
-check-no-module-cache = "mypy --no-incremental {args:src/nwb2bids tests}"
-
-[tool.hatch.envs.all]
-features = ["all"]
-dependency-groups = ["dev-all"]
-
 
 
 [project]
