@@ -5,11 +5,16 @@ import typing
 import pydantic
 
 
+class SubdirectoryContents(typing.TypedDict):
+    directories: set[str]
+    files: set[str]
+
+
 @pydantic.validate_call
 def assert_subdirectory_structure(
     *,
     directory: pathlib.Path,
-    expected_structure: dict[pathlib.Path, dict[typing.Literal["directories", "files"], set[str]]],
+    expected_structure: dict[pathlib.Path, SubdirectoryContents],
     include_hidden: bool = False,
 ) -> None:
     """

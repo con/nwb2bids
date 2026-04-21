@@ -189,21 +189,21 @@ disable_error_code = [
 module = ["test_utils"]
 disable_error_code = ["arg-type"]
 
-[[tool.mypy.overrides]]
-module = ["test_session_converter"]
-disable_error_code = ["call-arg", "arg-type"]
-
-[[tool.mypy.overrides]]
-module = ["test_run_config"]
-disable_error_code = ["call-arg", "misc"]
-
-[[tool.mypy.overrides]]
-module = ["test_remote_dataset_converter"]
-disable_error_code = ["call-arg", "union-attr"]
-
-[[tool.mypy.overrides]]
-module = ["test_directory_conditions"]
-disable_error_code = ["arg-type"]
+#[[tool.mypy.overrides]]
+#module = ["test_session_converter"]
+#disable_error_code = ["call-arg", "arg-type"]
+#
+#[[tool.mypy.overrides]]
+#module = ["test_run_config"]
+#disable_error_code = ["call-arg", "misc"]
+#
+#[[tool.mypy.overrides]]
+#module = ["test_remote_dataset_converter"]
+#disable_error_code = ["call-arg", "union-attr"]
+#
+#[[tool.mypy.overrides]]
+#module = ["test_directory_conditions"]
+#disable_error_code = ["arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["test_dataset_converter"]
