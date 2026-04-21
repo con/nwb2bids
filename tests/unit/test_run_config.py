@@ -14,7 +14,7 @@ def test_run_config_immutability(temporary_bids_directory: pathlib.Path):
 
 
 def test_run_config_accepts_nonexistent_bids_directory(temporary_bids_directory: pathlib.Path):
-    """Test that RunConfig accepts a nonexistent bids_directory if parent exists (but doesn't create it)."""
+    """Test that RunConfig accepts a nonexistent bids_directory when parent exists."""
     nonexistent_child = temporary_bids_directory / "new_bids_dir"
 
     assert not nonexistent_child.exists()
