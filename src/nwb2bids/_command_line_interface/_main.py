@@ -136,7 +136,7 @@ def _nwb2bids_cli():
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
-    sanitization: tuple[typing.Literal["sub-labels", "ses-labels"]] = (),
+    sanitization: tuple[typing.Literal["sub-labels", "ses-labels"], ...] = (),
     additional_metadata_file_path: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
@@ -161,31 +161,30 @@ def _run_convert_nwb_dataset(
         raise ValueError(message)
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
     # Convert CLI args to snake_case
-    sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
+    sanitization_config = SanitizationConfig(
+        sub_labels="sub-labels" in sanitization,
+        ses_labels="ses-labels" in sanitization,
+    )
 
-    run_config_kwargs = {
-        "bids_directory": bids_directory,
-        "additional_metadata_file_path": additional_metadata_file_path,
-        "file_mode": file_mode,
-        "cache_directory": cache_directory,
-        "sanitization_config": sanitization_config,
-        "run_id": run_id,
-        "space": space,
-        "archive_target": archive_target,
-        "use_session_labels": use_session_labels,
-        "probe": probe,
-        "silent": silent,
-    }
+    bids_directory_path: pathlib.Path | None = pathlib.Path(bids_directory) if bids_directory is not None else None
+    additional_metadata_path: pathlib.Path | None = (
+        pathlib.Path(additional_metadata_file_path) if additional_metadata_file_path is not None else None
+    )
+    cache_directory_path: pathlib.Path | None = pathlib.Path(cache_directory) if cache_directory is not None else None
 
-    # Filter out values that indicate absence of direct user input or signal to use default
-    non_missing_run_config_kwargs = {
-        key: value
-        for key, value in run_config_kwargs.items()
-        if (key not in ("file_mode", "use_session_labels") and value is not None)
-        or (key == "file_mode" and value != "auto")
-        or (key == "use_session_labels" and value is not False)
-    }
-    run_config = RunConfig(**non_missing_run_config_kwargs)
+    run_config = RunConfig(
+        bids_directory=bids_directory_path,
+        additional_metadata_file_path=additional_metadata_path,
+        file_mode=file_mode,
+        cache_directory=cache_directory_path,
+        run_id=run_id,
+        archive_target=archive_target,
+        sanitization_config=sanitization_config,
+        space=space,
+        probe=probe,
+        use_session_labels=use_session_labels,
+        silent=silent,
+    )
 
     dataset_converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
@@ -284,7 +283,8 @@ def _nwb2bids_tutorial_ephys_file_cli(
     output_directory: str | None = None,
     modality: typing.Literal["ecephys", "icephys"] = "ecephys",
 ) -> None:
-    file_path = generate_ephys_tutorial(output_directory=output_directory, mode="file", modality=modality)
+    handled_output_directory = pathlib.Path(output_directory) if output_directory else None
+    file_path = generate_ephys_tutorial(mode="file", output_directory=handled_output_directory, modality=modality)
 
     text = f"\nAn example NWB file has been created at: {file_path}\n\n"
     message = rich_click.style(text=text, fg="green")
@@ -312,7 +312,10 @@ def _nwb2bids_tutorial_ephys_dataset_cli(
     output_directory: str | None = None,
     modality: typing.Literal["ecephys", "icephys"] = "ecephys",
 ) -> None:
-    tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset", modality=modality)
+    handled_output_directory = pathlib.Path(output_directory) if output_directory else None
+    tutorial_directory = generate_ephys_tutorial(
+        mode="dataset", output_directory=handled_output_directory, modality=modality
+    )
 
     text = f"\nAn example NWB dataset has been created at: {tutorial_directory}\n\n"
     message = rich_click.style(text=text, fg="green")
