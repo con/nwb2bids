@@ -159,32 +159,33 @@ def _run_convert_nwb_dataset(
     if len(nwb_paths) == 0:
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
+
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
-    # Convert CLI args to snake_case
-    sanitization_config = SanitizationConfig(
-        sub_labels="sub-labels" in sanitization,
-        ses_labels="ses-labels" in sanitization,
-    )
 
-    bids_directory_path: pathlib.Path | None = pathlib.Path(bids_directory) if bids_directory is not None else None
-    additional_metadata_path: pathlib.Path | None = (
-        pathlib.Path(additional_metadata_file_path) if additional_metadata_file_path is not None else None
-    )
-    cache_directory_path: pathlib.Path | None = pathlib.Path(cache_directory) if cache_directory is not None else None
+    sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
 
-    run_config = RunConfig(
-        bids_directory=bids_directory_path,
-        additional_metadata_file_path=additional_metadata_path,
-        file_mode=file_mode,
-        cache_directory=cache_directory_path,
-        run_id=run_id,
-        archive_target=archive_target,
-        sanitization_config=sanitization_config,
-        space=space,
-        probe=probe,
-        use_session_labels=use_session_labels,
-        silent=silent,
-    )
+    run_config_kwargs: dict[str, typing.Any] = {
+        "bids_directory": bids_directory,
+        "additional_metadata_file_path": additional_metadata_file_path,
+        "file_mode": file_mode,
+        "cache_directory": cache_directory,
+        "sanitization_config": sanitization_config,
+        "run_id": run_id,
+        "space": space,
+        "archive_target": archive_target,
+        "use_session_labels": use_session_labels,
+        "probe": probe,
+        "silent": silent,
+    }
+
+    non_missing_run_config_kwargs = {
+        key: value
+        for key, value in run_config_kwargs.items()
+        if (key not in ("file_mode", "use_session_labels") and value is not None)
+        or (key == "file_mode" and value != "auto")
+        or (key == "use_session_labels" and value is not False)
+    }
+    run_config = RunConfig(**non_missing_run_config_kwargs)
 
     dataset_converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 
@@ -195,6 +196,7 @@ def _run_convert_nwb_dataset(
     notifications_by_severity: dict[Severity, list[Notification]] = collections.defaultdict(list)
     for notification in notifications:
         notifications_by_severity[notification.severity].append(notification)
+
     notif_text = f"\n\nPlease review the full notifications report at {run_config.notifications_json_file_path}\n"
 
     errors = notifications_by_severity[Severity.ERROR]
@@ -202,7 +204,6 @@ def _run_convert_nwb_dataset(
 
     if errors:
         number_of_errors = len(errors)
-
         top_three = errors[:3]
         number_to_print = len(top_three)
 
@@ -212,14 +213,15 @@ def _run_convert_nwb_dataset(
             "encountered during conversion.\n"
         )
         error_text = "".join(f"\n\t- {error.reason}" for error in top_three)
+
         if number_to_print > 1 and number_of_errors > 3:
             counting_text = f"The first {number_to_print} of {number_of_errors} are shown below:"
         elif number_to_print >= 2:
             counting_text = f"The first {number_to_print} are shown below:"
         else:
             counting_text = "The error is shown below:"
-        text += f"{counting_text}\n\n{error_text}{notif_text}"
 
+        text += f"{counting_text}\n\n{error_text}{notif_text}"
         console_notification = rich_click.style(text=text, fg="red")
         rich_click.echo(message=console_notification)
         return
@@ -240,12 +242,12 @@ def _run_convert_nwb_dataset(
     text = "\nBIDS dataset was successfully created!\n"
     if notifications:
         number_of_notifications = len(notifications)
-
         text += (
             f'{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
             f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
             f"{sanitization_text}{notif_text}"
         )
+
     console_notification = rich_click.style(text=text, fg="green")
     rich_click.echo(message=console_notification)
 
