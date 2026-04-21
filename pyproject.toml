@@ -177,14 +177,6 @@ module = [
 ]
 ignore_missing_imports = true
 
-# === Temporary mypy ignores for selected files ===
-
-#[[tool.mypy.overrides]]
-#module = ["test_remote_convert_nwb_dataset"]
-#disable_error_code = ["union-attr"]
-# === Temporary mypy ignores for selected files section ends ===
-
-
 
 [tool.ruff]
 exclude = [
