@@ -89,8 +89,7 @@ singular ``Subject`` object. In BIDS, information about all subjects in the data
 
 The ``sessions.tsv`` file contains a row for each session of a subject:
 
-.. literalinclude:: ./expected_files/sub-001_sessions.tsv
-   :language: text
+.. tsv-table:: ./expected_files/sub-001_sessions.tsv
 
 .. invisible-code-block: python
 
@@ -105,13 +104,12 @@ The ``sessions.tsv`` file contains a row for each session of a subject:
 
 The ``participants.tsv`` file contains a row for each subject:
 
-.. literalinclude:: ./expected_files/participants.tsv
-   :language: text
+.. tsv-table:: ./expected_files/participants.tsv
 
 .. note::
 
-	The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
-	effort to produce valid files based on input data.
+   The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
+   effort to produce valid files based on input data.
 
 .. invisible-code-block: python
 
@@ -148,6 +146,235 @@ And the corresponding ``participants.json`` file provides detailed descriptions 
 
 
 
+General Metadata
+----------------
+
+NWB files can contain a number of high-level metadata fields that describe the overall experiment, acquisition parameters, and other details that don't neatly belong to specific neurodata types.
+These fields are typically set on the top-level ``pynwb.NWBFile`` object, though there are a few that belong to
+particular subfields such as ``pynwb.DeviceModel``.
+
+**NWB file metadata:**
+
+.. code-block:: python
+
+   general_metadata_nwbfile = pynwb.NWBFile(
+       session_id="B",
+       session_start_time=datetime.datetime(1970, 1, 2, tzinfo=dateutil.tz.tzutc()),
+       session_description="An example NWB file used for demonstration of general metadata mapping.",
+       identifier=uuid.uuid4().hex,
+       institution="My Institution",
+       pharmacology="carprofen, 5 mg/kg, given peri-operatively and maintained during recording sessions to manage pain from the craniotomy/implant without sedation.",
+       protocol="Mice were placed in a running wheel and allowed to run freely while neural activity was recorded. Mice were trained to stop running in response to air puffs.",
+       slices="After the experiment, brains were extracted and sliced into 5 micron sections from primary motor cortex were fixed in epoxy resin for subsequent icephys study.",
+   )
+   general_metadata_device = pynwb.file.DeviceModel(
+       name="GeneralMetadataDevice",
+       description="This is an example device used for demonstration of general metadata mapping.",
+       manufacturer="imec",
+       model_number="NP2014",
+   )
+   general_metadata_nwbfile.add_device_model(general_metadata_device)
+
+**BIDS general metadata:**
+
+Depending on the modality, the ``ecephys.json`` or ``icephys.json`` file contains metadata such as:
+
+.. tabs::
+    .. tab:: Common
+
+        .. code-block:: json
+
+           {
+                "InstitutionName": "My Institution",
+                "InstitutionAddress": "123 Institution Rd, My City, My State, My Country",
+                "InstitutionalDepartmentName": "My Department",
+                "PowerLineFrequency": "60",  // In Hz
+                "Manufacturer": "imec",
+                "ManufacturersModelName": "NP",
+                "ManufacturersModelVersion": "2014",
+                "RecordingSetupName": "MyLabsRig",
+                "SamplingFrequency": 30000.0,  // In Hz
+                "DeviceSerialNumber": "ABC123",
+                "SoftwareName": "RecordingSoftware",
+                "SoftwareVersions": "1.0.0",
+                "RecordingDuration": "7200",  // In seconds
+                "RecordingType": "continuous",
+                "SoftwareFilters": {"Anti-aliasing filter": {"half-amplitude cutoff (Hz)": 500, "Roll-off": "6dB/Octave"}},
+                "HardwareFilters": {"Highpass RC filter": {"Half amplitude cutoff (Hz)": 0.0159, "Roll-off": "6dB/Octave"}},
+                "BodyPart": "BRAIN",
+                "BodyPartDetails": "primary motor cortex",
+                "BodyPartDetailsOntology": "http://purl.obolibrary.org/obo/UBERON_0001384"
+           }
+
+    .. tab:: *in vivo*
+
+        .. code-block:: json
+
+           {
+                "PharmaceuticalName": "carprofen",
+                "PharmaceuticalDoseAmount": 5,
+                "PharmaceuticalDoseUnits": "mg/kg",
+                "PharmaceuticalDoseRegimen": "Given peri-operatively and maintained during recording sessions to manage pain from the craniotomy/implant without sedation.",
+                "PharmaceuticalDoseTime": "0",  // In seconds
+                "SampleEnvironment": "in-vivo",
+                "SupplementarySignals": "Running wheel velocity.",
+                "TaskName": "My Running Task",
+                "TaskDescription": "Mice were placed in a running wheel and allowed to run freely while neural activity was recorded.",
+                "Instructions": "Mice were trained to stop running in response to air puffs."
+           }
+
+    .. tab:: *ex vivo*
+
+        .. code-block:: json
+
+           {
+                "SampleEnvironment": "ex-vivo",
+                "SampleEmbedding": "Epoxy resin",
+                "SliceThickness": "5",  // In microns
+                "SampleExtractionProtocol": "Aliquot of primary motor cortex extracted from brain and embedded in epoxy resin."
+           }
+
+**Mapping:**
+
+Currently, only one electrical series per NWB file is supported for automated metadata extraction.
+Additional sidecar files should be copied and modified to correspond to additional electrical series within the same NWB files.
+The use of `acq-[label]` suffixes in the other sidecar filenames is recommended to avoid confusion between series.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - NWB Field
+     - BIDS Field
+   * - ``nwbfile.institution``
+     - ``InstitutionName``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``InstitutionAddress``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``InstitutionalDepartmentName``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``PowerLineFrequency``
+   * - ``nwbfile.acquisition.electrical_series[0].device_model.manufacturer``
+     - ``Manufacturer``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``ManufacturersModelName``
+   * - ``nwbfile.acquisition.electrical_series[0].device_model.model_number``
+     - ``ManufacturersModelVersion``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``RecordingSetupName``
+   * - ``nwbfile.acquisition.electrical_series[0].rate``
+     - ``SamplingFrequency``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``DeviceSerialNumber``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``SoftwareName``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``SoftwareVersions``
+   * - ``nwbfile.acquisition.electrical_series[0].data.shape[0] / nwbfile.acquisition.electrical_series[0].rate``
+     - ``RecordingDuration``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or comment on `Issue #337 <https://github.com/con/nwb2bids/issues/337>`_
+     - ``RecordingType``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``EpochLength``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``SoftwareFilters``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``HardwareFilters``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``PharmaceuticalName``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``PharmaceuticalDoseAmount``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``PharmaceuticalDoseUnits``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``PharmaceuticalDoseRegimen``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``PharmaceuticalDoseTime``
+   * - ``"BRAIN"`` if ``nwbfile.acquisition.electrical_series[0].electrode_group.location is not None``
+     - ``BodyPart``
+   * - ``nwbfile.acquisition.electrical_series[0].electrode_group.location``
+     - ``BodyPartDetails``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or comment on `Issue #338 <https://github.com/con/nwb2bids/issues/338>`_
+     - ``BodyPartDetailsOntology``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``SampleEnvironment``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``SampleEmbedding``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``SliceThickness``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``SampleExtractionProtocol``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``SupplementarySignals``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``TaskName``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``TaskDescription``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``Instructions``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``CogAtlasID``
+   * - | ~Not Yet Implemented~
+       | Please directly edit the file(s)
+       | or `Request This Feature <request-feature_>`_
+     - ``CogPOID``
+
+
+
 Ecephys Probes
 --------------
 
@@ -176,13 +403,12 @@ these become entries in the ``probes.tsv`` and ``probes.json`` sidecar files.
 
 The ``probes.tsv`` file contains a row for each probe:
 
-.. literalinclude:: ./expected_files/sub-001_ses-A_probes.tsv
-   :language: text
+.. tsv-table:: ./expected_files/sub-001_ses-A_probes.tsv
 
 .. note::
 
-	The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
-	effort to produce valid files based on input data.
+   The column order in all TSV files is strictly enforced by BIDS validation, and **nwb2bids** will make every
+   effort to produce valid files based on input data.
 
 .. invisible-code-block: python
 
@@ -222,6 +448,7 @@ And the corresponding ``probes.json`` file provides detailed descriptions of eac
         - ``manufacturer``
       * - ``Device.description``
         - ``description``
+
 
 
 Ecephys Electrodes
@@ -266,8 +493,7 @@ traditional 'shank' in ecephys. In BIDS, they appear in the ``electrodes.tsv`` a
 
 The ``electrodes.tsv`` file contains a row for each electrode:
 
-.. literalinclude:: ./expected_files/sub-001_ses-A_electrodes.tsv
-   :language: text
+.. tsv-table:: ./expected_files/sub-001_ses-A_electrodes.tsv
 
 You may notice many differences between the classic NWB electrode fields and the ``electrodes.tsv`` file. BIDS
 requires several fields that NWB does not, but their values may be set to ``n/a`` if they are not known. Additionally,
@@ -360,8 +586,7 @@ and ``channels.json`` sidecar files.
 
 The ``channels.tsv`` file contains a row for each channel:
 
-.. literalinclude:: ./expected_files/sub-001_ses-A_channels.tsv
-   :language: text
+.. tsv-table:: ./expected_files/sub-001_ses-A_channels.tsv
 
 You may notice many differences between the classic NWB electrode fields and the ``channels.tsv`` file. In particular,
 a number of these values are not specified in the NWB ``electrodes`` table, but are instead set on any data-containing

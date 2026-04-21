@@ -69,10 +69,22 @@ jobs:
 
       - if: runner.os == 'Windows'
         name: Enable long path support on Windows
-        run: git config --global core.longpaths true
+        run: |
+          git config --global core.longpaths true
+          mkdir C:\t
+
+      - name: Show git-annex version info
+        run: git-annex version
+
+      - if: ${{ inputs.pytest_markexpr == 'remote' }}
+        name: Show datalad environment info
+        run: datalad wtf
 
       - name: Run tests
-        run: python -m pytest -m "${{ inputs.pytest_markexpr }}" -vv --cov=nwb2bids --cov-report xml:./codecov.xml
+        run: >-
+          python -m pytest -m "${{ inputs.pytest_markexpr }}" -vv
+          --cov=nwb2bids --cov-report xml:./codecov.xml
+          ${{ runner.os == 'Windows' && '--basetemp C:\t' || '' }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3

@@ -5,12 +5,15 @@ import typing
 import h5py
 import pydantic
 import pynwb
+import pynwb.ecephys
+import pynwb.misc
 import typing_extensions
 
 from ._base_metadata_model import BaseMetadataContainerModel
 from ._channels import ChannelTable
 from ._electrodes import ElectrodeTable
 from ._events import Events
+from ._general_metadata import GeneralMetadata
 from ._model_globals import _VALID_ID_REGEX
 from ._participant import Participant
 from ._probes import ProbeTable
@@ -20,6 +23,35 @@ from ..notifications import Notification
 from ..sanitization import Sanitization
 
 
+def _has_units_table(nwbfiles: list[pynwb.NWBFile]) -> bool:
+    """
+    Return True if any of the given NWB files contains a units table.
+
+    Checks both the top-level ``nwbfile.units`` attribute and any
+    :class:`~pynwb.misc.Units` objects stored in processing modules.
+    """
+    for nwbfile in nwbfiles:
+        if nwbfile.units is not None:
+            return True
+        for processing_module in nwbfile.processing.values():
+            for data_interface in processing_module.data_interfaces.values():
+                if isinstance(data_interface, pynwb.misc.Units):
+                    return True
+    return False
+
+
+def _has_electrical_series_in_acquisition(nwbfiles: list[pynwb.NWBFile]) -> bool:
+    """
+    Return True if any of the given NWB files contains an :class:`~pynwb.ecephys.ElectricalSeries`
+    directly in the ``acquisition`` module (i.e., raw, unprocessed data).
+    """
+    for nwbfile in nwbfiles:
+        for data_object in nwbfile.acquisition.values():
+            if isinstance(data_object, pynwb.ecephys.ElectricalSeries):
+                return True
+    return False
+
+
 class BidsSessionMetadata(BaseMetadataContainerModel):
     """
     Schema for the metadata of a single BIDS session.
@@ -27,20 +59,26 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
 
     session_id: str | None = pydantic.Field(description="A unique session identifier.", default=None)
     participant: Participant = pydantic.Field(description="Metadata about a participant used in this experiment.")
+    general_metadata: GeneralMetadata = pydantic.Field(description="General metadata about the experiment.")
     events: Events | None = pydantic.Field(
         description="Timing data and metadata regarding events that occur during this experiment.", default=None
     )
     probe_table: ProbeTable | None = None
     electrode_table: ElectrodeTable | None = None
     channel_table: ChannelTable | None = None
+    has_units_table: bool = pydantic.Field(
+        description="Whether the source NWB files contain a units table (top-level or in a processing module).",
+        default=False,
+    )
+    has_electrical_series_in_acquisition: bool = pydantic.Field(
+        description="Whether the source NWB files contain an ElectricalSeries in the acquisition module.",
+        default=False,
+    )
     run_config: RunConfig = pydantic.Field(default_factory=RunConfig)
     sanitization: Sanitization | None = None
 
     def model_post_init(self, context: typing.Any, /) -> None:
-        if self.sanitization is not None:
-            return
-
-        self.sanitization = Sanitization(
+        self.sanitization = self.sanitization or Sanitization(
             sanitization_config=self.run_config.sanitization_config,
             sanitization_file_path=self.run_config.sanitization_file_path,
             original_session_id=self.session_id,
@@ -98,15 +136,21 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         session_id = next(iter(session_ids))
 
         participant = Participant.from_nwbfiles(nwbfiles=nwbfiles)
+        general_metadata = GeneralMetadata.from_nwbfiles(nwbfiles=nwbfiles)
         events = Events.from_nwbfiles(nwbfiles=nwbfiles)
-        probe_table = ProbeTable.from_nwbfiles(nwbfiles=nwbfiles)
+        probe_table = ProbeTable.from_nwbfiles(nwbfiles=nwbfiles, probe_name=run_config.probe)
         electrode_table = ElectrodeTable.from_nwbfiles(nwbfiles=nwbfiles)
         channel_table = ChannelTable.from_nwbfiles(nwbfiles=nwbfiles)
+        has_units = _has_units_table(nwbfiles=nwbfiles)
+        has_es_in_acquisition = _has_electrical_series_in_acquisition(nwbfiles=nwbfiles)
 
         dictionary = {
             "session_id": session_id,
             "participant": participant,
+            "general_metadata": general_metadata,
             "run_config": run_config,
+            "has_units_table": has_units,
+            "has_electrical_series_in_acquisition": has_es_in_acquisition,
         }
         if events is not None:
             dictionary["events"] = events

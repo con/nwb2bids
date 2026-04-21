@@ -8,12 +8,14 @@ import warnings
 
 import pydantic
 import typing_extensions
+from tqdm import tqdm
 
 from ._datalad_utils import _content_is_retrieved
 from ._run_config import RunConfig
 from .._converters._base_converter import BaseConverter
 from .._tools import cache_read_nwb
 from ..bids_models import BidsSessionMetadata
+from ..bids_models._coordinate_system import write_coordsystem_json
 from ..notifications import Notification
 
 
@@ -36,6 +38,14 @@ class SessionConverter(BaseConverter):
     )
     modality: typing.Literal["ecephys", "icephys"] | None = pydantic.Field(
         description="The modality for this session - auto-detected during metadata extraction step.", default=None
+    )
+    use_session_labels: bool = pydantic.Field(
+        description=(
+            "Whether to include the `ses-` entity in BIDS file names and directory structure. "
+            "Set to False for single-session subjects when no other subject in the dataset has "
+            "multiple sessions. Automatically determined by DatasetConverter."
+        ),
+        default=True,
     )
 
     @classmethod
@@ -94,7 +104,12 @@ class SessionConverter(BaseConverter):
                 nwbfile_paths=nwbfile_paths,
                 run_config=run_config,
             )
-            for session_id, nwbfile_paths in unique_session_id_to_nwbfile_paths.items()
+            for session_id, nwbfile_paths in tqdm(
+                unique_session_id_to_nwbfile_paths.items(),
+                desc="Initializing sessions",
+                unit="session",
+                disable=run_config.silent,
+            )
         ]
         return session_converters
 
@@ -133,6 +148,21 @@ class SessionConverter(BaseConverter):
         else:
             self.modality = next(iter(detected_modalities))
 
+    def _get_file_prefix(self) -> str:
+        """Return the BIDS file prefix, including or excluding the `ses-` entity based on `use_session_labels`."""
+        if self.session_metadata is None:
+            message = "Session metadata could not be extracted for this session - unable to convert to BIDS session."
+            raise RuntimeError(message)
+        if self.session_metadata.sanitization is None:
+            message = "Sanitization information is missing from session metadata - unable to build BIDS file prefix."
+            raise RuntimeError(message)
+
+        participant_id = self.session_metadata.sanitization.sanitized_participant_id
+        session_id = self.session_metadata.sanitization.sanitized_session_id
+        if self.use_session_labels:
+            return f"sub-{participant_id}_ses-{session_id}"
+        return f"sub-{participant_id}"
+
     def convert_to_bids_session(self) -> None:
         """
         Convert the NWB file to a BIDS session directory.
@@ -146,10 +176,11 @@ class SessionConverter(BaseConverter):
 
         if self.session_metadata is None:
             self.extract_metadata()
+        if self.session_metadata is None:
+            message = "Session metadata could not be extracted for this session - unable to convert to BIDS session."
+            raise RuntimeError(message)
 
-        participant_id = self.session_metadata.sanitization.sanitized_participant_id
-        session_id = self.session_metadata.sanitization.sanitized_session_id
-        file_prefix = f"sub-{participant_id}_ses-{session_id}"
+        file_prefix = self._get_file_prefix()
 
         self.write_ephys_files()
         if self.session_metadata.events is not None:
@@ -166,7 +197,8 @@ class SessionConverter(BaseConverter):
                 continue
 
             if self.run_config.file_mode == "copy" and sys.version_info >= (3, 14):
-                nwbfile_path.copy(target=session_file_path, follow_symlinks=True)  # Uses copy-on-write when available
+                # Uses copy-on-write when available
+                nwbfile_path.copy(target=session_file_path, follow_symlinks=True)  # type: ignore[attr-defined]
             elif self.run_config.file_mode == "copy":
                 shutil.copy(src=nwbfile_path, dst=session_file_path)
             elif self.run_config.file_mode == "move":
@@ -182,6 +214,9 @@ class SessionConverter(BaseConverter):
         if len(self.nwbfile_paths) > 1:
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
+        if self.session_metadata is None:
+            message = "Session metadata could not be extracted for this session - unable to convert to BIDS session."
+            raise RuntimeError(message)
 
         if (
             self.session_metadata.probe_table is None
@@ -190,17 +225,37 @@ class SessionConverter(BaseConverter):
         ):
             return
 
-        participant_id = self.session_metadata.sanitization.sanitized_participant_id
-        session_id = self.session_metadata.sanitization.sanitized_session_id
-        file_prefix = f"sub-{participant_id}_ses-{session_id}"
+        file_prefix = self._get_file_prefix()
 
         modality_directory = self._establish_modality_subdirectory()
+
+        modality = modality_directory.name
+        general_metadata_file_path = modality_directory / f"{file_prefix}_{modality}.json"
+        self.session_metadata.general_metadata.to_json(file_path=general_metadata_file_path)
         if self.session_metadata.probe_table is not None:
+            probe_term_url = None
+            probe_model_name = None
+            if self.run_config.probe is not None:
+                probe_term_url, probe_model_name = self.session_metadata.probe_table.write_probe_interface_file(
+                    bids_directory=self.run_config.bids_directory,
+                    probe_name=self.run_config.probe,
+                )
+                # Propagate any notifications produced by the probe lookup (e.g. ProbeNotFound)
+                self.notifications += [
+                    notif
+                    for notif in self.session_metadata.probe_table.notifications
+                    if notif not in self.notifications
+                ]
+
             probes_tsv_file_path = modality_directory / f"{file_prefix}_probes.tsv"
             self.session_metadata.probe_table.to_tsv(file_path=probes_tsv_file_path)
 
             probes_json_file_path = modality_directory / f"{file_prefix}_probes.json"
-            self.session_metadata.probe_table.to_json(file_path=probes_json_file_path)
+            self.session_metadata.probe_table.to_json(
+                file_path=probes_json_file_path,
+                probe_term_url=probe_term_url,
+                probe_model_name=probe_model_name,
+            )
 
         if self.session_metadata.channel_table is not None:
             channels_tsv_file_path = modality_directory / f"{file_prefix}_channels.tsv"
@@ -210,14 +265,22 @@ class SessionConverter(BaseConverter):
             self.session_metadata.channel_table.to_json(file_path=channels_json_file_path)
 
         if self.session_metadata.electrode_table is not None:
-            electrodes_tsv_file_path = modality_directory / f"{file_prefix}_electrodes.tsv"
+            space_entity = f"_space-{self.run_config.space}" if self.run_config.space else ""
+            electrodes_tsv_file_path = modality_directory / f"{file_prefix}{space_entity}_electrodes.tsv"
             self.session_metadata.electrode_table.to_tsv(file_path=electrodes_tsv_file_path)
 
-            electrodes_json_file_path = modality_directory / f"{file_prefix}_electrodes.json"
+            electrodes_json_file_path = modality_directory / f"{file_prefix}{space_entity}_electrodes.json"
             self.session_metadata.electrode_table.to_json(file_path=electrodes_json_file_path)
+
+            if self.run_config.space is not None:
+                coordsystem_file_path = modality_directory / f"{file_prefix}{space_entity}_coordsystem.json"
+                write_coordsystem_json(file_path=coordsystem_file_path, space=self.run_config.space)
 
     def write_events_files(self) -> None:
         """Write the `_events.tsv` and `_events.json` files for this session."""
+        if self.session_metadata is None:
+            message = "Session metadata could not be extracted for this session - unable to convert to BIDS session."
+            raise RuntimeError(message)
         if self.session_metadata.events is None:
             message = "No events metadata found in the session metadata - unable to write events TSV."
             raise ValueError(message)
@@ -225,9 +288,7 @@ class SessionConverter(BaseConverter):
             message = "Conversion of multiple NWB files per session is not yet supported."
             raise NotImplementedError(message)
 
-        participant_id = self.session_metadata.sanitization.sanitized_participant_id
-        session_id = self.session_metadata.sanitization.sanitized_session_id
-        file_prefix = f"sub-{participant_id}_ses-{session_id}"
+        file_prefix = self._get_file_prefix()
 
         ecephys_directory = self._establish_modality_subdirectory()
         session_events_tsv_file_path = ecephys_directory / f"{file_prefix}_events.tsv"
@@ -241,15 +302,29 @@ class SessionConverter(BaseConverter):
         if self.modality is None:
             message = "Modality has not been determined for this session - unable to establish modality subdirectory."
             raise ValueError(message)
-
+        if self.session_metadata is None:
+            message = (
+                "Session metadata could not be extracted for this session - unable to establish modality subdirectory."
+            )
+            raise RuntimeError(message)
+        if self.session_metadata.sanitization is None:
+            message = (
+                "Sanitization information is missing from session metadata - unable to establish modality subdirectory."
+            )
+            raise RuntimeError(message)
         participant_id = self.session_metadata.sanitization.sanitized_participant_id
         session_id = self.session_metadata.sanitization.sanitized_session_id
 
         subject_directory = self.run_config.bids_directory / f"sub-{participant_id}"
         subject_directory.mkdir(exist_ok=True)
-        session_directory = subject_directory / f"ses-{session_id}"
-        session_directory.mkdir(exist_ok=True)
-        modality_directory = session_directory / self.modality
+
+        if self.use_session_labels:
+            parent_directory = subject_directory / f"ses-{session_id}"
+            parent_directory.mkdir(exist_ok=True)
+        else:
+            parent_directory = subject_directory
+
+        modality_directory = parent_directory / self.modality
         modality_directory.mkdir(exist_ok=True)
 
         return modality_directory

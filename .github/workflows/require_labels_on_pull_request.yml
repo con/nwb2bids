@@ -1,0 +1,50 @@
+name: Require PR labels
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize, ready_for_review]
+
+jobs:
+  label-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.pull_request.labels;
+            const isDraft = context.payload.pull_request.draft;
+
+            if (isDraft) {
+              core.info('⏭️  Skipping label check for draft PR');
+              return;
+            }
+
+            if (labels.length === 0) {
+              core.setFailed('❌ PR must have at least one label');
+              return;
+            }
+
+            const labelNames = labels.map(l => l.name);
+            const semanticLabels = ['major', 'minor', 'patch'];
+            const hasSemanticLabel = labelNames.some(l => semanticLabels.includes(l));
+            const hasEnhancement = labelNames.includes('enhancement');
+            const hasBug = labelNames.includes('bug');
+
+            if (hasEnhancement) {
+              if (!labelNames.includes('major') && !labelNames.includes('minor')) {
+                core.setFailed('❌ PRs with the "enhancement" label must also have either a "major" or "minor" label');
+                return;
+              }
+            } else if (hasBug) {
+              if (!hasSemanticLabel) {
+                core.setFailed('❌ PRs with the "bug" label must also have a "major", "minor", or "patch" label');
+                return;
+              }
+            } else {
+              if (hasSemanticLabel) {
+                core.setFailed(`❌ PRs without an "enhancement" or "bug" label must not have any of the following labels: ${semanticLabels.join(', ')}`);
+                return;
+              }
+            }
+
+            core.info(`✅ PR labeled: ${labelNames.join(', ')}`);

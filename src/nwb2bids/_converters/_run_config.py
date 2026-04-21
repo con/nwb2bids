@@ -55,6 +55,20 @@ class RunConfig(pydantic.BaseModel):
         Set this option to override this to any identifying string.
         This ID is used in the naming of the files saved to your run directory.
         The default ID uses runtime timestamp information of the form "date-%Y%m%d_time-%H%M%S."
+    archive_target : one of "dandi", "ember", or None, default: None
+        The archive you intend to upload the BIDS dataset to.
+        When set to a non-`None` value, a `.bidsignore` file is created in the BIDS directory
+        containing `dandiset.yaml`, since `dandiset.yaml` is not part of the BIDS specification.
+        If `None`, then no `.bidsignore` file is created.
+    use_session_labels : bool, default: False
+        When `True`, `ses-` labels and session-level subdirectories are always included in BIDS output,
+        even when every subject has only a single session.
+        By default (`False`), `ses-` labels are omitted for single-session subjects unless more than 50% of
+        subjects have multiple sessions, in which case they are applied to all subjects for dataset-level
+        consistency.
+    silent : bool, default: False
+        Whether to suppress progress bar output during conversion.
+        Set to ``True`` to hide all progress bars (e.g., when ``--silent`` is used via the CLI).
     """
 
     bids_directory: pathlib.Path = pydantic.Field(default_factory=pathlib.Path.cwd)
@@ -63,6 +77,32 @@ class RunConfig(pydantic.BaseModel):
     cache_directory: pydantic.DirectoryPath = pydantic.Field(default_factory=_get_nwb2bids_home_directory)
     sanitization_config: SanitizationConfig = pydantic.Field(default_factory=SanitizationConfig)
     run_id: str = pydantic.Field(default_factory=_generate_run_id)
+    space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = pydantic.Field(
+        default=None,
+        description=(
+            "The atlas/coordinate space label to apply to electrode positions. "
+            "When specified, a `space-<label>` entity is added to the `*_electrodes.tsv` filename "
+            "and a `*_space-<label>_coordsystem.json` sidecar file is created."
+        ),
+    )
+    archive_target: typing.Literal["dandi", "ember"] | None = None
+    use_session_labels: bool = pydantic.Field(
+        default=False,
+        description=(
+            "When True, `ses-` labels and session-level subdirectories are always included in BIDS output, "
+            "even when every subject has only a single session."
+        ),
+    )
+    probe: str | None = pydantic.Field(
+        default=None,
+        description=(
+            "When set, fetches the ProbeInterface JSON for the specified probe from the ProbeInterface library "
+            "and writes it to the ``probes/`` directory of the BIDS dataset. "
+            "The value must follow the ``manufacturer/model`` format used by the ProbeInterface library, "
+            "e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``."
+        ),
+    )
+    silent: bool = False
     _nwb2bids_directory: pathlib.Path = pydantic.PrivateAttr()
 
     model_config = pydantic.ConfigDict(

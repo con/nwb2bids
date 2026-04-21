@@ -4,6 +4,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import typing
 import uuid
 from collections.abc import Callable
 
@@ -56,7 +57,7 @@ def cli_runner(
     basetemp = tmp_path_factory.getbasetemp()
 
     if container_image:
-        uid, gid = os.getuid(), os.getgid()
+        uid, gid = os.getuid(), os.getgid()  # type: ignore[attr-defined]
         # Set HOME to basetemp so ~/.cache and ~/.nwb2bids resolve to writable locations
         prefix = (
             f"docker run --rm --user {uid}:{gid} "
@@ -290,6 +291,23 @@ def epochs_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib
 
 
 @pytest.fixture(scope="session")
+def trials_with_numpy_column_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """An NWB file whose trials table has a column where each row is a numpy array."""
+    nwbfile = _make_minimal_nwbfile()
+
+    trials = nwb2bids.testing.mock_trials_table_with_numpy_column()
+    nwbfile.trials = trials
+
+    events_subdirectory = testing_files_directory / "trials_numpy_column"
+    events_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = events_subdirectory / "trials_numpy_column.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
 def multiple_events_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
     nwbfile = _make_minimal_nwbfile()
 
@@ -337,7 +355,7 @@ def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_
     dataset_subdirectory.mkdir(exist_ok=True)
 
     annex_filename = "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
-    structure = {
+    structure: dict[str, dict[typing.Any, typing.Any] | str] = {
         ".datalad": {
             ".gitattributes": "config annex.largefiles=nothing\n",
             "config": '[datalad "dataset"]\n\tid = NOT-A-REAL-DATALAD-DATASET',
@@ -476,6 +494,138 @@ def problematic_nwbfile_path_missing_session_id(testing_files_directory: pathlib
     events_subdirectory = testing_files_directory / "missing_session_id"
     events_subdirectory.mkdir(exist_ok=True)
     nwbfile_path = events_subdirectory / "missing_session_id.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def directory_with_multiple_subjects_and_multiple_sessions(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    A directory containing NWB files for multiple subjects each with multiple sessions.
+
+    Used to test that the `ses-` label is applied when subjects have multiple sessions.
+    Subject IDs: "subA" (sessions A1 and A2), "subB" (sessions B1 and B2).
+    Session IDs are unique across subjects to avoid grouping issues.
+    """
+    subdirectory = testing_files_directory / "multiple_subjects_multiple_sessions"
+    subdirectory.mkdir(exist_ok=True)
+
+    for subject_index in ["A", "B"]:
+        for session_index in [1, 2]:
+            nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=f"sub{subject_index}session{session_index}")
+            nwbfile.subject = pynwb.file.Subject(
+                subject_id=f"sub{subject_index}",
+                species="Mus musculus",
+                sex="M",
+            )
+            nwbfile_path = subdirectory / f"subject_{subject_index}_session_{session_index}.nwb"
+            with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+                file_stream.write(nwbfile)
+
+    return subdirectory
+
+
+@pytest.fixture(scope="session")
+def directory_with_mixed_session_counts(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    A directory where the majority (>50%) of subjects have multiple sessions.
+
+    Used to test the 50% consistency rule: if >50% of subjects have multiple sessions,
+    all subjects (including single-session ones) should use the `ses-` label.
+
+    Subject "subX": 2 sessions (X1, X2)
+    Subject "subY": 2 sessions (Y1, Y2)
+    Subject "subZ": 1 session (Z1) - single-session, but should still get ses- label
+    Session IDs are unique across subjects to avoid grouping issues.
+    """
+    subdirectory = testing_files_directory / "mixed_session_counts"
+    subdirectory.mkdir(exist_ok=True)
+
+    for subject_id, session_ids in [("subX", ["X1", "X2"]), ("subY", ["Y1", "Y2"]), ("subZ", ["Z1"])]:
+        for session_id in session_ids:
+            nwbfile = pynwb.testing.mock.file.mock_NWBFile(session_id=session_id)
+            nwbfile.subject = pynwb.file.Subject(
+                subject_id=subject_id,
+                species="Mus musculus",
+                sex="M",
+            )
+            nwbfile_path = subdirectory / f"{subject_id}_{session_id}.nwb"
+            with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+                file_stream.write(nwbfile)
+
+    return subdirectory
+
+
+@pytest.fixture(scope="session")
+def units_only_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    An NWB file with a top-level units table but no electrodes table.
+
+    Used to verify that the output is written as a BIDS derivative.
+    """
+    nwbfile = _make_minimal_nwbfile(session_id="U1")
+    nwbfile.add_unit(spike_times=[0.1, 0.2, 0.3])
+
+    units_subdirectory = testing_files_directory / "units_only"
+    units_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = units_subdirectory / "units_only.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def units_in_processing_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    An NWB file with a units table stored inside a processing module but no electrodes table.
+
+    Used to verify that units inside processing modules also trigger derivative mode.
+    """
+    import pynwb.misc
+
+    nwbfile = _make_minimal_nwbfile(session_id="U2")
+    units_table = pynwb.misc.Units(name="units", description="Sorted units stored in processing module.")
+    units_table.add_unit(spike_times=[1.0, 2.0])
+    proc_mod = nwbfile.create_processing_module(name="ecephys", description="Processed ecephys data.")
+    proc_mod.add(units_table)
+
+    units_proc_subdirectory = testing_files_directory / "units_in_processing"
+    units_proc_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = units_proc_subdirectory / "units_in_processing.nwb"
+    with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
+        file_stream.write(nwbfile)
+
+    return nwbfile_path
+
+
+@pytest.fixture(scope="session")
+def units_with_raw_electrical_series_nwbfile_path(testing_files_directory: pathlib.Path) -> pathlib.Path:
+    """
+    An NWB file with a top-level units table AND a raw ElectricalSeries in the acquisition module.
+
+    Because raw data (ElectricalSeries in acquisition) is present, this should NOT be treated as
+    a BIDS derivative even though a units table exists.
+    """
+    nwbfile = _make_minimal_nwbfile(session_id="U3")
+    nwbfile.add_unit(spike_times=[0.1, 0.2])
+
+    probe = pynwb.testing.mock.ecephys.mock_Device(name="RawProbe", nwbfile=nwbfile)
+    shank = pynwb.testing.mock.ecephys.mock_ElectrodeGroup(device=probe, nwbfile=nwbfile)
+    for _ in range(4):
+        nwbfile.add_electrode(location="n/a", group=shank)
+    electrode_region = nwbfile.create_electrode_table_region(region=list(range(4)), description="all electrodes")
+    pynwb.testing.mock.ecephys.mock_ElectricalSeries(
+        name="RawSeries",
+        electrodes=electrode_region,
+        nwbfile=nwbfile,
+    )
+
+    raw_units_subdirectory = testing_files_directory / "units_with_raw_es"
+    raw_units_subdirectory.mkdir(exist_ok=True)
+    nwbfile_path = raw_units_subdirectory / "units_with_raw_es.nwb"
     with pynwb.NWBHDF5IO(path=nwbfile_path, mode="w") as file_stream:
         file_stream.write(nwbfile)
 

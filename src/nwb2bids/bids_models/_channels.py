@@ -58,7 +58,6 @@ class Channel(BaseMetadataModel):
             "Type of channel; MUST use the channel types listed below. Note that the type MUST be in upper-case."
         ),
         title="Type",
-        default="n/a",
     )
     units: str = pydantic.Field(
         description=(
@@ -66,12 +65,10 @@ class Channel(BaseMetadataModel):
             "per centimeter (see Units)."
         ),
         title="Units",
-        default="V",
     )
-    sampling_frequency: float | None = pydantic.Field(
+    sampling_frequency: float = pydantic.Field(
         description="Sampling rate of the channel in Hz.",
         title="Sampling frequency",
-        default=None,
     )
     low_cutoff: float | None = pydantic.Field(
         description=(
@@ -227,7 +224,7 @@ class ChannelTable(BaseMetadataContainerModel):
         modality = "ecephys" if has_ecephys_electrodes else "icephys"
         if modality == "ecephys":
             # Only scan electrical series listed under acquisition since those under processing can downsample the rate
-            sampling_frequency = None
+            sampling_frequency = -1.0
             stream_id = None
             gain = None
             raw_electrical_series = [
@@ -325,7 +322,7 @@ class ChannelTable(BaseMetadataContainerModel):
                     electrode_name=electrode.name,
                     type=electrode_name_to_type.get(electrode.name, "n/a"),
                     units="V",
-                    sampling_frequency=electrode_name_to_sampling_frequency.get(electrode.name, None),
+                    sampling_frequency=electrode_name_to_sampling_frequency.get(electrode.name, -1.0),
                     # channel_label: str | None = None # TODO: only support with additional metadata
                     stream_id=electrode_name_to_stream_ids.get(electrode.name, None),
                     # description: str | None = None  # TODO: only support with additional metadata

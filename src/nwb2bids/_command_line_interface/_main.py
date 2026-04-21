@@ -74,6 +74,29 @@ def _nwb2bids_cli():
 )
 @rich_click.option("--silent", "-s", is_flag=True, help="Suppress all console output.", default=False)
 @rich_click.option(
+    "--space",
+    help=(
+        "The atlas/coordinate space label to apply to electrode positions. "
+        "When specified, a `space-[label]` entity is added to the `*_electrodes.tsv` filename "
+        "and a corresponding `*_space-[label]_coordsystem.json` sidecar file is created."
+    ),
+    required=False,
+    type=rich_click.Choice(["AllenCCFv3", "PaxinosWatson"], case_sensitive=True),
+    default=None,
+)
+@rich_click.option(
+    "--archive-target",
+    "archive_target",
+    help=(
+        "The archive that the BIDS dataset is intended for. "
+        "When set, a `.bidsignore` file is created with `dandiset.yaml` listed inside, "
+        "since `dandiset.yaml` is not part of the BIDS specification."
+    ),
+    required=False,
+    type=rich_click.Choice(["dandi", "ember"], case_sensitive=True),
+    default=None,
+)
+@rich_click.option(
     "--run-id",
     help=(
         "On each unique run of nwb2bids, a run ID is generated. "
@@ -85,15 +108,44 @@ def _nwb2bids_cli():
     type=str,
     default=None,
 )
+@rich_click.option(
+    "--probe",
+    help=(
+        "When set, fetches the ProbeInterface JSON for the specified probe from the ProbeInterface library "
+        "and writes it to the ``probes/`` directory of the BIDS dataset. "
+        "The value must follow the ``manufacturer/model`` format used by the ProbeInterface library, "
+        "e.g. ``neuronexus/A1x32-Poly3-10mm-50-177``."
+    ),
+    required=False,
+    type=str,
+    default=None,
+)
+@rich_click.option(
+    "--use-session-labels",
+    "use_session_labels",
+    help=(
+        "When set, `ses-` labels and session-level subdirectories are always included in BIDS output, "
+        "even when every subject has only a single session. "
+        "By default (`False`), `ses-` labels are omitted for single-session subjects unless more than 50% of "
+        "subjects have multiple sessions, in which case they are applied to all subjects for dataset-level "
+        "consistency."
+    ),
+    is_flag=True,
+    default=False,
+)
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
-    sanitization: tuple[typing.Literal["sub-labels", "ses-labels"]] = (),
+    sanitization: tuple[typing.Literal["sub-labels", "ses-labels"], ...] = (),
     additional_metadata_file_path: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
     run_id: str | None = None,
+    archive_target: typing.Literal["dandi", "ember"] | None = None,
     silent: bool = False,
+    space: typing.Literal["AllenCCFv3", "PaxinosWatson"] | None = None,
+    probe: str | None = None,
+    use_session_labels: bool = False,
 ) -> None:
     """
     Convert NWB files to BIDS format.
@@ -107,24 +159,31 @@ def _run_convert_nwb_dataset(
     if len(nwb_paths) == 0:
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
+
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
-    # Convert CLI args to snake_case
+
     sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
 
-    run_config_kwargs = {
+    run_config_kwargs: dict[str, typing.Any] = {
         "bids_directory": bids_directory,
         "additional_metadata_file_path": additional_metadata_file_path,
         "file_mode": file_mode,
         "cache_directory": cache_directory,
         "sanitization_config": sanitization_config,
         "run_id": run_id,
+        "space": space,
+        "archive_target": archive_target,
+        "use_session_labels": use_session_labels,
+        "probe": probe,
+        "silent": silent,
     }
 
-    # Filter out values that indicate absence of direct user input or signal to use default
     non_missing_run_config_kwargs = {
         key: value
         for key, value in run_config_kwargs.items()
-        if (key != "file_mode" and value is not None) or (key == "file_mode" and value != "auto")
+        if (key not in ("file_mode", "use_session_labels") and value is not None)
+        or (key == "file_mode" and value != "auto")
+        or (key == "use_session_labels" and value is not False)
     }
     run_config = RunConfig(**non_missing_run_config_kwargs)
 
@@ -137,6 +196,7 @@ def _run_convert_nwb_dataset(
     notifications_by_severity: dict[Severity, list[Notification]] = collections.defaultdict(list)
     for notification in notifications:
         notifications_by_severity[notification.severity].append(notification)
+
     notif_text = f"\n\nPlease review the full notifications report at {run_config.notifications_json_file_path}\n"
 
     errors = notifications_by_severity[Severity.ERROR]
@@ -144,7 +204,6 @@ def _run_convert_nwb_dataset(
 
     if errors:
         number_of_errors = len(errors)
-
         top_three = errors[:3]
         number_to_print = len(top_three)
 
@@ -154,14 +213,15 @@ def _run_convert_nwb_dataset(
             "encountered during conversion.\n"
         )
         error_text = "".join(f"\n\t- {error.reason}" for error in top_three)
+
         if number_to_print > 1 and number_of_errors > 3:
             counting_text = f"The first {number_to_print} of {number_of_errors} are shown below:"
         elif number_to_print >= 2:
             counting_text = f"The first {number_to_print} are shown below:"
         else:
             counting_text = "The error is shown below:"
-        text += f"{counting_text}\n\n{error_text}{notif_text}"
 
+        text += f"{counting_text}\n\n{error_text}{notif_text}"
         console_notification = rich_click.style(text=text, fg="red")
         rich_click.echo(message=console_notification)
         return
@@ -182,12 +242,12 @@ def _run_convert_nwb_dataset(
     text = "\nBIDS dataset was successfully created!\n"
     if notifications:
         number_of_notifications = len(notifications)
-
         text += (
             f'{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
             f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
             f"{sanitization_text}{notif_text}"
         )
+
     console_notification = rich_click.style(text=text, fg="green")
     rich_click.echo(message=console_notification)
 
@@ -225,7 +285,8 @@ def _nwb2bids_tutorial_ephys_file_cli(
     output_directory: str | None = None,
     modality: typing.Literal["ecephys", "icephys"] = "ecephys",
 ) -> None:
-    file_path = generate_ephys_tutorial(output_directory=output_directory, mode="file", modality=modality)
+    handled_output_directory = pathlib.Path(output_directory) if output_directory else None
+    file_path = generate_ephys_tutorial(mode="file", output_directory=handled_output_directory, modality=modality)
 
     text = f"\nAn example NWB file has been created at: {file_path}\n\n"
     message = rich_click.style(text=text, fg="green")
@@ -253,7 +314,10 @@ def _nwb2bids_tutorial_ephys_dataset_cli(
     output_directory: str | None = None,
     modality: typing.Literal["ecephys", "icephys"] = "ecephys",
 ) -> None:
-    tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset", modality=modality)
+    handled_output_directory = pathlib.Path(output_directory) if output_directory else None
+    tutorial_directory = generate_ephys_tutorial(
+        mode="dataset", output_directory=handled_output_directory, modality=modality
+    )
 
     text = f"\nAn example NWB dataset has been created at: {tutorial_directory}\n\n"
     message = rich_click.style(text=text, fg="green")

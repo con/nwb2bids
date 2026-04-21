@@ -1,18 +1,8 @@
-import os
 import pathlib
-import sys
 
 import pytest
 
 import nwb2bids
-
-# These tests fail on Windows GitHub CI due to git-annex adjusted branch issues
-# See https://github.com/con/nwb2bids/pull/213 for failure output
-pytest_mark_xfail_windows_github_ci = pytest.mark.xfail(
-    sys.platform == "win32" and os.environ.get("GITHUB_ACTIONS", "").lower() == "true",
-    reason="git-annex adjusted branch fails on Windows GitHub CI runners",
-    strict=False,
-)
 
 
 @pytest.mark.remote
@@ -53,6 +43,7 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-YutaMouse20_ses-YutaMouse20-140321_ecephys.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140321_channels.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140321_channels.tsv",
                 "sub-YutaMouse20_ses-YutaMouse20-140321_ecephys.nwb",
@@ -70,6 +61,7 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-YutaMouse20_ses-YutaMouse20-140327_ecephys.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140327_channels.json",
                 "sub-YutaMouse20_ses-YutaMouse20-140327_channels.tsv",
                 "sub-YutaMouse20_ses-YutaMouse20-140327_ecephys.nwb",
@@ -88,7 +80,6 @@ def test_remote_convert_nwb_dataset(temporary_bids_directory: pathlib.Path):
 
 
 @pytest.mark.remote
-@pytest_mark_xfail_windows_github_ci
 def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
     testing_files_directory: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -104,7 +95,7 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
     dataset.get(path=test_file_path)
 
     nwb_paths = [test_file_path]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert len(dataset_converter.notifications) < 2, "Expected fewer than 2 notifications!"
 
@@ -130,6 +121,7 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.nwb",
@@ -148,7 +140,6 @@ def test_remote_convert_nwb_dataset_on_gotten_datalad_file(
 
 
 @pytest.mark.remote
-@pytest_mark_xfail_windows_github_ci
 def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
     testing_files_directory: pathlib.Path, temporary_bids_directory: pathlib.Path
 ):
@@ -164,7 +155,7 @@ def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
     dataset.get(path=test_file_path)
 
     nwb_paths = [dataset_dir]
-    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, use_session_labels=True)
     dataset_converter = nwb2bids.convert_nwb_dataset(nwb_paths=nwb_paths, run_config=run_config)
     assert len(dataset_converter.notifications) < 2, "Expected fewer than 2 notifications!"
 
@@ -190,6 +181,7 @@ def test_remote_convert_nwb_dataset_on_partial_datalad_dataset(
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.json",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_channels.tsv",
                 "sub-fCamk1_ses-fCamk1_200827_sess9_no_raw_data_ecephys.nwb",

@@ -72,6 +72,7 @@ def test_dataset_converter_metadata_extraction(
                 participant=nwb2bids.bids_models.Participant(
                     participant_id="123", species="Mus musculus", sex="M", strain=None
                 ),
+                general_metadata=nwb2bids.bids_models.GeneralMetadata(),
                 run_config=run_config,
             ),
             modality="ecephys",
@@ -224,7 +225,7 @@ def test_dataset_converter_write_sessions_metadata(
     dataset_converter.write_sessions_metadata()
     assert not any(dataset_converter.notifications)
 
-    expected_structure = {
+    expected_structure: dict[pathlib.Path, dict[str, set[str]]] = {
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
         temporary_bids_directory
         / "sub-123": {
@@ -322,3 +323,67 @@ def test_dataset_description_validates_exactly_one_nwb2bids():
     assert len(dataset_description.GeneratedBy) == 2
     assert dataset_description.GeneratedBy[0].Name == "custom-pipeline"
     assert dataset_description.GeneratedBy[1].Name == "nwb2bids"
+
+
+@pytest.mark.ai_generated
+@pytest.mark.parametrize("archive_target", ["dandi", "ember"])
+def test_dataset_converter_write_bidsignore(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path, archive_target: str
+):
+    """Test that write_bidsignore creates a .bidsignore file with dandiset.yaml when archive_target is set."""
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target=archive_target)
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.write_bidsignore()
+    assert not any(dataset_converter.notifications)
+
+    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
+    assert bidsignore_file_path.exists()
+    assert bidsignore_file_path.read_text() == "dandiset.yaml\n"
+
+
+@pytest.mark.ai_generated
+def test_dataset_converter_no_bidsignore_with_archive_target_none(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """Test that write_bidsignore does not create a .bidsignore file when archive_target is None."""
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.write_bidsignore()
+    assert not any(dataset_converter.notifications)
+
+    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
+    assert not bidsignore_file_path.exists()
+
+
+@pytest.mark.ai_generated
+def test_dataset_converter_write_bidsignore_appends_to_existing(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """Test that write_bidsignore appends to an existing .bidsignore file."""
+    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
+    bidsignore_file_path.write_text("some_existing_entry\n")
+
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target="dandi")
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.write_bidsignore()
+
+    assert bidsignore_file_path.read_text() == "some_existing_entry\ndandiset.yaml\n"
+
+
+@pytest.mark.ai_generated
+def test_dataset_converter_write_bidsignore_no_duplicate(
+    minimal_nwbfile_path: pathlib.Path, temporary_bids_directory: pathlib.Path
+):
+    """Test that write_bidsignore does not add a duplicate dandiset.yaml entry."""
+    bidsignore_file_path = temporary_bids_directory / ".bidsignore"
+    bidsignore_file_path.write_text("dandiset.yaml\n")
+
+    nwb_paths = [minimal_nwbfile_path]
+    run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory, archive_target="dandi")
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+    dataset_converter.write_bidsignore()
+
+    assert bidsignore_file_path.read_text() == "dandiset.yaml\n"

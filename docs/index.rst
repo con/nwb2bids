@@ -106,7 +106,7 @@ Understanding the Standardization Landscape
 **nwb2bids** operates at the intersection of multiple neuroscience data standards.
 This section clarifies which standards are currently supported, which are planned for future implementation, and how they relate to the broader standardization ecosystem.
 
-For a comprehensive overview of neuroscience data standards and their relationships, see the `SfN 2025: "The Ecosystem of Standards in Neuroscience: Which Ones Are For You?" Poster <https://doi.org/10.5281/zenodo.18333007>`_ by Oliver Rübel *et al*.
+For a comprehensive overview of neuroscience data standards and their relationships, see the `SfN 2025: "The Ecosystem of Standards in Neuroscience: Which Ones Are For You?" Poster <https://zenodo.org/doi/10.5281/zenodo.18333007>`_ by Oliver Rübel *et al*.
 
 Currently Supported Standards
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,8 +126,8 @@ Currently Supported Standards
   - `BIDS Specification <https://bids.neuroimaging.io/>`_: Official BIDS specification.
   - `BIDS Extension Proposals (BEPs) <https://bids.neuroimaging.io/extensions/beps.html>`_: Overview of ongoing extensions to BIDS for additional modalities (eye tracking, microscopy, etc.).
     Note that this page evolves as new extensions are proposed and adopted.
-  - **BEP32 (BIDS Extension Proposal 32)**: Currently supported for micro-electrode electrophysiology, including extracellular (``ecephys``) and intracellular (``icephys``) electrophysiology, as well as associated behavioral events.
-    See the `BEP32 pull request <https://github.com/bids-standard/bids-specification/pull/1705>`_ for specification details.
+  - **BEP032 (BIDS Extension Proposal 032)**: Currently supported for micro-electrode electrophysiology, including extracellular (``ecephys``) and intracellular (``icephys``) electrophysiology, as well as associated behavioral events.
+    See the `BEP032 pull request <https://github.com/bids-standard/bids-specification/pull/2307>`_ for specification details.
 
 * **HED (Hierarchical Event Descriptors)** (`hedtags.org <https://www.hedtags.org/>`_): Basic support for annotating events and experimental structure with standardized vocabularies.
   **nwb2bids** currently includes HED version specification (v8.3.0) in dataset metadata and automatically assigns basic HED tags to event tables (e.g., "Experimental-trial" for trials, "Time-block" for epochs).
@@ -140,7 +140,7 @@ We are actively planning to extend **nwb2bids** support to include:
 
 * `ndx-events <https://github.com/rly/ndx-events>`_: NWB extension for representing timestamped event and TTL pulse data.
 * `ndx-pose <https://github.com/rly/ndx-pose>`_ + `BIDS motion <https://bids-specification.readthedocs.io/en/stable/modality-specific-files/motion.html>`_: For pose estimation and motion capture data.
-* Additional data modalities: stimuli, videos, `microscopy (BEP031) <https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2022.871228/full>`_, and `eye tracking (BEP020) <https://bids.neuroimaging.io/extensions/beps/bep_020.html>`_
+* Additional data modalities: stimuli, videos, `microscopy (BEP031) <https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2022.871228/full>`_, and `eye tracking (BEP020) <https://www.biorxiv.org/content/10.64898/2026.02.03.703514v1>`_
 * Extended HED annotation capabilities beyond basic tagging.
 
 These extensions will require integration with their respective standards and may depend on external tooling or additional NWB extensions.
@@ -162,7 +162,7 @@ Related Tools and Converters
 
 - `NWB Guide <https://nwb-guide.readthedocs.io/en/latest/>`_: A no-code graphical interface for converting data to NWB format.
 
-- `NeuroConv <https://neuroconv.readthedocs.io/en/latest/>`_: A Python library providing low-code conversion pipelines to NWB format from various proprietary and open formats.
+- `NeuroConv <https://neuroconv.readthedocs.io/en/stable/>`_: A Python library providing low-code conversion pipelines to NWB format from various proprietary and open formats.
 
 **BIDS Converters for Other Modalities:**
 

@@ -86,6 +86,7 @@ def test_session_converter_metadata_extraction(
     expected_session_metadata = nwb2bids.bids_models.BidsSessionMetadata(
         session_id="456",
         participant=nwb2bids.bids_models.Participant(participant_id="123", species="Mus musculus", sex="M"),
+        general_metadata=nwb2bids.bids_models.GeneralMetadata(),
         run_config=run_config,
     )
     assert session_converter.session_metadata == expected_session_metadata
@@ -123,6 +124,7 @@ def test_session_converter_write_ecephys_metadata(
         / "ecephys": {
             "directories": set(),
             "files": {
+                "sub-001_ses-A_ecephys.json",
                 "sub-001_ses-A_probes.tsv",
                 "sub-001_ses-A_probes.json",
                 "sub-001_ses-A_channels.tsv",

@@ -6,6 +6,9 @@ import sys
 # Add source directory to path for autodoc
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "src"))
 
+# Add _ext directory to path for custom extensions
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent / "_ext"))
+
 # Project details
 project = "nwb2bids"
 copyright = "2025, Cody Baker"
@@ -21,6 +24,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_toggleprompt",  # Used to control >>> behavior in the doctests
     "myst_parser",  # For including Markdown files to be rendered as RST
+    "tsv_directive",  # Custom directive for TSV table rendering
 ]
 
 # HTML configuration
@@ -54,7 +58,9 @@ python_maximum_signature_line_length = 88
 
 # Link checker
 linkcheck_anchors = False
-linkcheck_ignore = []
+linkcheck_ignore = [
+    "https://zenodo.org/*",  # Getting 403 even though link is fine as of 03/2026
+]
 
 # Disable left (Section Navigation) sidebars for specific sections
 html_sidebars = {

@@ -27,7 +27,7 @@ directory for **nwb2bids**: ``~/nwb2bids_tutorials/ecephys_tutorial_file/ecephys
 
 NWB files like these contain a lot of metadata about the probes and electrode structure, which will be useful later
 when we compare the source file to the sidecar tables found in BIDS. You can explore these file contents through
-`neurosift.app <neurosift.app>`_ by following `this link <https://neurosift.app/nwb?url=https://api.sandbox.dandiarchive.org/api/assets/687b0e17-b3b5-4bbc-8797-3cc2ab4955f5/download/&dandisetId=217739&dandisetVersion=draft>`_.
+`neurosift.app <https://neurosift.app>`_ by following `this link <https://neurosift.app/nwb?url=https://api.sandbox.dandiarchive.org/api/assets/687b0e17-b3b5-4bbc-8797-3cc2ab4955f5/download/&dandisetId=217739&dandisetVersion=draft>`_.
 
 .. tip::
 
