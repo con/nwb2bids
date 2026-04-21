@@ -204,7 +204,6 @@ disable_error_code = ["union-attr"]
 [[tool.mypy.overrides]]
 module = ["test_convert_nwb_dataset"]
 disable_error_code = ["var-annotated"]
-
 # === Temporary mypy ignores for selected files section ends ===
 
 
