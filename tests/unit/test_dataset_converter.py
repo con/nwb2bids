@@ -258,22 +258,17 @@ def test_dataset_converter_write_sessions_metadata(
 
 
 def test_convert_to_bids_dataset_rejects_nonexistent_directory(
-    minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
 ):
     """Test that `RunConfig` rejects `bids_directory` when the path does not already exist."""
     nonexistent_child = temporary_bids_directory / "new_bids_dir"
 
-    nwb_paths = [minimal_nwbfile_path]
     with pytest.raises(
         expected_exception=pydantic.ValidationError,
         match=r"The path \(\S+\) does not exist",
     ):
-        run_config = nwb2bids.RunConfig(
-            bids_directory=nonexistent_child, additional_metadata_file_path=additional_metadata_file_path
-        )
-        nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
+        nwb2bids.RunConfig(bids_directory=nonexistent_child, additional_metadata_file_path=additional_metadata_file_path)
 
 
 def test_dataset_description_validates_exactly_one_nwb2bids():
