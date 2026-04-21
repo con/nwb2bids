@@ -49,8 +49,9 @@ def test_minimal_convert_nwb_dataset_from_directory(
     assert dataset_converter.run_config.notifications_json_file_path.exists()
     with dataset_converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
         notifications_json = json.load(fp=file_stream)
-    expected_notification_json = []
-    assert notifications_json == expected_notification_json
+    assert "nwb2bids_version" in notifications_json
+    assert notifications_json["run_id"] == run_config.run_id
+    assert notifications_json["notifications"] == []
 
 
 def test_minimal_convert_nwb_dataset_from_file_path(
