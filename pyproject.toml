@@ -189,9 +189,9 @@ disable_error_code = [
 module = ["test_remote_dataset_converter"]
 disable_error_code = ["union-attr"]
 
-[[tool.mypy.overrides]]
-module = ["test_dataset_converter"]
-disable_error_code = ["arg-type"]
+#[[tool.mypy.overrides]]
+#module = ["test_dataset_converter"]
+#disable_error_code = ["arg-type"]
 
 [[tool.mypy.overrides]]
 module = ["test_remote_convert_nwb_dataset"]
