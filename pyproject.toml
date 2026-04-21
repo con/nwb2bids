@@ -179,12 +179,6 @@ ignore_missing_imports = true
 
 # === Temporary mypy ignores for selected files ===
 [[tool.mypy.overrides]]
-module = ["conftest"]
-disable_error_code = [
-    "attr-defined",  # Wrong; nested in Linux-only case
-]
-
-[[tool.mypy.overrides]]
 module = ["test_remote_dataset_converter"]
 disable_error_code = ["union-attr"]
 

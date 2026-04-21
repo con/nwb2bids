@@ -57,7 +57,7 @@ def cli_runner(
     basetemp = tmp_path_factory.getbasetemp()
 
     if container_image:
-        uid, gid = os.getuid(), os.getgid()
+        uid, gid = os.getuid(), os.getgid()  # type: ignore[attr-defined]
         # Set HOME to basetemp so ~/.cache and ~/.nwb2bids resolve to writable locations
         prefix = (
             f"docker run --rm --user {uid}:{gid} "
