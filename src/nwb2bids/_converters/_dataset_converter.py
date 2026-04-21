@@ -71,7 +71,7 @@ class DatasetConverter(BaseConverter):
         token: str | None = None,
         limit: int | None = None,
         run_config: RunConfig = pydantic.Field(default_factory=lambda: RunConfig()),
-    ) -> typing_extensions.Self | None:
+    ) -> typing_extensions.Self:
         """
         Initialize a converter of a Dandiset to BIDS format.
 
