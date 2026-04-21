@@ -266,7 +266,9 @@ def test_convert_to_bids_dataset_writes_into_existing_directory(
         bids_directory=temporary_bids_directory,
         additional_metadata_file_path=additional_metadata_file_path,
     )
-    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(nwb_paths=[minimal_nwbfile_path], run_config=run_config)
+    dataset_converter = nwb2bids.DatasetConverter.from_nwb_paths(
+        nwb_paths=[minimal_nwbfile_path], run_config=run_config
+    )
     assert not any(dataset_converter.notifications)
 
     dataset_converter.extract_metadata()
