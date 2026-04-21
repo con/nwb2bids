@@ -75,7 +75,7 @@ class BidsSessionMetadata(BaseMetadataContainerModel):
         default=False,
     )
     run_config: RunConfig = pydantic.Field(default_factory=RunConfig)
-    sanitization: Sanitization
+    sanitization: Sanitization | None = None
 
     def model_post_init(self, context: typing.Any, /) -> None:
         self.sanitization = self.sanitization or Sanitization(
