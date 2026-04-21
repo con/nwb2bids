@@ -29,6 +29,7 @@ class DatasetConverter(BaseConverter):
     def notifications(self) -> list[Notification]:
         """
         All notifications from contained session converters.
+
         These can accumulate over time based on which instance methods have been called.
         """
         notifications = [
@@ -36,6 +37,7 @@ class DatasetConverter(BaseConverter):
             for session_converter in self.session_converters
             for notification in session_converter.notifications
         ] + self._internal_notifications
+
         notifications.sort(
             key=lambda notification: (-notification.category.value, -notification.severity.value, notification.title)
         )
@@ -45,6 +47,7 @@ class DatasetConverter(BaseConverter):
     def _is_derivative(self) -> bool:
         """
         Return True if the dataset should be written as a BIDS derivative.
+
         This is the case when any session contains a units table but no electrodes table
         and no raw :class:`~pynwb.ecephys.ElectricalSeries` in the ``acquisition`` module,
         indicating the data is derived (e.g., spike-sorted) rather than raw.
@@ -71,6 +74,7 @@ class DatasetConverter(BaseConverter):
     ) -> typing_extensions.Self | None:
         """
         Initialize a converter of a Dandiset to BIDS format.
+
         Parameters
         ----------
         dandiset_id : str
@@ -98,10 +102,12 @@ class DatasetConverter(BaseConverter):
             client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
             dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
             dataset_description, _internal_notifications = get_bids_dataset_description(dandiset=dandiset)
+
             if limit is None:
                 assets = list(dandiset.get_assets())
             else:
                 assets = [asset for counter, asset in enumerate(dandiset.get_assets()) if counter < limit]
+
             session_id_to_assets = collections.defaultdict(list)
             for asset in assets:
                 asset_metadata = asset.get_raw_metadata()
@@ -112,6 +118,7 @@ class DatasetConverter(BaseConverter):
                     if session_id == "":
                         continue
                     session_id_to_assets[session_id].append(asset)
+
             sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
             session_converters = [
                 SessionConverter(
@@ -126,6 +133,7 @@ class DatasetConverter(BaseConverter):
                     disable=run_config.silent,
                 )
             ]
+
             dataset_converter = cls(
                 session_converters=session_converters, dataset_description=dataset_description, run_config=run_config
             )
@@ -137,6 +145,7 @@ class DatasetConverter(BaseConverter):
             )
             _internal_notifications = [notification]
             dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
+
         dataset_converter._internal_notifications = _internal_notifications
         return dataset_converter
 
@@ -149,6 +158,7 @@ class DatasetConverter(BaseConverter):
     ) -> typing_extensions.Self:
         """
         Initialize a converter of NWB files to BIDS format.
+
         Parameters
         ----------
         nwb_paths : iterable of file and directory paths
@@ -163,13 +173,16 @@ class DatasetConverter(BaseConverter):
             session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
             dataset_description = None
             additional_metadata_file_path = run_config.additional_metadata_file_path
+
             if additional_metadata_file_path is not None:
                 dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
+
             session_messages = [
                 notification
                 for session_converter in session_converters
                 for notification in session_converter.notifications
             ]
+
             dataset_converter = cls(
                 session_converters=session_converters, dataset_description=dataset_description, run_config=run_config
             )
@@ -180,6 +193,7 @@ class DatasetConverter(BaseConverter):
                 identifier="LocalInitializationFailure", traceback=traceback.format_exc()
             )
             _internal_notifications = [notification]
+
             dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
             dataset_converter._internal_notifications = _internal_notifications
             return dataset_converter
@@ -189,6 +203,7 @@ class DatasetConverter(BaseConverter):
             sessions_needing_metadata = [sc for sc in self.session_converters if sc.session_metadata is None]
             if not sessions_needing_metadata:
                 return
+
             collections.deque(
                 (
                     session_converter.extract_metadata()
@@ -210,6 +225,7 @@ class DatasetConverter(BaseConverter):
     def _set_use_session_labels(self) -> None:
         """
         Determine whether each session converter should include the `ses-` entity in file names.
+
         Rules:
         - If `use_session_labels` is True in the run config, all sessions use `ses-` labels.
         - A subject with more than one session always uses the `ses-` label for its sessions.
@@ -222,6 +238,7 @@ class DatasetConverter(BaseConverter):
             for session_converter in self.session_converters:
                 session_converter.use_session_labels = True
             return
+
         participant_session_counts: collections.Counter = collections.Counter()
         for session_converter in self.session_converters:
             session_metadata = session_converter.session_metadata
@@ -232,9 +249,11 @@ class DatasetConverter(BaseConverter):
                 continue
             participant_id = sanitization.sanitized_participant_id
             participant_session_counts[participant_id] += 1
+
         total_subjects = len(participant_session_counts)
         if total_subjects == 0:
             return
+
         subjects_with_multiple_sessions = sum(1 for count in participant_session_counts.values() if count > 1)
         use_labels_globally = (subjects_with_multiple_sessions / total_subjects) > 0.5
         for session_converter in self.session_converters:
@@ -252,6 +271,7 @@ class DatasetConverter(BaseConverter):
         try:
             # Ensure all metadata is extracted before determining session label usage
             self.extract_metadata()
+
             # If any session has a units table but no electrodes table, redirect all output
             # to a 'derivatives/nwb2bids' subfolder. DatasetType is set to 'derivative'
             # separately inside write_dataset_description.
@@ -264,6 +284,7 @@ class DatasetConverter(BaseConverter):
                 self.run_config = derivative_run_config
                 for session_converter in self.session_converters:
                     session_converter.run_config = derivative_run_config
+
             # Determine which sessions should use ses- labels (requires metadata for participant IDs)
             self._set_use_session_labels()
             for session_converter in tqdm(
@@ -273,6 +294,7 @@ class DatasetConverter(BaseConverter):
                 disable=self.run_config.silent,
             ):
                 session_converter.convert_to_bids_session()
+
             self.write_participants_metadata()
             self.write_sessions_metadata()
             self.write_dataset_description()
@@ -285,6 +307,7 @@ class DatasetConverter(BaseConverter):
         finally:
             self.run_config.bids_directory.mkdir(exist_ok=True)  # Just in case it failed to create earlier
             self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
+
             notifications_dump = [notification.model_dump(mode="json") for notification in self.notifications]
             self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
 
@@ -292,12 +315,14 @@ class DatasetConverter(BaseConverter):
         """Write the `.bidsignore` file if an archive target of `"dandi"` or `"ember"` is specified."""
         if (archive_target := self.run_config.archive_target) is None or archive_target not in ["dandi", "ember"]:
             return
+
         bidsignore_file_path = self.run_config.bids_directory / ".bidsignore"
         entry = "dandiset.yaml"
         if bidsignore_file_path.exists():
             existing_lines = {line.strip() for line in bidsignore_file_path.read_text().splitlines()}
             if entry in existing_lines:
                 return
+
         with bidsignore_file_path.open(mode="a") as file_stream:
             file_stream.write(entry + "\n")
 
@@ -307,6 +332,7 @@ class DatasetConverter(BaseConverter):
             self.dataset_description = DatasetDescription(BIDSVersion="1.10.1", HEDVersion="8.3.0")
         if self._is_derivative:
             self.dataset_description.DatasetType = "derivative"
+
         dataset_description_dictionary = self.dataset_description.model_dump()
         dataset_description_file_path = self.run_config.bids_directory / "dataset_description.json"
         with dataset_description_file_path.open(mode="w") as file_stream:
@@ -319,6 +345,7 @@ class DatasetConverter(BaseConverter):
             for sc in self.session_converters
             if sc.session_metadata is not None
         ]
+
         full_participants_data_frame = pandas.DataFrame.from_records(
             data=[
                 {key: value for key, value in model_dump.items() if value is not None}
@@ -327,6 +354,7 @@ class DatasetConverter(BaseConverter):
         ).astype("string")
         if full_participants_data_frame.empty:
             return
+
         # Aggregate values across entries (such as species mismatches)
         cols_to_agg = [col for col in full_participants_data_frame.columns if col != "participant_id"]
         if any(cols_to_agg):
@@ -336,10 +364,13 @@ class DatasetConverter(BaseConverter):
             )
         else:
             aggregated_data_frame = full_participants_data_frame.copy()
+
         # Deduplicate all rows of the frame
         deduplicated_data_frame = aggregated_data_frame.drop_duplicates(ignore_index=True).copy()
+
         # Save original IDs before sanitization (for potential original_participant_id column)
         original_participant_id_values = deduplicated_data_frame["participant_id"].copy()
+
         # Apply sanitization
         sanitizations = []
         for converter in self.session_converters:
@@ -350,6 +381,7 @@ class DatasetConverter(BaseConverter):
             if sanitization is None:
                 continue
             sanitizations.append(sanitization)
+
         sanitized_participant_ids = {
             sanitization.original_participant_id: sanitization.sanitized_participant_id
             for sanitization in sanitizations
@@ -360,6 +392,7 @@ class DatasetConverter(BaseConverter):
                 .apply(lambda participant_id: sanitized_participant_ids[participant_id])
                 .astype("string")
             )
+
         # BIDS requires sub- prefix in table values
         participants_data_frame = deduplicated_data_frame.copy(deep=True)
         participants_data_frame["participant_id"] = (
@@ -367,6 +400,7 @@ class DatasetConverter(BaseConverter):
             .apply(lambda participant_id: f"sub-{participant_id}")
             .astype("string")
         )
+
         # Add original_participant_id column if sub_labels sanitization is enabled
         sanitization_config = sanitizations[0].sanitization_config if len(sanitizations) != 0 else None
         if sanitization_config is not None and sanitization_config.sub_labels:
@@ -378,6 +412,7 @@ class DatasetConverter(BaseConverter):
                 ),
             )
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
+
         # BIDS Validator is strict regarding column order
         required_column_order = [
             field
@@ -389,6 +424,7 @@ class DatasetConverter(BaseConverter):
             for field in participants_data_frame.columns
             if is_field_in_table.get(field, False) is True and field not in required_column_order
         ]
+
         participants_tsv_file_path = self.run_config.bids_directory / "participants.tsv"
         participants_data_frame.to_csv(
             path_or_buf=participants_tsv_file_path, mode="w", index=False, sep="\t", columns=column_order
@@ -412,6 +448,7 @@ class DatasetConverter(BaseConverter):
     def write_sessions_metadata(self) -> None:
         """
         Write the `_sessions.tsv` and `_sessions.json` files, then create empty participant and session directories.
+
         Sessions metadata files and `ses-` subdirectories are only written for subjects that use session labels
         (i.e., subjects with multiple sessions, or all subjects when more than 50% have multiple sessions).
         """
@@ -427,6 +464,7 @@ class DatasetConverter(BaseConverter):
             participant_id = sanitization.sanitized_participant_id
             participant_id_to_sessions[participant_id].append(session_metadata)
             participant_id_to_use_session_labels[participant_id] = session_converter.use_session_labels
+
         sanitization_config = None
         for sc in self.session_converters:
             session_metadata = sc.session_metadata
@@ -437,6 +475,7 @@ class DatasetConverter(BaseConverter):
                 continue
             sanitization_config = sanitization.sanitization_config
             break
+
         # TODO: expand beyond just session_id field (mainly via additional metadata)
         sessions_schema = BidsSessionMetadata.model_json_schema()
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
@@ -450,15 +489,19 @@ class DatasetConverter(BaseConverter):
                 if sanitization is None:
                     continue
                 sanitized_session_ids.append(sanitization.sanitized_session_id)
+
             subject_directory = self.run_config.bids_directory / f"sub-{sanitized_participant_id}"
             subject_directory.mkdir(exist_ok=True)
+
             # Only write sessions metadata files for subjects that use ses- labels
             if not participant_id_to_use_session_labels.get(participant_id, True):
                 continue
+
             # BIDS requires ses- prefix in table values
             sessions_data_frame = pandas.DataFrame(
                 {"session_id": [f"ses-{session_id}" for session_id in sanitized_session_ids]}
             )
+
             # Add original_session_id column if ses_labels sanitization is enabled
             if sanitization_config is not None and sanitization_config.ses_labels:
                 original_session_ids = []
@@ -470,6 +513,7 @@ class DatasetConverter(BaseConverter):
                 sessions_data_frame["original_session_id"] = pandas.Series(
                     [f"ses-{session_id}" for session_id in original_session_ids]
                 ).astype("string")
+
             session_tsv_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.tsv"
             sessions_data_frame.to_csv(path_or_buf=session_tsv_file_path, mode="w", index=False, sep="\t")
             session_json_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.json"
