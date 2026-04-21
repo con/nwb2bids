@@ -179,14 +179,6 @@ ignore_missing_imports = true
 
 # === Temporary mypy ignores for selected files ===
 [[tool.mypy.overrides]]
-module = ["nwb2bids._converters._session_converter"]
-disable_error_code = [
-    "call-arg",
-    "union-attr",
-    "attr-defined",  # MyPy is wrong about this one (pathlib.Path.copy on 3.14)
-]
-
-[[tool.mypy.overrides]]
 module = ["conftest"]
 disable_error_code = [
     "arg-type",
