@@ -225,7 +225,7 @@ def test_dataset_converter_write_sessions_metadata(
     dataset_converter.write_sessions_metadata()
     assert not any(dataset_converter.notifications)
 
-    expected_structure = {
+    expected_structure: dict[pathlib.Path, dict[str, set[str]]] = {
         temporary_bids_directory: {"directories": {"sub-123"}, "files": {"dataset_description.json"}},
         temporary_bids_directory
         / "sub-123": {
@@ -256,7 +256,7 @@ def test_dataset_converter_write_sessions_metadata(
     assert sessions_json == expected_sessions_json
 
 
-def test_convert_to_bids_dataset_creates_nonexistent_directory(
+def test_convert_to_bids_dataset_creates_bids_directory_when_nonexistent(
     minimal_nwbfile_path: pathlib.Path,
     temporary_bids_directory: pathlib.Path,
     additional_metadata_file_path: pathlib.Path,
