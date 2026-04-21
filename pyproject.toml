@@ -181,7 +181,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = ["conftest"]
 disable_error_code = [
-#    "arg-type",
     "attr-defined",  # Wrong; nested in Linux-only case
 ]
 

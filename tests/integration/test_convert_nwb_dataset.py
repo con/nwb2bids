@@ -49,7 +49,7 @@ def test_minimal_convert_nwb_dataset_from_directory(
     assert dataset_converter.run_config.notifications_json_file_path.exists()
     with dataset_converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
         notifications_json = json.load(fp=file_stream)
-    expected_notification_json = []
+    expected_notification_json: list[dict[str, object]] = []
     assert notifications_json == expected_notification_json
 
 

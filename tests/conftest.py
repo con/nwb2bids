@@ -4,6 +4,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import typing
 import uuid
 from collections.abc import Callable
 
@@ -354,7 +355,7 @@ def mock_datalad_dataset(testing_files_directory: pathlib.Path, minimal_nwbfile_
     dataset_subdirectory.mkdir(exist_ok=True)
 
     annex_filename = "MD5E-s14336--bd0eed310fabd903a2635186e06b6a43.nwb"
-    structure = {
+    structure: dict[str, dict[typing.Any, typing.Any] | str] = {
         ".datalad": {
             ".gitattributes": "config annex.largefiles=nothing\n",
             "config": '[datalad "dataset"]\n\tid = NOT-A-REAL-DATALAD-DATASET',
