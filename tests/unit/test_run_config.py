@@ -13,16 +13,14 @@ def test_run_config_immutability(temporary_bids_directory: pathlib.Path):
         run_config.run_id = "new_run_id"  # type: ignore[misc]
 
 
-def test_run_config_rejects_nonexistent_bids_directory(temporary_bids_directory: pathlib.Path):
-    """Test that RunConfig rejects a nonexistent bids_directory, even if its parent exists."""
+def test_run_config_accepts_nonexistent_bids_directory(temporary_bids_directory: pathlib.Path):
+    """Test that RunConfig accepts a nonexistent bids_directory if parent exists (but doesn't create it)."""
     nonexistent_child = temporary_bids_directory / "new_bids_dir"
 
     assert not nonexistent_child.exists()
-    with pytest.raises(
-        expected_exception=pydantic.ValidationError,
-        match=r"The path \(\S+\) does not exist",
-    ):
-        nwb2bids.RunConfig(bids_directory=nonexistent_child)
+    run_config = nwb2bids.RunConfig(bids_directory=nonexistent_child)
+    assert not nonexistent_child.exists()  # NOT created at init time
+    assert run_config.bids_directory == nonexistent_child
 
 
 def test_run_config_missing_parent_raises(temporary_bids_directory: pathlib.Path):
@@ -31,11 +29,12 @@ def test_run_config_missing_parent_raises(temporary_bids_directory: pathlib.Path
 
     with pytest.raises(
         expected_exception=pydantic.ValidationError,
-        match=r"The path \(\S+\) does not exist",
+        match=r"The parent path \(\S+\) does not exist",
     ):
         nwb2bids.RunConfig(bids_directory=nested_bids_directory)
 
 
+@pytest.mark.ai_generated
 def test_run_config_file_path_as_bids_directory(temporary_bids_directory: pathlib.Path):
     """Test that an exception is raised when a path pointing to a file is given as bids_directory."""
     file_path = temporary_bids_directory / "some_file.txt"
@@ -48,6 +47,7 @@ def test_run_config_file_path_as_bids_directory(temporary_bids_directory: pathli
         nwb2bids.RunConfig(bids_directory=file_path)
 
 
+@pytest.mark.ai_generated
 def test_run_config_file_path_as_bids_directory_parent(temporary_bids_directory: pathlib.Path):
     """Test that an exception is raised when a path with its parent pointing to a file is given as bids_directory."""
     file_path = temporary_bids_directory / "some_file.txt"
@@ -56,7 +56,7 @@ def test_run_config_file_path_as_bids_directory_parent(temporary_bids_directory:
 
     with pytest.raises(
         expected_exception=pydantic.ValidationError,
-        match=r"The path \(\S+\) does not exist",
+        match=r"The parent path \(\S+\) exists but is not a directory",
     ):
         nwb2bids.RunConfig(bids_directory=bids_directory)
 
