@@ -38,6 +38,8 @@ def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: 
     ]
 
     session_metadata = session_converter.session_metadata
+    assert session_metadata is not None
+
     assert session_metadata.participant == nwb2bids.bids_models.Participant(
         notifications=[
             nwb2bids.Notification.from_definition(identifier="MissingParticipantSex"),

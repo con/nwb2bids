@@ -37,6 +37,7 @@ class DatasetConverter(BaseConverter):
             for session_converter in self.session_converters
             for notification in session_converter.notifications
         ] + self._internal_notifications
+
         notifications.sort(
             key=lambda notification: (-notification.category.value, -notification.severity.value, notification.title)
         )
@@ -70,7 +71,7 @@ class DatasetConverter(BaseConverter):
         token: str | None = None,
         limit: int | None = None,
         run_config: RunConfig = pydantic.Field(default_factory=lambda: RunConfig()),
-    ) -> typing_extensions.Self | None:
+    ) -> typing_extensions.Self:
         """
         Initialize a converter of a Dandiset to BIDS format.
 
@@ -100,7 +101,6 @@ class DatasetConverter(BaseConverter):
 
             client = dandi.dandiapi.DandiAPIClient(api_url=api_url, token=token)
             dandiset = client.get_dandiset(dandiset_id=dandiset_id, version_id=version_id)
-
             dataset_description, _internal_notifications = get_bids_dataset_description(dandiset=dandiset)
 
             if limit is None:
@@ -111,18 +111,15 @@ class DatasetConverter(BaseConverter):
             session_id_to_assets = collections.defaultdict(list)
             for asset in assets:
                 asset_metadata = asset.get_raw_metadata()
-
                 for session in asset_metadata.get("wasGeneratedBy", []):
                     if session.get("schemaKey", "") != "Session":
                         continue
-
                     session_id = session.get("identifier", "")
                     if session_id == "":
                         continue
-
                     session_id_to_assets[session_id].append(asset)
-            sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
 
+            sorted_session_id_to_assets = dict(sorted(session_id_to_assets.items(), key=lambda item: item[0]))
             session_converters = [
                 SessionConverter(
                     session_id=session_id,
@@ -147,7 +144,6 @@ class DatasetConverter(BaseConverter):
                 identifier="RemoteInitializationFailure", traceback=traceback.format_exc()
             )
             _internal_notifications = [notification]
-
             dataset_converter = cls(session_converters=[], dataset_description=None, run_config=run_config)
 
         dataset_converter._internal_notifications = _internal_notifications
@@ -169,16 +165,15 @@ class DatasetConverter(BaseConverter):
             An iterable of NWB file paths and directories containing NWB files.
         run_config : RunConfig, optional
             The configuration for this conversion run.
-
         Returns
         -------
         An instance of DatasetConverter.
         """
         try:
             session_converters = SessionConverter.from_nwb_paths(nwb_paths=nwb_paths, run_config=run_config)
-
             dataset_description = None
             additional_metadata_file_path = run_config.additional_metadata_file_path
+
             if additional_metadata_file_path is not None:
                 dataset_description = DatasetDescription.from_file_path(file_path=additional_metadata_file_path)
 
@@ -208,6 +203,7 @@ class DatasetConverter(BaseConverter):
             sessions_needing_metadata = [sc for sc in self.session_converters if sc.session_metadata is None]
             if not sessions_needing_metadata:
                 return
+
             collections.deque(
                 (
                     session_converter.extract_metadata()
@@ -245,7 +241,13 @@ class DatasetConverter(BaseConverter):
 
         participant_session_counts: collections.Counter = collections.Counter()
         for session_converter in self.session_converters:
-            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
+            session_metadata = session_converter.session_metadata
+            if session_metadata is None:
+                continue
+            sanitization = session_metadata.sanitization
+            if sanitization is None:
+                continue
+            participant_id = sanitization.sanitized_participant_id
             participant_session_counts[participant_id] += 1
 
         total_subjects = len(participant_session_counts)
@@ -253,12 +255,15 @@ class DatasetConverter(BaseConverter):
             return
 
         subjects_with_multiple_sessions = sum(1 for count in participant_session_counts.values() if count > 1)
-
-        # If the majority of subjects have multiple sessions, use ses- for the entire dataset
         use_labels_globally = (subjects_with_multiple_sessions / total_subjects) > 0.5
-
         for session_converter in self.session_converters:
-            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
+            session_metadata = session_converter.session_metadata
+            if session_metadata is None:
+                continue
+            sanitization = session_metadata.sanitization
+            if sanitization is None:
+                continue
+            participant_id = sanitization.sanitized_participant_id
             session_converter.use_session_labels = participant_session_counts[participant_id] > 1 or use_labels_globally
 
     def convert_to_bids_dataset(self) -> None:
@@ -282,7 +287,6 @@ class DatasetConverter(BaseConverter):
 
             # Determine which sessions should use ses- labels (requires metadata for participant IDs)
             self._set_use_session_labels()
-
             for session_converter in tqdm(
                 self.session_converters,
                 desc="Converting sessions",
@@ -316,12 +320,12 @@ class DatasetConverter(BaseConverter):
             return
 
         bidsignore_file_path = self.run_config.bids_directory / ".bidsignore"
-
         entry = "dandiset.yaml"
         if bidsignore_file_path.exists():
             existing_lines = {line.strip() for line in bidsignore_file_path.read_text().splitlines()}
             if entry in existing_lines:
                 return
+
         with bidsignore_file_path.open(mode="a") as file_stream:
             file_stream.write(entry + "\n")
 
@@ -329,22 +333,21 @@ class DatasetConverter(BaseConverter):
         """Write the `dataset_description.json` file."""
         if self.dataset_description is None:
             self.dataset_description = DatasetDescription(BIDSVersion="1.10.1", HEDVersion="8.3.0")
-
         if self._is_derivative:
             self.dataset_description.DatasetType = "derivative"
 
         dataset_description_dictionary = self.dataset_description.model_dump()
-
         dataset_description_file_path = self.run_config.bids_directory / "dataset_description.json"
         with dataset_description_file_path.open(mode="w") as file_stream:
             json.dump(obj=dataset_description_dictionary, fp=file_stream, indent=4)
 
     def write_participants_metadata(self) -> None:
         """Write the `participants.tsv` and `participants.json` files."""
-        model_dump_per_session = []
-        for session_converter in self.session_converters:
-            model_dump = session_converter.session_metadata.participant.model_dump()
-            model_dump_per_session.append(model_dump)
+        model_dump_per_session = [
+            sc.session_metadata.participant.model_dump()
+            for sc in self.session_converters
+            if sc.session_metadata is not None
+        ]
 
         full_participants_data_frame = pandas.DataFrame.from_records(
             data=[
@@ -352,7 +355,6 @@ class DatasetConverter(BaseConverter):
                 for model_dump in model_dump_per_session
             ]
         ).astype("string")
-
         if full_participants_data_frame.empty:
             return
 
@@ -373,12 +375,20 @@ class DatasetConverter(BaseConverter):
         original_participant_id_values = deduplicated_data_frame["participant_id"].copy()
 
         # Apply sanitization
-        sanitizations = [converter.session_metadata.sanitization for converter in self.session_converters]
+        sanitizations = []
+        for converter in self.session_converters:
+            session_metadata = converter.session_metadata
+            if session_metadata is None:
+                continue
+            sanitization = session_metadata.sanitization
+            if sanitization is None:
+                continue
+            sanitizations.append(sanitization)
+
         sanitized_participant_ids = {
             sanitization.original_participant_id: sanitization.sanitized_participant_id
             for sanitization in sanitizations
         }
-
         with pandas.option_context("mode.chained_assignment", None):
             deduplicated_data_frame["participant_id"] = (
                 deduplicated_data_frame["participant_id"]
@@ -404,7 +414,6 @@ class DatasetConverter(BaseConverter):
                     "string"
                 ),
             )
-
         is_field_in_table = {field: True for field in participants_data_frame.keys()}
 
         # BIDS Validator is strict regarding column order
@@ -423,10 +432,10 @@ class DatasetConverter(BaseConverter):
         participants_data_frame.to_csv(
             path_or_buf=participants_tsv_file_path, mode="w", index=False, sep="\t", columns=column_order
         )
-
         if len(self.session_converters) > 0:
             is_field_in_table = {field: True for field in participants_data_frame.keys()}
-            participants_schema = self.session_converters[0].session_metadata.participant.model_json_schema()
+            example_participant = self.session_converters[0].session_metadata.participant  # type: ignore[union-attr]
+            participants_schema = example_participant.model_json_schema()
             participants_json = {
                 field: info["description"]
                 for field, info in participants_schema["properties"].items()
@@ -450,28 +459,40 @@ class DatasetConverter(BaseConverter):
         participant_id_to_sessions = collections.defaultdict(list)
         participant_id_to_use_session_labels = {}
         for session_converter in self.session_converters:
-            participant_id = session_converter.session_metadata.sanitization.sanitized_participant_id
-            participant_id_to_sessions[participant_id].append(session_converter.session_metadata)
+            session_metadata = session_converter.session_metadata
+            if session_metadata is None:
+                continue
+            sanitization = session_metadata.sanitization
+            if sanitization is None:
+                continue
+            participant_id = sanitization.sanitized_participant_id
+            participant_id_to_sessions[participant_id].append(session_metadata)
             participant_id_to_use_session_labels[participant_id] = session_converter.use_session_labels
+
+        sanitization_config = None
+        for sc in self.session_converters:
+            session_metadata = sc.session_metadata
+            if session_metadata is None:
+                continue
+            sanitization = session_metadata.sanitization
+            if sanitization is None:
+                continue
+            sanitization_config = sanitization.sanitization_config
+            break
 
         # TODO: expand beyond just session_id field (mainly via additional metadata)
         sessions_schema = BidsSessionMetadata.model_json_schema()
         sessions_json = {"session_id": sessions_schema["properties"]["session_id"]["description"]}
-
-        # Check if session ID sanitization is enabled
-        sanitization_config = (
-            self.session_converters[0].session_metadata.sanitization.sanitization_config
-            if len(self.session_converters) != 0
-            else None
-        )
         if sanitization_config is not None and sanitization_config.ses_labels:
             sessions_json["original_session_id"] = "The original session identifier before sanitization."
-
         for participant_id, sessions_metadata in participant_id_to_sessions.items():
             sanitized_participant_id = participant_id
-            sanitized_session_ids = [
-                session_metadata.sanitization.sanitized_session_id for session_metadata in sessions_metadata
-            ]
+            sanitized_session_ids = []
+            for session_metadata in sessions_metadata:
+                sanitization = session_metadata.sanitization
+                if sanitization is None:
+                    continue
+                sanitized_session_ids.append(sanitization.sanitized_session_id)
 
             subject_directory = self.run_config.bids_directory / f"sub-{sanitized_participant_id}"
             subject_directory.mkdir(exist_ok=True)
@@ -487,20 +508,21 @@ class DatasetConverter(BaseConverter):
 
             # Add original_session_id column if ses_labels sanitization is enabled
             if sanitization_config is not None and sanitization_config.ses_labels:
-                original_session_ids = [
-                    session_metadata.sanitization.original_session_id for session_metadata in sessions_metadata
-                ]
+                original_session_ids = []
+                for session_metadata in sessions_metadata:
+                    sanitization = session_metadata.sanitization
+                    if sanitization is None:
+                        continue
+                    original_session_ids.append(sanitization.original_session_id)
                 sessions_data_frame["original_session_id"] = pandas.Series(
                     [f"ses-{session_id}" for session_id in original_session_ids]
                 ).astype("string")
 
             session_tsv_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.tsv"
             sessions_data_frame.to_csv(path_or_buf=session_tsv_file_path, mode="w", index=False, sep="\t")
-
             session_json_file_path = subject_directory / f"sub-{sanitized_participant_id}_sessions.json"
             with session_json_file_path.open(mode="w") as file_stream:
                 json.dump(obj=sessions_json, fp=file_stream, indent=4)
-
             for session_id in sanitized_session_ids:
                 session_directory = subject_directory / f"ses-{session_id}"
                 session_directory.mkdir(exist_ok=True)

@@ -1,3 +1,61 @@
+# v0.13.0 (Tue Apr 21 2026)
+
+#### 🚀 Enhancement
+
+- Added error cases for `_validate_bids_directory` [#394](https://github.com/con/nwb2bids/pull/394) ([@candleindark](https://github.com/candleindark) [@Copilot](https://github.com/Copilot) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Write units-only datasets as BIDS derivatives [#384](https://github.com/con/nwb2bids/pull/384) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Omit `ses-` labels for single-session experiments [#351](https://github.com/con/nwb2bids/pull/351) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Added `--probe` flag to CLI with ProbeInterface lookup support [#349](https://github.com/con/nwb2bids/pull/349) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Added tqdm progress bars to conversion pipeline [#350](https://github.com/con/nwb2bids/pull/350) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### 🐛 Bug Fix
+
+- Serialize numpy array-valued TSV columns as JSON strings [#382](https://github.com/con/nwb2bids/pull/382) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+- Added fallback name/id if metadata not populated [#380](https://github.com/con/nwb2bids/pull/380) ([@asmacdo](https://github.com/asmacdo) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed author extraction for dandisets without dcite:Author role [#378](https://github.com/con/nwb2bids/pull/378) ([@yarikoptic](https://github.com/yarikoptic) [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### ⚠️ Pushed to `main`
+
+- Update CLAUDE.md to include Copilot instructions ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🏠 Internal
+
+- Simplify pyproject [#393](https://github.com/con/nwb2bids/pull/393) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed more mypy errors [6] [#392](https://github.com/con/nwb2bids/pull/392) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed more mypy errors [5] [#391](https://github.com/con/nwb2bids/pull/391) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed more mypy errors [4] [#390](https://github.com/con/nwb2bids/pull/390) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed more mypy errors [3] [#389](https://github.com/con/nwb2bids/pull/389) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed more mypy errors [2] [#387](https://github.com/con/nwb2bids/pull/387) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed more mypy errors [1] [#386](https://github.com/con/nwb2bids/pull/386) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Persisted agent memory facts to copilot-instructions.md [#377](https://github.com/con/nwb2bids/pull/377) ([@Copilot](https://github.com/Copilot))
+- Added Copilot instructions to enforce past tense PR titles [#366](https://github.com/con/nwb2bids/pull/366) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Fixed label requirements check with nuanced rules [#364](https://github.com/con/nwb2bids/pull/364) ([@Copilot](https://github.com/Copilot))
+
+#### 📝 Documentation
+
+- Added .claude/CLAUDE.md with project conventions pointer [#374](https://github.com/con/nwb2bids/pull/374) ([@yarikoptic](https://github.com/yarikoptic) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Separated doc link checker from daily tests [#369](https://github.com/con/nwb2bids/pull/369) ([@Copilot](https://github.com/Copilot) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Added final notes about labels [#362](https://github.com/con/nwb2bids/pull/362) ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🧪 Tests
+
+- Fix up testing against DataLad on Windows [#341](https://github.com/con/nwb2bids/pull/341) ([@yarikoptic](https://github.com/yarikoptic) [@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+
+#### 🔩 Dependency Updates
+
+- [pre-commit.ci] pre-commit autoupdate [#371](https://github.com/con/nwb2bids/pull/371) ([@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot]))
+
+#### Authors: 6
+
+- [@Copilot](https://github.com/Copilot)
+- [@pre-commit-ci[bot]](https://github.com/pre-commit-ci[bot])
+- Austin Macdonald ([@asmacdo](https://github.com/asmacdo))
+- Cody Baker ([@CodyCBakerPhD](https://github.com/CodyCBakerPhD))
+- Isaac To ([@candleindark](https://github.com/candleindark))
+- Yaroslav Halchenko ([@yarikoptic](https://github.com/yarikoptic))
+
+---
+
 # v0.12.0 (Thu Mar 19 2026)
 
 #### 🚀 Enhancement

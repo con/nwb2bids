@@ -136,7 +136,7 @@ def _nwb2bids_cli():
 def _run_convert_nwb_dataset(
     nwb_paths: tuple[str, ...],
     bids_directory: str | None = None,
-    sanitization: tuple[typing.Literal["sub-labels", "ses-labels"]] = (),
+    sanitization: tuple[typing.Literal["sub-labels", "ses-labels"], ...] = (),
     additional_metadata_file_path: str | None = None,
     file_mode: typing.Literal["copy", "move", "symlink", "auto"] = "auto",
     cache_directory: str | None = None,
@@ -159,11 +159,12 @@ def _run_convert_nwb_dataset(
     if len(nwb_paths) == 0:
         message = "Please provide at least one NWB file or directory to convert."
         raise ValueError(message)
+
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
-    # Convert CLI args to snake_case
+
     sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
 
-    run_config_kwargs = {
+    run_config_kwargs: dict[str, typing.Any] = {
         "bids_directory": bids_directory,
         "additional_metadata_file_path": additional_metadata_file_path,
         "file_mode": file_mode,
@@ -177,7 +178,6 @@ def _run_convert_nwb_dataset(
         "silent": silent,
     }
 
-    # Filter out values that indicate absence of direct user input or signal to use default
     non_missing_run_config_kwargs = {
         key: value
         for key, value in run_config_kwargs.items()
@@ -196,6 +196,7 @@ def _run_convert_nwb_dataset(
     notifications_by_severity: dict[Severity, list[Notification]] = collections.defaultdict(list)
     for notification in notifications:
         notifications_by_severity[notification.severity].append(notification)
+
     notif_text = f"\n\nPlease review the full notifications report at {run_config.notifications_json_file_path}\n"
 
     errors = notifications_by_severity[Severity.ERROR]
@@ -203,7 +204,6 @@ def _run_convert_nwb_dataset(
 
     if errors:
         number_of_errors = len(errors)
-
         top_three = errors[:3]
         number_to_print = len(top_three)
 
@@ -213,14 +213,15 @@ def _run_convert_nwb_dataset(
             "encountered during conversion.\n"
         )
         error_text = "".join(f"\n\t- {error.reason}" for error in top_three)
+
         if number_to_print > 1 and number_of_errors > 3:
             counting_text = f"The first {number_to_print} of {number_of_errors} are shown below:"
         elif number_to_print >= 2:
             counting_text = f"The first {number_to_print} are shown below:"
         else:
             counting_text = "The error is shown below:"
-        text += f"{counting_text}\n\n{error_text}{notif_text}"
 
+        text += f"{counting_text}\n\n{error_text}{notif_text}"
         console_notification = rich_click.style(text=text, fg="red")
         rich_click.echo(message=console_notification)
         return
@@ -241,12 +242,12 @@ def _run_convert_nwb_dataset(
     text = "\nBIDS dataset was successfully created!\n"
     if notifications:
         number_of_notifications = len(notifications)
-
         text += (
             f'{number_of_notifications} {_pluralize(n=number_of_notifications, phrase="suggestion")} for improvement '
             f'{_pluralize(n=number_of_notifications, phrase="was", plural="were")} found during conversion.'
             f"{sanitization_text}{notif_text}"
         )
+
     console_notification = rich_click.style(text=text, fg="green")
     rich_click.echo(message=console_notification)
 
@@ -284,7 +285,8 @@ def _nwb2bids_tutorial_ephys_file_cli(
     output_directory: str | None = None,
     modality: typing.Literal["ecephys", "icephys"] = "ecephys",
 ) -> None:
-    file_path = generate_ephys_tutorial(output_directory=output_directory, mode="file", modality=modality)
+    handled_output_directory = pathlib.Path(output_directory) if output_directory else None
+    file_path = generate_ephys_tutorial(mode="file", output_directory=handled_output_directory, modality=modality)
 
     text = f"\nAn example NWB file has been created at: {file_path}\n\n"
     message = rich_click.style(text=text, fg="green")
@@ -312,7 +314,10 @@ def _nwb2bids_tutorial_ephys_dataset_cli(
     output_directory: str | None = None,
     modality: typing.Literal["ecephys", "icephys"] = "ecephys",
 ) -> None:
-    tutorial_directory = generate_ephys_tutorial(output_directory=output_directory, mode="dataset", modality=modality)
+    handled_output_directory = pathlib.Path(output_directory) if output_directory else None
+    tutorial_directory = generate_ephys_tutorial(
+        mode="dataset", output_directory=handled_output_directory, modality=modality
+    )
 
     text = f"\nAn example NWB dataset has been created at: {tutorial_directory}\n\n"
     message = rich_click.style(text=text, fg="green")
