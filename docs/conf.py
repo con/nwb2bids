@@ -38,6 +38,9 @@ html_theme_options = {
     "logo": {
         "image_light": "assets/nwb2bids-black.svg",
         "image_dark": "assets/nwb2bids-white.svg",
+    },
+    "analytics": {
+        "google_analytics_id": "G-KS7XCX3H2L",
     }
 }
 
