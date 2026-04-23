@@ -1,3 +1,6 @@
+// Disable Google Analytics until consent
+window['ga-disable-G-XXXXXXXXXX'] = true;
+
 // Load the library from CDN
 (function() {
     const script = document.createElement('script');
