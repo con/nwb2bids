@@ -90,6 +90,7 @@ docs = [
     "myst-parser",
     "pytest",  # For running doc tests
     "sybil",  # For testing code blocks in docs
+    "sphinxcontrib-googleanalytics",
 ]
 dev-all = [
     {include-group = "type-stubs"},
