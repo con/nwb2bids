@@ -25,7 +25,7 @@ extensions = [
     "sphinx_toggleprompt",  # Used to control >>> behavior in the doctests
     "myst_parser",  # For including Markdown files to be rendered as RST
     "tsv_directive",  # Custom directive for TSV table rendering
-    "sphinxcontrib.googleanalytics", 
+    "sphinxcontrib.googleanalytics",
 ]
 
 # HTML configuration
