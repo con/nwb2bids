@@ -71,6 +71,7 @@ python_maximum_signature_line_length = 88
 linkcheck_anchors = False
 linkcheck_ignore = [
     "https://zenodo.org/*",  # Getting 403 even though link is fine as of 03/2026
+    "https://www.biorxiv.org/*",  # Started giving 403 as of 04/2026
 ]
 
 # Disable left (Section Navigation) sidebars for specific sections
@@ -141,5 +142,5 @@ def remove_section_nav(app, pagename, templatename, context, doctree) -> None:
             context["sidebars"] = [sidebar for sidebar in context.get("sidebars", []) if sidebar != "sidebar-secondary"]
 
 # Google analytics
-googleanalytics_id = 'G-XXXXXXXXXX'
+googleanalytics_id = 'G-KS7XCX3H2L'
 googleanalytics_enabled = True
