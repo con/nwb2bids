@@ -18,7 +18,7 @@ function initCookieConsent() {
         current_lang: 'en',
         autoclear_cookies: true,
         cookie_name: 'cc_cookie',
-        
+
         gui_options: {
             consent_modal: {
                 layout: 'cloud',
