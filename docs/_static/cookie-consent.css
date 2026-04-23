@@ -1,0 +1,51 @@
+/* ==========================================================================
+   Cookie Consent — custom styling to match RTD themes
+   ========================================================================== */
+
+:root {
+    --cc-bg: #ffffff;
+    --cc-text: #2c2f36;
+    --cc-btn-primary-bg: #2980b9;
+    --cc-btn-primary-text: #ffffff;
+    --cc-btn-primary-hover-bg: #1e6fa2;
+    --cc-btn-secondary-bg: #eaeff2;
+    --cc-btn-secondary-text: #2c2f36;
+    --cc-btn-secondary-hover-bg: #d4dae0;
+    --cc-toggle-bg-off: #919ea6;
+    --cc-toggle-bg-on: #2980b9;
+    --cc-toggle-bg-readonly: #d5dee2;
+    --cc-toggle-knob-bg: #ffffff;
+    --cc-toggle-knob-icon-color: #ecf2fa;
+    --cc-cookie-category-block-bg: #f0f4f7;
+    --cc-cookie-category-block-bg-hover: #e9eff4;
+    --cc-section-border: #f1f3f5;
+    --cc-cookie-table-border: #e9edf2;
+    --cc-overlay-bg: rgba(0, 0, 0, 0.65);
+    --cc-webkit-scrollbar-bg: #cfd5db;
+    --cc-webkit-scrollbar-bg-hover: #9199a0;
+}
+
+/* Dark mode support (works with Furo theme, etc.) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --cc-bg: #1a1d21;
+        --cc-text: #e4e7eb;
+        --cc-btn-secondary-bg: #2a2f36;
+        --cc-btn-secondary-text: #e4e7eb;
+        --cc-btn-secondary-hover-bg: #353b43;
+        --cc-cookie-category-block-bg: #22262c;
+        --cc-cookie-category-block-bg-hover: #2a2f36;
+        --cc-section-border: #2a2f36;
+        --cc-cookie-table-border: #2a2f36;
+    }
+}
+
+/* Slight position tweak so it doesn't overlap RTD flyout menu */
+#cc_div .cc_div .c-bn {
+    border-radius: 4px;
+}
+
+/* Ensure consent modal stays above RTD's versions widget */
+#cm, #s-cnt {
+    z-index: 10000 !important;
+}
