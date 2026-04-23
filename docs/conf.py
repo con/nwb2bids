@@ -40,8 +40,6 @@ html_theme_options = {
         "image_light": "assets/nwb2bids-black.svg",
         "image_dark": "assets/nwb2bids-white.svg",
     },
-    'analytics_id': 'G-KS7XCX3H2L',
-    'analytics_anonymize_ip': True,
 }
 
 html_context = {
