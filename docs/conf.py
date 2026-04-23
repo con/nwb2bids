@@ -52,7 +52,17 @@ html_context = {
 }
 
 html_static_path = ["_static"]
-html_css_files = ["custom.css"]
+html_css_files = [
+    "custom.css",
+    "https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.css",
+]
+html_js_files = [
+    # Must load BEFORE sphinxcontrib-googleanalytics injects gtag
+    ('ga-consent-init.js', {'priority': 100}),
+    ('https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.umd.js',
+     {'defer': 'defer'}),
+    ('cookie-consent.js', {'defer': 'defer'}),
+]
 
 # Format signatures for better readability
 autodoc_typehints = "signature"
