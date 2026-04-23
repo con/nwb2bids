@@ -52,7 +52,7 @@ html_context = {
 }
 
 html_static_path = ["_static"]
-html_css_files = ["custom.css"]
+html_css_files = ["custom.css", "cookie-consent.css"]
 html_js_files = ["cookie-consent.js"]
 
 # Format signatures for better readability
