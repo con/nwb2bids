@@ -78,6 +78,13 @@ def test_initialize_sessions_progress_bar_output_visible_in_stderr(
 
     def capturing_tqdm(iterable, **kwargs):
         kwargs["file"] = buffer
+        # Force ASCII bar fill so the captured output is deterministic. Without this,
+        # tqdm picks the bar glyph from the stream's encoding via _supports_unicode();
+        # an io.StringIO() has no .encoding attribute, and recent tqdm versions treat
+        # that as unicode-capable (rendering U+2588 blocks) instead of falling back to
+        # "#". Pinning ascii=True keeps the golden files valid across tqdm versions and
+        # locales without changing the bar users actually see in a real terminal.
+        kwargs.setdefault("ascii", True)
         return real_tqdm(iterable, **kwargs)
 
     with patch("nwb2bids._converters._session_converter.tqdm", side_effect=capturing_tqdm):
@@ -192,6 +199,13 @@ def test_progress_bar_output_visible_in_stderr(
 
     def capturing_tqdm(iterable, **kwargs):
         kwargs["file"] = buffer
+        # Force ASCII bar fill so the captured output is deterministic. Without this,
+        # tqdm picks the bar glyph from the stream's encoding via _supports_unicode();
+        # an io.StringIO() has no .encoding attribute, and recent tqdm versions treat
+        # that as unicode-capable (rendering U+2588 blocks) instead of falling back to
+        # "#". Pinning ascii=True keeps the golden files valid across tqdm versions and
+        # locales without changing the bar users actually see in a real terminal.
+        kwargs.setdefault("ascii", True)
         return real_tqdm(iterable, **kwargs)
 
     with patch("nwb2bids._converters._dataset_converter.tqdm", side_effect=capturing_tqdm):
@@ -218,6 +232,13 @@ def test_progress_bar_no_output_when_disabled(
 
     def capturing_tqdm(iterable, **kwargs):
         kwargs["file"] = buffer
+        # Force ASCII bar fill so the captured output is deterministic. Without this,
+        # tqdm picks the bar glyph from the stream's encoding via _supports_unicode();
+        # an io.StringIO() has no .encoding attribute, and recent tqdm versions treat
+        # that as unicode-capable (rendering U+2588 blocks) instead of falling back to
+        # "#". Pinning ascii=True keeps the golden files valid across tqdm versions and
+        # locales without changing the bar users actually see in a real terminal.
+        kwargs.setdefault("ascii", True)
         return real_tqdm(iterable, **kwargs)
 
     with patch("nwb2bids._converters._dataset_converter.tqdm", side_effect=capturing_tqdm):
@@ -250,6 +271,13 @@ def test_full_workflow_progress_bar_output(
 
     def capturing_tqdm(iterable, **kwargs):
         kwargs["file"] = buffer
+        # Force ASCII bar fill so the captured output is deterministic. Without this,
+        # tqdm picks the bar glyph from the stream's encoding via _supports_unicode();
+        # an io.StringIO() has no .encoding attribute, and recent tqdm versions treat
+        # that as unicode-capable (rendering U+2588 blocks) instead of falling back to
+        # "#". Pinning ascii=True keeps the golden files valid across tqdm versions and
+        # locales without changing the bar users actually see in a real terminal.
+        kwargs.setdefault("ascii", True)
         return real_tqdm(iterable, **kwargs)
 
     with (
