@@ -33,7 +33,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Generate App Token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.AUTO_APP_ID }}
           private-key: ${{ secrets.AUTO_APP_PRIVATE_KEY }}
