@@ -18,5 +18,5 @@ jobs:
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "Major version label applied to nwb2bids PR #${{ github.event.pull_request.number }}"
           to: cody.c.baker.phd@gmail.com
-          from: nwb2bids
+          from: nwb2bids <nwb2bids@users.noreply.github.com>
           body: "The 'major' label has been applied to PR #${{ github.event.pull_request.number }} ('${{ github.event.pull_request.title }}') in the nwb2bids project. Please review at ${{ github.event.pull_request.html_url }}"
