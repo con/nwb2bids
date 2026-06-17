@@ -32,7 +32,7 @@ jobs:
     if: ${{ always() && needs.DocLinkCheck.result == 'failure' }}
     permissions: {}
     steps:
-      - uses: dawidd6/action-send-mail@v3
+      - uses: dawidd6/action-send-mail@v17
         with:
           server_address: smtp.gmail.com
           server_port: 465
@@ -40,5 +40,5 @@ jobs:
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "CI Failure: nwb2bids Daily Doc Link Check"
           to: cody.c.baker.phd@gmail.com  # Add more with comma separation (no spaces)
-          from: nwb2bids
+          from: nwb2bids <nwb2bids@users.noreply.github.com>
           body: "The daily doc link check workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/daily_doc_link_check.yml"
