@@ -8,3 +8,5 @@ updates:
       - "CodyCBakerPhD"
     assignees:
       - "CodyCBakerPhD"
+    labels:
+      - dependencies
