@@ -32,5 +32,5 @@ jobs:
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "CI Failure: nwb2bids Daily Tests (Remote)"
           to: cody.c.baker.phd@gmail.com  # Add more with comma separation (no spaces)
-          from: nwb2bids
+          from: nwb2bids <nwb2bids@users.noreply.github.com>
           body: "The daily tests (remote) workflow failed, please check status at https://github.com/con/nwb2bids/actions/workflows/daily_remote_tests.yml"
