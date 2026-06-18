@@ -6,13 +6,17 @@ on:
     workflows: [Upload Package to PyPI]
     types: [completed]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   release-image:
     name: Build and upload Docker image of dev branch to GHCR
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Parse the version from the GitHub latest release tag
         id: parsed_version
         run: |
