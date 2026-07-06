@@ -30,10 +30,14 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
     assert dataset_converter.run_config.notifications_json_file_path.exists()
     with dataset_converter.run_config.notifications_json_file_path.open(mode="r") as file_stream:
         notifications_json = json.load(fp=file_stream)
+    assert "nwb2bids_version" in notifications_json
+    assert "run_id" in notifications_json
+    assert notifications_json["run_id"] == run_config.run_id
     str_nwb_paths = [str(path) for path in nwb_paths]
-    expected_notification_json = [
+    expected_notification_entries = [
         {
             "category": "SCHEMA_INVALIDATION",
+            "count": 1,
             "data_standards": ["DANDI"],
             "examples": None,
             "field": "nwbfile.subject.species",
@@ -48,6 +52,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
         },
         {
             "category": "STYLE_SUGGESTION",
+            "count": 1,
             "data_standards": ["BIDS", "DANDI"],
             "examples": ["`ab_01` -> `ab+01`", "`subject #2` -> `subject+2`", "`id 2 from 9/1/25` -> `id+2+9+1+25`"],
             "field": "nwbfile.subject.subject_id",
@@ -64,6 +69,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
         },
         {
             "category": "STYLE_SUGGESTION",
+            "count": 1,
             "data_standards": ["BIDS"],
             "examples": ["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
             "field": "nwbfile.subject.sex",
@@ -77,6 +83,7 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
         },
         {
             "category": "STYLE_SUGGESTION",
+            "count": 1,
             "data_standards": ["DANDI"],
             "examples": ["`male` -> `M`", "`Female` -> `F`", "`n/a` -> `U`", "`hermaphrodite` -> `O`"],
             "field": "nwbfile.subject.sex",
@@ -89,7 +96,19 @@ def test_notifications_1(problematic_nwbfile_path_1: pathlib.Path, temporary_bid
             "title": "Invalid participant sex (archives)",
         },
     ]
-    assert notifications_json == expected_notification_json
+    assert notifications_json["notifications"] == expected_notification_entries
+
+    assert dataset_converter.run_config.notifications_file_path.exists()
+    notifications_text = dataset_converter.run_config.notifications_file_path.read_text()
+    assert "nwb2bids Inspection Report" in notifications_text
+    assert run_config.run_id in notifications_text
+    assert "Invalid species" in notifications_text
+    assert "Invalid participant ID" in notifications_text
+    # Verify each notification type appears exactly once (aggregated) in the text output
+    assert notifications_text.count("Invalid species") == 1
+    assert notifications_text.count("Invalid participant ID") == 1
+    # Each has 1 occurrence
+    assert "1 occurrence" in notifications_text
 
 
 def test_notifications_2(problematic_nwbfile_path_2: pathlib.Path, temporary_bids_directory: pathlib.Path) -> None:
