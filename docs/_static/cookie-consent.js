@@ -25,6 +25,13 @@ document.addEventListener('DOMContentLoaded', function () {
                                 gtag('consent', 'update', {
                                     analytics_storage: 'granted'
                                 });
+                                // gtag already processed its config while GA
+                                // was disabled, dropping the initial
+                                // page_view — re-send it exactly once.
+                                if (window['nwb2bids-ga-pageview-suppressed']) {
+                                    window['nwb2bids-ga-pageview-suppressed'] = false;
+                                    gtag('event', 'page_view');
+                                }
                             }
                         },
                         onReject: () => {
