@@ -25,7 +25,6 @@ extensions = [
     "sphinx_toggleprompt",  # Used to control >>> behavior in the doctests
     "myst_parser",  # For including Markdown files to be rendered as RST
     "tsv_directive",  # Custom directive for TSV table rendering
-    "sphinxcontrib.googleanalytics",
 ]
 
 # HTML configuration
@@ -52,14 +51,6 @@ html_context = {
 html_static_path = ["_static"]
 html_css_files = [
     "custom.css",
-    "https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.css",
-]
-html_js_files = [
-    # Must load BEFORE sphinxcontrib-googleanalytics injects gtag
-    ('ga-consent-init.js', {'priority': 100}),
-    ('https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.umd.js',
-     {'defer': 'defer'}),
-    ('cookie-consent.js', {'defer': 'defer'}),
 ]
 
 # Format signatures for better readability
@@ -140,7 +131,3 @@ def remove_section_nav(app, pagename, templatename, context, doctree) -> None:
         if len(sections) <= 1:
             # Remove the 'sidebar-secondary' if it exists
             context["sidebars"] = [sidebar for sidebar in context.get("sidebars", []) if sidebar != "sidebar-secondary"]
-
-# Google analytics
-googleanalytics_id = 'G-KS7XCX3H2L'
-googleanalytics_enabled = True
