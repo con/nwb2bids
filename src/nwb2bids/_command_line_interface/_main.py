@@ -162,14 +162,11 @@ def _run_convert_nwb_dataset(
 
     handled_nwb_paths = [pathlib.Path(nwb_path) for nwb_path in nwb_paths]
 
-    sanitization_config = SanitizationConfig(**{value.replace("-", "_"): True for value in sanitization})
-
     run_config_kwargs: dict[str, typing.Any] = {
         "bids_directory": bids_directory,
         "additional_metadata_file_path": additional_metadata_file_path,
         "file_mode": file_mode,
         "cache_directory": cache_directory,
-        "sanitization_config": sanitization_config,
         "run_id": run_id,
         "space": space,
         "archive_target": archive_target,
@@ -178,6 +175,13 @@ def _run_convert_nwb_dataset(
         "silent": silent,
     }
 
+    # Only include sanitization_config when the user explicitly passed --sanitization flags,
+    # so that dotenv-file defaults for sanitization are not silently overridden.
+    if sanitization:
+        run_config_kwargs["sanitization_config"] = SanitizationConfig(
+            **{value.replace("-", "_"): True for value in sanitization}
+        )
+
     non_missing_run_config_kwargs = {
         key: value
         for key, value in run_config_kwargs.items()
@@ -185,7 +189,10 @@ def _run_convert_nwb_dataset(
         or (key == "file_mode" and value != "auto")
         or (key == "use_session_labels" and value is not False)
     }
-    run_config = RunConfig(**non_missing_run_config_kwargs)
+    run_config = RunConfig.from_dotenv_files(**non_missing_run_config_kwargs)
+
+    # Capture the resolved sanitization config for the summary output below.
+    sanitization_config = run_config.sanitization_config
 
     dataset_converter = convert_nwb_dataset(nwb_paths=handled_nwb_paths, run_config=run_config)
 

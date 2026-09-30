@@ -32,6 +32,7 @@ license = {file = "LICENSE.txt"}
 requires-python = ">=3.10"
 dependencies = [
     "pandas",
+    "python-dotenv",
     "pynwb",
     "requests",
     "rich-click",
