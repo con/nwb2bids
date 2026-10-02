@@ -4,6 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "quarterly"
+    rebase-strategy: "disabled"
     reviewers:
       - "CodyCBakerPhD"
     assignees:
