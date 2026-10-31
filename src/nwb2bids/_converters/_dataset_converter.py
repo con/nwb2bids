@@ -12,7 +12,7 @@ from ._run_config import RunConfig
 from ._session_converter import SessionConverter
 from .._converters._base_converter import BaseConverter
 from ..bids_models import BidsSessionMetadata, DatasetDescription
-from ..notifications import Notification
+from ..notifications import Notification, NotificationSummary
 
 
 class DatasetConverter(BaseConverter):
@@ -307,9 +307,12 @@ class DatasetConverter(BaseConverter):
         finally:
             self.run_config.bids_directory.mkdir(exist_ok=True)  # Just in case it failed to create earlier
             self.run_config._nwb2bids_directory.mkdir(exist_ok=True)
-
-            notifications_dump = [notification.model_dump(mode="json") for notification in self.notifications]
-            self.run_config.notifications_json_file_path.write_text(data=json.dumps(obj=notifications_dump, indent=2))
+            notification_summary = NotificationSummary(
+                notifications=self.notifications,
+                run_id=self.run_config.run_id,
+            )
+            notification_summary.to_file(path=self.run_config.notifications_json_file_path)
+            notification_summary.to_file(path=self.run_config.notifications_file_path)
 
     def write_bidsignore(self) -> None:
         """Write the `.bidsignore` file if an archive target of `"dandi"` or `"ember"` is specified."""
