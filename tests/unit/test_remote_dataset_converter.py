@@ -13,7 +13,7 @@ import nwb2bids
 def test_remote_dataset_converter_initialization(temporary_bids_directory: pathlib.Path):
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
-        dandiset_id="000003", limit=2, run_config=run_config
+        dandiset_id="000003", version_id="0.260218.2052", limit=2, run_config=run_config
     )
     assert not any(dataset_converter.notifications)
 
@@ -24,7 +24,7 @@ def test_remote_dataset_converter_initialization(temporary_bids_directory: pathl
 def test_remote_dataset_converter_metadata_extraction(temporary_bids_directory: pathlib.Path):
     run_config = nwb2bids.RunConfig(bids_directory=temporary_bids_directory)
     dataset_converter = nwb2bids.DatasetConverter.from_remote_dandiset(
-        dandiset_id="000003", limit=2, run_config=run_config
+        dandiset_id="000003", version_id="0.260218.2052", limit=2, run_config=run_config
     )
     dataset_converter.extract_metadata()
     assert len(dataset_converter.notifications) == 4
